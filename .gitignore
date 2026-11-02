@@ -1,0 +1,36 @@
+# secrets and local state
+.env*
+!.env.example
+.dev-refs.md
+.kickoff-state.md
+.prp/
+.claude/worktrees/
+.claude/settings.local.json
+*.pem
+*.key
+credentials*.json
+
+# private from day one (research, outreach, recon notes, review screenshots)
+docs/research/
+docs/outreach/
+docs/recon/
+.review/
+
+# build output and dependencies
+node_modules/
+.next/
+dist/
+build/
+out/
+coverage/
+*.tsbuildinfo
+.turbo/
+
+# local data and rendered media
+tmp/
+*.log
+data/*
+!data/.gitkeep
+media/*
+!media/.gitkeep
+.DS_Store

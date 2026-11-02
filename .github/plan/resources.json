@@ -1,0 +1,11 @@
+{
+  "$comment": "Shared resources a git worktree cannot isolate. Tickets claim them in `resources:` frontmatter. waves.py never puts two tickets claiming the same EXCLUSIVE resource in one batch. BUDGETED resources run in parallel but each worker gets a spend budget from the manager.",
+  "max_workers": 3,
+  "exclusive": {
+    "AIRWALLEX_SANDBOX": "One sandbox account: Airwallex allows only one open TRANSACTION RFI at a time (docs: 'All RFIs for specified type must be in CLOSED status'), balances are shared, and the sandbox allows 10 concurrent requests and 20 requests per second. Tickets that create transfers, RFIs or conversions against it must not run in parallel.",
+    "DEPLOY": "One hosted environment, one database and one webhook subscription: concurrent deploys, migrations or end-to-end runs would race each other."
+  },
+  "budgeted": {
+    "ANTHROPIC": "Model API spend from a $100 grant. Workers iterate on recorded responses and spend real tokens only to prove an acceptance criterion; per-run cap MODEL_PER_RUN_CAP_USD, daily cap MODEL_DAILY_SPEND_CAP_USD."
+  }
+}

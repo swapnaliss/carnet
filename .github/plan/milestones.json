@@ -1,0 +1,8 @@
+[
+  {"title": "M0 · Recon & Bootstrap",   "due": "2026-11-04", "description": "Prerequisites, Airwallex and Anthropic spikes with recorded fixtures, hosting decision, repo, CI, synthetic dataset."},
+  {"title": "M1 · Walking Skeleton",    "due": "2026-11-06", "description": "A thin slice through every layer, deployed: a real sandbox transfer, webhook, worker, UI status."},
+  {"title": "M2 · Evidence to Answer",  "due": "2026-11-09", "description": "Documents, extraction, RFI intake, cited drafts, bound approval, hold screen; the storyboard up to submission runs for real."},
+  {"title": "M3 · Hold-Aware Planning", "due": "2026-11-11", "description": "Planner, auto-FX caps, payouts, follow-up round, payee page; the full demo runs for real."},
+  {"title": "M4 · Governance & Evals",  "due": "2026-11-13", "description": "Audit chain, kill switch, evals, security tests, judge replay mode, load test."},
+  {"title": "M5 · Submission",          "due": "2026-11-14", "description": "README, video, public-tree cleanup, clean-clone gate, submit. 15 Nov is buffer."}
+]

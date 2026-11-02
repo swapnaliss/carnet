@@ -1,0 +1,23 @@
+[
+  {"id": "P-01", "what": "GitHub CLI authenticated as swapnaliss with repo and workflow scopes", "kind": "credential",
+   "needed_by": ["M0-02"], "who": "owner", "how": "gh auth login; gh auth refresh -h github.com -s workflow",
+   "lands_in": "gh keyring", "verify": "gh auth status 2>&1 | grep -q workflow", "required": true},
+  {"id": "P-02", "what": "Docker daemon running", "kind": "tool",
+   "needed_by": ["M0-02"], "who": "owner", "how": "start the Docker daemon",
+   "lands_in": "-", "verify": "docker info >/dev/null 2>&1", "required": true},
+  {"id": "P-03", "what": "Airwallex sandbox API key present in .env (AIRWALLEX_CLIENT_ID and AIRWALLEX_API_KEY; presence only)", "kind": "credential",
+   "needed_by": ["M0-03", "M0-04"], "who": "owner", "how": "sandbox.airwallex.com sign up, then Account > Developer > API keys",
+   "lands_in": ".env AIRWALLEX_CLIENT_ID, AIRWALLEX_API_KEY", "verify": "[ -n \"${AIRWALLEX_CLIENT_ID:+set}\" ] && [ -n \"${AIRWALLEX_API_KEY:+set}\" ]", "required": true},
+  {"id": "P-04", "what": "Anthropic API key present in .env (ANTHROPIC_API_KEY; presence only)", "kind": "credential",
+   "needed_by": ["M0-06"], "who": "owner", "how": "Claude Console organisation > API keys; claim the hackathon credits first",
+   "lands_in": ".env ANTHROPIC_API_KEY", "verify": "[ -n \"${ANTHROPIC_API_KEY:+set}\" ]", "required": true},
+  {"id": "P-05", "what": "Hosting platform decided (Railway, Render or AWS) and account created", "kind": "decision",
+   "needed_by": ["M0-05", "M1-06"], "who": "owner", "how": "decide in M0-07 after checking free tier, database, backups, region, cost",
+   "lands_in": "docs/budget.md and .dev-refs.md", "status": "pending", "required": true},
+  {"id": "P-06", "what": "Airwallex webhook subscription created with a public HTTPS URL; secret in .env (AIRWALLEX_WEBHOOK_SECRET; presence only)", "kind": "credential",
+   "needed_by": ["M0-05", "M1-08"], "who": "owner", "how": "sandbox web app > Settings > Developer > Webhooks; needs the URL from P-05",
+   "lands_in": ".env AIRWALLEX_WEBHOOK_SECRET", "verify": "[ -n \"${AIRWALLEX_WEBHOOK_SECRET:+set}\" ]", "required": true},
+  {"id": "P-07", "what": "Budget ceiling approved by the owner", "kind": "decision",
+   "needed_by": ["M0-GATE"], "who": "owner", "how": "approve docs/budget.md", "lands_in": "docs/budget.md",
+   "status": "pending", "required": true}
+]
