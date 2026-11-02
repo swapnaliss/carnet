@@ -5,7 +5,7 @@ labels: ["recon"]
 blocked_by: ["M0-04", "M0-07"]
 estimate: "3h"
 resources: ["AIRWALLEX_SANDBOX"]
-needs: []
+needs: ["P-03", "P-05", "P-06"]
 ---
 
 ## Context

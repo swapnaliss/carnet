@@ -5,7 +5,7 @@ labels: ["backend", "frontend", "critical"]
 blocked_by: ["M1-04", "M1-05", "M1-06", "M1-07"]
 estimate: "6h"
 resources: ["AIRWALLEX_SANDBOX", "DEPLOY"]
-needs: []
+needs: ["P-03", "P-05", "P-06", "P-10", "P-17"]
 ---
 
 ## Context

@@ -47,8 +47,16 @@ Build to `docs/design/` (design system and hero-screen specs from `M1-07`). Ever
 README, video and deck claim only what a test, an eval or a recorded run shows. Quote verbatim with a source; separate stated from inferred; report unverified Airwallex behaviour as unverified.
 
 ## Standing approvals
-<!-- M0-00 fills this list after the owner confirms; the matching allow rules go into .claude/settings.json -->
-None yet.
+Decided by the owner on 2026-11-02 (M0-00, issue #2). Approved classes are allow rules in `.claude/settings.json`.
+- Merge green PRs to `main` (`gh pr merge --squash`, only after CI and `./scripts/landing-checks.sh` pass)
+- Deploy `main` to the hosting environment chosen in M0-07 (sandbox keys only); the allow rule for the platform's deploy command is added by M0-07 once the host is known
+- Live Airwallex sandbox calls (`api.sandbox.airwallex.com`, never production keys)
+- Anthropic spend within the caps in `docs/budget.md` and `.github/plan/resources.json`
+- `docker` / `docker compose` for the local stack
+- `gh` issue, PR and milestone operations on `swapnaliss/carnet`
+- Budget ceiling approved: $40 cash (hosting), $60 of the $100 model grant; buy nothing else
+
+Not approved (stay on the owner list): making the repo public, submitting, posting to the organisers' Slack, any purchase.
 
 ## `.env` STRICT RULE
 Never read, print, copy, log, commit or paste `.env` or any secret value into tickets, issues, commits, PRs, chat or model context. Presence is checked with `python3 scripts/check-prereqs.py`. Locations (not values) of credentials live in `.dev-refs.md`. `.env.example` lists keys without values.

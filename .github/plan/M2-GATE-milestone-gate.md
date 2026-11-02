@@ -5,7 +5,7 @@ labels: ["gate"]
 blocked_by: ["M2-00", "M2-01", "M2-02", "M2-03", "M2-04", "M2-05", "M2-06", "M2-07", "M2-08", "M2-09"]
 estimate: "1h"
 resources: []
-needs: []
+needs: ["P-03", "P-04", "P-05", "P-06"]
 ---
 
 ## Context
