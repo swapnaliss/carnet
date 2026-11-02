@@ -1,0 +1,55 @@
+name: ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: carnet
+          POSTGRES_PASSWORD: carnet
+          POSTGRES_DB: carnet_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U carnet -d carnet_test" --health-interval 2s
+          --health-timeout 3s --health-retries 30
+    env:
+      TEST_DATABASE_URL: postgres://carnet:carnet@localhost:5432/carnet_test
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: biome and dependency direction
+        run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: next build
+        run: npm run build
+      - name: landing checks
+        run: ./scripts/landing-checks.sh
+  docker:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: docker build (no push)
+        run: docker build -t carnet-ci .

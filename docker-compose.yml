@@ -1,0 +1,37 @@
+name: carnet
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: carnet
+      POSTGRES_PASSWORD: carnet
+      POSTGRES_DB: carnet
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carnet -d carnet"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  web:
+    build: .
+    environment:
+      PROCESS_MODE: web
+      DATABASE_URL: postgres://carnet:carnet@postgres:5432/carnet
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+  worker:
+    build: .
+    environment:
+      PROCESS_MODE: worker
+      DATABASE_URL: postgres://carnet:carnet@postgres:5432/carnet
+    depends_on:
+      postgres:
+        condition: service_healthy
+volumes:
+  pgdata:

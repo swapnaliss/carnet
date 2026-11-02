@@ -1,0 +1,35 @@
+{
+  "name": "carnet",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "description": "Carnet: a payment that carries its paperwork.",
+  "engines": {
+    "node": ">=24 <25",
+    "npm": ">=11"
+  },
+  "workspaces": [
+    "packages/domain",
+    "packages/db",
+    "packages/airwallex",
+    "packages/agent",
+    "apps/web"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "biome check . && node scripts/check-deps.mjs",
+    "format": "biome format --write .",
+    "test": "vitest run",
+    "build": "npm run build -w @carnet/web",
+    "smoke": "./scripts/toolchain-smoke.sh"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.4",
+    "@playwright/test": "1.64.1",
+    "@types/node": "24.19.2",
+    "pdfkit": "0.20.2",
+    "typescript": "5.9.3",
+    "vitest": "5.0.5"
+  },
+  "type": "module"
+}

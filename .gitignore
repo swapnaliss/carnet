@@ -34,3 +34,5 @@ data/*
 media/*
 !media/.gitkeep
 .DS_Store
+packages/db/.smoke/
+apps/web/next-env.d.ts
