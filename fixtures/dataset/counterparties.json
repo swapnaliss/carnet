@@ -1,0 +1,95 @@
+{
+  "business": {
+    "id": "biz-northwind",
+    "name": "Northwind Studio Ltd",
+    "country": "NL",
+    "contactEmail": "finance@northwind-studio.example.com",
+    "description": "Synthetic 12-person design agency (demo business). Not a real company."
+  },
+  "counterparties": [
+    {
+      "id": "cp-harbor",
+      "name": "Harbor Print Co.",
+      "role": "supplier",
+      "country": "US",
+      "currency": "USD",
+      "rail": "LOCAL",
+      "bank": {
+        "accountNumber": "000123456781",
+        "routingNumber": "000000001",
+        "bankName": "Synthetic Test Bank"
+      },
+      "contactEmail": "billing@harborprint.example.com"
+    },
+    {
+      "id": "cp-lakeside",
+      "name": "Lakeside Freight LLC",
+      "role": "supplier",
+      "country": "US",
+      "currency": "USD",
+      "rail": "LOCAL",
+      "bank": {
+        "accountNumber": "000987654329",
+        "routingNumber": "000000002",
+        "bankName": "Synthetic Test Bank"
+      },
+      "contactEmail": "accounts@lakesidefreight.example.com"
+    },
+    {
+      "id": "cp-brightline",
+      "name": "Brightline Media Inc.",
+      "role": "customer",
+      "country": "US",
+      "currency": "USD",
+      "rail": "LOCAL",
+      "bank": {
+        "accountNumber": "000555500017",
+        "routingNumber": "000000003",
+        "bankName": "Synthetic Test Bank"
+      },
+      "contactEmail": "ap@brightlinemedia.example.com"
+    },
+    {
+      "id": "cp-rhein",
+      "name": "Rheinblick Druck GmbH",
+      "role": "supplier",
+      "country": "DE",
+      "currency": "EUR",
+      "rail": "SWIFT",
+      "bank": {
+        "iban": "DE11000000000000000001",
+        "bic": "ZZZZDEZZXXX",
+        "bankName": "Synthetische Testbank"
+      },
+      "contactEmail": "rechnung@rheinblick.example.com"
+    },
+    {
+      "id": "cp-nordlicht",
+      "name": "Nordlicht Software GmbH",
+      "role": "supplier",
+      "country": "DE",
+      "currency": "EUR",
+      "rail": "SWIFT",
+      "bank": {
+        "iban": "DE22000000000000000002",
+        "bic": "ZZZZDEZZXXX",
+        "bankName": "Synthetische Testbank"
+      },
+      "contactEmail": "buchhaltung@nordlicht.example.com"
+    },
+    {
+      "id": "cp-altstadt",
+      "name": "Altstadt Verlag GmbH",
+      "role": "customer",
+      "country": "DE",
+      "currency": "EUR",
+      "rail": "SWIFT",
+      "bank": {
+        "iban": "DE33000000000000000003",
+        "bic": "ZZZZDEZZXXX",
+        "bankName": "Synthetische Testbank"
+      },
+      "contactEmail": "zahlungen@altstadtverlag.example.com"
+    }
+  ]
+}

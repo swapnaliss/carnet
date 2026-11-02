@@ -1,0 +1,143 @@
+{
+  "id": "rfi-set-rhein-contradict",
+  "paymentId": "pay-006",
+  "type": "TRANSACTION",
+  "case": "contradict",
+  "rounds": [
+    {
+      "round": 1,
+      "questions": [
+        {
+          "id": "q-rhein2-purpose",
+          "title": {
+            "en": "Purpose of payment"
+          },
+          "description": {
+            "en": "Describe what this payment is for."
+          },
+          "answer": {
+            "type": "TEXT"
+          },
+          "sources": [
+            {
+              "id": "pay-006",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "purpose",
+          "expected": {
+            "status": "NEEDS_OWNER",
+            "documents": [
+              "inv-rhein-002"
+            ],
+            "factFields": [
+              "invoice_number",
+              "total",
+              "supplier"
+            ],
+            "outline": [
+              "invoice total EUR 9,450.00 conflicts with PO EUR 6,900.00: owner must resolve"
+            ]
+          }
+        },
+        {
+          "id": "q-rhein2-relationship",
+          "title": {
+            "en": "Relationship with the counterparty"
+          },
+          "description": {
+            "en": "Explain your business relationship with the payee and provide the supporting agreement."
+          },
+          "answer": {
+            "type": "TEXT"
+          },
+          "sources": [
+            {
+              "id": "pay-006",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "relationship",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "contract-rhein"
+            ],
+            "factFields": [
+              "clause_parties",
+              "clause_effective_date"
+            ],
+            "outline": [
+              "supplier under contract CT-NW-RD-2026"
+            ]
+          }
+        },
+        {
+          "id": "q-rhein2-source_of_funds",
+          "title": {
+            "en": "Source of funds"
+          },
+          "description": {
+            "en": "Provide evidence of where the funds for this payment came from."
+          },
+          "answer": {
+            "type": "ATTACHMENT"
+          },
+          "sources": [
+            {
+              "id": "pay-006",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "source_of_funds",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "stmt-altstadt-001"
+            ],
+            "factFields": [
+              "amount",
+              "payer",
+              "credit"
+            ],
+            "outline": [
+              "attach the inbound payment evidence",
+              "state payer, date and amount"
+            ]
+          }
+        },
+        {
+          "id": "q-rhein2-proof_of_delivery",
+          "title": {
+            "en": "Proof of delivery"
+          },
+          "description": {
+            "en": "Provide documents showing the goods or services were delivered."
+          },
+          "answer": {
+            "type": "ATTACHMENT"
+          },
+          "sources": [
+            {
+              "id": "pay-006",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "proof_of_delivery",
+          "expected": {
+            "status": "NEEDS_OWNER",
+            "documents": [],
+            "factFields": [],
+            "outline": [
+              "no delivery note for the second order"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

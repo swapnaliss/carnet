@@ -1,0 +1,151 @@
+{
+  "id": "rfi-set-harbor",
+  "paymentId": "pay-001",
+  "type": "TRANSACTION",
+  "rounds": [
+    {
+      "round": 1,
+      "questions": [
+        {
+          "id": "q-harbor-purpose",
+          "title": {
+            "en": "Purpose of payment"
+          },
+          "description": {
+            "en": "Describe what this payment is for."
+          },
+          "answer": {
+            "type": "TEXT"
+          },
+          "sources": [
+            {
+              "id": "pay-001",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "purpose",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "inv-harbor-001"
+            ],
+            "factFields": [
+              "invoice_number",
+              "total",
+              "supplier"
+            ],
+            "outline": [
+              "brochure printing for client work",
+              "invoice INV-HP-2026-0141, USD 4,800.00"
+            ]
+          }
+        },
+        {
+          "id": "q-harbor-relationship",
+          "title": {
+            "en": "Relationship with the counterparty"
+          },
+          "description": {
+            "en": "Explain your business relationship with the payee and provide the supporting agreement."
+          },
+          "answer": {
+            "type": "TEXT"
+          },
+          "sources": [
+            {
+              "id": "pay-001",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "relationship",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "contract-harbor"
+            ],
+            "factFields": [
+              "clause_parties",
+              "clause_effective_date"
+            ],
+            "outline": [
+              "supplier under contract CT-NW-HP-2026 since 2026-01-15",
+              "net 30 payment terms"
+            ]
+          }
+        },
+        {
+          "id": "q-harbor-source_of_funds",
+          "title": {
+            "en": "Source of funds"
+          },
+          "description": {
+            "en": "Provide evidence of where the funds for this payment came from."
+          },
+          "answer": {
+            "type": "ATTACHMENT"
+          },
+          "sources": [
+            {
+              "id": "pay-001",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "source_of_funds",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "remit-brightline-001"
+            ],
+            "factFields": [
+              "amount",
+              "payer",
+              "credit"
+            ],
+            "outline": [
+              "attach the inbound payment evidence",
+              "state payer, date and amount"
+            ]
+          }
+        },
+        {
+          "id": "q-harbor-proof_of_delivery",
+          "title": {
+            "en": "Proof of delivery"
+          },
+          "description": {
+            "en": "Provide documents showing the goods or services were delivered."
+          },
+          "answer": {
+            "type": "ATTACHMENT"
+          },
+          "sources": [
+            {
+              "id": "pay-001",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "proof_of_delivery",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "dn-harbor-001"
+            ],
+            "factFields": [
+              "delivery_date",
+              "goods",
+              "condition"
+            ],
+            "outline": [
+              "delivery note DN-HP-2026-0098 dated 2026-09-12",
+              "received complete and undamaged"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

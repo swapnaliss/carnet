@@ -1,0 +1,138 @@
+{
+  "id": "rfi-set-lakeside",
+  "paymentId": "pay-003",
+  "type": "TRANSACTION",
+  "case": "missing-contract",
+  "rounds": [
+    {
+      "round": 1,
+      "questions": [
+        {
+          "id": "q-lakeside-purpose",
+          "title": {
+            "en": "Purpose of payment"
+          },
+          "description": {
+            "en": "Describe what this payment is for."
+          },
+          "answer": {
+            "type": "TEXT"
+          },
+          "sources": [
+            {
+              "id": "pay-003",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "purpose",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "inv-lakeside-001"
+            ],
+            "factFields": [
+              "invoice_number",
+              "total",
+              "supplier"
+            ],
+            "outline": [
+              "freight invoice LF-2026-0412, USD 1,320.50"
+            ]
+          }
+        },
+        {
+          "id": "q-lakeside-relationship",
+          "title": {
+            "en": "Relationship with the counterparty"
+          },
+          "description": {
+            "en": "Explain your business relationship with the payee and provide the supporting agreement."
+          },
+          "answer": {
+            "type": "TEXT"
+          },
+          "sources": [
+            {
+              "id": "pay-003",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "relationship",
+          "expected": {
+            "status": "NEEDS_OWNER",
+            "documents": [],
+            "factFields": [],
+            "outline": [
+              "no contract on file: owner must supply the agreement or explain the relationship"
+            ]
+          }
+        },
+        {
+          "id": "q-lakeside-source_of_funds",
+          "title": {
+            "en": "Source of funds"
+          },
+          "description": {
+            "en": "Provide evidence of where the funds for this payment came from."
+          },
+          "answer": {
+            "type": "ATTACHMENT"
+          },
+          "sources": [
+            {
+              "id": "pay-003",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "source_of_funds",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "remit-brightline-001"
+            ],
+            "factFields": [
+              "amount",
+              "payer",
+              "credit"
+            ],
+            "outline": [
+              "attach the inbound payment evidence",
+              "state payer, date and amount"
+            ]
+          }
+        },
+        {
+          "id": "q-lakeside-proof_of_delivery",
+          "title": {
+            "en": "Proof of delivery"
+          },
+          "description": {
+            "en": "Provide documents showing the goods or services were delivered."
+          },
+          "answer": {
+            "type": "ATTACHMENT"
+          },
+          "sources": [
+            {
+              "id": "pay-003",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "proof_of_delivery",
+          "expected": {
+            "status": "NEEDS_OWNER",
+            "documents": [],
+            "factFields": [],
+            "outline": [
+              "no delivery document on file for this freight invoice"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
