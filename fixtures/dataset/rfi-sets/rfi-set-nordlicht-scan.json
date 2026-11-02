@@ -1,0 +1,143 @@
+{
+  "id": "rfi-set-nordlicht-scan",
+  "paymentId": "pay-008",
+  "type": "TRANSACTION",
+  "case": "image-only",
+  "rounds": [
+    {
+      "round": 1,
+      "questions": [
+        {
+          "id": "q-nordlicht-purpose",
+          "title": {
+            "en": "Purpose of payment"
+          },
+          "description": {
+            "en": "Describe what this payment is for."
+          },
+          "answer": {
+            "type": "TEXT"
+          },
+          "sources": [
+            {
+              "id": "pay-008",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "purpose",
+          "expected": {
+            "status": "NEEDS_OWNER",
+            "documents": [
+              "inv-nordlicht-scan-001"
+            ],
+            "factFields": [
+              "invoice_number",
+              "total",
+              "supplier"
+            ],
+            "outline": [
+              "the only invoice is an image-only scan: owner must confirm its values first"
+            ]
+          }
+        },
+        {
+          "id": "q-nordlicht-relationship",
+          "title": {
+            "en": "Relationship with the counterparty"
+          },
+          "description": {
+            "en": "Explain your business relationship with the payee and provide the supporting agreement."
+          },
+          "answer": {
+            "type": "TEXT"
+          },
+          "sources": [
+            {
+              "id": "pay-008",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "relationship",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "contract-nordlicht"
+            ],
+            "factFields": [
+              "clause_parties",
+              "clause_effective_date"
+            ],
+            "outline": [
+              "supplier under contract CT-NW-NL-2026 since 2026-03-01"
+            ]
+          }
+        },
+        {
+          "id": "q-nordlicht-source_of_funds",
+          "title": {
+            "en": "Source of funds"
+          },
+          "description": {
+            "en": "Provide evidence of where the funds for this payment came from."
+          },
+          "answer": {
+            "type": "ATTACHMENT"
+          },
+          "sources": [
+            {
+              "id": "pay-008",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "source_of_funds",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "stmt-altstadt-001"
+            ],
+            "factFields": [
+              "amount",
+              "payer",
+              "credit"
+            ],
+            "outline": [
+              "attach the inbound payment evidence",
+              "state payer, date and amount"
+            ]
+          }
+        },
+        {
+          "id": "q-nordlicht-proof_of_delivery",
+          "title": {
+            "en": "Proof of delivery"
+          },
+          "description": {
+            "en": "Provide documents showing the goods or services were delivered."
+          },
+          "answer": {
+            "type": "ATTACHMENT"
+          },
+          "sources": [
+            {
+              "id": "pay-008",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "proof_of_delivery",
+          "expected": {
+            "status": "NEEDS_OWNER",
+            "documents": [],
+            "factFields": [],
+            "outline": [
+              "no delivery evidence for the support retainer"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,222 @@
+{
+  "id": "rfi-set-rhein-followup",
+  "paymentId": "pay-005",
+  "type": "TRANSACTION",
+  "case": "followup",
+  "rounds": [
+    {
+      "round": 1,
+      "questions": [
+        {
+          "id": "q-rhein-purpose",
+          "title": {
+            "en": "Purpose of payment"
+          },
+          "description": {
+            "en": "Describe what this payment is for."
+          },
+          "answer": {
+            "type": "TEXT"
+          },
+          "sources": [
+            {
+              "id": "pay-005",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "purpose",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "inv-rhein-001"
+            ],
+            "factFields": [
+              "invoice_number",
+              "total",
+              "supplier"
+            ],
+            "outline": [
+              "catalogue printing, invoice RD-2026-1180, EUR 7,200.00"
+            ]
+          }
+        },
+        {
+          "id": "q-rhein-relationship",
+          "title": {
+            "en": "Relationship with the counterparty"
+          },
+          "description": {
+            "en": "Explain your business relationship with the payee and provide the supporting agreement."
+          },
+          "answer": {
+            "type": "TEXT"
+          },
+          "sources": [
+            {
+              "id": "pay-005",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "relationship",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "contract-rhein"
+            ],
+            "factFields": [
+              "clause_parties",
+              "clause_effective_date"
+            ],
+            "outline": [
+              "supplier under contract CT-NW-RD-2026 since 2026-02-01"
+            ]
+          }
+        },
+        {
+          "id": "q-rhein-source_of_funds",
+          "title": {
+            "en": "Source of funds"
+          },
+          "description": {
+            "en": "Provide evidence of where the funds for this payment came from."
+          },
+          "answer": {
+            "type": "ATTACHMENT"
+          },
+          "sources": [
+            {
+              "id": "pay-005",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "source_of_funds",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "stmt-altstadt-001"
+            ],
+            "factFields": [
+              "amount",
+              "payer",
+              "credit"
+            ],
+            "outline": [
+              "attach the inbound payment evidence",
+              "state payer, date and amount"
+            ]
+          }
+        },
+        {
+          "id": "q-rhein-proof_of_delivery",
+          "title": {
+            "en": "Proof of delivery"
+          },
+          "description": {
+            "en": "Provide documents showing the goods or services were delivered."
+          },
+          "answer": {
+            "type": "ATTACHMENT"
+          },
+          "sources": [
+            {
+              "id": "pay-005",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "proof_of_delivery",
+          "expected": {
+            "status": "ANSWER",
+            "documents": [
+              "dn-rhein-001"
+            ],
+            "factFields": [
+              "delivery_date",
+              "goods",
+              "condition"
+            ],
+            "outline": [
+              "delivery note LS-RD-2026-0217 dated 2026-09-16"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "round": 2,
+      "followUpOf": 1,
+      "questions": [
+        {
+          "id": "q-rhein-purpose",
+          "title": {
+            "en": "Purpose of payment"
+          },
+          "description": {
+            "en": "Describe what this payment is for."
+          },
+          "answer": {
+            "type": "TEXT"
+          },
+          "sources": [
+            {
+              "id": "pay-005",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "purpose",
+          "expected": {
+            "status": "REUSE",
+            "documents": [
+              "inv-rhein-001"
+            ],
+            "factFields": [
+              "invoice_number",
+              "total",
+              "supplier"
+            ],
+            "outline": [
+              "same approved answer as round 1, shown as reused"
+            ],
+            "reuseOf": "q-rhein-purpose"
+          },
+          "reopened": true,
+          "comment": {
+            "en": "Please describe the purpose again, including what the goods were used for."
+          }
+        },
+        {
+          "id": "q-rhein-r2-end_use",
+          "title": {
+            "en": "Intended use of the goods"
+          },
+          "description": {
+            "en": "What will Northwind Studio do with the printed catalogues?"
+          },
+          "answer": {
+            "type": "TEXT"
+          },
+          "sources": [
+            {
+              "id": "pay-005",
+              "type": "TRANSFER",
+              "note": "payment id stands in for the sandbox transfer id"
+            }
+          ],
+          "topic": "end_use",
+          "expected": {
+            "status": "NEEDS_OWNER",
+            "documents": [],
+            "factFields": [],
+            "outline": [
+              "not covered by any document; owner must answer"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
