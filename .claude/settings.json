@@ -17,6 +17,26 @@
       "Bash(cat .env.production)",
       "Bash(printenv *)",
       "Bash(env)"
+    ],
+    "allow": [
+      "Bash(gh pr merge *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr edit *)",
+      "Bash(gh issue *)",
+      "Bash(gh api repos/swapnaliss/carnet/*)",
+      "Bash(gh milestone *)",
+      "Bash(docker compose *)",
+      "Bash(docker build *)",
+      "Bash(docker run *)",
+      "Bash(docker ps *)",
+      "Bash(docker info)",
+      "WebFetch(domain:api.sandbox.airwallex.com)",
+      "WebFetch(domain:files.sandbox.airwallex.com)",
+      "Bash(node scripts/spikes/airwallex/*)",
+      "Bash(node scripts/spikes/anthropic/*)",
+      "WebFetch(domain:api.anthropic.com)"
     ]
   }
 }

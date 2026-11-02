@@ -5,7 +5,7 @@ labels: ["agent"]
 blocked_by: ["M2-00", "M2-01", "M0-08"]
 estimate: "8h"
 resources: ["ANTHROPIC"]
-needs: []
+needs: ["P-04"]
 ---
 
 ## Context

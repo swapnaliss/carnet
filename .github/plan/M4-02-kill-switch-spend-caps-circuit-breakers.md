@@ -5,7 +5,7 @@ labels: ["agent", "security"]
 blocked_by: ["M3-GATE"]
 estimate: "5h"
 resources: []
-needs: []
+needs: ["P-10"]
 ---
 
 ## Context
