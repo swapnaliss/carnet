@@ -1,0 +1,44 @@
+{
+  "paid": [
+    {
+      "step": "open",
+      "transfer": "PROCESSING",
+      "rfi": "ACTION_REQUIRED"
+    },
+    {
+      "step": "SENT",
+      "http": 200,
+      "transfer": "SENT",
+      "rfi": "ACTION_REQUIRED"
+    },
+    {
+      "step": "PAID",
+      "http": 200,
+      "transfer": "PAID",
+      "rfi": "ACTION_REQUIRED"
+    }
+  ],
+  "failed": [
+    {
+      "step": "open",
+      "transfer": "PROCESSING"
+    },
+    {
+      "step": "SENT",
+      "http": 200,
+      "transfer": "SENT"
+    },
+    {
+      "step": "FAILED",
+      "http": 200,
+      "transfer": "CANCELLED",
+      "failure": {
+        "code": "90802",
+        "details": {
+          "type": "INCORRECT_ROUTING"
+        },
+        "message": "Beneficiary bank returned"
+      }
+    }
+  ]
+}

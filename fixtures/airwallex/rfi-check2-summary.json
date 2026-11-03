@@ -1,0 +1,41 @@
+{
+  "partialTextOnly": {
+    "status": 400,
+    "body": {
+      "code": "invalid_argument",
+      "message": "Please answer all questions in the request"
+    }
+  },
+  "partialAttachmentOnly": {
+    "status": 400,
+    "body": {
+      "code": "invalid_argument",
+      "message": "Please answer all questions in the request"
+    }
+  },
+  "rfiStatusAfterPartial": "ACTION_REQUIRED",
+  "secondCreateWhileOpen": {
+    "status": 400,
+    "body": {
+      "code": "invalid_state_for_operation",
+      "message": "There is an active RFI for the same type and source. Please close the existing RFI before creating a new one."
+    }
+  },
+  "full": {
+    "status": 200
+  },
+  "rfiStatusAfterFull": "ANSWERED",
+  "respondAgain": {
+    "status": 400,
+    "body": {
+      "code": "invalid_state_for_operation"
+    }
+  },
+  "followUp": {
+    "status": 200,
+    "rfiStatusAfter": "ACTION_REQUIRED",
+    "questionCount": 2,
+    "answeredRequests": 1,
+    "respondAfter": 200
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "method": "POST",
+  "path": "/api/v1/files/upload",
+  "request": "<multipart>",
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "invalid_file_extension",
+      "message": "ensure file extension is one of [pdf, jpg, png, doc, docx, xls, xlsx, csv, jpeg, cer, bmp, tif, tiff, webm, mov, mp4, heic, m4a, weba, mp3, wav, aac, amr, xml]",
+      "source": "file"
+    }
+  }
+}

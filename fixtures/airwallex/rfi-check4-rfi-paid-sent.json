@@ -1,0 +1,54 @@
+{
+  "method": "GET",
+  "path": "/api/v1/rfis/0a0a2736-2f5f-482e-8747-0d6d044b94ab",
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "account_id": "acct_bEEzbdD8Ps6YnCJ_GJiawQ",
+      "active_request": {
+        "created_at": "2026-11-03T09:58:00+0000",
+        "expires_at": "2026-11-17T09:58:00+0000",
+        "questions": [
+          {
+            "answer": {
+              "type": "TEXT"
+            },
+            "attachments": [],
+            "description": {
+              "en": "Spike question",
+              "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+            },
+            "id": "b791fb50-0fb0-40bd-abf2-e52c331c1a9e",
+            "sources": [
+              {
+                "id": "67ae0210-9f36-486f-9c93-7f001657e93f",
+                "type": "TRANSFER"
+              }
+            ],
+            "title": {
+              "en": "Purpose?",
+              "zh": "[Simulation] 交易目的"
+            },
+            "trigger": "OTHERS",
+            "uploaded_orders": [
+              {
+                "order_id": "SIMULATION_003179ea-9ceb-42e4-a480-50cc4d27a4f0"
+              }
+            ]
+          }
+        ],
+        "updated_at": "2026-11-03T09:58:00+0000"
+      },
+      "answered_requests": [],
+      "created_at": "2026-11-03T09:58:00+0000",
+      "id": "0a0a2736-2f5f-482e-8747-0d6d044b94ab",
+      "status": "ACTION_REQUIRED",
+      "sub_type": "TRANSACTION_MONITORING",
+      "type": "TRANSACTION",
+      "updated_at": "2026-11-03T09:58:00+0000"
+    }
+  }
+}

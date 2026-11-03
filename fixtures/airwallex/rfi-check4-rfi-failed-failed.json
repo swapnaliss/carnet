@@ -1,0 +1,14 @@
+{
+  "method": "GET",
+  "path": "/api/v1/rfis/undefined",
+  "response": {
+    "status": 404,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "resource_not_found",
+      "message": "rfi session is not found"
+    }
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "method": "GET",
+  "path": "/api/v1/rfis?statuses=ACTION_REQUIRED&types=TRANSACTION&page_size=10",
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "items": [
+        {
+          "account_id": "acct_bEEzbdD8Ps6YnCJ_GJiawQ",
+          "active_request": {
+            "created_at": "2026-11-03T09:57:38+0000",
+            "expires_at": "2026-11-17T09:57:38+0000",
+            "questions": [
+              {
+                "answer": {
+                  "type": "TEXT"
+                },
+                "attachments": [],
+                "description": {
+                  "en": "Spike question",
+                  "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+                },
+                "id": "18689f9a-d008-4f1d-8b1c-082a4b81df30",
+                "sources": [
+                  {
+                    "id": "258d17cc-e230-4fa1-be0d-09c5c06269c0",
+                    "type": "TRANSFER"
+                  }
+                ],
+                "title": {
+                  "en": "What is the purpose of this payment?",
+                  "zh": "[Simulation] 交易目的"
+                },
+                "trigger": "OTHERS",
+                "uploaded_orders": [
+                  {
+                    "order_id": "SIMULATION_5759a05e-7b0f-429a-a8f4-c9826c239291"
+                  }
+                ]
+              },
+              {
+                "answer": {
+                  "type": "ATTACHMENT"
+                },
+                "attachments": [],
+                "description": {
+                  "en": "Spike question",
+                  "zh": "请提供相关合同、发票或装运文件。"
+                },
+                "id": "4f02f8bd-93cc-471b-b284-f0848b1bfc21",
+                "sources": [
+                  {
+                    "id": "258d17cc-e230-4fa1-be0d-09c5c06269c0",
+                    "type": "TRANSFER"
+                  }
+                ],
+                "title": {
+                  "en": "Upload the supplier invoice",
+                  "zh": "[Simulation] 申请支持文件"
+                },
+                "trigger": "OTHERS",
+                "uploaded_orders": [
+                  {
+                    "order_id": "SIMULATION_5759a05e-7b0f-429a-a8f4-c9826c239291"
+                  }
+                ]
+              }
+            ],
+            "updated_at": "2026-11-03T09:57:38+0000"
+          },
+          "answered_requests": [],
+          "created_at": "2026-11-03T09:57:38+0000",
+          "id": "0dd13238-ae6a-45ce-ac21-91671fbbfef7",
+          "status": "ACTION_REQUIRED",
+          "sub_type": "TRANSACTION_MONITORING",
+          "type": "TRANSACTION",
+          "updated_at": "2026-11-03T09:57:38+0000"
+        }
+      ]
+    }
+  }
+}

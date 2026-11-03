@@ -1,0 +1,40 @@
+{
+  "largestAccepted": 20000000,
+  "smallestRejected": null,
+  "error": null,
+  "attempts": 8,
+  "log": [
+    {
+      "length": 1000,
+      "status": 200
+    },
+    {
+      "length": 10000,
+      "status": 200
+    },
+    {
+      "length": 100000,
+      "status": 200
+    },
+    {
+      "length": 1000000,
+      "status": 200
+    },
+    {
+      "length": 2000000,
+      "status": 200
+    },
+    {
+      "length": 5000000,
+      "status": 200
+    },
+    {
+      "length": 10000000,
+      "status": 200
+    },
+    {
+      "length": 20000000,
+      "status": 200
+    }
+  ]
+}

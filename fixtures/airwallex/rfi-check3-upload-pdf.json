@@ -1,0 +1,18 @@
+{
+  "method": "POST",
+  "path": "/api/v1/files/upload",
+  "request": "<multipart>",
+  "response": {
+    "status": 201,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "created": 1793699868,
+      "file_id": "NWY3MWJiOTAtNDYwNi00MTNjLTk3MDQtZTIxZjQ5MTM5Y2Y0LHwsc2csfCxldmlkZW5jZS5wZGZfMTc5MzY5OTg2ODE0NA",
+      "filename": "evidence.pdf",
+      "object_type": "file",
+      "size": 193
+    }
+  }
+}

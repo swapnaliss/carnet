@@ -1,0 +1,18 @@
+{
+  "method": "POST",
+  "path": "/api/v1/files/upload",
+  "request": "<multipart>",
+  "response": {
+    "status": 201,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "created": 1793699861,
+      "file_id": "NWY3MWJiOTAtNDYwNi00MTNjLTk3MDQtZTIxZjQ5MTM5Y2Y0LHwsc2csfCxpbnZvaWNlLnBkZl8xNzkzNjk5ODYxNjc2",
+      "filename": "invoice.pdf",
+      "object_type": "file",
+      "size": 193
+    }
+  }
+}

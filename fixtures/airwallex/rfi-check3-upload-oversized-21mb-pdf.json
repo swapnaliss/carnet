@@ -1,0 +1,18 @@
+{
+  "method": "POST",
+  "path": "/api/v1/files/upload",
+  "request": "<multipart>",
+  "response": {
+    "status": 201,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "created": 1793699874,
+      "file_id": "NWY3MWJiOTAtNDYwNi00MTNjLTk3MDQtZTIxZjQ5MTM5Y2Y0LHwsc2csfCxiaWcucGRmXzE3OTM2OTk4NzQ0Nzc",
+      "filename": "big.pdf",
+      "object_type": "file",
+      "size": 22020096
+    }
+  }
+}

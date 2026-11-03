@@ -1,0 +1,75 @@
+{
+  "method": "GET",
+  "path": "/api/v1/transfers/2af975c8-a572-4e37-a7b6-2f270f1caf0a",
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "amount_beneficiary_receives": 40,
+      "amount_payer_pays": 43,
+      "beneficiary": {
+        "address": {
+          "city": "New York",
+          "country_code": "US",
+          "postcode": "10001",
+          "state": "New York",
+          "street_address": "350 Fifth Avenue"
+        },
+        "bank_details": {
+          "account_currency": "USD",
+          "account_name": "Northwind Test Supplies LLC",
+          "account_number": "1234567890",
+          "account_routing_type1": "aba",
+          "account_routing_value1": "021000021",
+          "bank_account_category": "Checking",
+          "bank_country_code": "US",
+          "bank_name": "JPMorgan Chase Bank, NA",
+          "local_clearing_system": "ACH"
+        },
+        "entity_type": "COMPANY",
+        "type": "BANK_ACCOUNT"
+      },
+      "beneficiary_id": "bc0bfa01-7b09-45e3-9f2a-a3cc09eb54be",
+      "created_at": "2026-11-03T09:59:06+0000",
+      "fee_amount": 3,
+      "fee_currency": "USD",
+      "fee_paid_by": "PAYER",
+      "funding": {
+        "status": "FUNDED"
+      },
+      "id": "2af975c8-a572-4e37-a7b6-2f270f1caf0a",
+      "payer": {
+        "additional_info": {
+          "business_incorporation_date": "2025-04-08",
+          "business_registration_number": "X12345678",
+          "business_registration_type": "COMPANY"
+        },
+        "address": {
+          "city": "Barito Timur",
+          "country_code": "IN",
+          "postcode": "76714",
+          "state": "Nevada",
+          "street_address": "Jl. Jend. Sudirman No. 76"
+        },
+        "company_name": "Sandbox Business",
+        "entity_type": "COMPANY"
+      },
+      "reason": "professional_business_services",
+      "reference": "M0-03 spike",
+      "remarks": "",
+      "request_id": "c63daa5d-7daf-4290-be35-ed442f4eb0ae",
+      "short_reference_id": "P261103-PUITIKM",
+      "source_amount": 40,
+      "source_currency": "USD",
+      "status": "PROCESSING",
+      "swift_charge_option": "SHARED",
+      "transfer_amount": 40,
+      "transfer_currency": "USD",
+      "transfer_date": "2026-11-03",
+      "transfer_method": "LOCAL",
+      "updated_at": "2026-11-03T09:59:08+0000"
+    }
+  }
+}

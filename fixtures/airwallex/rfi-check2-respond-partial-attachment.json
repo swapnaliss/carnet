@@ -1,0 +1,29 @@
+{
+  "method": "POST",
+  "path": "/api/v1/rfis/6ac53a86-c1ea-479f-82ef-783d3f3c50ec/respond",
+  "request": {
+    "questions": [
+      {
+        "id": "31fc3a29-e8dd-49e8-93cf-5f9a83d4223c",
+        "answer": {
+          "type": "ATTACHMENT",
+          "attachments": [
+            {
+              "file_id": "NWY3MWJiOTAtNDYwNi00MTNjLTk3MDQtZTIxZjQ5MTM5Y2Y0LHwsc2csfCxpbnZvaWNlLnBkZl8xNzkzNjk5ODYxNjc2"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "invalid_argument",
+      "message": "Please answer all questions in the request"
+    }
+  }
+}

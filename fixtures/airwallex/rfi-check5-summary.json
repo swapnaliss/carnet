@@ -1,0 +1,27 @@
+{
+  "transferBefore": "PROCESSING",
+  "closeOpen": {
+    "status": 200,
+    "body": "CLOSED"
+  },
+  "fetchAfterClose": "CLOSED",
+  "transferAfterClose": "PROCESSING",
+  "respondAfterClose": {
+    "status": 400,
+    "body": {
+      "code": "invalid_state_for_operation"
+    }
+  },
+  "closeAgain": {
+    "status": 400,
+    "body": {
+      "code": "invalid_state_for_operation",
+      "message": "rfi session status is illegal"
+    }
+  },
+  "transferAfterAnswer": "PROCESSING",
+  "closeAnswered": {
+    "status": 200,
+    "rfiStatus": "CLOSED"
+  }
+}

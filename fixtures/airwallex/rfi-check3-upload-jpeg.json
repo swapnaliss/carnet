@@ -1,0 +1,18 @@
+{
+  "method": "POST",
+  "path": "/api/v1/files/upload",
+  "request": "<multipart>",
+  "response": {
+    "status": 201,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "created": 1793699870,
+      "file_id": "NWY3MWJiOTAtNDYwNi00MTNjLTk3MDQtZTIxZjQ5MTM5Y2Y0LHwsc2csfCxldmlkZW5jZS5qcGdfMTc5MzY5OTg3MDExOA",
+      "filename": "evidence.jpg",
+      "object_type": "file",
+      "size": 134
+    }
+  }
+}

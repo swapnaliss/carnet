@@ -1,0 +1,25 @@
+{
+  "method": "POST",
+  "path": "/api/v1/rfis/6ac53a86-c1ea-479f-82ef-783d3f3c50ec/respond",
+  "request": {
+    "questions": [
+      {
+        "id": "5f4cbf0a-ef8b-44a6-9689-247cc36caa38",
+        "answer": {
+          "type": "TEXT",
+          "text": "Payment for supplier invoice INV-1001"
+        }
+      }
+    ]
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "invalid_argument",
+      "message": "Please answer all questions in the request"
+    }
+  }
+}

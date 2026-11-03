@@ -1,0 +1,67 @@
+{
+  "method": "POST",
+  "path": "/api/v1/rfis/321eb16a-a659-47ba-aae4-2653ab0dad8d/respond",
+  "request": {
+    "questions": [
+      {
+        "id": "7ebf349a-68de-4b36-8ac2-6f186e71b322",
+        "answer": {
+          "type": "TEXT",
+          "text": "answer"
+        }
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "account_id": "acct_bEEzbdD8Ps6YnCJ_GJiawQ",
+      "answered_requests": [
+        {
+          "created_at": "2026-11-03T09:58:09+0000",
+          "expires_at": "2026-11-17T09:58:10+0000",
+          "questions": [
+            {
+              "answer": {
+                "text": "answer",
+                "type": "TEXT"
+              },
+              "attachments": [],
+              "description": {
+                "en": "Spike question",
+                "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+              },
+              "id": "7ebf349a-68de-4b36-8ac2-6f186e71b322",
+              "sources": [
+                {
+                  "id": "7da06e26-ed81-4b29-8620-3d3d8be7a9ef",
+                  "type": "TRANSFER"
+                }
+              ],
+              "title": {
+                "en": "Purpose again?",
+                "zh": "[Simulation] 交易目的"
+              },
+              "trigger": "OTHERS",
+              "uploaded_orders": [
+                {
+                  "order_id": "SIMULATION_003179ea-9ceb-42e4-a480-50cc4d27a4f0"
+                }
+              ]
+            }
+          ],
+          "updated_at": "2026-11-03T09:58:10+0000"
+        }
+      ],
+      "created_at": "2026-11-03T09:58:10+0000",
+      "id": "321eb16a-a659-47ba-aae4-2653ab0dad8d",
+      "status": "ANSWERED",
+      "sub_type": "TRANSACTION_MONITORING",
+      "type": "TRANSACTION",
+      "updated_at": "2026-11-03T09:58:10+0000"
+    }
+  }
+}
