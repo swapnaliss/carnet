@@ -1,0 +1,283 @@
+{
+  "method": "GET",
+  "path": "/api/v1/fx/conversions?page_size=10",
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "has_more": false,
+      "items": [
+        {
+          "awx_rate": 1.12002,
+          "buy_amount": 88.4,
+          "buy_currency": "EUR",
+          "client_rate": 1.131211,
+          "conversion_date": "2026-11-03",
+          "conversion_id": "7f5e02c3-ca48-406d-9951-58be5e277d0e",
+          "created_at": "2026-11-03T09:43:20+0000",
+          "currency_pair": "EURUSD",
+          "dealt_currency": "USD",
+          "mid_rate": 1.11894,
+          "quote_id": "a5310bb1-95fd-3ce8-9dda-0c4e290e656b",
+          "rate_details": [
+            {
+              "buy_amount": 89.28,
+              "level": "AWX",
+              "rate": 1.12002,
+              "sell_amount": 100
+            },
+            {
+              "buy_amount": 88.4,
+              "level": "CLIENT",
+              "rate": 1.131211,
+              "sell_amount": 100
+            }
+          ],
+          "request_id": "af1c8a14-d0a0-4913-ab24-fca9e3abd573",
+          "sell_amount": 100,
+          "sell_currency": "USD",
+          "settlement_cutoff_at": "2026-11-03T09:43:20+0000",
+          "short_reference_id": "C261103-XBHLA5Q",
+          "status": "SETTLED",
+          "updated_at": "2026-11-03T09:43:20+0000"
+        },
+        {
+          "awx_rate": 1.12002,
+          "buy_amount": 88.4,
+          "buy_currency": "EUR",
+          "client_rate": 1.131211,
+          "conversion_date": "2026-11-03",
+          "conversion_id": "698fd196-234e-42c7-a750-e1702d72f6e2",
+          "created_at": "2026-11-03T09:43:20+0000",
+          "currency_pair": "EURUSD",
+          "dealt_currency": "USD",
+          "mid_rate": 1.11894,
+          "quote_id": "a5310bb1-95fd-3ce8-9dda-0c4e290e656b",
+          "rate_details": [
+            {
+              "buy_amount": 89.28,
+              "level": "AWX",
+              "rate": 1.12002,
+              "sell_amount": 100
+            },
+            {
+              "buy_amount": 88.4,
+              "level": "CLIENT",
+              "rate": 1.131211,
+              "sell_amount": 100
+            }
+          ],
+          "request_id": "14cf7b8d-4f3d-4a57-a878-39085163ac25",
+          "sell_amount": 100,
+          "sell_currency": "USD",
+          "settlement_cutoff_at": "2026-11-03T09:43:20+0000",
+          "short_reference_id": "C261103-0B066NG",
+          "status": "SETTLED",
+          "updated_at": "2026-11-03T09:43:20+0000"
+        },
+        {
+          "awx_rate": 1.119125,
+          "buy_amount": 88.47,
+          "buy_currency": "EUR",
+          "client_rate": 1.130316,
+          "conversion_date": "2026-11-03",
+          "conversion_id": "fa8ba678-99cb-4d69-9435-5d1b6428e5f0",
+          "created_at": "2026-11-03T09:43:20+0000",
+          "currency_pair": "EURUSD",
+          "dealt_currency": "USD",
+          "mid_rate": 1.11894,
+          "rate_details": [
+            {
+              "buy_amount": 89.36,
+              "level": "AWX",
+              "rate": 1.119125,
+              "sell_amount": 100
+            },
+            {
+              "buy_amount": 88.47,
+              "level": "CLIENT",
+              "rate": 1.130316,
+              "sell_amount": 100
+            }
+          ],
+          "request_id": "51a584fa-8415-4a38-8c64-bc94e3b9345b",
+          "sell_amount": 100,
+          "sell_currency": "USD",
+          "settlement_cutoff_at": "2026-11-03T09:43:20+0000",
+          "short_reference_id": "C261103-SM9UCDI",
+          "status": "SETTLED",
+          "updated_at": "2026-11-03T09:43:20+0000"
+        },
+        {
+          "awx_rate": 1.120389,
+          "buy_amount": 88.37,
+          "buy_currency": "EUR",
+          "client_rate": 1.131584,
+          "conversion_date": "2026-11-03",
+          "conversion_id": "d3efdf2c-447e-439a-aa48-87fa473e652f",
+          "created_at": "2026-11-03T09:37:37+0000",
+          "currency_pair": "EURUSD",
+          "dealt_currency": "USD",
+          "mid_rate": 1.11931,
+          "quote_id": "383ee482-706b-3857-b583-5c30832611da",
+          "rate_details": [
+            {
+              "buy_amount": 89.25,
+              "level": "AWX",
+              "rate": 1.120389,
+              "sell_amount": 100
+            },
+            {
+              "buy_amount": 88.37,
+              "level": "CLIENT",
+              "rate": 1.131584,
+              "sell_amount": 100
+            }
+          ],
+          "request_id": "07969e9c-0d2d-4f1a-80a8-a7a9d4af0bf6",
+          "sell_amount": 100,
+          "sell_currency": "USD",
+          "settlement_cutoff_at": "2026-11-03T09:37:37+0000",
+          "short_reference_id": "C261103-WZG8MK3",
+          "status": "SETTLED",
+          "updated_at": "2026-11-03T09:37:37+0000"
+        },
+        {
+          "awx_rate": 1.120389,
+          "buy_amount": 88.37,
+          "buy_currency": "EUR",
+          "client_rate": 1.131584,
+          "conversion_date": "2026-11-03",
+          "conversion_id": "4624f7ec-8340-4c0b-a247-39ab6f27b885",
+          "created_at": "2026-11-03T09:37:37+0000",
+          "currency_pair": "EURUSD",
+          "dealt_currency": "USD",
+          "mid_rate": 1.11931,
+          "quote_id": "383ee482-706b-3857-b583-5c30832611da",
+          "rate_details": [
+            {
+              "buy_amount": 89.25,
+              "level": "AWX",
+              "rate": 1.120389,
+              "sell_amount": 100
+            },
+            {
+              "buy_amount": 88.37,
+              "level": "CLIENT",
+              "rate": 1.131584,
+              "sell_amount": 100
+            }
+          ],
+          "request_id": "37c8aec6-7e4c-42da-8d5a-65ebb59dab1b",
+          "sell_amount": 100,
+          "sell_currency": "USD",
+          "settlement_cutoff_at": "2026-11-03T09:37:37+0000",
+          "short_reference_id": "C261103-1KUA9OB",
+          "status": "SETTLED",
+          "updated_at": "2026-11-03T09:37:37+0000"
+        },
+        {
+          "awx_rate": 1.119494,
+          "buy_amount": 88.44,
+          "buy_currency": "EUR",
+          "client_rate": 1.130689,
+          "conversion_date": "2026-11-03",
+          "conversion_id": "8e944e56-d70d-4659-acfc-d59eef69cb4d",
+          "created_at": "2026-11-03T09:37:37+0000",
+          "currency_pair": "EURUSD",
+          "dealt_currency": "USD",
+          "mid_rate": 1.11931,
+          "rate_details": [
+            {
+              "buy_amount": 89.33,
+              "level": "AWX",
+              "rate": 1.119494,
+              "sell_amount": 100
+            },
+            {
+              "buy_amount": 88.44,
+              "level": "CLIENT",
+              "rate": 1.130689,
+              "sell_amount": 100
+            }
+          ],
+          "request_id": "d86ff06e-5e02-4ba9-89aa-454cbc861441",
+          "sell_amount": 100,
+          "sell_currency": "USD",
+          "settlement_cutoff_at": "2026-11-03T09:37:37+0000",
+          "short_reference_id": "C261103-2P9BKTQ",
+          "status": "SETTLED",
+          "updated_at": "2026-11-03T09:37:37+0000"
+        },
+        {
+          "awx_rate": 1.119107,
+          "buy_amount": 88.47,
+          "buy_currency": "EUR",
+          "client_rate": 1.130298,
+          "conversion_date": "2026-11-03",
+          "conversion_id": "d78f8a18-76e1-46ec-9f52-974fb3329665",
+          "created_at": "2026-11-03T09:30:30+0000",
+          "currency_pair": "EURUSD",
+          "dealt_currency": "USD",
+          "mid_rate": 1.11892,
+          "rate_details": [
+            {
+              "buy_amount": 89.36,
+              "level": "AWX",
+              "rate": 1.119107,
+              "sell_amount": 100
+            },
+            {
+              "buy_amount": 88.47,
+              "level": "CLIENT",
+              "rate": 1.130298,
+              "sell_amount": 100
+            }
+          ],
+          "request_id": "70ab7321-0e3a-467e-bc0a-c205ce815c90",
+          "sell_amount": 100,
+          "sell_currency": "USD",
+          "settlement_cutoff_at": "2026-11-03T09:30:30+0000",
+          "short_reference_id": "C261103-9KI98R1",
+          "status": "SETTLED",
+          "updated_at": "2026-11-03T09:30:30+0000"
+        },
+        {
+          "awx_rate": 1.119107,
+          "buy_amount": 88.47,
+          "buy_currency": "EUR",
+          "client_rate": 1.130298,
+          "conversion_date": "2026-11-03",
+          "conversion_id": "2061d2eb-fa5f-4b5e-887f-05c6276b697e",
+          "created_at": "2026-11-03T09:30:19+0000",
+          "currency_pair": "EURUSD",
+          "dealt_currency": "USD",
+          "mid_rate": 1.11892,
+          "rate_details": [
+            {
+              "buy_amount": 89.36,
+              "level": "AWX",
+              "rate": 1.119107,
+              "sell_amount": 100
+            },
+            {
+              "buy_amount": 88.47,
+              "level": "CLIENT",
+              "rate": 1.130298,
+              "sell_amount": 100
+            }
+          ],
+          "request_id": "8e406657-5664-4e4d-bdd8-2bea07bebade",
+          "sell_amount": 100,
+          "sell_currency": "USD",
+          "settlement_cutoff_at": "2026-11-03T09:30:19+0000",
+          "short_reference_id": "C261103-OZOKEA2",
+          "status": "SETTLED",
+          "updated_at": "2026-11-03T09:30:19+0000"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "paidToFailed": {
+    "http": 200,
+    "status": "FAILED"
+  },
+  "cancelled": {
+    "http": 200,
+    "status": "FAILED"
+  },
+  "overdue": {
+    "http": 500
+  }
+}

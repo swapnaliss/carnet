@@ -1,0 +1,14 @@
+{
+  "method": "GET",
+  "path": "/api/v1/balances/current",
+  "response": {
+    "status": 401,
+    "headers": {
+      "content-type": "text/plain; charset=utf-8"
+    },
+    "body": {
+      "message": "Access denied, authentication failed",
+      "code": "unauthorized"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "method": "POST",
+  "path": "/api/v1/simulation/transfers/62e8f568-ba29-41f7-ac20-22e5ba75e4bf/transition",
+  "request": {
+    "next_status": "PAID"
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "operation_failed",
+      "message": "Request could not be processed"
+    }
+  }
+}

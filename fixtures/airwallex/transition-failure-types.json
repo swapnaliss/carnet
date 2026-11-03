@@ -1,0 +1,482 @@
+{
+  "ACCOUNT_CLOSED": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90701: Account closed",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90701",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Account closed"
+    },
+    "transferId": "92d198d1-cabc-46e2-a182-a4ca43a19a72"
+  },
+  "ACCOUNT_CURRENCY_MISMATCH": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90302: Account currency mismatch",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90302",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Account currency mismatch"
+    },
+    "transferId": "fc83db20-6def-4287-a879-7c4d5a564d8d"
+  },
+  "ACCOUNT_INACTIVE_OR_DORMANT": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90702: Account inactive or dormant",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90702",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Account inactive or dormant"
+    },
+    "transferId": "97bcb8c1-95a8-4458-80fd-b6270cbc2da7"
+  },
+  "ACCOUNT_UNDER_RESTRICTION": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90703: Account under restriction",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90703",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Account under restriction"
+    },
+    "transferId": "27a34b4e-f468-4d37-af00-58dc4564338e"
+  },
+  "BENEFICIARY_BANK_RETURNED": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90802: Beneficiary bank returned",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90802",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Beneficiary bank returned"
+    },
+    "transferId": "6df34606-0044-4a4f-8f5f-106f7cb617b6"
+  },
+  "BENEFICIARY_NAME_MISMATCH": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90301: Beneficiary name mismatch",
+    "fetchedStatus": "FAILED",
+    "fetchedFailure": {
+      "code": "90301",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Beneficiary name mismatch"
+    },
+    "transferId": "7442d1ff-4344-465c-b438-16f7794ca9c5"
+  },
+  "BENEFICIARY_REQUESTED": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90801: Beneficiary requested",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90801",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Beneficiary requested"
+    },
+    "transferId": "e112bca3-333f-4a80-a127-ca1d08490ead"
+  },
+  "CARD_ISSUER_ERROR": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "91201: Card issuer error",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "91201",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Card issuer error"
+    },
+    "transferId": "07ae25fc-7d9a-4fe4-b533-c6a943c5d236"
+  },
+  "CHANNEL_POLICY": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90501: Channel policy",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90501",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Channel policy"
+    },
+    "transferId": "dd7710e6-ac00-4cfc-962e-7e60f3da7c7a"
+  },
+  "CHANNEL_TIMEOUT": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "91402: Channel timeout",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "91402",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Channel timeout"
+    },
+    "transferId": "b386d82a-2c88-44ab-906e-0c2421200c3a"
+  },
+  "CLIENT_REQUESTED": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "91002: Client requested",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "91002",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Client requested"
+    },
+    "transferId": "ba7bf680-0f57-4884-9715-e1514e927c89"
+  },
+  "DUPLICATION_RETURN": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "91301: Duplication return",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "91301",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Duplication return"
+    },
+    "transferId": "0a43b32e-1f34-47c3-986e-4ca89163b0aa"
+  },
+  "EXCEEDED_TRANSACTION_AMOUNT_OR_LIMIT": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90601: Exceeded transaction amount or limit",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90601",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Exceeded transaction amount or limit"
+    },
+    "transferId": "77d51bfd-f1ef-43ed-8bfb-12834d6cb8a5"
+  },
+  "INBOUND_2B_CARD_NOT_SUPPORTED": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90903: Inbound 2B card not supported",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90903",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Inbound 2B card not supported"
+    },
+    "transferId": "7a5ec977-c235-42e6-bd66-4107bc6b2ff9"
+  },
+  "INBOUND_BENFICIARY_VALIDATION_ERROR": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90901: Inbound benficiary validation error",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90901",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Inbound benficiary validation error"
+    },
+    "transferId": "9e103f7c-d4a1-4234-bf1d-78eea0bfce95"
+  },
+  "INBOUND_COMPANY_REGISTRATION_NUMBER_ERROR": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90904: Inbound company registration number error",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90904",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Inbound company registration number error"
+    },
+    "transferId": "36e95b8a-f423-4a34-b852-27d591a69478"
+  },
+  "INBOUND_ORDER_ERROR": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90902: Inbound order error",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90902",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Inbound order error"
+    },
+    "transferId": "df812974-e08f-453f-be71-1c792f1fceed"
+  },
+  "INSUFFICIENT_FUNDS": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90602: Insufficient funds",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90602",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Insufficient funds"
+    },
+    "transferId": "16bf2778-4a5b-460a-8579-24d2b5fe69a0"
+  },
+  "INVALID_ACCOUNT_NAME_OR_NUMBER": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90101: Invalid account name/number",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90101",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Invalid account name/number"
+    },
+    "transferId": "04f483db-a081-45c5-869a-1fd2f65052f9"
+  },
+  "INVALID_BANK_INFORMATION": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90204: Invalid bank information",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90204",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Invalid bank information"
+    },
+    "transferId": "18302fa6-3320-4687-80b3-10bf8242bf08"
+  },
+  "INVALID_BANK_OR_BRANCH_CODE": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90201: Invalid bank/branch code",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90201",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Invalid bank/branch code"
+    },
+    "transferId": "ebf09501-de1f-44ec-be17-6dc83efbddab"
+  },
+  "INVALID_BENEFICIARY_DETAILS": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90401: Invalid beneficiary details",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90401",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Invalid beneficiary details"
+    },
+    "transferId": "6930f2ee-0e00-4a17-89db-f4c027c81ec2"
+  },
+  "INVALID_CORRESPONDENT_BANK_INFORMATION": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90203: Invalid correspondent bank information",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90203",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Invalid correspondent bank information"
+    },
+    "transferId": "895692cf-98bc-4b3d-9a7c-0ded0c4882d7"
+  },
+  "INVALID_PAYMENT_PURPOSE": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "91101: Invalid payment purpose",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "91101",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Invalid payment purpose"
+    },
+    "transferId": "8f821af0-f5b2-4219-990d-bdd5e5ad5f1f"
+  },
+  "INVALID_SPECIAL_CHARACTER": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90402: Invalid special character",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90402",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Invalid special character"
+    },
+    "transferId": "9b26ea80-946b-4124-a5ad-7dc4b47bc2f0"
+  },
+  "INVALID_SWIFT_BIC_CODE": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90202: Invalid SWIFT/BIC code",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90202",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Invalid SWIFT/BIC code"
+    },
+    "transferId": "a4e20442-5342-4c04-aff0-bf82ab9a302f"
+  },
+  "OTHER": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "99902: Other",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "99902",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Other"
+    },
+    "transferId": "1fa98e35-ee84-46ee-8ffd-06fdf8643841"
+  },
+  "RECALL_REQUESTED": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "91001: Recall requested",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "91001",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Recall requested"
+    },
+    "transferId": "34e11639-41ef-4589-bb10-7bfee2909ea6"
+  },
+  "SYSTEM_ERROR": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "91401: System error",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "91401",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "System error"
+    },
+    "transferId": "c14fc23b-e6ce-4bc8-a3ac-aadd16b63317"
+  },
+  "TM_SUSPENDED": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90502: TM suspended",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90502",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "TM suspended"
+    },
+    "transferId": "0daedb6d-a659-40f7-8668-5b250a6c9e9f"
+  },
+  "TRANSACTION_AMOUNT_NOT_COVERING_FEE": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "90603: Transaction amount not covering fee",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "90603",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Transaction amount not covering fee"
+    },
+    "transferId": "936a56a2-0c22-4f9d-b2fc-e18fb28652d7"
+  },
+  "UNABLE_TO_APPLY": {
+    "http": 200,
+    "simulatorStatus": "FAILED",
+    "simulatorFailureType": "INCORRECT_ROUTING",
+    "simulatorFailureReason": "99901: Unable to apply",
+    "fetchedStatus": "CANCELLED",
+    "fetchedFailure": {
+      "code": "99901",
+      "details": {
+        "type": "INCORRECT_ROUTING"
+      },
+      "message": "Unable to apply"
+    },
+    "transferId": "e500b309-5975-4979-81cd-485b06aa9df2"
+  }
+}

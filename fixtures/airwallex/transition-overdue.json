@@ -1,0 +1,17 @@
+{
+  "method": "POST",
+  "path": "/api/v1/simulation/transfers/14c80fc2-06bc-4d16-8c5a-584804d1a91a/transition",
+  "request": {
+    "next_status": "OVERDUE"
+  },
+  "response": {
+    "status": 500,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "operation_failed",
+      "message": "Request could not be processed"
+    }
+  }
+}

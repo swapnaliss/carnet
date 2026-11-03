@@ -1,0 +1,106 @@
+{
+  "method": "GET",
+  "path": "/api/v1/global_accounts/834b33f1-3b14-4cca-b4f8-e57bc67154fb/transactions",
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "has_more": false,
+      "items": [
+        {
+          "amount": 1000,
+          "create_time": "2026-11-03T09:43:15+0000",
+          "currency": "HKD",
+          "description": "test",
+          "id": "dce0d70a-dc02-4e58-a8dc-aa3f5b2aab6d",
+          "status": "SETTLED",
+          "type": "CREDIT"
+        },
+        {
+          "amount": 1000,
+          "create_time": "2026-11-03T09:37:32+0000",
+          "currency": "HKD",
+          "description": "test",
+          "id": "d415f831-5ef7-4c76-80f2-6d738a09f9db",
+          "status": "SETTLED",
+          "type": "CREDIT"
+        },
+        {
+          "amount": 1000,
+          "create_time": "2026-11-03T09:34:59+0000",
+          "currency": "HKD",
+          "description": "test",
+          "id": "d8ab8e3d-3e46-440a-b6f0-e84be0d3ede2",
+          "status": "SETTLED",
+          "type": "CREDIT"
+        },
+        {
+          "amount": 1000,
+          "create_time": "2026-11-03T09:31:52+0000",
+          "currency": "HKD",
+          "description": "test",
+          "id": "0d2c14ff-f572-4e9c-bdbf-a4f4fbf831e2",
+          "status": "SETTLED",
+          "type": "CREDIT"
+        },
+        {
+          "amount": 1000,
+          "create_time": "2026-11-03T09:30:26+0000",
+          "currency": "HKD",
+          "description": "test",
+          "id": "f206fa72-e624-4f06-b9fb-e77500dbb518",
+          "status": "SETTLED",
+          "type": "CREDIT"
+        },
+        {
+          "amount": 1000,
+          "create_time": "2026-11-03T09:30:14+0000",
+          "currency": "HKD",
+          "description": "test",
+          "id": "270fc55b-ca81-4c71-9a93-4b5f0bb726d3",
+          "status": "SETTLED",
+          "type": "CREDIT"
+        },
+        {
+          "amount": 1000,
+          "create_time": "2026-11-03T09:29:56+0000",
+          "currency": "HKD",
+          "description": "test",
+          "id": "8f337724-5d6d-42dd-8b31-880d5582362b",
+          "status": "SETTLED",
+          "type": "CREDIT"
+        },
+        {
+          "amount": 1000,
+          "create_time": "2026-11-03T09:29:37+0000",
+          "currency": "HKD",
+          "description": "test",
+          "id": "84572960-d808-4161-8000-a1df05405b38",
+          "status": "SETTLED",
+          "type": "CREDIT"
+        },
+        {
+          "amount": 1000,
+          "create_time": "2026-11-03T09:28:48+0000",
+          "currency": "HKD",
+          "description": "test",
+          "id": "d9002ff0-475c-425d-b198-42ca85308941",
+          "status": "SETTLED",
+          "type": "CREDIT"
+        },
+        {
+          "amount": 1000,
+          "create_time": "2026-11-03T09:28:47+0000",
+          "currency": "HKD",
+          "description": "test",
+          "id": "acf31ad7-1b2f-426e-96b0-3424bef9e195",
+          "status": "SETTLED",
+          "type": "CREDIT"
+        }
+      ],
+      "total_count": 10
+    }
+  }
+}

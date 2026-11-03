@@ -1,0 +1,43 @@
+{
+  "method": "GET",
+  "path": "/api/v1/fx/conversions/fa8ba678-99cb-4d69-9435-5d1b6428e5f0",
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "awx_rate": 1.119125,
+      "buy_amount": 88.47,
+      "buy_currency": "EUR",
+      "client_rate": 1.130316,
+      "conversion_date": "2026-11-03",
+      "conversion_id": "fa8ba678-99cb-4d69-9435-5d1b6428e5f0",
+      "created_at": "2026-11-03T09:43:20+0000",
+      "currency_pair": "EURUSD",
+      "dealt_currency": "USD",
+      "mid_rate": 1.11894,
+      "rate_details": [
+        {
+          "buy_amount": 89.36,
+          "level": "AWX",
+          "rate": 1.119125,
+          "sell_amount": 100
+        },
+        {
+          "buy_amount": 88.47,
+          "level": "CLIENT",
+          "rate": 1.130316,
+          "sell_amount": 100
+        }
+      ],
+      "request_id": "51a584fa-8415-4a38-8c64-bc94e3b9345b",
+      "sell_amount": 100,
+      "sell_currency": "USD",
+      "settlement_cutoff_at": "2026-11-03T09:43:20+0000",
+      "short_reference_id": "C261103-SM9UCDI",
+      "status": "SETTLED",
+      "updated_at": "2026-11-03T09:43:20+0000"
+    }
+  }
+}

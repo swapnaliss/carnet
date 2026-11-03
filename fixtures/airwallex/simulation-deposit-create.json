@@ -1,0 +1,26 @@
+{
+  "method": "POST",
+  "path": "/api/v1/simulation/deposit/create",
+  "request": {
+    "global_account_id": "834b33f1-3b14-4cca-b4f8-e57bc67154fb",
+    "amount": 1000,
+    "currency": "HKD",
+    "request_id": "547ee103-bf57-4816-8bb4-9feeca081e5a"
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "amount": 1000,
+      "create_time": "2026-11-03T09:43:15.000+00:00",
+      "currency": "HKD",
+      "id": "dce0d70a-dc02-4e58-a8dc-aa3f5b2aab6d",
+      "status": "PENDING",
+      "reference": "test",
+      "deposit_type": "Credit",
+      "statement_ref": "254ba2a9-56a8-41e7-b761-2ac432a98565"
+    }
+  }
+}

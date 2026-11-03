@@ -1,0 +1,30 @@
+{
+  "method": "POST",
+  "path": "/api/v1/transfers/create",
+  "request": {
+    "request_id": "ae061f97-23df-48a9-ad91-aae3f5050b6b",
+    "beneficiary_id": "bc0bfa01-7b09-45e3-9f2a-a3cc09eb54be",
+    "source_currency": "USD",
+    "transfer_currency": "USD",
+    "source_amount": 26,
+    "transfer_method": "LOCAL",
+    "reason": "professional_business_services",
+    "reference": "M0-03 spike",
+    "fee_paid_by": "PAYER"
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "duplicate_request_id",
+      "details": {
+        "id": "420468b9-15f0-4e07-a015-155c99b92444",
+        "request_id": "ae061f97-23df-48a9-ad91-aae3f5050b6b"
+      },
+      "message": "The request ID ae061f97-23df-48a9-ad91-aae3f5050b6b has been used for a transfer with the transfer ID 420468b9-15f0-4e07-a015-155c99b92444 before. Please use a different request ID if you wish to create a separate transfer.",
+      "source": "request_id"
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "method": "POST",
+  "path": "/api/v1/beneficiaries/create",
+  "request": {
+    "request_id": "35f886e5-2608-487b-abc5-08a8a1431c9f",
+    "nickname": "spike-de-eur",
+    "beneficiary": {
+      "entity_type": "COMPANY",
+      "company_name": "Nordlicht Test GmbH",
+      "address": {
+        "country_code": "DE",
+        "postcode": "10115",
+        "street_address": "Invalidenstrasse 1",
+        "city": "Berlin"
+      },
+      "bank_details": {
+        "account_currency": "EUR",
+        "bank_country_code": "DE",
+        "account_name": "Nordlicht Test GmbH",
+        "iban": "DE89370400440532013000"
+      },
+      "type": "BANK_ACCOUNT"
+    },
+    "transfer_methods": [
+      "SWIFT"
+    ]
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "beneficiary": {
+        "address": {
+          "city": "Berlin",
+          "country_code": "DE",
+          "postcode": "10115",
+          "street_address": "Invalidenstrasse 1"
+        },
+        "bank_details": {
+          "account_currency": "EUR",
+          "account_name": "Nordlicht Test GmbH",
+          "bank_country_code": "DE",
+          "bank_name": "Commerzbank",
+          "iban": "DE89370400440532013000"
+        },
+        "entity_type": "COMPANY",
+        "type": "BANK_ACCOUNT"
+      },
+      "id": "4f97ce7e-6c24-48d3-81d7-47e5d6e738cb",
+      "nickname": "spike-de-eur",
+      "payer_entity_type": "COMPANY",
+      "transfer_methods": [
+        "SWIFT"
+      ]
+    }
+  }
+}

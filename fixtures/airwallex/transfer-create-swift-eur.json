@@ -1,0 +1,81 @@
+{
+  "method": "POST",
+  "path": "/api/v1/transfers/create",
+  "request": {
+    "request_id": "7acbfd30-2228-48a9-8858-1c39295487d3",
+    "beneficiary_id": "4f97ce7e-6c24-48d3-81d7-47e5d6e738cb",
+    "source_currency": "EUR",
+    "transfer_currency": "EUR",
+    "source_amount": 30,
+    "transfer_method": "SWIFT",
+    "reason": "professional_business_services",
+    "reference": "M0-03 spike",
+    "fee_paid_by": "PAYER"
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "amount_beneficiary_receives": 30,
+      "amount_payer_pays": 43.41,
+      "beneficiary": {
+        "address": {
+          "city": "Berlin",
+          "country_code": "DE",
+          "postcode": "10115",
+          "street_address": "Invalidenstrasse 1"
+        },
+        "bank_details": {
+          "account_currency": "EUR",
+          "account_name": "Nordlicht Test GmbH",
+          "bank_country_code": "DE",
+          "bank_name": "COMMERZBANK AG",
+          "iban": "DE89370400440532013000"
+        },
+        "entity_type": "COMPANY",
+        "type": "BANK_ACCOUNT"
+      },
+      "beneficiary_id": "4f97ce7e-6c24-48d3-81d7-47e5d6e738cb",
+      "created_at": "2026-11-03T09:43:22+0000",
+      "fee_amount": 13.41,
+      "fee_currency": "EUR",
+      "fee_paid_by": "PAYER",
+      "funding": {
+        "status": "FUNDED"
+      },
+      "id": "45cb49ea-74bc-4bca-b450-e7ecbb85baf6",
+      "payer": {
+        "additional_info": {
+          "business_incorporation_date": "2025-04-08",
+          "business_registration_number": "X12345678",
+          "business_registration_type": "COMPANY"
+        },
+        "address": {
+          "city": "Barito Timur",
+          "country_code": "IN",
+          "postcode": "76714",
+          "state": "Nevada",
+          "street_address": "Jl. Jend. Sudirman No. 76"
+        },
+        "company_name": "Sandbox Business",
+        "entity_type": "COMPANY"
+      },
+      "reason": "professional_business_services",
+      "reference": "M0-03 spike",
+      "remarks": "",
+      "request_id": "7acbfd30-2228-48a9-8858-1c39295487d3",
+      "short_reference_id": "P261103-9AREA50",
+      "source_amount": 30,
+      "source_currency": "EUR",
+      "status": "SCHEDULED",
+      "swift_charge_option": "SHARED",
+      "transfer_amount": 30,
+      "transfer_currency": "EUR",
+      "transfer_date": "2026-11-03",
+      "transfer_method": "SWIFT",
+      "updated_at": "2026-11-03T09:43:22+0000"
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "method": "GET",
+  "path": "/api/v1/transfers/92d198d1-cabc-46e2-a182-a4ca43a19a72",
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "amount_beneficiary_receives": 10,
+      "amount_payer_pays": 13,
+      "beneficiary": {
+        "address": {
+          "city": "New York",
+          "country_code": "US",
+          "postcode": "10001",
+          "state": "New York",
+          "street_address": "350 Fifth Avenue"
+        },
+        "bank_details": {
+          "account_currency": "USD",
+          "account_name": "Northwind Test Supplies LLC",
+          "account_number": "1234567890",
+          "account_routing_type1": "aba",
+          "account_routing_value1": "021000021",
+          "bank_account_category": "Checking",
+          "bank_country_code": "US",
+          "bank_name": "JPMorgan Chase Bank, NA",
+          "local_clearing_system": "ACH"
+        },
+        "entity_type": "COMPANY",
+        "type": "BANK_ACCOUNT"
+      },
+      "beneficiary_id": "bc0bfa01-7b09-45e3-9f2a-a3cc09eb54be",
+      "created_at": "2026-11-03T09:43:55+0000",
+      "dispatch_date": "2026-11-03",
+      "failure": {
+        "code": "90701",
+        "details": {
+          "type": "INCORRECT_ROUTING"
+        },
+        "message": "Account closed"
+      },
+      "fee_amount": 3,
+      "fee_currency": "USD",
+      "fee_paid_by": "PAYER",
+      "funding": {
+        "status": "FUNDED"
+      },
+      "id": "92d198d1-cabc-46e2-a182-a4ca43a19a72",
+      "payer": {
+        "additional_info": {
+          "business_incorporation_date": "2025-04-08",
+          "business_registration_number": "X12345678",
+          "business_registration_type": "COMPANY"
+        },
+        "address": {
+          "city": "Barito Timur",
+          "country_code": "IN",
+          "postcode": "76714",
+          "state": "Nevada",
+          "street_address": "Jl. Jend. Sudirman No. 76"
+        },
+        "company_name": "Sandbox Business",
+        "entity_type": "COMPANY"
+      },
+      "reason": "professional_business_services",
+      "reference": "M0-03 spike",
+      "remarks": "",
+      "request_id": "aeae76c1-6e2d-4ee1-89ea-7c1fd13c8e7f",
+      "short_reference_id": "P261103-C9Y0HEE",
+      "source_amount": 10,
+      "source_currency": "USD",
+      "status": "CANCELLED",
+      "swift_charge_option": "SHARED",
+      "transfer_amount": 10,
+      "transfer_currency": "USD",
+      "transfer_date": "2026-11-03",
+      "transfer_method": "LOCAL",
+      "updated_at": "2026-11-03T09:43:58+0000"
+    }
+  }
+}
