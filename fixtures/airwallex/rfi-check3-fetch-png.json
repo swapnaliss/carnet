@@ -1,0 +1,60 @@
+{
+  "method": "GET",
+  "path": "/api/v1/rfis/bcdfe61e-6e61-4baf-826e-d13d5bb0f1c7",
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "account_id": "acct_bEEzbdD8Ps6YnCJ_GJiawQ",
+      "answered_requests": [
+        {
+          "created_at": "2026-11-03T09:57:46+0000",
+          "expires_at": "2026-11-17T09:57:47+0000",
+          "questions": [
+            {
+              "answer": {
+                "attachments": [
+                  {
+                    "file_id": "X19SRklfX05XWTNNV0ppT1RBdE5EWXdOaTAwTVROakxUazNNRFF0WlRJeFpqUTVNVE01WTJZMExId3NjMmNzZkN4bGRtbGtaVzVqWlM1d2JtZGZNVGM1TXpZNU9UZzJOVGcyTlE"
+                  }
+                ],
+                "type": "ATTACHMENT"
+              },
+              "attachments": [],
+              "description": {
+                "en": "Spike question",
+                "zh": "请提供相关合同、发票或装运文件。"
+              },
+              "id": "8e798242-01bd-4161-a538-dfe113f41bcb",
+              "sources": [
+                {
+                  "id": "f2ead9d7-6969-4a3a-9b8e-f474003c039b",
+                  "type": "TRANSFER"
+                }
+              ],
+              "title": {
+                "en": "Evidence png",
+                "zh": "[Simulation] 申请支持文件"
+              },
+              "trigger": "OTHERS",
+              "uploaded_orders": [
+                {
+                  "order_id": "SIMULATION_5254c9bb-b697-43a3-b559-510825ed2e22"
+                }
+              ]
+            }
+          ],
+          "updated_at": "2026-11-03T09:57:47+0000"
+        }
+      ],
+      "created_at": "2026-11-03T09:57:47+0000",
+      "id": "bcdfe61e-6e61-4baf-826e-d13d5bb0f1c7",
+      "status": "ANSWERED",
+      "sub_type": "TRANSACTION_MONITORING",
+      "type": "TRANSACTION",
+      "updated_at": "2026-11-03T09:57:47+0000"
+    }
+  }
+}

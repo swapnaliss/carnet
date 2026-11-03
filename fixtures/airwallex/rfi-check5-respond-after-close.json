@@ -1,0 +1,24 @@
+{
+  "method": "POST",
+  "path": "/api/v1/rfis/ecb3f7b4-691a-4358-af53-bff3bec623e3/respond",
+  "request": {
+    "questions": [
+      {
+        "id": "a813179d-ec28-4c6b-b9d1-9292b6be7917",
+        "answer": {
+          "type": "TEXT",
+          "text": "late"
+        }
+      }
+    ]
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "invalid_state_for_operation"
+    }
+  }
+}

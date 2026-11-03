@@ -1,0 +1,120 @@
+{
+  "method": "POST",
+  "path": "/api/v1/simulation/rfis/create",
+  "request": {
+    "type": "TRANSACTION",
+    "questions": [
+      {
+        "answer": {
+          "type": "TEXT"
+        },
+        "title": {
+          "en": "What is the purpose of this payment?"
+        },
+        "description": {
+          "en": "Spike question"
+        },
+        "sources": [
+          {
+            "id": "258d17cc-e230-4fa1-be0d-09c5c06269c0",
+            "type": "TRANSFER"
+          }
+        ]
+      },
+      {
+        "answer": {
+          "type": "ATTACHMENT"
+        },
+        "title": {
+          "en": "Upload the supplier invoice"
+        },
+        "description": {
+          "en": "Spike question"
+        },
+        "sources": [
+          {
+            "id": "258d17cc-e230-4fa1-be0d-09c5c06269c0",
+            "type": "TRANSFER"
+          }
+        ]
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "id": "0dd13238-ae6a-45ce-ac21-91671fbbfef7",
+      "type": "TRANSACTION",
+      "sub_type": "TRANSACTION_MONITORING",
+      "account_id": "acct_bEEzbdD8Ps6YnCJ_GJiawQ",
+      "status": "ACTION_REQUIRED",
+      "active_request": {
+        "questions": [
+          {
+            "id": "18689f9a-d008-4f1d-8b1c-082a4b81df30",
+            "trigger": "OTHERS",
+            "title": {
+              "en": "What is the purpose of this payment?",
+              "zh": "[Simulation] 交易目的"
+            },
+            "description": {
+              "en": "Spike question",
+              "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+            },
+            "attachments": [],
+            "answer": {
+              "type": "TEXT"
+            },
+            "uploaded_orders": [
+              {
+                "order_id": "SIMULATION_5759a05e-7b0f-429a-a8f4-c9826c239291"
+              }
+            ],
+            "sources": [
+              {
+                "id": "258d17cc-e230-4fa1-be0d-09c5c06269c0",
+                "type": "TRANSFER"
+              }
+            ]
+          },
+          {
+            "id": "4f02f8bd-93cc-471b-b284-f0848b1bfc21",
+            "trigger": "OTHERS",
+            "title": {
+              "en": "Upload the supplier invoice",
+              "zh": "[Simulation] 申请支持文件"
+            },
+            "description": {
+              "en": "Spike question",
+              "zh": "请提供相关合同、发票或装运文件。"
+            },
+            "attachments": [],
+            "answer": {
+              "type": "ATTACHMENT"
+            },
+            "uploaded_orders": [
+              {
+                "order_id": "SIMULATION_5759a05e-7b0f-429a-a8f4-c9826c239291"
+              }
+            ],
+            "sources": [
+              {
+                "id": "258d17cc-e230-4fa1-be0d-09c5c06269c0",
+                "type": "TRANSFER"
+              }
+            ]
+          }
+        ],
+        "created_at": "2026-11-03T09:57:38+0000",
+        "updated_at": "2026-11-03T09:57:38+0000",
+        "expires_at": "2026-11-17T09:57:38+0000"
+      },
+      "answered_requests": [],
+      "created_at": "2026-11-03T09:57:38+0000",
+      "updated_at": "2026-11-03T09:57:38+0000"
+    }
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "method": "POST",
+  "path": "/api/v1/simulation/transfers/67ae0210-9f36-486f-9c93-7f001657e93f/transition",
+  "request": {
+    "next_status": "SENT"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "request_id": "a2dea5ff-d49c-4973-9be7-a3230898d597",
+      "id": "67ae0210-9f36-486f-9c93-7f001657e93f",
+      "transfer_currency": "USD",
+      "transfer_amount": 20,
+      "source_amount": 20,
+      "fee_currency": "USD",
+      "fee_amount": 3,
+      "fee_paid_by": "PAYER",
+      "amount_payer_pays": 23,
+      "amount_beneficiary_receives": 20,
+      "transfer_date": "2026-11-03",
+      "reason": "professional_business_services",
+      "reference": "M0-03 spike",
+      "payer": {
+        "entity_type": "COMPANY",
+        "company_name": "Sandbox Business",
+        "address": {
+          "street_address": "Jl. Jend. Sudirman No. 76",
+          "country_code": "IN",
+          "postcode": "76714",
+          "state": "Nevada",
+          "city": "Barito Timur"
+        },
+        "additional_info": {
+          "business_registration_type": "COMPANY",
+          "business_registration_number": "X12345678",
+          "business_incorporation_date": "2025-04-08"
+        }
+      },
+      "beneficiary_id": "bc0bfa01-7b09-45e3-9f2a-a3cc09eb54be",
+      "beneficiary": {
+        "type": "BANK_ACCOUNT",
+        "entity_type": "COMPANY",
+        "address": {
+          "street_address": "350 Fifth Avenue",
+          "country_code": "US",
+          "postcode": "10001",
+          "state": "New York",
+          "city": "New York"
+        },
+        "bank_details": {
+          "bank_name": "JPMorgan Chase Bank, NA",
+          "bank_country_code": "US",
+          "account_name": "Northwind Test Supplies LLC",
+          "account_number": "1234567890",
+          "account_currency": "USD",
+          "account_routing_type1": "aba",
+          "account_routing_value1": "021000021",
+          "local_clearing_system": "ACH",
+          "bank_account_category": "Checking"
+        }
+      },
+      "short_reference_id": "P261103-3A8QQVZ",
+      "status": "SENT",
+      "created_at": "2026-11-03T09:57:58+0000",
+      "updated_at": "2026-11-03T09:58:01+0000",
+      "transfer_method": "LOCAL",
+      "swift_charge_option": "SHARED",
+      "source_currency": "USD",
+      "dispatch_date": "2026-11-03",
+      "remarks": "",
+      "funding": {
+        "status": "FUNDED"
+      }
+    }
+  }
+}

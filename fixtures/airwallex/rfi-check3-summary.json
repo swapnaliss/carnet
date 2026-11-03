@@ -1,0 +1,69 @@
+{
+  "png": {
+    "bytes": 70,
+    "upload": {
+      "status": 201,
+      "body": {
+        "file_id": "<id>"
+      }
+    },
+    "respond": {
+      "status": 200,
+      "body": "ok",
+      "rfiStatusAfter": "ANSWERED"
+    }
+  },
+  "pdf": {
+    "bytes": 193,
+    "upload": {
+      "status": 201,
+      "body": {
+        "file_id": "<id>"
+      }
+    },
+    "respond": {
+      "status": 200,
+      "body": "ok",
+      "rfiStatusAfter": "ANSWERED"
+    }
+  },
+  "jpeg": {
+    "bytes": 134,
+    "upload": {
+      "status": 201,
+      "body": {
+        "file_id": "<id>"
+      }
+    },
+    "respond": {
+      "status": 200,
+      "body": "ok",
+      "rfiStatusAfter": "ANSWERED"
+    }
+  },
+  "oversized-21mb-pdf": {
+    "bytes": 22020096,
+    "upload": {
+      "status": 201,
+      "body": {
+        "file_id": "<id>"
+      }
+    },
+    "respond": {
+      "status": 200,
+      "body": "ok",
+      "rfiStatusAfter": "ANSWERED"
+    }
+  },
+  "txt": {
+    "bytes": 19,
+    "upload": {
+      "status": 400,
+      "body": {
+        "code": "invalid_file_extension",
+        "message": "ensure file extension is one of [pdf, jpg, png, doc, docx, xls, xlsx, csv, jpeg, cer, bmp, tif, tiff, webm, mov, mp4, heic, m4a, weba, mp3, wav, aac, amr, xml]",
+        "source": "file"
+      }
+    }
+  }
+}

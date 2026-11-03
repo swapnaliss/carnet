@@ -1,0 +1,36 @@
+{
+  "method": "POST",
+  "path": "/api/v1/simulation/rfis/create",
+  "request": {
+    "type": "TRANSACTION",
+    "questions": [
+      {
+        "answer": {
+          "type": "TEXT"
+        },
+        "title": {
+          "en": "Purpose?"
+        },
+        "description": {
+          "en": "Spike question"
+        },
+        "sources": [
+          {
+            "id": "0a667db8-fb2e-4a3a-bbdd-273e9498f90c",
+            "type": "TRANSFER"
+          }
+        ]
+      }
+    ]
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "invalid_argument",
+      "message": "Invalid source"
+    }
+  }
+}

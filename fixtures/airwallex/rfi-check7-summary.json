@@ -1,0 +1,83 @@
+{
+  "multi": {
+    "status": 200,
+    "createdSources": [
+      {
+        "title": "Both payments?",
+        "sources": [
+          {
+            "id": "d48432dd-e172-4c0c-9002-6ea0e1898291",
+            "type": "TRANSFER"
+          }
+        ]
+      }
+    ],
+    "fetchedSources": [
+      {
+        "title": "Both payments?",
+        "sources": [
+          {
+            "id": "d48432dd-e172-4c0c-9002-6ea0e1898291",
+            "type": "TRANSFER"
+          }
+        ]
+      }
+    ]
+  },
+  "openRuleOtherSource": {
+    "status": 200,
+    "body": "created"
+  },
+  "openRuleOverlappingSource": {
+    "status": 200,
+    "body": "created"
+  },
+  "none": {
+    "status": 200,
+    "createdSources": [
+      {
+        "title": "Orphan question",
+        "sources": [
+          {
+            "id": "SIMULATION_526af406-cf11-4d71-94d0-ea87a6dccec4",
+            "type": "DEPOSIT"
+          }
+        ]
+      }
+    ],
+    "fetchedSources": [
+      {
+        "title": "Orphan question",
+        "sources": [
+          {
+            "id": "SIMULATION_526af406-cf11-4d71-94d0-ea87a6dccec4",
+            "type": "DEPOSIT"
+          }
+        ]
+      }
+    ]
+  },
+  "perQuestion": {
+    "status": 200,
+    "createdSources": [
+      {
+        "title": "About A",
+        "sources": [
+          {
+            "id": "d48432dd-e172-4c0c-9002-6ea0e1898291",
+            "type": "TRANSFER"
+          }
+        ]
+      },
+      {
+        "title": "About B",
+        "sources": [
+          {
+            "id": "f5bf13df-e735-4306-8e52-f45ffd615eb6",
+            "type": "TRANSFER"
+          }
+        ]
+      }
+    ]
+  }
+}

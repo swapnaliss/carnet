@@ -1,0 +1,36 @@
+{
+  "method": "POST",
+  "path": "/api/v1/simulation/rfis/create",
+  "request": {
+    "type": "TRANSACTION",
+    "questions": [
+      {
+        "answer": {
+          "type": "TEXT"
+        },
+        "title": {
+          "en": "Second?"
+        },
+        "description": {
+          "en": "Spike question"
+        },
+        "sources": [
+          {
+            "id": "aadf4a05-28af-4735-940c-c956592c99d3",
+            "type": "TRANSFER"
+          }
+        ]
+      }
+    ]
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "invalid_state_for_operation",
+      "message": "There is an active RFI for the same type and source. Please close the existing RFI before creating a new one."
+    }
+  }
+}

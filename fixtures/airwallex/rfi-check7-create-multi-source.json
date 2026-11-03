@@ -1,0 +1,80 @@
+{
+  "method": "POST",
+  "path": "/api/v1/simulation/rfis/create",
+  "request": {
+    "type": "TRANSACTION",
+    "questions": [
+      {
+        "answer": {
+          "type": "TEXT"
+        },
+        "title": {
+          "en": "Both payments?"
+        },
+        "description": {
+          "en": "Spike question"
+        },
+        "sources": [
+          {
+            "id": "d48432dd-e172-4c0c-9002-6ea0e1898291",
+            "type": "TRANSFER"
+          },
+          {
+            "id": "f5bf13df-e735-4306-8e52-f45ffd615eb6",
+            "type": "TRANSFER"
+          }
+        ]
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "id": "355b7725-f149-4b6e-b7fb-117580ff0233",
+      "type": "TRANSACTION",
+      "sub_type": "TRANSACTION_MONITORING",
+      "account_id": "acct_bEEzbdD8Ps6YnCJ_GJiawQ",
+      "status": "ACTION_REQUIRED",
+      "active_request": {
+        "questions": [
+          {
+            "id": "729f344a-3bbc-4c00-9182-11454d8a65b3",
+            "trigger": "OTHERS",
+            "title": {
+              "en": "Both payments?",
+              "zh": "[Simulation] 交易目的"
+            },
+            "description": {
+              "en": "Spike question",
+              "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+            },
+            "attachments": [],
+            "answer": {
+              "type": "TEXT"
+            },
+            "uploaded_orders": [
+              {
+                "order_id": "SIMULATION_97dc5a40-5623-4e1f-9937-bca3117f17c9"
+              }
+            ],
+            "sources": [
+              {
+                "id": "d48432dd-e172-4c0c-9002-6ea0e1898291",
+                "type": "TRANSFER"
+              }
+            ]
+          }
+        ],
+        "created_at": "2026-11-03T09:58:54+0000",
+        "updated_at": "2026-11-03T09:58:54+0000",
+        "expires_at": "2026-11-17T09:58:55+0000"
+      },
+      "answered_requests": [],
+      "created_at": "2026-11-03T09:58:55+0000",
+      "updated_at": "2026-11-03T09:58:55+0000"
+    }
+  }
+}

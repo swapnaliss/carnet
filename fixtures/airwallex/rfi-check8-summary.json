@@ -1,0 +1,51 @@
+{
+  "before": {
+    "available_amount": 9997787,
+    "currency": "USD",
+    "pending_amount": 0,
+    "reserved_amount": 0,
+    "total_amount": 9997787,
+    "prepayment_amount": 0,
+    "account_type": "cash"
+  },
+  "created": {
+    "available_amount": 9997744,
+    "currency": "USD",
+    "pending_amount": 0,
+    "reserved_amount": 0,
+    "total_amount": 9997744,
+    "prepayment_amount": 0,
+    "account_type": "cash"
+  },
+  "processing": {
+    "available_amount": 9997744,
+    "currency": "USD",
+    "pending_amount": 0,
+    "reserved_amount": 0,
+    "total_amount": 9997744,
+    "prepayment_amount": 0,
+    "account_type": "cash"
+  },
+  "rfiOpen": {
+    "available_amount": 9997744,
+    "currency": "USD",
+    "pending_amount": 0,
+    "reserved_amount": 0,
+    "total_amount": 9997744,
+    "prepayment_amount": 0,
+    "account_type": "cash"
+  },
+  "afterClose": {
+    "available_amount": 9997744,
+    "currency": "USD",
+    "pending_amount": 0,
+    "reserved_amount": 0,
+    "total_amount": 9997744,
+    "prepayment_amount": 0,
+    "account_type": "cash"
+  },
+  "transferStatusWhileOpen": "PROCESSING",
+  "fundingWhileOpen": {
+    "status": "FUNDED"
+  }
+}

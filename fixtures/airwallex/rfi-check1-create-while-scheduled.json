@@ -1,0 +1,53 @@
+{
+  "method": "POST",
+  "path": "/api/v1/simulation/rfis/create",
+  "request": {
+    "type": "TRANSACTION",
+    "questions": [
+      {
+        "answer": {
+          "type": "TEXT"
+        },
+        "title": {
+          "en": "What is the purpose of this payment?"
+        },
+        "description": {
+          "en": "Spike question"
+        },
+        "sources": [
+          {
+            "id": "258d17cc-e230-4fa1-be0d-09c5c06269c0",
+            "type": "TRANSFER"
+          }
+        ]
+      },
+      {
+        "answer": {
+          "type": "ATTACHMENT"
+        },
+        "title": {
+          "en": "Upload the supplier invoice"
+        },
+        "description": {
+          "en": "Spike question"
+        },
+        "sources": [
+          {
+            "id": "258d17cc-e230-4fa1-be0d-09c5c06269c0",
+            "type": "TRANSFER"
+          }
+        ]
+      }
+    ]
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "invalid_argument",
+      "message": "Invalid source"
+    }
+  }
+}
