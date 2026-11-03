@@ -1,0 +1,338 @@
+{
+  "method": "GET",
+  "path": "/api/v1/transfers?page_size=5",
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "items": [
+        {
+          "amount_beneficiary_receives": 30,
+          "amount_payer_pays": 43.41,
+          "beneficiary": {
+            "address": {
+              "city": "Berlin",
+              "country_code": "DE",
+              "postcode": "10115",
+              "street_address": "Invalidenstrasse 1"
+            },
+            "bank_details": {
+              "account_currency": "EUR",
+              "account_name": "Nordlicht Test GmbH",
+              "bank_country_code": "DE",
+              "bank_name": "COMMERZBANK AG",
+              "iban": "DE89370400440532013000"
+            },
+            "entity_type": "COMPANY",
+            "type": "BANK_ACCOUNT"
+          },
+          "beneficiary_id": "4f97ce7e-6c24-48d3-81d7-47e5d6e738cb",
+          "created_at": "2026-11-03T09:43:22+0000",
+          "fee_amount": 13.41,
+          "fee_currency": "EUR",
+          "fee_paid_by": "PAYER",
+          "funding": {
+            "status": "FUNDED"
+          },
+          "id": "45cb49ea-74bc-4bca-b450-e7ecbb85baf6",
+          "payer": {
+            "additional_info": {
+              "business_incorporation_date": "2025-04-08",
+              "business_registration_number": "X12345678",
+              "business_registration_type": "COMPANY"
+            },
+            "address": {
+              "city": "Barito Timur",
+              "country_code": "IN",
+              "postcode": "76714",
+              "state": "Nevada",
+              "street_address": "Jl. Jend. Sudirman No. 76"
+            },
+            "company_name": "Sandbox Business",
+            "entity_type": "COMPANY"
+          },
+          "reason": "professional_business_services",
+          "reference": "M0-03 spike",
+          "remarks": "",
+          "request_id": "7acbfd30-2228-48a9-8858-1c39295487d3",
+          "short_reference_id": "P261103-9AREA50",
+          "source_amount": 30,
+          "source_currency": "EUR",
+          "status": "PROCESSING",
+          "swift_charge_option": "SHARED",
+          "transfer_amount": 30,
+          "transfer_currency": "EUR",
+          "transfer_date": "2026-11-03",
+          "transfer_method": "SWIFT",
+          "updated_at": "2026-11-03T09:43:22+0000"
+        },
+        {
+          "amount_beneficiary_receives": 25,
+          "amount_payer_pays": 28,
+          "beneficiary": {
+            "address": {
+              "city": "New York",
+              "country_code": "US",
+              "postcode": "10001",
+              "state": "New York",
+              "street_address": "350 Fifth Avenue"
+            },
+            "bank_details": {
+              "account_currency": "USD",
+              "account_name": "Northwind Test Supplies LLC",
+              "account_number": "1234567890",
+              "account_routing_type1": "aba",
+              "account_routing_value1": "021000021",
+              "bank_account_category": "Checking",
+              "bank_country_code": "US",
+              "bank_name": "JPMorgan Chase Bank, NA",
+              "local_clearing_system": "ACH"
+            },
+            "entity_type": "COMPANY",
+            "type": "BANK_ACCOUNT"
+          },
+          "beneficiary_id": "bc0bfa01-7b09-45e3-9f2a-a3cc09eb54be",
+          "created_at": "2026-11-03T09:43:21+0000",
+          "fee_amount": 3,
+          "fee_currency": "USD",
+          "fee_paid_by": "PAYER",
+          "funding": {
+            "status": "FUNDED"
+          },
+          "id": "420468b9-15f0-4e07-a015-155c99b92444",
+          "payer": {
+            "additional_info": {
+              "business_incorporation_date": "2025-04-08",
+              "business_registration_number": "X12345678",
+              "business_registration_type": "COMPANY"
+            },
+            "address": {
+              "city": "Barito Timur",
+              "country_code": "IN",
+              "postcode": "76714",
+              "state": "Nevada",
+              "street_address": "Jl. Jend. Sudirman No. 76"
+            },
+            "company_name": "Sandbox Business",
+            "entity_type": "COMPANY"
+          },
+          "reason": "professional_business_services",
+          "reference": "M0-03 spike",
+          "remarks": "",
+          "request_id": "ae061f97-23df-48a9-ad91-aae3f5050b6b",
+          "short_reference_id": "P261103-GLU9CN6",
+          "source_amount": 25,
+          "source_currency": "USD",
+          "status": "PROCESSING",
+          "swift_charge_option": "SHARED",
+          "transfer_amount": 25,
+          "transfer_currency": "USD",
+          "transfer_date": "2026-11-03",
+          "transfer_method": "LOCAL",
+          "updated_at": "2026-11-03T09:43:23+0000"
+        },
+        {
+          "amount_beneficiary_receives": 30,
+          "amount_payer_pays": 43.4,
+          "beneficiary": {
+            "address": {
+              "city": "Berlin",
+              "country_code": "DE",
+              "postcode": "10115",
+              "street_address": "Invalidenstrasse 1"
+            },
+            "bank_details": {
+              "account_currency": "EUR",
+              "account_name": "Nordlicht Test GmbH",
+              "bank_country_code": "DE",
+              "bank_name": "COMMERZBANK AG",
+              "iban": "DE89370400440532013000"
+            },
+            "entity_type": "COMPANY",
+            "type": "BANK_ACCOUNT"
+          },
+          "beneficiary_id": "d363dcad-8ea0-45aa-b815-83bd3f467e9a",
+          "created_at": "2026-11-03T09:37:39+0000",
+          "fee_amount": 13.4,
+          "fee_currency": "EUR",
+          "fee_paid_by": "PAYER",
+          "funding": {
+            "status": "FUNDED"
+          },
+          "id": "21287abe-06dc-4c32-a56b-84d7adb4df21",
+          "payer": {
+            "additional_info": {
+              "business_incorporation_date": "2025-04-08",
+              "business_registration_number": "X12345678",
+              "business_registration_type": "COMPANY"
+            },
+            "address": {
+              "city": "Barito Timur",
+              "country_code": "IN",
+              "postcode": "76714",
+              "state": "Nevada",
+              "street_address": "Jl. Jend. Sudirman No. 76"
+            },
+            "company_name": "Sandbox Business",
+            "entity_type": "COMPANY"
+          },
+          "reason": "professional_business_services",
+          "reference": "M0-03 spike",
+          "remarks": "",
+          "request_id": "ef4827cb-144b-4c9a-af36-16c11d88e7ac",
+          "short_reference_id": "P261103-I4V5YZ9",
+          "source_amount": 30,
+          "source_currency": "EUR",
+          "status": "PROCESSING",
+          "swift_charge_option": "SHARED",
+          "transfer_amount": 30,
+          "transfer_currency": "EUR",
+          "transfer_date": "2026-11-03",
+          "transfer_method": "SWIFT",
+          "updated_at": "2026-11-03T09:37:41+0000"
+        },
+        {
+          "amount_beneficiary_receives": 25,
+          "amount_payer_pays": 28,
+          "beneficiary": {
+            "address": {
+              "city": "New York",
+              "country_code": "US",
+              "postcode": "10001",
+              "state": "New York",
+              "street_address": "350 Fifth Avenue"
+            },
+            "bank_details": {
+              "account_currency": "USD",
+              "account_name": "Northwind Test Supplies LLC",
+              "account_number": "1234567890",
+              "account_routing_type1": "aba",
+              "account_routing_value1": "021000021",
+              "bank_account_category": "Checking",
+              "bank_country_code": "US",
+              "bank_name": "JPMorgan Chase Bank, NA",
+              "local_clearing_system": "ACH"
+            },
+            "entity_type": "COMPANY",
+            "type": "BANK_ACCOUNT"
+          },
+          "beneficiary_id": "6d1665a7-b484-4ff5-a5e1-7af06ad6e267",
+          "created_at": "2026-11-03T09:37:38+0000",
+          "fee_amount": 3,
+          "fee_currency": "USD",
+          "fee_paid_by": "PAYER",
+          "funding": {
+            "status": "FUNDED"
+          },
+          "id": "72d60583-b4f6-45ef-85dc-c2fb89b04c93",
+          "payer": {
+            "additional_info": {
+              "business_incorporation_date": "2025-04-08",
+              "business_registration_number": "X12345678",
+              "business_registration_type": "COMPANY"
+            },
+            "address": {
+              "city": "Barito Timur",
+              "country_code": "IN",
+              "postcode": "76714",
+              "state": "Nevada",
+              "street_address": "Jl. Jend. Sudirman No. 76"
+            },
+            "company_name": "Sandbox Business",
+            "entity_type": "COMPANY"
+          },
+          "reason": "professional_business_services",
+          "reference": "M0-03 spike",
+          "remarks": "",
+          "request_id": "4351ffc9-1137-426e-8641-8b6d571dc9de",
+          "short_reference_id": "P261103-YR7IQ51",
+          "source_amount": 25,
+          "source_currency": "USD",
+          "status": "PROCESSING",
+          "swift_charge_option": "SHARED",
+          "transfer_amount": 25,
+          "transfer_currency": "USD",
+          "transfer_date": "2026-11-03",
+          "transfer_method": "LOCAL",
+          "updated_at": "2026-11-03T09:37:40+0000"
+        },
+        {
+          "amount_beneficiary_receives": 10,
+          "amount_payer_pays": 13,
+          "beneficiary": {
+            "address": {
+              "city": "New York",
+              "country_code": "US",
+              "postcode": "10001",
+              "state": "New York",
+              "street_address": "350 Fifth Avenue"
+            },
+            "bank_details": {
+              "account_currency": "USD",
+              "account_name": "Northwind Test Supplies LLC",
+              "account_number": "1234567890",
+              "account_routing_type1": "aba",
+              "account_routing_value1": "021000021",
+              "bank_account_category": "Checking",
+              "bank_country_code": "US",
+              "bank_name": "JPMorgan Chase Bank, NA",
+              "local_clearing_system": "ACH"
+            },
+            "entity_type": "COMPANY",
+            "type": "BANK_ACCOUNT"
+          },
+          "beneficiary_id": "d25c4d3c-5cda-4779-bedb-02200e79cdd0",
+          "created_at": "2026-11-03T09:36:31+0000",
+          "dispatch_date": "2026-11-03",
+          "failure": {
+            "code": "99901",
+            "details": {
+              "type": "INCORRECT_ROUTING"
+            },
+            "message": "Unable to apply"
+          },
+          "fee_amount": 3,
+          "fee_currency": "USD",
+          "fee_paid_by": "PAYER",
+          "funding": {
+            "status": "FUNDED"
+          },
+          "id": "fc4be544-828a-4618-b508-801f71f5d3ff",
+          "payer": {
+            "additional_info": {
+              "business_incorporation_date": "2025-04-08",
+              "business_registration_number": "X12345678",
+              "business_registration_type": "COMPANY"
+            },
+            "address": {
+              "city": "Barito Timur",
+              "country_code": "IN",
+              "postcode": "76714",
+              "state": "Nevada",
+              "street_address": "Jl. Jend. Sudirman No. 76"
+            },
+            "company_name": "Sandbox Business",
+            "entity_type": "COMPANY"
+          },
+          "reason": "professional_business_services",
+          "reference": "M0-03 spike",
+          "remarks": "",
+          "request_id": "b07bf694-8ea6-4c47-854c-84a608df7d93",
+          "short_reference_id": "P261103-XPY9UGL",
+          "source_amount": 10,
+          "source_currency": "USD",
+          "status": "CANCELLED",
+          "swift_charge_option": "SHARED",
+          "transfer_amount": 10,
+          "transfer_currency": "USD",
+          "transfer_date": "2026-11-03",
+          "transfer_method": "LOCAL",
+          "updated_at": "2026-11-03T09:36:34+0000"
+        }
+      ],
+      "page_after": "YWZ0ZXI9NDdiM2IxZDgtYjk0Zi00YWE3LWI4ZDMtN2I2NjdjOTAwYmM5"
+    }
+  }
+}

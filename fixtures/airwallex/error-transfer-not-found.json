@@ -1,0 +1,15 @@
+{
+  "method": "GET",
+  "path": "/api/v1/transfers/00000000-0000-0000-0000-000000000000",
+  "response": {
+    "status": 404,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "not_found",
+      "message": "Transfer not found",
+      "source": ""
+    }
+  }
+}

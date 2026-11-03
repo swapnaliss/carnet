@@ -1,0 +1,25 @@
+{
+  "method": "POST",
+  "path": "/api/v1/transfers/create",
+  "request": {
+    "request_id": "x"
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "validation_failed",
+      "details": {
+        "errors": [
+          {
+            "code": "001",
+            "source": "transfer_currency"
+          }
+        ]
+      },
+      "message": "field [transfer_currency] is required"
+    }
+  }
+}

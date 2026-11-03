@@ -29,4 +29,5 @@ Carnet is built on the behaviour below. Everything marked **UNKNOWN** is resolve
 - Signature: `HMAC_SHA256(secret, x-timestamp + rawBody)`, hex, compared with `x-signature`. Delivery is at-least-once and unordered, retried with exponential backoff for about three days. Subscriptions are created in the web app only.
 
 ## Limits
-- Sandbox: 20 requests/second globally, 10 per endpoint, 10 concurrent; token lifetime 30 minutes; `request_id` unique for 7 days.
+- Sandbox (documented): 20 requests/second globally, 10 per endpoint, 10 concurrent; token lifetime 30 minutes; `request_id` unique for 7 days.
+- Observed in M0-03 (`docs/evidence/airwallex-money-path.md`): 150 parallel balance reads in 1.3 s returned no 429; reusing a transfer `request_id` returns 400 `duplicate_request_id` with the existing transfer id in `details.id`; a simulated `FAILED` transfer is fetched as `CANCELLED` with a nested `failure` object.

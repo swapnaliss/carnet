@@ -1,0 +1,68 @@
+{
+  "method": "POST",
+  "path": "/api/v1/beneficiaries/create",
+  "request": {
+    "request_id": "a623da01-0dc7-4ff8-804c-949965fbf3d7",
+    "nickname": "spike-us-usd",
+    "beneficiary": {
+      "entity_type": "COMPANY",
+      "company_name": "Northwind Test Supplies LLC",
+      "address": {
+        "country_code": "US",
+        "postcode": "10001",
+        "street_address": "350 Fifth Avenue",
+        "city": "New York",
+        "state": "US-NY"
+      },
+      "bank_details": {
+        "account_currency": "USD",
+        "bank_country_code": "US",
+        "account_name": "Northwind Test Supplies LLC",
+        "account_number": "1234567890",
+        "account_routing_type1": "aba",
+        "account_routing_value1": "021000021",
+        "bank_account_category": "Checking"
+      },
+      "type": "BANK_ACCOUNT"
+    },
+    "transfer_methods": [
+      "LOCAL"
+    ]
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "beneficiary": {
+        "address": {
+          "city": "New York",
+          "country_code": "US",
+          "postcode": "10001",
+          "state": "US-NY",
+          "street_address": "350 Fifth Avenue"
+        },
+        "bank_details": {
+          "account_currency": "USD",
+          "account_name": "Northwind Test Supplies LLC",
+          "account_number": "1234567890",
+          "account_routing_type1": "aba",
+          "account_routing_value1": "021000021",
+          "bank_account_category": "Checking",
+          "bank_country_code": "US",
+          "bank_name": "JPMorgan Chase Bank, NA",
+          "local_clearing_system": "ACH"
+        },
+        "entity_type": "COMPANY",
+        "type": "BANK_ACCOUNT"
+      },
+      "id": "bc0bfa01-7b09-45e3-9f2a-a3cc09eb54be",
+      "nickname": "spike-us-usd",
+      "payer_entity_type": "COMPANY",
+      "transfer_methods": [
+        "LOCAL"
+      ]
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "method": "POST",
+  "path": "/api/v1/authentication/login",
+  "requestHeaders": {
+    "x-client-id": "<redacted>",
+    "x-api-key": "<redacted>"
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "code": "credentials_invalid",
+      "details": [
+        "Access Denied"
+      ],
+      "message": "UNAUTHORIZED",
+      "source": ""
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "method": "POST",
+  "path": "/api/v1/authentication/login",
+  "requestHeaders": {
+    "x-client-id": "<redacted>",
+    "x-api-key": "<redacted>"
+  },
+  "response": {
+    "status": 201,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "expires_at": "2026-11-03T10:16:34+0000",
+      "token": "<redacted>"
+    }
+  }
+}

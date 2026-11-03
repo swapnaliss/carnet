@@ -1,0 +1,12 @@
+{
+  "endpoint": "GET /api/v1/balances/current",
+  "requests": 150,
+  "windowMs": 1230,
+  "statusCounts": {
+    "200": 150
+  },
+  "firstLimited": null,
+  "responseHeadersSeen": [
+    "content-type"
+  ]
+}

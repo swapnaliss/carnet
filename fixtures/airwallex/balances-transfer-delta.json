@@ -1,0 +1,58 @@
+{
+  "before": {
+    "CNY": {
+      "available_amount": 10000000,
+      "currency": "CNY",
+      "pending_amount": 0,
+      "reserved_amount": 0,
+      "total_amount": 10000000,
+      "prepayment_amount": 0,
+      "account_type": "cash"
+    },
+    "EUR": {
+      "available_amount": 10000569.76,
+      "currency": "EUR",
+      "pending_amount": 0,
+      "reserved_amount": 0,
+      "total_amount": 10000569.76,
+      "prepayment_amount": 0,
+      "account_type": "cash"
+    },
+    "GBP": {
+      "available_amount": 10000000,
+      "currency": "GBP",
+      "pending_amount": 0,
+      "reserved_amount": 0,
+      "total_amount": 10000000,
+      "prepayment_amount": 0,
+      "account_type": "cash"
+    },
+    "HKD": {
+      "available_amount": 10000,
+      "currency": "HKD",
+      "pending_amount": 0,
+      "reserved_amount": 0,
+      "total_amount": 10000,
+      "prepayment_amount": 0,
+      "account_type": "cash"
+    },
+    "INR": {
+      "available_amount": 10000000,
+      "currency": "INR",
+      "pending_amount": 0,
+      "reserved_amount": 0,
+      "total_amount": 10000000,
+      "prepayment_amount": 0,
+      "account_type": "cash"
+    },
+    "USD": {
+      "available_amount": 9998529,
+      "currency": "USD",
+      "pending_amount": 0,
+      "reserved_amount": 0,
+      "total_amount": 9998529,
+      "prepayment_amount": 0,
+      "account_type": "cash"
+    }
+  }
+}

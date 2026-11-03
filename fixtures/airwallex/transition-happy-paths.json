@@ -1,0 +1,14 @@
+{
+  "local-usd": [
+    "create:SCHEDULED",
+    "auto:PROCESSING",
+    "SENT:HTTP 500",
+    "PAID:HTTP 500"
+  ],
+  "swift-eur": [
+    "create:SCHEDULED",
+    "auto:PROCESSING",
+    "SENT:SENT",
+    "PAID:PAID"
+  ]
+}

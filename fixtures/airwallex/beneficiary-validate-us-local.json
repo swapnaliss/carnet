@@ -1,0 +1,37 @@
+{
+  "method": "POST",
+  "path": "/api/v1/beneficiaries/validate",
+  "request": {
+    "beneficiary": {
+      "entity_type": "COMPANY",
+      "company_name": "Northwind Test Supplies LLC",
+      "address": {
+        "country_code": "US",
+        "postcode": "10001",
+        "street_address": "350 Fifth Avenue",
+        "city": "New York",
+        "state": "US-NY"
+      },
+      "bank_details": {
+        "account_currency": "USD",
+        "bank_country_code": "US",
+        "account_name": "Northwind Test Supplies LLC",
+        "account_number": "1234567890",
+        "account_routing_type1": "aba",
+        "account_routing_value1": "021000021",
+        "bank_account_category": "Checking"
+      },
+      "type": "BANK_ACCOUNT"
+    },
+    "transfer_methods": [
+      "LOCAL"
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": "OK"
+  }
+}
