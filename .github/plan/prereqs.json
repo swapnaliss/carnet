@@ -318,5 +318,16 @@
   "verify": "command -v cloudflared",
   "required": false,
   "needed_by": []
- }
+ },
+  {
+    "id": "P-21",
+    "what": "Render can read the private repository swapnaliss/carnet (Render GitHub app authorised for that repo)",
+    "kind": "console",
+    "who": "owner",
+    "how": "Render dashboard > Account Settings > Git providers (or GitHub > Settings > Applications > Render > Configure) > grant access to swapnaliss/carnet only; then tell the worker",
+    "lands_in": "-",
+    "status": "pending",
+    "required": true,
+    "needed_by": ["M0-07", "M0-05", "M1-06"]
+  }
 ]
