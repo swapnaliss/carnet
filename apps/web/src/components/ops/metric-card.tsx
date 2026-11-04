@@ -50,11 +50,11 @@ export function MetricCard({
       {v && verdict ? (
         <p
           className={cn(
-            "inline-flex w-fit items-center gap-1.5 rounded-sm px-2 py-0.5 text-sm font-medium",
+            "inline-flex w-fit items-start gap-1.5 rounded-sm px-2 py-0.5 text-sm font-medium",
             v.className,
           )}
         >
-          <v.Icon aria-hidden="true" className="size-4" />
+          <v.Icon aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
           {verdict.label}
         </p>
       ) : null}

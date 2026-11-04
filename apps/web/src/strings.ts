@@ -94,7 +94,7 @@ const en = {
       queueDepthDefinition: "Jobs pending, waiting to retry, or running now.",
       deadJobs: "Jobs that gave up",
       deadJobsDefinition:
-        "Jobs that failed every retry and stopped (DEAD). The number in the last 24 hours is shown below.",
+        "Jobs that failed every retry and stopped (DEAD). Any in the last 24 hours misses the target.",
       deadJobsWindow: "In the last 24 hours",
       heartbeat: "Worker heartbeat",
       heartbeatDefinition: "When the worker last reported in. It reports every 30 seconds.",
