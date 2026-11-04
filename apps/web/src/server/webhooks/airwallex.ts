@@ -3,8 +3,15 @@
 // webhook_events (unique provider event id; a duplicate is a no-op) and its outbox job, then 200.
 // No fetch and no slow work happens here; the worker fetches the object the event names.
 import { parseWebhookEvent, type WebhookEvent } from "@carnet/airwallex";
-import { type Db, enqueueJob, insertWebhookEventIfNew, withTransaction } from "@carnet/db";
+import {
+  type Db,
+  enqueueJob,
+  insertWebhookEventIfNew,
+  markWebhookEventAcked,
+  withTransaction,
+} from "@carnet/db";
 import { apiError, type ErrorCode, httpStatusOf } from "@carnet/domain";
+import { addContext } from "../../lib/request-context";
 import { JOB_KIND } from "../../worker/handlers/index";
 import { createLogger, type Logger } from "../log";
 
@@ -73,7 +80,7 @@ export function errorResponse(code: ErrorCode, message: string, requestId: strin
  */
 export async function storeVerifiedWebhook(
   raw: Uint8Array,
-  deps: { db: Db; logger: Logger; requestId: string },
+  deps: { db: Db; logger: Logger; requestId: string; receivedAt?: Date },
 ): Promise<Response> {
   const { requestId, logger: log } = deps;
   let event: WebhookEvent;
@@ -86,6 +93,8 @@ export async function storeVerifiedWebhook(
     return error("VALIDATION_FAILED", "webhook body is not a valid event", requestId);
   }
 
+  // M1-09: every later line of this request, and the worker's lines for its job, carry event_id.
+  addContext({ event_id: event.id });
   const job = jobForEvent(event);
   try {
     const stored = await withTransaction(deps.db, async (tx) => {
@@ -94,14 +103,17 @@ export async function storeVerifiedWebhook(
         name: event.name,
         rawBody: text,
         signatureOk: true,
+        ...(deps.receivedAt ? { receivedAt: deps.receivedAt } : {}),
       });
       if (!row) return null;
       const jobId = job
         ? await enqueueJob(tx, {
             kind: job.kind,
-            payload: { ...job.payload, webhookEventId: row.id },
+            payload: { ...job.payload, webhookEventId: row.id, providerEventId: event.id },
           })
         : null;
+      // Last statement of the inbox transaction: the acknowledgement time (M1-09 ack latency).
+      await markWebhookEventAcked(tx, row.id, new Date());
       return { webhookEventId: row.id, jobId };
     });
     log.info(

@@ -28,7 +28,7 @@ export const POST = defineRawRoute({
   method: "POST",
   maxBodyBytes: MAX_WEBHOOK_BODY_BYTES,
   rateLimit: { name: "webhook", by: "ip" },
-  handler: async ({ req, raw, requestId }) => {
+  handler: async ({ req, raw, requestId, receivedAt }) => {
     const logger = webhookLogger();
     const secret = process.env.AIRWALLEX_WEBHOOK_SECRET;
     if (!secret) {
@@ -48,6 +48,6 @@ export const POST = defineRawRoute({
       return errorResponse("UNAUTHENTICATED", "invalid webhook signature", requestId);
     }
 
-    return storeVerifiedWebhook(raw, { db: appDb().db, logger, requestId });
+    return storeVerifiedWebhook(raw, { db: appDb().db, logger, requestId, receivedAt });
   },
 });

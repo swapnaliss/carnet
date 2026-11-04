@@ -44,6 +44,7 @@ import {
   type RouteRateLimitName,
   rateLimitKey,
 } from "./ratelimit";
+import { withRequestContext } from "./request-context";
 
 /** Routes allowed to skip `defineRoute` (paths under src/app/api), each with its reason. */
 export const RAW_BODY_ROUTES = {
@@ -120,6 +121,8 @@ export interface RawRouteSpec {
     readonly req: Request;
     readonly raw: Uint8Array;
     readonly requestId: string;
+    /** When the request reached the route, before rate limit and body read (M1-09). */
+    readonly receivedAt: Date;
   }) => Promise<Response>;
 }
 
@@ -305,7 +308,9 @@ export function createRouteKit(deps: RouteDeps) {
           ? deps.authz.requireSession
           : deps.authz.requireRole(...(spec.auth as { roles: readonly Role[] }).roles);
 
-    return async (req, context) => {
+    // M1-09: the whole route runs in its correlation context (request_id on every log line, echoed
+    // in x-request-id).
+    return withRequestContext(async (req: Request, context?: RouteContext) => {
       const requestId = requestIdOf(req);
       try {
         const ctx = guard ? await guard(req) : null;
@@ -339,21 +344,23 @@ export function createRouteKit(deps: RouteDeps) {
       } catch (error) {
         return problemResponse(error, requestId, deps.logger());
       }
-    };
+    });
   }
 
   function defineRawRoute(spec: RawRouteSpec): RouteHandler {
     checkCap(spec.maxBodyBytes, `defineRawRoute(${spec.method})`);
-    return async (req) => {
+    return withRequestContext(async (req: Request) => {
+      // Arrival time, before the rate limit and the body read (M1-09 webhook ack latency).
+      const receivedAt = new Date();
       const requestId = requestIdOf(req);
       try {
         if (spec.rateLimit) await limit(spec.rateLimit, req, null);
         const raw = await readCapped(req, spec.maxBodyBytes);
-        return await spec.handler({ req, raw, requestId });
+        return await spec.handler({ req, raw, requestId, receivedAt });
       } catch (error) {
         return problemResponse(error, requestId, deps.logger());
       }
-    };
+    });
   }
 
   return { defineRoute, defineRawRoute };

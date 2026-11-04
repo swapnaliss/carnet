@@ -1,4 +1,4 @@
-import { boolean, pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import { boolean, index, pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { tstz } from "./columns";
 
 // Provider-level inbox (no business_id): an event is attributed to a tenant only after the worker
@@ -13,6 +13,11 @@ export const webhookEvents = pgTable(
     rawBody: text("raw_body").notNull(),
     signatureOk: boolean("signature_ok").notNull(),
     processedAt: tstz("processed_at"),
+    // M1-09: the inbox transaction's last statement (ack latency = acked_at - received_at).
+    ackedAt: tstz("acked_at"),
   },
-  (t) => [uniqueIndex("webhook_events_provider_event_id_key").on(t.providerEventId)],
+  (t) => [
+    uniqueIndex("webhook_events_provider_event_id_key").on(t.providerEventId),
+    index("webhook_events_received_at_idx").on(t.receivedAt),
+  ],
 );

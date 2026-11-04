@@ -10,7 +10,6 @@
 //   minutes), answers failures in the shared error format with one message whether or not the
 //   email exists, and never returns the session token in the body (the cookie is HttpOnly);
 // - better-auth's own in-memory limiter is off (one limiter, in the database).
-import { randomUUID } from "node:crypto";
 import {
   createDbClientFromEnv,
   type Db,
@@ -23,8 +22,12 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { errorResponse } from "./errors";
 import { createLogger, type Logger, logger } from "./logger";
-
 import { clientIp, LOGIN_RATE_LIMITS, loginRateLimitKeys } from "./ratelimit";
+import {
+  requestIdOf as baseRequestIdOf,
+  currentContext,
+  withRequestContext,
+} from "./request-context";
 
 // Moved to ./errors and ./ratelimit (M1-10); re-exported for M1-04 call sites.
 export { clientIp, errorResponse, LOGIN_RATE_LIMITS, loginRateLimitKeys };
@@ -143,12 +146,12 @@ export function getAuthRuntime(): AuthRuntime {
 
 // --- shared error responses ----------------------------------------------------------------------
 
-const REQUEST_ID = /^[A-Za-z0-9._:-]{1,128}$/;
-
-/** Carnet's correlation id: a well-formed incoming `x-request-id`, or a new one. */
+/**
+ * Carnet's correlation id (M1-09, ./request-context.ts): the current request's id inside
+ * `withRequestContext`, else a well-formed incoming `x-request-id`, else a new one.
+ */
 export function requestIdOf(req: Request): string {
-  const incoming = req.headers.get("x-request-id");
-  return incoming && REQUEST_ID.test(incoming) ? incoming : randomUUID();
+  return currentContext().request_id ?? baseRequestIdOf(req);
 }
 
 // --- login rate limit ----------------------------------------------------------------------------
@@ -290,5 +293,6 @@ export function createAuthHandlers(runtime: () => AuthRuntime): AuthHandlers {
       return errorResponse("INTERNAL", "Authentication is unavailable.", requestId);
     }
   };
-  return { GET: handle, POST: handle };
+  const wrapped = withRequestContext(handle);
+  return { GET: wrapped, POST: wrapped };
 }

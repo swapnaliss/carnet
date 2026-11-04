@@ -3,6 +3,7 @@
 export * from "./client";
 export * from "./errors";
 export * from "./migrate";
+export * from "./queries/slo";
 export * from "./repos/index";
 export type { AttemptKind, AttemptStatus, JobStatus, UserRole } from "./schema/index";
 export * as schema from "./schema/index";

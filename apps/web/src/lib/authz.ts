@@ -11,6 +11,7 @@ import { type RepoCtx, repoCtx, USER_ROLES, type UserRole } from "@carnet/db";
 import type { BusinessId, UserId } from "@carnet/domain";
 import { type AuthRuntime, getAuthRuntime, requestIdOf } from "./auth";
 import { forbidden, problemResponse, unauthenticated } from "./errors";
+import { withRequestContext } from "./request-context";
 
 // The error helpers moved to ./errors (M1-10); re-exported so M1-04 call sites keep working.
 export { forbidden, HttpProblem, notFound, unauthenticated } from "./errors";
@@ -77,8 +78,8 @@ export function createAuthz(runtime: () => AuthRuntime): Authz {
       };
     },
     repo: (ctx) => repoCtx(runtime().db, ctx.businessId),
-    guarded(guard, handler) {
-      return async (req, route) => {
+    guarded<P>(guard: Guard, handler: (req: Request, ctx: AuthCtx, route: P) => Promise<Response>) {
+      return withRequestContext(async (req: Request, route: P) => {
         const requestId = requestIdOf(req);
         try {
           const ctx = await guard(req);
@@ -86,7 +87,7 @@ export function createAuthz(runtime: () => AuthRuntime): Authz {
         } catch (error) {
           return problemResponse(error, requestId, runtime().logger);
         }
-      };
+      });
     },
   };
 }

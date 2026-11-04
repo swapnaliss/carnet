@@ -5,6 +5,7 @@
 // itself every `reconcileEveryMs` (at most one queued at a time), logs a heartbeat every
 // `heartbeatMs`, prunes expired rate-limit windows every `pruneEveryMs` (M1-10), and `stop()` lets
 // the in-flight job finish before `run()` resolves.
+import { hostname } from "node:os";
 import {
   claimJobs,
   completeJob,
@@ -14,7 +15,9 @@ import {
   failJob,
   getSystemFlags,
   type OutboxJob,
+  recordWorkerHeartbeat,
 } from "@carnet/db";
+import { type CorrelationFields, runWithContext } from "../lib/request-context";
 import type { Logger } from "../server/log";
 import { DEFAULT_MAX_ATTEMPTS, retryDelayMs } from "./backoff";
 import type { AirwallexReader, HandlerContext, HandlerRegistry } from "./handlers/index";
@@ -43,6 +46,27 @@ export interface WorkerOptions {
   pruneEveryMs?: number | null;
   killSwitchDeferMs?: number;
   now?: () => number;
+  /** Heartbeat row key (default `host:pid`). */
+  workerId?: string;
+}
+
+/** The correlation fields of a job's log lines (M1-09): job id and kind, plus ids in its payload. */
+export function jobContext(job: OutboxJob): CorrelationFields {
+  const p = (typeof job.payload === "object" && job.payload !== null ? job.payload : {}) as Record<
+    string,
+    unknown
+  >;
+  const str = (v: unknown) => (typeof v === "string" && v.length > 0 ? v : undefined);
+  const eventId = str(p.providerEventId);
+  const rfiId = str(p.rfiId);
+  const runId = str(p.runId);
+  return {
+    job_id: job.id,
+    job_kind: job.kind,
+    ...(eventId ? { event_id: eventId } : {}),
+    ...(rfiId ? { rfi_id: rfiId } : {}),
+    ...(runId ? { run_id: runId } : {}),
+  };
 }
 
 export type JobOutcome = "done" | "retry" | "dead" | "deferred";
@@ -73,6 +97,7 @@ export function createWorker(options: WorkerOptions): Worker {
     options.pruneEveryMs === undefined ? PRUNE_INTERVAL_MS : options.pruneEveryMs;
   const deferMs = options.killSwitchDeferMs ?? KILL_SWITCH_DEFER_MS;
   const now = options.now ?? Date.now;
+  const workerId = options.workerId ?? `${hostname()}:${process.pid}`;
   const ctx: HandlerContext = { db, airwallex: options.airwallex, logger };
   const stats = { processed: 0, failed: 0, deferred: 0 };
 
@@ -163,13 +188,17 @@ export function createWorker(options: WorkerOptions): Worker {
   async function tick(): Promise<{ job: OutboxJob; outcome: JobOutcome } | null> {
     const [job] = await claimJobs(db, { limit: 1 });
     if (!job) return null;
-    return { job, outcome: await execute(job) };
+    return { job, outcome: await runWithContext(jobContext(job), () => execute(job)) };
   }
 
   async function housekeeping(): Promise<void> {
     const t = now();
     if (t >= nextHeartbeatAt) {
       nextHeartbeatAt = t + heartbeatMs;
+      // Stored for /ops and the health check (M1-09); a failed write is logged, never fatal.
+      await recordWorkerHeartbeat(db, workerId).catch((error: unknown) =>
+        logger.warn({ error: errorText(error) }, "worker heartbeat not recorded"),
+      );
       logger.info({ heartbeat: true, ...stats }, "worker heartbeat");
     }
     if (reconcileEveryMs !== null && t >= nextReconcileAt) {

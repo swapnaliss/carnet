@@ -22,6 +22,7 @@ import * as outbox from "../src/repos/outbox";
 import * as rateLimits from "../src/repos/rate-limits";
 import * as system from "../src/repos/system";
 import * as webhookEvents from "../src/repos/webhook-events";
+import * as workerHeartbeats from "../src/repos/worker-heartbeats";
 import { useTestDatabase } from "./harness";
 
 const db = useTestDatabase();
@@ -36,6 +37,7 @@ const helperNames = new Set([
   ...Object.keys(outbox),
   ...Object.keys(rateLimits),
   ...Object.keys(webhookEvents),
+  ...Object.keys(workerHeartbeats),
   ...Object.keys(attempts),
 ]);
 const tenantRepoFns: [string, RepoFn][] = Object.entries(repos as Record<string, unknown>).filter(

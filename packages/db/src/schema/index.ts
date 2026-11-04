@@ -12,3 +12,4 @@ export * from "./rate-limits";
 export * from "./system-flags";
 export * from "./users";
 export * from "./webhook-events";
+export * from "./worker-heartbeats";
