@@ -22,7 +22,7 @@ const en = {
     header: {
       home: "Carnet home",
       sandbox: "Sandbox · no real money",
-      sandboxHint: "Connected to the Airwallex sandbox.",
+      sandboxHint: "Carnet uses the Airwallex sandbox only.",
     },
   },
   home: {
@@ -47,7 +47,7 @@ const en = {
     title: "Payment queue",
     empty: {
       title: "No payments yet",
-      body: "Payments appear here once a business goal and its payments are added. Nothing has been sent.",
+      body: "When you add the payments for a goal, Carnet checks each one's evidence here before anything moves. Nothing has been sent.",
     },
   },
   plan: {

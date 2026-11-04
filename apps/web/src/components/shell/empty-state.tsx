@@ -29,7 +29,14 @@ export function EmptyState({
       <span className="flex size-10 items-center justify-center rounded-md bg-muted text-muted-foreground">
         <Icon aria-hidden="true" className="size-5" />
       </span>
-      <Heading id="empty-state-title" className="text-lg leading-tight font-semibold">
+      <Heading
+        id="empty-state-title"
+        className={
+          headingLevel === 1
+            ? "text-xl leading-tight font-semibold md:text-2xl"
+            : "text-lg leading-tight font-semibold"
+        }
+      >
         {title}
       </Heading>
       <p className="max-w-[65ch] text-pretty text-muted-foreground">{body}</p>

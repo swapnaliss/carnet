@@ -57,15 +57,17 @@ export default function RouteError({
         </Button>
       </div>
       {error.digest ? (
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+        <div className="mt-2 flex flex-col items-start gap-1 text-sm text-muted-foreground md:flex-row md:items-center md:gap-2">
           <span>{t.common.state.error.correlationId}</span>
-          <code className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-foreground">
-            {error.digest}
-          </code>
-          <Button variant="ghost" size="sm" onClick={copy}>
-            <Copy aria-hidden="true" />
-            {copied ? t.common.action.copied : t.common.action.copy}
-          </Button>
+          <span className="flex flex-nowrap items-center gap-2">
+            <code className="rounded-sm bg-muted px-1.5 py-0.5 font-mono text-foreground">
+              {error.digest}
+            </code>
+            <Button variant="ghost" size="sm" onClick={copy}>
+              <Copy aria-hidden="true" />
+              {copied ? t.common.action.copied : t.common.action.copy}
+            </Button>
+          </span>
           <span role="status" className="sr-only">
             {copied ? t.common.action.copied : null}
           </span>

@@ -37,7 +37,7 @@ export function MainNav() {
                 href={href}
                 aria-current={current ? "page" : undefined}
                 className={cn(
-                  "relative flex min-h-14 flex-col items-center justify-center gap-1 px-2 text-xs font-medium text-muted-foreground",
+                  "relative flex min-h-14 flex-col focus-visible:outline-offset-[-2px] items-center justify-center gap-1 px-2 text-xs font-medium text-muted-foreground",
                   "transition-colors duration-(--duration-fast) hover:bg-accent hover:text-accent-foreground",
                   "md:min-h-16 xl:min-h-10 xl:flex-row xl:justify-start xl:gap-3 xl:rounded-md xl:px-3 xl:text-sm",
                   current &&

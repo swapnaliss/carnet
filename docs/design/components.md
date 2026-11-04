@@ -194,8 +194,10 @@ claim is a span of the answer text the drafter tied to one or more fact citation
 - **Skip link** as the first focusable element: "Skip to main content" (`shell.skipLink`), visible on
   focus, targets `<main id="main" tabindex="-1">`.
 - **Header** (56px): product name "Carnet" as a text wordmark linking home (`shell.header.home`; no
-  logo image required) and the environment pill "Sandbox" (`shell.header.sandbox`, neutral tone,
-  always visible, tooltip `shell.header.sandboxHint`; Carnet is sandbox-only). **When data exists**
+  logo image required) and the environment pill "Sandbox · no real money" (`shell.header.sandbox`,
+  neutral tone, always visible at every width; `shell.header.sandboxHint` is its screen-reader
+  description; Carnet is sandbox-only). The pill describes how Carnet is set up, never a live
+  connection state: connectivity is shown only by LiveIndicator and StaleBanner (M1-07 design review). **When data exists**
   (session from M1-04, data from M1-08 onward): the business name ("Northwind Studio Ltd") and the user
   menu. In M1-07 the shell has no session, so the header shows the wordmark and the Sandbox pill only.
 - **Nav** (`<nav aria-label="Main">`): Queue (`shell.nav.queue`, icon `list-checks`), Plan

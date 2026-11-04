@@ -14,7 +14,7 @@ export default function Home() {
     <>
       <PageTitle>{t.home.title}</PageTitle>
       <p className="mb-8 max-w-[68ch] text-muted-foreground">{t.home.body}</p>
-      <ul className="grid gap-3 md:grid-cols-3">
+      <ul className="grid max-w-2xl gap-3 xl:max-w-none xl:grid-cols-3">
         {sections.map(({ href, icon: Icon, title, body }) => (
           <li key={href}>
             <Link
