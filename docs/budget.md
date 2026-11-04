@@ -72,7 +72,7 @@ paid prices are unverified until the owner reads them in the dashboard create fo
 | Custom domain and HTTPS | Additional domains $0.25 each a month ([faq](https://render.com/docs/faq)); HTTPS on the default `onrender.com` hostname: verified 3 Nov 2026, the free placeholder answered `/healthz` with HTTP 200 over HTTP/2 (Singapore, Docker build from `main`, about 2 minutes from create to live) | not on the fetched pages: unverified | not fetched: unverified |
 | Deploy from Docker image or Git | Prebuilt image from any public registry, or private from Docker Hub, GHCR, GitLab, Google Artifact Registry, ECR ([deploy-an-image](https://render.com/docs/deploy-an-image)); Git-backed Docker build needs Render's GitHub access to the repo (observed 3 Nov: the CLI rejects the private repo URL as "invalid or unfetchable") | not on the fetched pages: unverified | not fetched: unverified |
 | Log retention | Hobby 7 days, Pro 14 days ([logging](https://render.com/docs/logging)) | Trial 7 days, Free 3 days, Hobby 7 days, Pro 30 days ([pricing](https://railway.com/pricing)) | not fetched: unverified |
-| Monthly cost, web + worker + Postgres, build period and judging window | unverified (paid prices not fetchable); the free web service and free Postgres cost $0 but sleep, have no worker and no backups | about $5 plan plus usage; the sum for our scale is unverified | $0 within credits if granted and eligible; sum unverified |
+| Monthly cost, web + worker + Postgres, build period and judging window | individual paid prices unverified (not fetchable). **Owner statement, 4 Nov 2026: the Render account already holds $50 of credits, which cover hosting, so no cash is spent and no account upgrade is needed.** The $50 is the owner's figure, not read from a page by me; the free web service and free Postgres cost $0 but sleep, have no worker and no backups | about $5 plan plus usage; the sum for our scale is unverified | $0 within credits if granted and eligible; sum unverified |
 
 ### Recommendation
 Render, which is the owner's choice (3 Nov 2026), meets the ADR 0014 contract: a Docker build from the M0-02
@@ -81,6 +81,8 @@ Dockerfile, a managed Postgres with point-in-time recovery on paid plans, a paid
 because a free one sleeps after 15 minutes and would miss webhooks and stall the worker. The free Postgres has no
 backups and expires 30 days after creation (created on 3 Nov that is 3 Dec, after the judging window) so it is
 only a fallback if the paid price does not fit. Railway is the closest alternative; AWS is only worth it if
-the organisers grant credits (P-12). **Before any paid resource is created, the owner reads the three monthly
-prices in Render's create form and confirms the total is within the $40 cash ceiling**; until then the cost
-row stays "unverified" and nothing billable is created.
+the organisers grant credits (P-12). **Cost, recorded by the owner on 4 Nov 2026:** the Render account already
+holds $50 of credits, which the owner says are enough, so hosting draws on credits and no cash is spent (the $40
+cash ceiling is untouched). The individual monthly prices stay "unverified"; the paid web, worker and Postgres
+are created in M1-06, and that ticket checks the credit balance against the prices shown in the create form
+before creating them and logs a shortfall to the owner.
