@@ -2,13 +2,15 @@
 // Logs one `WEBHOOK {json}` line per request to stdout with the raw headers and the raw body (base64 and utf8), so
 // deliveries can be read back from the host's logs. If AIRWALLEX_WEBHOOK_SECRET is set it also checks the HMAC
 // over `x-timestamp + rawBody`; the secret is never printed. Offline verification is verify-hmac.mjs.
-// FAIL_ONCE_NAMES=a,b: the first delivery of each event name listed gets HTTP 500 (forces a redelivery).
+// FAIL_ONCE_NAMES=a,b (default below, because the host's env cannot be changed from the CLI): the first delivery of each event name listed gets HTTP 500 (forces a redelivery).
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { createServer } from "node:http";
 
 const port = Number(process.env.PORT ?? 3000);
 const secret = process.env.AIRWALLEX_WEBHOOK_SECRET ?? "";
-const failOnce = new Set((process.env.FAIL_ONCE_NAMES ?? "").split(",").filter(Boolean));
+const failOnce = new Set(
+  (process.env.FAIL_ONCE_NAMES ?? "payout.transfer.paid,rfi.closed").split(",").filter(Boolean),
+);
 const failed = new Set();
 
 function check(headers, raw) {
