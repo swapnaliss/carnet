@@ -75,7 +75,9 @@ describe("AC1: replaying the recorded deliveries", () => {
     expect(kinds.filter((k) => k === "transfer.sync")).toHaveLength(20);
     for (const j of jobs) {
       expect(Object.keys(j.payload).sort()).toEqual(
-        j.kind === "rfi.sync" ? ["rfiId", "webhookEventId"] : ["transferId", "webhookEventId"],
+        j.kind === "rfi.sync"
+          ? ["providerEventId", "rfiId", "webhookEventId"]
+          : ["providerEventId", "transferId", "webhookEventId"],
       );
     }
   });

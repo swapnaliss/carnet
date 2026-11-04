@@ -50,6 +50,8 @@ export interface SloSummary {
   readonly webhookAck: LatencyMetric & {
     readonly targetP95Ms: number;
     readonly meets: boolean | null;
+    /** "no_data" when no event was acknowledged in the window (never reported as a pass). */
+    readonly verdict: "meets" | "misses" | "no_data";
   };
   readonly jobQueue: LatencyMetric;
   readonly jobProcessing: LatencyMetric;
@@ -154,6 +156,12 @@ export async function getSloSummary(db: Db, options: SloOptions = {}): Promise<S
       ...webhookAck,
       targetP95Ms: SLO_TARGETS.webhookAckP95Ms,
       meets: webhookAck.p95Ms === null ? null : webhookAck.p95Ms < SLO_TARGETS.webhookAckP95Ms,
+      verdict:
+        webhookAck.p95Ms === null
+          ? "no_data"
+          : webhookAck.p95Ms < SLO_TARGETS.webhookAckP95Ms
+            ? "meets"
+            : "misses",
     },
     jobQueue,
     jobProcessing,
