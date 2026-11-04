@@ -1,19 +1,34 @@
 import { PageTitle } from "@/components/shell/empty-state";
 import { t } from "@/strings";
 
-const CARDS = ["a", "b", "c", "d", "e", "f"] as const;
+// Loading state (docs/design/screens/ops.md): section and card skeletons at their final size and
+// grid (3 service-level cards, 4 worker cards, 2 payment cards), and a polite status line.
+const SECTIONS = [
+  { key: "slo", cards: 3, grid: "md:grid-cols-3" },
+  { key: "health", cards: 4, grid: "sm:grid-cols-2 xl:grid-cols-4" },
+  { key: "money", cards: 2, grid: "sm:grid-cols-2" },
+] as const;
 
-// Loading state (docs/design/screens/ops.md): card skeletons at their final size.
 export default function OpsLoading() {
   return (
     <>
       <PageTitle>{t.ops.title}</PageTitle>
-      <p role="status" className="sr-only">
-        {t.ops.loading.status}
-      </p>
-      <div aria-hidden="true" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        {CARDS.map((k) => (
-          <div key={k} className="h-44 animate-pulse rounded-md border border-border bg-muted" />
+      <div className="flex flex-col gap-8">
+        <p role="status" className="text-sm text-muted-foreground">
+          {t.ops.loading.status}
+        </p>
+        {SECTIONS.map((section) => (
+          <div key={section.key} aria-hidden="true" className="flex flex-col gap-3">
+            <div className="h-6 w-48 animate-pulse rounded-sm bg-muted" />
+            <div className={`grid gap-4 ${section.grid}`}>
+              {Array.from({ length: section.cards }, (_, i) => `${section.key}-${i}`).map((k) => (
+                <div
+                  key={k}
+                  className="h-52 animate-pulse rounded-md border border-border bg-muted motion-reduce:animate-none"
+                />
+              ))}
+            </div>
+          </div>
         ))}
       </div>
     </>

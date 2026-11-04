@@ -1,9 +1,9 @@
 import { getSloSummary, type SloSummary } from "@carnet/db";
-import { Bot, CircleAlert, Link2 } from "lucide-react";
+import { Activity, Bot, CircleAlert, Link2 } from "lucide-react";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { formatCount, formatMs, MetricCard } from "@/components/ops/metric-card";
-import { PageTitle } from "@/components/shell/empty-state";
+import { EmptyState, PageTitle } from "@/components/shell/empty-state";
 import { formatDate, formatRelative } from "@/lib/intl";
 import { logger } from "@/lib/logger";
 import { requirePageSession } from "@/lib/page-session";
@@ -20,13 +20,23 @@ export const dynamic = "force-dynamic";
 // Kill switches and spend (M4-02), agent runs (M2-00) and the audit chain (M4-01) come later and
 // have a labelled slot at the end.
 
-function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+function Section({
+  id,
+  title,
+  grid = "sm:grid-cols-2 xl:grid-cols-3",
+  children,
+}: {
+  id: string;
+  title: string;
+  grid?: string;
+  children: ReactNode;
+}) {
   return (
     <section aria-labelledby={id} className="flex flex-col gap-3">
       <h2 id={id} className="text-lg leading-tight font-semibold">
         {title}
       </h2>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">{children}</div>
+      <div className={`grid gap-4 ${grid}`}>{children}</div>
     </section>
   );
 }
@@ -43,7 +53,7 @@ function SloCards({ s }: { s: SloSummary }) {
   const recStale = rec.ageMs === null || rec.ageMs > rec.maxAgeMs;
   return (
     <>
-      <Section id="ops-slo" title={t.ops.slo.title}>
+      <Section id="ops-slo" title={t.ops.slo.title} grid="md:grid-cols-3">
         <MetricCard
           id="slo-webhook-ack"
           title={t.ops.slo.webhookAck}
@@ -80,7 +90,7 @@ function SloCards({ s }: { s: SloSummary }) {
         />
       </Section>
 
-      <Section id="ops-health" title={t.ops.health.title}>
+      <Section id="ops-health" title={t.ops.health.title} grid="sm:grid-cols-2 xl:grid-cols-4">
         <MetricCard
           id="health-heartbeat"
           title={t.ops.health.heartbeat}
@@ -100,7 +110,7 @@ function SloCards({ s }: { s: SloSummary }) {
               }
             : {})}
           definition={t.ops.health.heartbeatDefinition}
-          window={t.ops.slo.windowAllTime}
+          window={t.ops.health.heartbeatWindow}
         />
         <MetricCard
           id="health-reconcile"
@@ -115,7 +125,7 @@ function SloCards({ s }: { s: SloSummary }) {
               }
             : {})}
           definition={t.ops.reconciler.definition}
-          window={t.ops.slo.windowAllTime}
+          window={t.ops.reconciler.window}
         />
         <MetricCard
           id="health-queue-depth"
@@ -127,17 +137,17 @@ function SloCards({ s }: { s: SloSummary }) {
         <MetricCard
           id="health-dead-jobs"
           title={t.ops.health.deadJobs}
-          value={formatCount(s.deadJobs.total, locale)}
-          detail={`${t.ops.health.deadJobsWindow}: ${formatCount(s.deadJobs.inWindow, locale)}`}
+          value={formatCount(s.deadJobs.inWindow, locale)}
+          detail={`${t.ops.health.deadJobsAllTime}: ${formatCount(s.deadJobs.total, locale)}`}
           {...(s.deadJobs.inWindow > 0
             ? { verdict: { kind: "misses" as const, label: t.ops.slo.misses } }
-            : {})}
+            : { verdict: { kind: "meets" as const, label: t.ops.slo.meets } })}
           definition={t.ops.health.deadJobsDefinition}
-          window={t.ops.slo.windowAllTime}
+          window={t.ops.slo.window}
         />
       </Section>
 
-      <Section id="ops-money" title={t.ops.money.title}>
+      <Section id="ops-money" title={t.ops.money.title} grid="sm:grid-cols-2">
         <MetricCard
           id="money-incidents"
           title={t.ops.money.incidents}
@@ -186,6 +196,18 @@ function LaterSlot({
   );
 }
 
+/** Nothing has happened yet: no webhook, no job, no worker report (a new system, not a broken one). */
+function isEmpty(s: SloSummary): boolean {
+  return (
+    s.webhookAck.samples === 0 &&
+    s.jobProcessing.samples === 0 &&
+    s.queueDepth === 0 &&
+    s.deadJobs.total === 0 &&
+    s.workerHeartbeat.lastAt === null &&
+    s.reconcile.lastAt === null
+  );
+}
+
 async function loadSummary(businessId: string): Promise<SloSummary | null> {
   try {
     return await getSloSummary(appDb().db, { businessId });
@@ -215,6 +237,9 @@ export default async function OpsPage() {
             </p>
           ) : null}
         </div>
+        {summary && isEmpty(summary) ? (
+          <EmptyState icon={Activity} title={t.ops.empty.title} body={t.ops.empty.body} />
+        ) : null}
         {summary ? (
           <SloCards s={summary} />
         ) : (

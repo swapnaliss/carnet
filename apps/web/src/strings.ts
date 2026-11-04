@@ -61,7 +61,7 @@ const en = {
     title: "Ops",
     empty: {
       title: "No activity yet",
-      body: "Webhooks, jobs and payment attempts appear here as they happen. None have been recorded.",
+      body: "Webhooks, jobs and payment attempts appear here as they happen. None have been recorded. Carnet checks Airwallex every 60 seconds even without webhooks.",
     },
     intro:
       "Service levels and health, computed from the timestamps Carnet stores in its database. Figures cover the last 24 hours unless a card says otherwise.",
@@ -94,8 +94,10 @@ const en = {
       queueDepthDefinition: "Jobs pending, waiting to retry, or running now.",
       deadJobs: "Jobs that gave up",
       deadJobsDefinition:
-        "Jobs that failed every retry and stopped (DEAD). Any in the last 24 hours misses the target.",
+        "Jobs that failed every retry and stopped (DEAD). Target: none in the last 24 hours.",
       deadJobsWindow: "In the last 24 hours",
+      deadJobsAllTime: "All time",
+      heartbeatWindow: "Most recent report",
       heartbeat: "Worker heartbeat",
       heartbeatDefinition: "When the worker last reported in. It reports every 30 seconds.",
       heartbeatStale: "The worker has not reported in the last 2 minutes.",
@@ -109,6 +111,7 @@ const en = {
       stale:
         "The reconciler has not completed in the last 3 minutes. Missed webhooks will not be recovered until it runs.",
       never: "The reconciler has not completed a run yet.",
+      window: "Most recent run",
     },
     money: {
       title: "Payments needing attention",
