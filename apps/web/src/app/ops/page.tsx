@@ -1,7 +1,6 @@
 import { getSloSummary, type SloSummary } from "@carnet/db";
 import { Bot, CircleAlert, Link2 } from "lucide-react";
 import type { Metadata } from "next";
-import { forbidden } from "next/navigation";
 import type { ReactNode } from "react";
 import { formatCount, formatMs, MetricCard } from "@/components/ops/metric-card";
 import { PageTitle } from "@/components/shell/empty-state";
@@ -200,8 +199,8 @@ async function loadSummary(businessId: string): Promise<SloSummary | null> {
 }
 
 export default async function OpsPage() {
+  // The layout has already refused viewers (403) and redirected anonymous visitors.
   const ctx = await requirePageSession();
-  if (ctx.role === "viewer") forbidden();
   const summary = await loadSummary(ctx.businessId);
 
   return (
