@@ -10,7 +10,7 @@ Carnet is built on the behaviour below. Items that were unknown at planning time
 - A question has `id`, `title{en,zh}`, `description`, `comment`, `answer{type}` and `sources[{id,type}]`. Transaction sources: `CHARGE`, `CONNECTED_ACCOUNT_TRANSFER`, `DIRECT_DEBIT`, `DEPOSIT`, `TRANSFER`.
 - Answer types `TEXT`, `ATTACHMENT`, `IDENTITY_DOCUMENT`, `CONFIRMATION`, `LIVENESS`, `ADDRESS`.
 - Respond body: `{questions:[{id, answer:{type, text | attachments:[{file_id}] | confirmed | address | identity_document, comment}}]}`. **OBSERVED:** a partial response (one of two questions, TEXT only or ATTACHMENT only) is rejected: 400 `invalid_argument`, "Please answer all questions in the request", RFI stays `ACTION_REQUIRED` (`rfi-check2-respond-partial-text`, `rfi-check2-respond-partial-attachment`). Answering all questions returns 200 and the RFI becomes `ANSWERED` (`rfi-check2-respond-full`). A second respond on an `ANSWERED` or `CLOSED` RFI returns 400 `invalid_state_for_operation` (`rfi-check2-respond-again-after-answered`, `rfi-check5-respond-after-close`). Responding is only valid in `ACTION_REQUIRED`.
-- Webhooks `rfi.action_required`, `rfi.answered`, `rfi.closed` carry only `data.id` (the RFI id); the RFI must be fetched.
+- Webhooks `rfi.action_required`, `rfi.answered`, `rfi.closed` carry only `data.id` and `data.type` (OBSERVED, M0-05: no `sources`, no questions); the RFI must be fetched.
 
 ## Sandbox simulation
 - `POST /api/v1/simulation/rfis/create` `{type, questions?[{answer.type, title{en}, description{en}, sources[]}]}`. "All RFIs for specified type must be in CLOSED status": **one open Transaction RFI at a time** per account.
@@ -19,7 +19,7 @@ Carnet is built on the behaviour below. Items that were unknown at planning time
 - **OBSERVED one-open rule:** a second create for the same type and source while one is open returns 400 `invalid_state_for_operation` "There is an active RFI for the same type and source. Please close the existing RFI before creating a new one." (`rfi-oneopen-second-create-while-open`). RFIs for a different source, or with none, can be open at the same time (`rfi-check7-create-other-source-while-open`), so the rule is per type and source, not per account.
 - **OBSERVED follow_up:** `POST /api/v1/simulation/rfis/{id}/follow_up` needs `{questions:[...]}`; an entry with only `id` reopens that answered question, an entry with `title`, `description`, `answer`, `sources` appends a new one (a repeated title was accepted). The RFI returns to `ACTION_REQUIRED` with all questions in `active_request` and the earlier round in `answered_requests` (`rfi-followup-reopen-and-append`, `rfi-followup-fetch`, `rfi-followup-respond-all`).
 - **OBSERVED close:** `POST /api/v1/simulation/rfis/{id}/close` works on `ACTION_REQUIRED` and `ANSWERED` RFIs and returns the RFI with status `CLOSED`; closing a closed RFI returns 400 `invalid_state_for_operation` "rfi session status is illegal" (`rfi-check5-close-open`, `rfi-check5-close-again`, `rfi-check5-close-answered`).
-- **OBSERVED sources:** the created and the fetched RFI carry `sources` on each question (`rfi-check7-fetch-multi`); a question with two sources kept only the first (`rfi-check7-create-multi-source`); different sources per question work (`rfi-check7-create-per-question-sources`). The webhook payload is pending M0-05.
+- **OBSERVED sources:** the created and the fetched RFI carry `sources` on each question (`rfi-check7-fetch-multi`); a question with two sources kept only the first (`rfi-check7-create-multi-source`); different sources per question work (`rfi-check7-create-per-question-sources`). **OBSERVED (M0-05):** the `rfi.*` webhook carries no `sources`; fetch the RFI (`docs/evidence/airwallex-webhooks.md`).
 
 ## Transfers and RFIs
 - An RFI does not add a transfer status. Transfer statuses (API version 2025-06-30 and later): `IN_APPROVAL`, `APPROVAL_RECALLED`, `APPROVAL_REJECTED`, `APPROVAL_BLOCKED`, `SCHEDULED`, `OVERDUE`, `PROCESSING`, `SENT`, `PAID`, `FAILED`, `CANCELLED`. An RFI may arrive while a transfer is `SCHEDULED`, `PROCESSING` or `SENT`.
@@ -33,6 +33,7 @@ Carnet is built on the behaviour below. Items that were unknown at planning time
 
 ## Webhooks
 - Signature: `HMAC_SHA256(secret, x-timestamp + rawBody)`, hex, compared with `x-signature`. Delivery is at-least-once and unordered, retried with exponential backoff for about three days. Subscriptions are created in the web app only.
+- **OBSERVED (M0-05, `docs/evidence/airwallex-webhooks.md`):** header `x-timestamp` is epoch milliseconds; the HMAC construction above verifies 25 of 25 recorded deliveries; deliveries arrive out of occurrence order; a redelivery after a 500 came about 0.5 s later with the same event id, timestamp and signature.
 
 ## Limits
 - Sandbox (documented): 20 requests/second globally, 10 per endpoint, 10 concurrent; token lifetime 30 minutes; `request_id` unique for 7 days.
