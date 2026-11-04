@@ -41,7 +41,10 @@ export async function findPaymentForTransfer(
       ),
     );
   if (!byAttempt) return null;
-  return { businessId: byAttempt.businessId as BusinessId, paymentId: byAttempt.refId as PaymentId };
+  return {
+    businessId: byAttempt.businessId as BusinessId,
+    paymentId: byAttempt.refId as PaymentId,
+  };
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

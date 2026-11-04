@@ -48,6 +48,17 @@ export default defineConfig({
                 sequence: { groupOrder: 1 },
               },
             },
+            {
+              // apps/web database-backed tests (webhook route, worker): own `carnet_test_web_*` DBs.
+              extends: "./apps/web/vitest.config.ts",
+              test: {
+                name: "web-db",
+                root: "./apps/web",
+                include: ["test/**/*.int.test.ts"],
+                exclude: ["**/node_modules/**"],
+                sequence: { groupOrder: 2 },
+              },
+            },
           ]
         : []),
     ],

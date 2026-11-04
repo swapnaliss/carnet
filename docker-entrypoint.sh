@@ -2,6 +2,6 @@
 set -eu
 case "${PROCESS_MODE:-web}" in
   web) exec node apps/web/server.js ;;
-  worker) exec node worker.ts ;;
+  worker) exec node worker.mjs ;;
   *) echo "unknown PROCESS_MODE: ${PROCESS_MODE}" >&2; exit 2 ;;
 esac

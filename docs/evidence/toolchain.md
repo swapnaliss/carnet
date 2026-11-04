@@ -43,5 +43,5 @@ Actions pinned by commit SHA: actions/checkout v7.0.1, actions/setup-node v7.1.0
 - Worker: `PROCESS_MODE=worker` started, logged a heartbeat and exited 0 on SIGTERM.
 
 ## Notes
-- Worker runs with Node's built-in type stripping (`node worker.ts`), so it must stay erasable TypeScript (`erasableSyntaxOnly` is on) and cannot yet import workspace packages; M1-05 decides whether to bundle it.
+- Worker runs with Node's built-in type stripping (`node worker.ts`), so it must stay erasable TypeScript (`erasableSyntaxOnly` is on) and cannot yet import workspace packages; M1-05 decides whether to bundle it. (M1-05: worker mode is now an esbuild bundle, `apps/web/dist/worker.mjs`, run as `node worker.mjs`.)
 - esbuild install scripts are not approved under npm 11's `allowScripts`; the toolchain (Vitest, drizzle-kit) works without them.
