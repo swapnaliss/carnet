@@ -18,7 +18,8 @@ export default defineConfig({
     command: `npm run start -w @carnet/web -- --port ${port}`,
     // Turns on /error-preview so the page-level error state is checked like every other page.
     env: { CARNET_ERROR_PREVIEW: "1" },
-    url: `${baseURL}/healthz`,
+    // Readiness is the home page: /healthz is 503 when no database is configured (M1-06).
+    url: `${baseURL}/`,
     reuseExistingServer: false,
     timeout: 60_000,
     stdout: "ignore",

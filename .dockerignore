@@ -16,3 +16,7 @@ media
 data
 coverage
 *.log
+dist
+**/dist
+test-results
+playwright-report
