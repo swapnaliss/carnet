@@ -1,0 +1,102 @@
+/*
+ * Tailwind 4 (CSS-first config) on the Carnet tokens. tokens.css is a byte-for-byte copy of
+ * docs/design/tokens.css (the Docker build context excludes docs/); test/tokens-sync.test.ts fails
+ * if the two drift. Dark mode follows prefers-color-scheme (tokens.css), so Tailwind's default
+ * `dark:` media variant matches it.
+ */
+@import "tailwindcss";
+@import "./tokens.css";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-focus-ring: var(--focus-ring);
+  --color-divider: var(--divider);
+
+  --color-status-neutral-fg: var(--status-neutral-fg);
+  --color-status-neutral-bg: var(--status-neutral-bg);
+  --color-status-progress-fg: var(--status-progress-fg);
+  --color-status-progress-bg: var(--status-progress-bg);
+  --color-status-success-fg: var(--status-success-fg);
+  --color-status-success-bg: var(--status-success-bg);
+  --color-status-warning-fg: var(--status-warning-fg);
+  --color-status-warning-bg: var(--status-warning-bg);
+  --color-status-danger-fg: var(--status-danger-fg);
+  --color-status-danger-bg: var(--status-danger-bg);
+  --color-status-held-fg: var(--status-held-fg);
+  --color-status-held-bg: var(--status-held-bg);
+
+  --font-sans:
+    var(--font-plex-sans), "Segoe UI", system-ui, -apple-system, "Noto Sans", "Noto Sans SC",
+    "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono:
+    var(--font-plex-mono), ui-monospace, "SFMono-Regular", "Cascadia Mono", Menlo, Consolas,
+    monospace;
+
+  --shadow-1: var(--shadow-1);
+  --shadow-2: var(--shadow-2);
+  --shadow-3: var(--shadow-3);
+
+  --spacing-shell-nav: var(--shell-nav-width);
+  --spacing-shell-header: var(--shell-header-height);
+  --container-content: var(--content-max);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  html {
+    color-scheme: light dark;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    /* next/font's family first (it carries the metric-matched fallback face), then the token stack */
+    font-family: var(--font-plex-sans), var(--font-sans);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    font-feature-settings: "kern" 1;
+    text-rendering: optimizeLegibility;
+  }
+  :focus-visible {
+    outline: var(--focus-width) solid var(--focus-ring);
+    outline-offset: var(--focus-offset);
+  }
+}
+
+/* Reduced motion (docs/design/tokens.md "Motion"): no movement, only instant state changes. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-instant: 0ms;
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: reduced motion must override every component */
+    animation-iteration-count: 1 !important;
+    /* biome-ignore lint/complexity/noImportantStyles: reduced motion must override every component */
+    scroll-behavior: auto !important;
+  }
+}

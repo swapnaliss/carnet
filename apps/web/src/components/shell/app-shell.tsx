@@ -1,0 +1,49 @@
+import { FlaskConical } from "lucide-react";
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { t } from "@/strings";
+import { MainNav } from "./main-nav";
+
+/**
+ * The app shell (docs/design/components.md AppShell): skip link, 56px header with the wordmark and the
+ * always-visible Sandbox pill, main navigation, and `<main id="main" tabindex="-1">` as the skip
+ * target. Business name, user menu and the held-count pill join the header once a session exists.
+ */
+export function AppShell({ children }: { children: ReactNode }) {
+  return (
+    <>
+      <a
+        href="#main"
+        className="sr-only z-50 rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+      >
+        {t.shell.skipLink}
+      </a>
+      <header className="sticky top-0 z-30 flex h-(--shell-header-height) items-center gap-3 border-b border-border bg-card px-4 md:px-6">
+        <Link
+          href="/"
+          aria-label={t.shell.header.home}
+          className="flex min-h-11 items-center rounded-sm text-lg font-semibold tracking-tight text-foreground md:min-h-9"
+        >
+          {t.app.name}
+        </Link>
+        <span className="inline-flex items-center gap-1.5 rounded-sm border border-border bg-status-neutral-bg px-2 py-0.5 text-xs font-medium text-status-neutral-fg">
+          <FlaskConical aria-hidden="true" className="size-3.5" />
+          {t.shell.header.sandbox}
+        </span>
+        <p className="ml-auto hidden text-xs text-muted-foreground lg:block">
+          {t.shell.header.sandboxHint}
+        </p>
+      </header>
+      <div className="flex min-h-[calc(100dvh-var(--shell-header-height))]">
+        <MainNav />
+        <main
+          id="main"
+          tabIndex={-1}
+          className="min-w-0 flex-1 px-4 pt-6 pb-24 outline-none md:px-8 md:pt-8 md:pb-12"
+        >
+          <div className="mx-auto w-full max-w-(--content-max)">{children}</div>
+        </main>
+      </div>
+    </>
+  );
+}

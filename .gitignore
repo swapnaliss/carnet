@@ -23,6 +23,8 @@ dist/
 build/
 out/
 coverage/
+test-results/
+playwright-report/
 *.tsbuildinfo
 .turbo/
 
