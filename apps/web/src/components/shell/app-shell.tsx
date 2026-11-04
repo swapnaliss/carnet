@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { t } from "@/strings";
 import { MainNav } from "./main-nav";
+import { RouteFocus } from "./route-focus";
 
 /**
  * The app shell (docs/design/components.md AppShell): skip link, 56px header with the wordmark and the
@@ -44,6 +45,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="mx-auto w-full max-w-(--content-max)">{children}</div>
         </main>
       </div>
+      {/* The one polite live region per page (docs/design/accessibility.md "Live regions"). */}
+      <div
+        id="live-region"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      />
+      <RouteFocus />
     </>
   );
 }

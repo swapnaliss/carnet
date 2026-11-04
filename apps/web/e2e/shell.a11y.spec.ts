@@ -51,6 +51,13 @@ test("the skip link is the first tab stop and moves focus to main", async ({ pag
   await expect(page.locator("main")).toBeFocused();
 });
 
+test("a client-side route change moves focus to the new page's h1", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Ops" }).click();
+  await expect(page).toHaveURL(/\/ops$/);
+  await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
+});
+
 test("the nav marks the current page", async ({ page }) => {
   await page.goto("/plan");
   const nav = page.getByRole("navigation", { name: "Main" });
