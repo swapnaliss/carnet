@@ -15,11 +15,13 @@
   },
   "dependencies": {
     "@carnet/domain": "0.0.0",
+    "better-auth": "1.7.15",
     "drizzle-orm": "0.45.4",
     "pg": "8.23.1"
   },
   "devDependencies": {
     "@types/pg": "8.23.1",
-    "drizzle-kit": "0.31.11"
+    "drizzle-kit": "0.31.11",
+    "tsx": "4.23.15"
   }
 }

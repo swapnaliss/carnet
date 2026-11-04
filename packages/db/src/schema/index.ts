@@ -1,6 +1,7 @@
 // The M1 tables (docs/architecture.md §5). Later tickets add tables in new files and by new
 // migrations; an applied migration is never edited.
 export * from "./audit-log";
+export * from "./auth";
 export * from "./businesses";
 export * from "./counterparties";
 export * from "./execution-attempts";
