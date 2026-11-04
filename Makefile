@@ -1,5 +1,10 @@
 .PHONY: up down reset check db-up db-roles db-migrate
 COMPOSE ?= docker compose
+# Local Docker stack only: synthetic defaults from packages/db/sql/roles.sql (same as docker-compose.yml and CI).
+# Set DATABASE_MIGRATION_URL in the environment to override; never put a hosted URL here.
+POSTGRES_PORT ?= 5432
+DATABASE_MIGRATION_URL ?= postgres://carnet_migrator:carnet_migrator@localhost:$(POSTGRES_PORT)/carnet
+export DATABASE_MIGRATION_URL
 
 # Everything: Postgres, the web image and the worker image.
 up:
@@ -9,7 +14,7 @@ down:
 	$(COMPOSE) down
 
 # Drop the Postgres volume and bring a healthy database back, migrated. A fresh volume runs
-# packages/db/sql/roles.sql from docker-entrypoint-initdb.d. Needs DATABASE_MIGRATION_URL.
+# packages/db/sql/roles.sql from docker-entrypoint-initdb.d. Uses DATABASE_MIGRATION_URL (local default above).
 reset:
 	$(COMPOSE) down -v
 	$(COMPOSE) up -d --wait postgres
