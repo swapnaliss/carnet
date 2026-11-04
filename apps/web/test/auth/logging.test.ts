@@ -1,6 +1,6 @@
 // AC: no password or session token appears in logs. Captures everything the auth runtime logs, plus
 // anything written to stdout, stderr or the console, during successful and failed logins.
-import { schema } from "@carnet/db";
+import { DEMO_USERS, schema } from "@carnet/db";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cookieOf, getRequest, setupAuthTestEnv, signIn } from "./setup";
@@ -31,6 +31,7 @@ afterEach(() => {
 describe("auth logs", () => {
   it("record logins without the password or the session token", async () => {
     const { passwords } = env();
+    const ownerId = DEMO_USERS.find((u) => u.role === "owner")?.id ?? "";
     const ok = await signIn(env(), "owner@carnet.example", passwords.owner, "192.0.2.50");
     expect(ok.status).toBe(200);
     const cookie = cookieOf(ok);
@@ -46,7 +47,7 @@ describe("auth logs", () => {
     const sessions = await env()
       .db.select({ token: schema.authSessions.token })
       .from(schema.authSessions)
-      .where(eq(schema.authSessions.userId, "3a3267da-129d-4e29-85ae-829cdf075842"));
+      .where(eq(schema.authSessions.userId, ownerId));
     expect(sessions.length).toBeGreaterThan(0);
 
     const all = [...env().logs, ...captured].join("\n");
