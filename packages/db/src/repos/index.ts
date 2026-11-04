@@ -8,6 +8,7 @@ export * from "./execution-attempts";
 export * from "./idempotency-keys";
 export * from "./outbox";
 export * from "./payments";
+export * from "./rate-limits";
 export * from "./system";
 export * from "./users";
 export * from "./webhook-events";

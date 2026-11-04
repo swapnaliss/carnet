@@ -1,9 +1,8 @@
 // Public surface of @carnet/db: connection, migrations, schema, typed errors, repositories, the
-// rate limiter and the demo-user seed.
+// rate limiter (repos/rate-limits) and the demo-user seed.
 export * from "./client";
 export * from "./errors";
 export * from "./migrate";
-export * from "./ratelimit";
 export * from "./repos/index";
 export type { AttemptKind, AttemptStatus, JobStatus, UserRole } from "./schema/index";
 export * as schema from "./schema/index";

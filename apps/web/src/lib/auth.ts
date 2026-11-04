@@ -10,20 +10,24 @@
 //   minutes), answers failures in the shared error format with one message whether or not the
 //   email exists, and never returns the session token in the body (the cookie is HttpOnly);
 // - better-auth's own in-memory limiter is off (one limiter, in the database).
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import {
   createDbClientFromEnv,
   type Db,
   hitRateLimit,
   peekRateLimit,
-  type RateLimitRule,
   type RateLimitState,
   schema,
 } from "@carnet/db";
-import { type ApiError, apiError, type ErrorCode, httpStatusOf } from "@carnet/domain";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { errorResponse } from "./errors";
 import { createLogger, type Logger, logger } from "./logger";
+
+import { clientIp, LOGIN_RATE_LIMITS, loginRateLimitKeys } from "./ratelimit";
+
+// Moved to ./errors and ./ratelimit (M1-10); re-exported for M1-04 call sites.
+export { clientIp, errorResponse, LOGIN_RATE_LIMITS, loginRateLimitKeys };
 
 export const AUTH_ENV_KEYS = ["BETTER_AUTH_SECRET", "BETTER_AUTH_URL"] as const;
 export const AUTH_BASE_PATH = "/api/auth";
@@ -31,11 +35,6 @@ export const SESSION_COOKIE_PREFIX = "carnet";
 /** Session lifetime and refresh interval, seconds. */
 export const SESSION_TTL_SECONDS = 8 * 60 * 60;
 export const SESSION_UPDATE_AGE_SECONDS = 60 * 60;
-
-export const LOGIN_RATE_LIMITS = {
-  email: { limit: 5, windowMs: 15 * 60 * 1000 },
-  ip: { limit: 20, windowMs: 15 * 60 * 1000 },
-} as const satisfies Record<string, RateLimitRule>;
 
 const MAX_LOGIN_BODY_BYTES = 8 * 1024;
 const MIN_SECRET_LENGTH = 32;
@@ -152,35 +151,7 @@ export function requestIdOf(req: Request): string {
   return incoming && REQUEST_ID.test(incoming) ? incoming : randomUUID();
 }
 
-export function errorResponse(
-  code: ErrorCode,
-  message: string,
-  requestId: string,
-  headers: Record<string, string> = {},
-): Response {
-  const body: ApiError = apiError(code, message, requestId);
-  return Response.json(body, {
-    status: httpStatusOf(code),
-    headers: { "cache-control": "no-store", "x-request-id": requestId, ...headers },
-  });
-}
-
 // --- login rate limit ----------------------------------------------------------------------------
-
-/**
- * The caller's IP for the per-IP counter: the first `x-forwarded-for` hop, else `x-real-ip`.
- * Behind the platform proxy these come from the proxy; M1-10 hardens which hop is trusted.
- */
-export function clientIp(req: Request): string {
-  const forwarded = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwarded || req.headers.get("x-real-ip")?.trim() || "unknown";
-}
-
-/** `rate_limits.key` values for a login attempt. The email is lower-cased and hashed. */
-export function loginRateLimitKeys(email: string, ip: string): { email: string; ip: string } {
-  const digest = createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
-  return { email: `login:email:${digest}`, ip: `login:ip:${ip}` };
-}
 
 function limitedResponse(states: RateLimitState[], requestId: string): Response | null {
   const limited = states.filter((s) => s.limited);
