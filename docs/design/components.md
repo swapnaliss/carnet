@@ -207,7 +207,8 @@ claim is a span of the answer text the drafter tied to one or more fact citation
   shows open holds: "1 held" with the held icon (`shell.nav.heldCount`); in M1-07 it is absent.
   - 1440: left sidebar 216px, labels visible.
   - 768: 64px icon rail with visible labels under icons at `--text-xs` (labels are not tooltip-only).
-  - 375: bottom tab bar, 3 items, 56px tall plus safe area, each target ≥ 44×44.
+  - 375: bottom tab bar, 3 items, 56px tall plus safe area, each target ≥ 44×44. The current item's
+    3px rule sits on the top edge (the bar is horizontal), with `aria-current` and the accent fill.
 - **Replay banner** slot above the header when the session is the judge replay (non-dismissible).
 - **Kill-switch banner** slot: if `execution_enabled` is false, every screen shows "Execution is paused
   by an operator. Carnet will not send money or answers." (`shell.killSwitch.banner`).

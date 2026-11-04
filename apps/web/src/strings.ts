@@ -54,7 +54,7 @@ const en = {
     title: "Plan",
     empty: {
       title: "No plan yet",
-      body: "A plan appears once there are payments with due dates. Carnet has not scheduled anything.",
+      body: "The plan shows what must be paid by when, and how it changes while a payment is held. It appears once there are payments with due dates. Carnet has not scheduled anything.",
     },
   },
   ops: {
