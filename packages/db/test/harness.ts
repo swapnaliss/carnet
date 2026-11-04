@@ -7,9 +7,12 @@ import { afterAll, beforeAll } from "vitest";
 import { createDbClient, type DbClient } from "../src/client";
 import { runMigrations } from "../src/migrate";
 
-/** The tables M1-02 creates (docs/architecture.md §5). */
+/** The tables M1-02 creates (docs/architecture.md §5), plus the better-auth tables (M1-04). */
 export const M1_TABLES = [
   "audit_log",
+  "auth_accounts",
+  "auth_sessions",
+  "auth_verifications",
   "businesses",
   "counterparties",
   "execution_attempts",

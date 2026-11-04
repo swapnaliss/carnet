@@ -1,8 +1,10 @@
 // POST /api/webhooks/airwallex against Docker Postgres, replaying the M0-05 recorded deliveries
 // re-signed with a test secret (AC 1-3).
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { POST } from "../../src/app/api/webhooks/airwallex/route";
 import { closeAppDb } from "../../src/server/db";
+import { memoryLogger } from "../../src/server/log";
+import { setWebhookLogger } from "../../src/server/webhooks/airwallex";
 import {
   delivery,
   query,
@@ -107,16 +109,13 @@ describe("AC2: duplicate deliveries", () => {
 });
 
 describe("AC3: rejected deliveries", () => {
-  const stderr: string[] = [];
+  let log = memoryLogger();
   beforeEach(() => {
-    stderr.length = 0;
-    vi.spyOn(process.stderr, "write").mockImplementation((chunk) => {
-      stderr.push(String(chunk));
-      return true;
-    });
+    log = memoryLogger();
+    setWebhookLogger(log);
   });
   afterEach(() => {
-    vi.restoreAllMocks();
+    setWebhookLogger(null);
   });
 
   const d = () => delivery("payout.transfer.paid.1");
@@ -163,11 +162,10 @@ describe("AC3: rejected deliveries", () => {
   it("every rejection is counted in a log line", async () => {
     await POST(webhookRequest(d().body, signedHeaders(d().body, { secret: "x" })));
     await POST(webhookRequest(d().body, signedHeaders(d().body, { secret: "y" })));
-    const lines = stderr
-      .flatMap((s) => s.split("\n"))
-      .filter(Boolean)
-      .map((l) => JSON.parse(l) as Record<string, unknown>)
-      .filter((l) => l.event === "webhook_rejected");
+    const lines = log.lines.filter((l) => l.obj.event === "webhook_rejected").map((l) => l.obj);
+    expect(log.lines.filter((l) => l.obj.event === "webhook_rejected").map((l) => l.level)).toEqual(
+      ["warn", "warn"],
+    );
     expect(lines).toHaveLength(2);
     expect(lines[0]?.reason).toBe("bad_signature");
     expect(Number(lines[1]?.rejectedTotal)).toBe(Number(lines[0]?.rejectedTotal) + 1);

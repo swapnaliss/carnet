@@ -25,7 +25,14 @@ export default defineConfig({
             "apps/*/src/**/*.test.ts",
             "apps/*/test/**/*.test.ts",
           ],
-          exclude: ["**/*.int.test.ts", "**/node_modules/**"],
+          // apps/web/test/auth needs the same local Postgres roles as packages/db (M1-04).
+          exclude: [
+            "**/*.int.test.ts",
+            "**/node_modules/**",
+            ...(hasDbRoles ? [] : ["apps/web/test/auth/**"]),
+          ],
+          testTimeout: 30_000,
+          hookTimeout: 60_000,
         },
       },
       {

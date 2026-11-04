@@ -8,21 +8,20 @@
 // not configured.
 import { verifyWebhook } from "@carnet/airwallex";
 import { appDb } from "../../../../server/db";
-import { createLogger } from "../../../../server/log";
 import {
   errorResponse,
   MAX_WEBHOOK_BODY_BYTES,
   noteRejection,
   storeVerifiedWebhook,
+  webhookLogger,
 } from "../../../../server/webhooks/airwallex";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const logger = createLogger({ process: "web", route: "webhooks.airwallex" });
-
 export async function POST(req: Request): Promise<Response> {
   const requestId = crypto.randomUUID();
+  const logger = webhookLogger();
   const secret = process.env.AIRWALLEX_WEBHOOK_SECRET;
   if (!secret) {
     logger.error({ requestId }, "webhook secret is not configured (AIRWALLEX_WEBHOOK_SECRET)");

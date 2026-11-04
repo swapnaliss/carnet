@@ -6,10 +6,22 @@ import { parseWebhookEvent, type WebhookEvent } from "@carnet/airwallex";
 import { type Db, enqueueJob, insertWebhookEventIfNew, withTransaction } from "@carnet/db";
 import { apiError, type ErrorCode, httpStatusOf } from "@carnet/domain";
 import { JOB_KIND } from "../../worker/handlers/index";
-import type { Logger } from "../log";
+import { createLogger, type Logger } from "../log";
 
 /** Airwallex events are a few KB; anything far larger is not one. */
 export const MAX_WEBHOOK_BODY_BYTES = 256 * 1024;
+
+let routeLogger: Logger | null = null;
+
+/** The route's logger (pino, M1-04). Tests swap it with `setWebhookLogger` to read the lines. */
+export function webhookLogger(): Logger {
+  routeLogger ??= createLogger({ process: "web", route: "webhooks.airwallex" });
+  return routeLogger;
+}
+
+export function setWebhookLogger(logger: Logger | null): void {
+  routeLogger = logger;
+}
 
 /** Signature rejections seen by this process (logged with every rejection). */
 let rejectedTotal = 0;
