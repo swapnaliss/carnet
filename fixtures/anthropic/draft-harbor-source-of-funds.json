@@ -1,0 +1,66 @@
+{
+  "kind": "draft",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 1500,
+    "question_id": "q-harbor-source_of_funds",
+    "documents": [
+      "inv-harbor-001",
+      "contract-harbor"
+    ]
+  },
+  "response": {
+    "id": "msg_011CghRe2QASgJueiGed8xUP",
+    "model": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "usage": {
+      "input_tokens": 1738,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 143,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "speed": "standard"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"status\":\"NEEDS_OWNER\",\"answer\":\"\",\"citations\":[],\"missing_evidence\":[\"Bank statement or account balance record showing the account from which the USD 4,800.00 payment was funded\",\"Documentation of how those funds were originally generated, such as customer receipts, sales invoices, or a capital injection or loan agreement\",\"Identification of the funding account and its holder (Northwind Studio Ltd) for the payment\"]}"
+      }
+    ],
+    "parsed_output": {
+      "status": "NEEDS_OWNER",
+      "answer": "",
+      "citations": [],
+      "missing_evidence": [
+        "Bank statement or account balance record showing the account from which the USD 4,800.00 payment was funded",
+        "Documentation of how those funds were originally generated, such as customer receipts, sales invoices, or a capital injection or loan agreement",
+        "Identification of the funding account and its holder (Northwind Studio Ltd) for the payment"
+      ]
+    }
+  },
+  "headers": {
+    "anthropic-ratelimit-input-tokens-limit": "5000000",
+    "anthropic-ratelimit-input-tokens-remaining": "4999000",
+    "anthropic-ratelimit-input-tokens-reset": "2026-11-04T06:36:46Z",
+    "anthropic-ratelimit-output-tokens-limit": "1000000",
+    "anthropic-ratelimit-output-tokens-remaining": "1000000",
+    "anthropic-ratelimit-output-tokens-reset": "2026-11-04T06:36:47Z",
+    "anthropic-ratelimit-requests-limit": "10000",
+    "anthropic-ratelimit-requests-remaining": "9999",
+    "anthropic-ratelimit-requests-reset": "2026-11-04T06:36:44Z",
+    "anthropic-ratelimit-tokens-limit": "6000000",
+    "anthropic-ratelimit-tokens-remaining": "5999000",
+    "anthropic-ratelimit-tokens-reset": "2026-11-04T06:36:46Z",
+    "request-id": "req_011CghRe1pvszFcFyqX2nHE7"
+  },
+  "latency_ms": 2783,
+  "cost_usd": 0.004906
+}

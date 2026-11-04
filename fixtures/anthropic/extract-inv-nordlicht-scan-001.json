@@ -1,0 +1,109 @@
+{
+  "kind": "extraction",
+  "request": {
+    "model": "claude-haiku-5-5",
+    "max_tokens": 2000,
+    "document_id": "inv-nordlicht-scan-001",
+    "file": "inv-nordlicht-scan-001.pdf",
+    "fields": [
+      "invoice_number",
+      "invoice_date",
+      "supplier",
+      "buyer",
+      "total",
+      "iban"
+    ]
+  },
+  "response": {
+    "id": "msg_011CghRdJorbCFtXeHH1JudS",
+    "model": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "usage": {
+      "input_tokens": 2358,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1159,
+      "output_tokens_details": {
+        "thinking_tokens": 812
+      },
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "speed": "standard"
+    },
+    "content": [
+      {
+        "type": "thinking",
+        "thinking": "",
+        "signature": "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"
+      },
+      {
+        "type": "text",
+        "text": "{\"document_kind\":\"invoice\",\"text_readable\":false,\"facts\":[{\"field\":\"invoice_number\",\"value\":\"NL-2026-0341\",\"quote\":\"INVOICE NUMBER: NL-2026-0341\",\"page\":1},{\"field\":\"invoice_date\",\"value\":\"2026-10-12\",\"quote\":\"INVOICE DATE: 2026-10-12\",\"page\":1},{\"field\":\"supplier\",\"value\":\"NORDLICHT SOFTWARE GMBH\",\"quote\":\"FROM: NORDLICHT SOFTWARE GMBH\",\"page\":1},{\"field\":\"buyer\",\"value\":\"NORTHWIND STUDIO LTD\",\"quote\":\"BILL TO: NORTHWIND STUDIO LTD\",\"page\":1},{\"field\":\"total\",\"value\":\"EUR 3,100.00\",\"quote\":\"TOTAL DUE: EUR 3,100.00\",\"page\":1},{\"field\":\"iban\",\"value\":\"DE22000000000000000002\",\"quote\":\"IBAN: DE22000000000000000002\",\"page\":1}],\"embedded_instructions\":[]}"
+      }
+    ],
+    "parsed_output": {
+      "document_kind": "invoice",
+      "text_readable": false,
+      "facts": [
+        {
+          "field": "invoice_number",
+          "value": "NL-2026-0341",
+          "quote": "INVOICE NUMBER: NL-2026-0341",
+          "page": 1
+        },
+        {
+          "field": "invoice_date",
+          "value": "2026-10-12",
+          "quote": "INVOICE DATE: 2026-10-12",
+          "page": 1
+        },
+        {
+          "field": "supplier",
+          "value": "NORDLICHT SOFTWARE GMBH",
+          "quote": "FROM: NORDLICHT SOFTWARE GMBH",
+          "page": 1
+        },
+        {
+          "field": "buyer",
+          "value": "NORTHWIND STUDIO LTD",
+          "quote": "BILL TO: NORTHWIND STUDIO LTD",
+          "page": 1
+        },
+        {
+          "field": "total",
+          "value": "EUR 3,100.00",
+          "quote": "TOTAL DUE: EUR 3,100.00",
+          "page": 1
+        },
+        {
+          "field": "iban",
+          "value": "DE22000000000000000002",
+          "quote": "IBAN: DE22000000000000000002",
+          "page": 1
+        }
+      ],
+      "embedded_instructions": []
+    }
+  },
+  "headers": {
+    "anthropic-ratelimit-input-tokens-limit": "5000000",
+    "anthropic-ratelimit-input-tokens-remaining": "5000000",
+    "anthropic-ratelimit-input-tokens-reset": "2026-11-04T06:36:35Z",
+    "anthropic-ratelimit-output-tokens-limit": "1000000",
+    "anthropic-ratelimit-output-tokens-remaining": "999000",
+    "anthropic-ratelimit-output-tokens-reset": "2026-11-04T06:36:40Z",
+    "anthropic-ratelimit-requests-limit": "10000",
+    "anthropic-ratelimit-requests-remaining": "9999",
+    "anthropic-ratelimit-requests-reset": "2026-11-04T06:36:35Z",
+    "anthropic-ratelimit-tokens-limit": "6000000",
+    "anthropic-ratelimit-tokens-remaining": "5999000",
+    "anthropic-ratelimit-tokens-reset": "2026-11-04T06:36:35Z",
+    "request-id": "req_011CghRdJ2itMcsiU66Uy5Ep"
+  },
+  "latency_ms": 5309,
+  "cost_usd": 0.000815
+}

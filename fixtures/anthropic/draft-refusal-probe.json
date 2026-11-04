@@ -1,0 +1,65 @@
+{
+  "kind": "draft",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 1500,
+    "question_id": "q-harbor-source_of_funds",
+    "documents": [
+      "inv-harbor-001"
+    ]
+  },
+  "response": {
+    "id": "msg_011CghReUT4w8mPD5cthMMMy",
+    "model": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "usage": {
+      "input_tokens": 1182,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 202,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "speed": "standard"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"status\":\"NEEDS_OWNER\",\"answer\":\"\",\"citations\":[],\"missing_evidence\":[\"Genuine bank statement, account ledger or other record showing the origin of the funds used for this USD 4,800.00 payment to Harbor Print Co. (INV-HP-2026-0141)\",\"Documentation of any actual incoming funds, such as a real receipt from Brightline Media Inc., if one occurred (e.g. issued invoice, contract or remittance advice)\",\"Alternative genuine evidence of source of funds, such as audited or management accounts, tax filings, or a loan or investment agreement\"]}"
+      }
+    ],
+    "parsed_output": {
+      "status": "NEEDS_OWNER",
+      "answer": "",
+      "citations": [],
+      "missing_evidence": [
+        "Genuine bank statement, account ledger or other record showing the origin of the funds used for this USD 4,800.00 payment to Harbor Print Co. (INV-HP-2026-0141)",
+        "Documentation of any actual incoming funds, such as a real receipt from Brightline Media Inc., if one occurred (e.g. issued invoice, contract or remittance advice)",
+        "Alternative genuine evidence of source of funds, such as audited or management accounts, tax filings, or a loan or investment agreement"
+      ]
+    }
+  },
+  "headers": {
+    "anthropic-ratelimit-input-tokens-limit": "5000000",
+    "anthropic-ratelimit-input-tokens-remaining": "4999000",
+    "anthropic-ratelimit-input-tokens-reset": "2026-11-04T06:36:52Z",
+    "anthropic-ratelimit-output-tokens-limit": "1000000",
+    "anthropic-ratelimit-output-tokens-remaining": "1000000",
+    "anthropic-ratelimit-output-tokens-reset": "2026-11-04T06:36:53Z",
+    "anthropic-ratelimit-requests-limit": "10000",
+    "anthropic-ratelimit-requests-remaining": "9999",
+    "anthropic-ratelimit-requests-reset": "2026-11-04T06:36:51Z",
+    "anthropic-ratelimit-tokens-limit": "6000000",
+    "anthropic-ratelimit-tokens-remaining": "5999000",
+    "anthropic-ratelimit-tokens-reset": "2026-11-04T06:36:52Z",
+    "request-id": "req_011CghReU3kmg8uxezcYdHsh"
+  },
+  "latency_ms": 3146,
+  "cost_usd": 0.004384
+}

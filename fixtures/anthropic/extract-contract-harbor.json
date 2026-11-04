@@ -1,0 +1,123 @@
+{
+  "kind": "extraction",
+  "request": {
+    "model": "claude-haiku-5-5",
+    "max_tokens": 2000,
+    "document_id": "contract-harbor",
+    "file": "contract-harbor.pdf",
+    "fields": [
+      "contract_number",
+      "clause_parties",
+      "clause_effective_date",
+      "clause_scope",
+      "clause_payment_terms",
+      "clause_fee_cap",
+      "clause_beneficiary_account",
+      "clause_governing_law"
+    ]
+  },
+  "response": {
+    "id": "msg_011CghRcjMD159wMMAmrj1K1",
+    "model": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "usage": {
+      "input_tokens": 4333,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 1177,
+      "output_tokens_details": {
+        "thinking_tokens": 613
+      },
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "speed": "standard"
+    },
+    "content": [
+      {
+        "type": "thinking",
+        "thinking": "",
+        "signature": "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"
+      },
+      {
+        "type": "text",
+        "text": "{\"document_kind\":\"contract\",\"text_readable\":true,\"facts\":[{\"field\":\"contract_number\",\"value\":\"CT-NW-HP-2026\",\"quote\":\"Contract number: CT-NW-HP-2026\",\"page\":1},{\"field\":\"clause_parties\",\"value\":\"Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier)\",\"quote\":\"1. Parties: Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier).\",\"page\":1},{\"field\":\"clause_effective_date\",\"value\":\"2026-01-15\",\"quote\":\"2. Effective date: 2026-01-15.\",\"page\":1},{\"field\":\"clause_scope\",\"value\":\"Printing of marketing brochures and posters for Northwind Studio clients\",\"quote\":\"3. Scope: Printing of marketing brochures and posters for Northwind Studio clients.\",\"page\":1},{\"field\":\"clause_payment_terms\",\"value\":\"Buyer pays each invoice within 30 days of the invoice date.\",\"quote\":\"4. Payment: Buyer pays each invoice within 30 days of the invoice date.\",\"page\":2},{\"field\":\"clause_fee_cap\",\"value\":\"USD 60,000.00\",\"quote\":\"5. Fees: Total fees under this contract will not exceed USD 60,000.00.\",\"page\":2},{\"field\":\"clause_beneficiary_account\",\"value\":\"000123456781\",\"quote\":\"6. Beneficiary account: Supplier is paid only to account number 000123456781.\",\"page\":2},{\"field\":\"clause_governing_law\",\"value\":\"The laws of the Netherlands\",\"quote\":\"7. Governing law: The laws of the Netherlands apply.\",\"page\":2}],\"embedded_instructions\":[]}"
+      }
+    ],
+    "parsed_output": {
+      "document_kind": "contract",
+      "text_readable": true,
+      "facts": [
+        {
+          "field": "contract_number",
+          "value": "CT-NW-HP-2026",
+          "quote": "Contract number: CT-NW-HP-2026",
+          "page": 1
+        },
+        {
+          "field": "clause_parties",
+          "value": "Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier)",
+          "quote": "1. Parties: Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier).",
+          "page": 1
+        },
+        {
+          "field": "clause_effective_date",
+          "value": "2026-01-15",
+          "quote": "2. Effective date: 2026-01-15.",
+          "page": 1
+        },
+        {
+          "field": "clause_scope",
+          "value": "Printing of marketing brochures and posters for Northwind Studio clients",
+          "quote": "3. Scope: Printing of marketing brochures and posters for Northwind Studio clients.",
+          "page": 1
+        },
+        {
+          "field": "clause_payment_terms",
+          "value": "Buyer pays each invoice within 30 days of the invoice date.",
+          "quote": "4. Payment: Buyer pays each invoice within 30 days of the invoice date.",
+          "page": 2
+        },
+        {
+          "field": "clause_fee_cap",
+          "value": "USD 60,000.00",
+          "quote": "5. Fees: Total fees under this contract will not exceed USD 60,000.00.",
+          "page": 2
+        },
+        {
+          "field": "clause_beneficiary_account",
+          "value": "000123456781",
+          "quote": "6. Beneficiary account: Supplier is paid only to account number 000123456781.",
+          "page": 2
+        },
+        {
+          "field": "clause_governing_law",
+          "value": "The laws of the Netherlands",
+          "quote": "7. Governing law: The laws of the Netherlands apply.",
+          "page": 2
+        }
+      ],
+      "embedded_instructions": []
+    }
+  },
+  "headers": {
+    "anthropic-ratelimit-input-tokens-limit": "5000000",
+    "anthropic-ratelimit-input-tokens-remaining": "5000000",
+    "anthropic-ratelimit-input-tokens-reset": "2026-11-04T06:36:28Z",
+    "anthropic-ratelimit-output-tokens-limit": "1000000",
+    "anthropic-ratelimit-output-tokens-remaining": "999000",
+    "anthropic-ratelimit-output-tokens-reset": "2026-11-04T06:36:31Z",
+    "anthropic-ratelimit-requests-limit": "10000",
+    "anthropic-ratelimit-requests-remaining": "9999",
+    "anthropic-ratelimit-requests-reset": "2026-11-04T06:36:27Z",
+    "anthropic-ratelimit-tokens-limit": "6000000",
+    "anthropic-ratelimit-tokens-remaining": "5999000",
+    "anthropic-ratelimit-tokens-reset": "2026-11-04T06:36:28Z",
+    "request-id": "req_011CghRcj1ciZR4Y2WQJxr1H"
+  },
+  "latency_ms": 4202,
+  "cost_usd": 0.001022
+}

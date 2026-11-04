@@ -1,0 +1,162 @@
+{
+  "kind": "schema-probe",
+  "results": {
+    "min_max_number": {
+      "schema_sent": {
+        "type": "object",
+        "properties": {
+          "n": {
+            "type": "number",
+            "description": "{minimum: 0, maximum: 10}"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "n"
+        ],
+        "description": "{$schema: \"https://json-schema.org/draft/2020-12/schema\"}"
+      },
+      "api": "accepted",
+      "parsed_output": {
+        "n": 5
+      },
+      "stop_reason": "end_turn"
+    },
+    "string_length": {
+      "schema_sent": {
+        "type": "object",
+        "properties": {
+          "s": {
+            "type": "string",
+            "description": "{minLength: 1, maxLength: 20}"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "s"
+        ],
+        "description": "{$schema: \"https://json-schema.org/draft/2020-12/schema\"}"
+      },
+      "api": "accepted",
+      "parsed_output": {
+        "s": "hello world"
+      },
+      "stop_reason": "end_turn"
+    },
+    "array_min": {
+      "schema_sent": {
+        "$defs": {
+          "__schema0": {
+            "type": "string"
+          }
+        },
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/__schema0"
+            },
+            "minItems": 1
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "a"
+        ],
+        "description": "{$schema: \"https://json-schema.org/draft/2020-12/schema\"}"
+      },
+      "api": "accepted",
+      "parsed_output": {
+        "a": [
+          "example"
+        ]
+      },
+      "stop_reason": "end_turn"
+    },
+    "regex": {
+      "schema_sent": {
+        "type": "object",
+        "properties": {
+          "s": {
+            "type": "string",
+            "description": "{pattern: \"^[A-Z]{3}$\"}"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "s"
+        ],
+        "description": "{$schema: \"https://json-schema.org/draft/2020-12/schema\"}"
+      },
+      "api": "accepted",
+      "parsed_output": {
+        "s": "ABC"
+      },
+      "stop_reason": "end_turn"
+    },
+    "union": {
+      "schema_sent": {
+        "type": "object",
+        "properties": {
+          "v": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "v"
+        ],
+        "description": "{$schema: \"https://json-schema.org/draft/2020-12/schema\"}"
+      },
+      "api": "accepted",
+      "parsed_output": {
+        "v": "example"
+      },
+      "stop_reason": "end_turn"
+    },
+    "optional": {
+      "schema_sent": {
+        "type": "object",
+        "properties": {
+          "o": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "description": "{$schema: \"https://json-schema.org/draft/2020-12/schema\"}"
+      },
+      "api": "accepted",
+      "parsed_output": {
+        "o": "example"
+      },
+      "stop_reason": "end_turn"
+    },
+    "record_map": {
+      "schema_sent": {
+        "type": "object",
+        "properties": {
+          "m": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false,
+            "description": "{propertyNames: {\"type\":\"string\"}}"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "m"
+        ],
+        "description": "{$schema: \"https://json-schema.org/draft/2020-12/schema\"}"
+      },
+      "api": "accepted",
+      "parsed_output": {
+        "m": {}
+      },
+      "stop_reason": "end_turn"
+    }
+  }
+}

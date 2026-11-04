@@ -1,0 +1,33 @@
+{
+  "kind": "stop",
+  "request": {
+    "model": "claude-haiku-5-5",
+    "max_tokens": 60,
+    "document_id": "inv-harbor-001"
+  },
+  "create": {
+    "stop_reason": "max_tokens",
+    "usage": {
+      "input_tokens": 2606,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 60,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "speed": "standard"
+    },
+    "text": "{\"document_kind\":\"invoice\",\"text_readable\":true,\"facts\":[{\"field\":\"invoice_number\",\"value\":\"INV-HP-2026-0141\",\"quote\":\"Invoice number:",
+    "zod_valid_after_json_parse": false
+  },
+  "parse": {
+    "returned": false,
+    "error": "AnthropicError: Failed to parse structured output: Error: Failed to parse structured output as JSON: Unterminated string in JSON at position 134 (line 1 column 135)"
+  }
+}
