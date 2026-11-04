@@ -64,7 +64,12 @@ describe("rate limiter", () => {
     expect(results.filter((r) => r.allowed)).toHaveLength(3);
     expect(results.filter((r) => r.limited)).toHaveLength(47);
     expect(results.every((r) => r.allowed === !r.limited)).toBe(true);
-    expect(results.filter((r) => r.allowed).map((r) => r.remaining).sort()).toEqual([0, 1, 2]);
+    expect(
+      results
+        .filter((r) => r.allowed)
+        .map((r) => r.remaining)
+        .sort(),
+    ).toEqual([0, 1, 2]);
     expect(results.filter((r) => r.limited).every((r) => r.remaining === 0)).toBe(true);
   });
 

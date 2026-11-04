@@ -23,7 +23,12 @@ async function windows(): Promise<string[]> {
 describe("rate-limit pruning", () => {
   it("deletes windows older than the retention and keeps live ones", async () => {
     await query(db().appUrl, "DELETE FROM rate_limits");
-    await hitRateLimit(db().app.db, "t:old", rule, new Date(NOW - RATE_LIMIT_RETENTION_MS - 60_000));
+    await hitRateLimit(
+      db().app.db,
+      "t:old",
+      rule,
+      new Date(NOW - RATE_LIMIT_RETENTION_MS - 60_000),
+    );
     await hitRateLimit(db().app.db, "t:live", rule, new Date(NOW - 60_000));
     expect(await pruneExpiredRateLimits(db().app.db, NOW)).toBe(1);
     expect(await windows()).toEqual(["2026-11-04T11:59:00.000Z"]);
@@ -31,7 +36,12 @@ describe("rate-limit pruning", () => {
 
   it("runs from the worker loop's housekeeping", async () => {
     await query(db().appUrl, "DELETE FROM rate_limits");
-    await hitRateLimit(db().app.db, "t:old", rule, new Date(Date.now() - 3 * RATE_LIMIT_RETENTION_MS));
+    await hitRateLimit(
+      db().app.db,
+      "t:old",
+      rule,
+      new Date(Date.now() - 3 * RATE_LIMIT_RETENTION_MS),
+    );
     const worker = createWorker({
       db: db().app.db,
       registry: createRegistry(),
