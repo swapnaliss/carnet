@@ -1,0 +1,107 @@
+import { type AttemptId, type BusinessId, newAttemptId, type RequestId } from "@carnet/domain";
+import { and, eq } from "drizzle-orm";
+import { DuplicateRequestIdError, pgErrorOf, translateDbError } from "../errors";
+import { type AttemptKind, type AttemptStatus, executionAttempts } from "../schema/index";
+import type { RepoCtx } from "./context";
+
+export interface ExecutionAttempt {
+  readonly id: AttemptId;
+  readonly businessId: BusinessId;
+  readonly kind: AttemptKind;
+  /** The payment, conversion or RFI this attempt executes. */
+  readonly refId: string;
+  readonly requestId: RequestId;
+  readonly status: AttemptStatus;
+  readonly response: unknown;
+  readonly createdAt: Date;
+  readonly resolvedAt: Date | null;
+}
+
+type Row = typeof executionAttempts.$inferSelect;
+const toAttempt = (r: Row): ExecutionAttempt => ({
+  id: r.id as AttemptId,
+  businessId: r.businessId as BusinessId,
+  kind: r.kind,
+  refId: r.refId,
+  requestId: r.requestId as RequestId,
+  status: r.status,
+  response: r.response ?? null,
+  createdAt: r.createdAt,
+  resolvedAt: r.resolvedAt,
+});
+
+export interface NewAttempt {
+  id?: AttemptId;
+  kind: AttemptKind;
+  refId: string;
+  /** Minted once per intent (`newRequestId()`), reused only to retry the same operation. */
+  requestId: RequestId;
+}
+
+/** Inserts an INTENT attempt. Throws DuplicateRequestIdError if the request_id is taken. */
+export async function createAttempt(ctx: RepoCtx, input: NewAttempt): Promise<ExecutionAttempt> {
+  try {
+    const [row] = await ctx.db
+      .insert(executionAttempts)
+      .values({
+        id: input.id ?? newAttemptId(),
+        businessId: ctx.businessId,
+        kind: input.kind,
+        refId: input.refId,
+        requestId: input.requestId,
+      })
+      .returning();
+    if (!row) throw new Error("insert returned no row");
+    return toAttempt(row);
+  } catch (error) {
+    const pgError = pgErrorOf(error);
+    if (pgError?.code === "23505" && pgError.constraint === "execution_attempts_request_id_key") {
+      throw new DuplicateRequestIdError(input.requestId);
+    }
+    throw translateDbError(error);
+  }
+}
+
+export async function getAttempt(ctx: RepoCtx, id: AttemptId): Promise<ExecutionAttempt | null> {
+  const [row] = await ctx.db
+    .select()
+    .from(executionAttempts)
+    .where(and(eq(executionAttempts.businessId, ctx.businessId), eq(executionAttempts.id, id)));
+  return row ? toAttempt(row) : null;
+}
+
+export async function getAttemptByRequestId(
+  ctx: RepoCtx,
+  requestId: RequestId,
+): Promise<ExecutionAttempt | null> {
+  const [row] = await ctx.db
+    .select()
+    .from(executionAttempts)
+    .where(
+      and(
+        eq(executionAttempts.businessId, ctx.businessId),
+        eq(executionAttempts.requestId, requestId),
+      ),
+    );
+  return row ? toAttempt(row) : null;
+}
+
+const TERMINAL: readonly AttemptStatus[] = ["CONFIRMED", "REJECTED"];
+
+export async function updateAttemptStatus(
+  ctx: RepoCtx,
+  id: AttemptId,
+  status: AttemptStatus,
+  response?: unknown,
+): Promise<ExecutionAttempt | null> {
+  const [row] = await ctx.db
+    .update(executionAttempts)
+    .set({
+      status,
+      ...(response === undefined ? {} : { response }),
+      resolvedAt: TERMINAL.includes(status) ? new Date() : null,
+    })
+    .where(and(eq(executionAttempts.businessId, ctx.businessId), eq(executionAttempts.id, id)))
+    .returning();
+  return row ? toAttempt(row) : null;
+}

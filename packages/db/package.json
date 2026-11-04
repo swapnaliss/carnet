@@ -7,9 +7,14 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "db:migrate": "node scripts/wait-for-db.mjs && drizzle-kit migrate --config drizzle.config.ts",
+    "db:generate": "drizzle-kit generate --config drizzle.config.ts",
+    "db:check": "drizzle-kit check --config drizzle.config.ts"
   },
   "dependencies": {
+    "@carnet/domain": "0.0.0",
     "drizzle-orm": "0.45.4",
     "pg": "8.23.1"
   },

@@ -7,9 +7,12 @@ services:
       POSTGRES_PASSWORD: carnet
       POSTGRES_DB: carnet
     ports:
-      - "5432:5432"
+      # POSTGRES_PORT keeps parallel worktrees off each other's ports (5432 + PORT_OFFSET).
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      # Creates carnet_migrator and carnet_app on a fresh volume (packages/db/sql/roles.sql).
+      - ./packages/db/sql/roles.sql:/docker-entrypoint-initdb.d/10-roles.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U carnet -d carnet"]
       interval: 2s
@@ -19,7 +22,7 @@ services:
     build: .
     environment:
       PROCESS_MODE: web
-      DATABASE_URL: postgres://carnet:carnet@postgres:5432/carnet
+      DATABASE_URL: postgres://carnet_app:carnet_app@postgres:5432/carnet
     ports:
       - "3000:3000"
     depends_on:
@@ -29,7 +32,7 @@ services:
     build: .
     environment:
       PROCESS_MODE: worker
-      DATABASE_URL: postgres://carnet:carnet@postgres:5432/carnet
+      DATABASE_URL: postgres://carnet_app:carnet_app@postgres:5432/carnet
     depends_on:
       postgres:
         condition: service_healthy
