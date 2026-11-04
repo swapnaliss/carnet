@@ -58,7 +58,9 @@ describe("createTransfer", () => {
     expect(transfer.requestId).toBe(input.requestId);
     const posts = stub.calls.filter((c) => c.path === CREATE);
     expect(posts).toHaveLength(1);
-    expect((posts[0]?.json as { request_id: string }).request_id).toBe(input.requestId);
+    expect((posts[0]?.json as { request_id?: string } | undefined)?.request_id).toBe(
+      input.requestId,
+    );
     const lookups = stub.calls.filter((c) => c.path === LIST);
     expect(lookups).toHaveLength(1);
     expect(lookups[0]?.url.searchParams.get("request_id")).toBe(input.requestId);

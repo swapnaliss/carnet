@@ -157,7 +157,7 @@ describe("files", () => {
     const call = stub.calls.find((c) => c.path === "/api/v1/files/upload");
     expect(call?.url.host).toBe("files.sandbox.airwallex.com");
     expect(call?.headers.authorization).toMatch(/^Bearer /);
-    expect((call?.form?.get("file") as File).type).toBe("application/pdf");
+    expect((call?.form?.get("file") as File | undefined)?.type).toBe("application/pdf");
   });
 
   it.each([
