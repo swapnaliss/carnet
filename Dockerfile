@@ -21,6 +21,7 @@ COPY --from=build --chown=node:node /app/apps/web/.next/standalone ./
 COPY --from=build --chown=node:node /app/apps/web/.next/static ./apps/web/.next/static
 COPY --from=build --chown=node:node /app/apps/web/public ./apps/web/public
 COPY --chown=node:node apps/web/src/worker.ts ./worker.ts
+COPY --chown=node:node scripts/spikes/airwallex/webhook-receiver.mjs ./webhook-receiver.mjs
 COPY --chown=node:node docker-entrypoint.sh ./docker-entrypoint.sh
 USER node
 EXPOSE 3000
