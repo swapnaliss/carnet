@@ -9,8 +9,8 @@ async function main(): Promise<number> {
   try {
     client = createDbClientFromEnv(process.env, { max: 1 });
     const result = await seedDemoUsers(client.db, { env: process.env });
-    for (const u of result.users) console.log(`seed: ${u.role} ${u.email}`);
-    console.log(`seed: business ${result.businessId}, ${result.users.length} users`);
+    for (const u of result.users) process.stdout.write(`seed: ${u.role} ${u.email}\n`);
+    process.stdout.write(`seed: business ${result.businessId}, ${result.users.length} users\n`);
     return 0;
   } catch (error) {
     if (error instanceof SeedConfigError) console.error(error.message);
