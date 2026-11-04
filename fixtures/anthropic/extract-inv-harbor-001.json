@@ -1,0 +1,123 @@
+{
+  "kind": "extraction",
+  "request": {
+    "model": "claude-haiku-5-5",
+    "max_tokens": 2000,
+    "document_id": "inv-harbor-001",
+    "file": "inv-harbor-001.pdf",
+    "fields": [
+      "invoice_number",
+      "invoice_date",
+      "supplier",
+      "buyer",
+      "total",
+      "beneficiary",
+      "account_number",
+      "purchase_order"
+    ]
+  },
+  "response": {
+    "id": "msg_011CghRcNw8MgYrAhzrqdW4V",
+    "model": "claude-haiku-5-5",
+    "stop_reason": "end_turn",
+    "usage": {
+      "input_tokens": 2652,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 741,
+      "output_tokens_details": {
+        "thinking_tokens": 342
+      },
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "speed": "standard"
+    },
+    "content": [
+      {
+        "type": "thinking",
+        "thinking": "",
+        "signature": "CAQS0QoKEAgTGAI4AUIIdGhpbmtpbmcSDLjkTyi9inungLAaCBoM+yz7fu7VeEarpKvPIjD9W2M2a8ca1bK3kCDEg3ME8xN1TJC2HebO1cv7ed4xK9lMYw5hQN21m+bVgXXrDesq7gm9ZhoZY7Olilc1EzUidijvdsCTlF4uRBZL/nySvrlpJ4YGHBSKXCqkGyBHx5n/7X6LfpgS1BNB1/VXb6Z6yLXgAX9v8jaaN23t6V54JuWwHSOESjshwgka8tcmGPT3QzEqGMw1gs53JB9v9UiEdOf/iS2PXp2zilmuHQAQf0bPRl9Ep5YYc9J3SZ/rDxMRdC6XbbnjXQh/ByNk+iceCV+6itOA8efbqIDjfINIDZkRvbcjMdvNfaMCUUXlbX70rHWPFfVzTOF5xAwiEARQUhbgPF4+7XyW68XggzA0fAujofDs1RseFZXyJ2CFB6x+lTc6/hPRawCFi9QF/FuEdIj/jj+ZxMQdxUW2alDIHiksRo0KUHCZYMXMStnaMgb54lF9qc65Ys7KE7AxXQOhOCfsbzoxc+P0uAI6AmkZmJJYO37RNKPyNuqF2EDZh5K4r3xGC0TDbReZn22PpSCFgxJAXK3mnfp0UbXN/mPV1SII5yk/rCmu2XXZaeXEmOQC6CYa3tchBPnipOKGVnvU9UFPjyTPEISm2V08GWBXGzVm5dDjGCQr8s8JtpVaH1YuakfOip5js5/6hX4stMk3ew7ifTk2Gy+pgYuxXZiKgOeDXyGte3dtwFY4smpYjeKqXx3yTweED+c3TXNWtlIJfbQZh0eGHcyvyhuAJeoCSoPuNPwPV2wzZ6ALuBb2tH+FOJbCJreF09HFT3gZr/HpMWL4bzRp5vNuhklDaKJhVi/g+lt7ePbl1DV2bv2gD29RQQFLzakzejU1Fd9XWiLVVR2L6KJy27+D0EtS5snRq+PiTR6KSACiXboodSte9D1H4grIMJaEDOVF7tTb8by4Sf1+mrdG7hhmYkcQsIgGtZi7lY700/lrpI6vuyPrfQEVW9bSHkDmMQrGeibjdOZm6IMpKix9uvyLvzirGMCh+sGB1sXKi6qJyqbyF1CKIOwE0437n7V8EdGDArs4+3kz7wtKrJ3iZhAFfBsif99xS9FRGDmTZ0DyPJi9QoPaWcXEhZBQNx8dCbTK+UQsdaiut73+kprYbbJi7p2+6P7N+mHQs6BMikPTdIydIh0yLlwApVXzhMLbhOt1l0j6dsXBqt9/35z7YrRrm3d42JlAv4qkYoCYxzrO8xBxjdULF2UTcyjHg1rAJRsH9bxF8Ie5RWu/tnGdy4+PaggsUQpjkN4gGp9mSzPqNK9JiXVPThdG6bY5PJUENWik6M+XJMnt0WKOdV705ofwjYYeBncvSKrfcnm7e6rPf6vRwklKxfMsohhubM37bSJD/nC1NNOW4Ed62QANs38CFazm576WUkQmL1XmFfNVAm50mgMLr1SHXbN+HjQGhweklD0Kfq3HKnRQ/7pkV9gSQRXmqn3bT69qivQTvIgugr4/ED1TZgOMJfh3yuAGvWdQNKZLeuYWwAqh6x6Uue5QNsXxwnsmzjoZwfLxZTKLXkadeJVIL2HHJLRnPHjtn2UOsO0qAEZJ/rSBpJZb9rY/tumhIIryCTxcg8QalIuo/6cVAREkmoIugKupP1T7uQ8+ijbBk+rVNNesPecCsCI1U3b0vbToq3xPcLtupRoodAouKdN8IqEy5DoRNhE6bei+tdwcfoIpfjxuRJhdAEQLOUn7shu96peM5km1fHZneWHZ3rornSuIYhKoGoh/sL0pTfj8UezD/xgB"
+      },
+      {
+        "type": "text",
+        "text": "{\"document_kind\":\"invoice\",\"text_readable\":true,\"facts\":[{\"field\":\"invoice_number\",\"value\":\"INV-HP-2026-0141\",\"quote\":\"Invoice number: INV-HP-2026-0141\",\"page\":1},{\"field\":\"invoice_date\",\"value\":\"2026-09-14\",\"quote\":\"Invoice date: 2026-09-14\",\"page\":1},{\"field\":\"supplier\",\"value\":\"Harbor Print Co.\",\"quote\":\"From: Harbor Print Co.\",\"page\":1},{\"field\":\"buyer\",\"value\":\"Northwind Studio Ltd\",\"quote\":\"Bill to: Northwind Studio Ltd\",\"page\":1},{\"field\":\"total\",\"value\":\"USD 4,800.00\",\"quote\":\"Total due: USD 4,800.00\",\"page\":1},{\"field\":\"beneficiary\",\"value\":\"Harbor Print Co.\",\"quote\":\"Beneficiary: Harbor Print Co.\",\"page\":1},{\"field\":\"account_number\",\"value\":\"000123456781\",\"quote\":\"Account number: 000123456781\",\"page\":1},{\"field\":\"purchase_order\",\"value\":\"PO-NW-2026-031\",\"quote\":\"Purchase order: PO-NW-2026-031\",\"page\":1}],\"embedded_instructions\":[]}"
+      }
+    ],
+    "parsed_output": {
+      "document_kind": "invoice",
+      "text_readable": true,
+      "facts": [
+        {
+          "field": "invoice_number",
+          "value": "INV-HP-2026-0141",
+          "quote": "Invoice number: INV-HP-2026-0141",
+          "page": 1
+        },
+        {
+          "field": "invoice_date",
+          "value": "2026-09-14",
+          "quote": "Invoice date: 2026-09-14",
+          "page": 1
+        },
+        {
+          "field": "supplier",
+          "value": "Harbor Print Co.",
+          "quote": "From: Harbor Print Co.",
+          "page": 1
+        },
+        {
+          "field": "buyer",
+          "value": "Northwind Studio Ltd",
+          "quote": "Bill to: Northwind Studio Ltd",
+          "page": 1
+        },
+        {
+          "field": "total",
+          "value": "USD 4,800.00",
+          "quote": "Total due: USD 4,800.00",
+          "page": 1
+        },
+        {
+          "field": "beneficiary",
+          "value": "Harbor Print Co.",
+          "quote": "Beneficiary: Harbor Print Co.",
+          "page": 1
+        },
+        {
+          "field": "account_number",
+          "value": "000123456781",
+          "quote": "Account number: 000123456781",
+          "page": 1
+        },
+        {
+          "field": "purchase_order",
+          "value": "PO-NW-2026-031",
+          "quote": "Purchase order: PO-NW-2026-031",
+          "page": 1
+        }
+      ],
+      "embedded_instructions": []
+    }
+  },
+  "headers": {
+    "anthropic-ratelimit-input-tokens-limit": "5000000",
+    "anthropic-ratelimit-input-tokens-remaining": "5000000",
+    "anthropic-ratelimit-input-tokens-reset": "2026-11-04T06:36:23Z",
+    "anthropic-ratelimit-output-tokens-limit": "1000000",
+    "anthropic-ratelimit-output-tokens-remaining": "999000",
+    "anthropic-ratelimit-output-tokens-reset": "2026-11-04T06:36:27Z",
+    "anthropic-ratelimit-requests-limit": "10000",
+    "anthropic-ratelimit-requests-remaining": "9999",
+    "anthropic-ratelimit-requests-reset": "2026-11-04T06:36:22Z",
+    "anthropic-ratelimit-tokens-limit": "6000000",
+    "anthropic-ratelimit-tokens-remaining": "5999000",
+    "anthropic-ratelimit-tokens-reset": "2026-11-04T06:36:23Z",
+    "request-id": "req_011CghRcNZJSgF3NCZgftkLa"
+  },
+  "latency_ms": 4792,
+  "cost_usd": 0.000636
+}

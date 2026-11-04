@@ -1,0 +1,118 @@
+{
+  "kind": "draft",
+  "request": {
+    "model": "claude-sonnet-5-5",
+    "max_tokens": 1500,
+    "question_id": "q-harbor-purpose",
+    "documents": [
+      "inv-harbor-001",
+      "contract-harbor"
+    ]
+  },
+  "response": {
+    "id": "msg_011CghRdgycQTCk6KUYGKShG",
+    "model": "claude-sonnet-5-5",
+    "stop_reason": "end_turn",
+    "usage": {
+      "input_tokens": 1732,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 712,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global",
+      "speed": "standard"
+    },
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"status\":\"ANSWER\",\"answer\":\"This payment of USD 4,800.00 settles invoice INV-HP-2026-0141 dated 2026-09-14, issued by Harbor Print Co. to Northwind Studio Ltd under purchase order PO-NW-2026-031. It is made under contract CT-NW-HP-2026, which covers printing of marketing brochures and posters for Northwind Studio clients. The payment goes to the beneficiary Harbor Print Co., account number 000123456781, which matches the beneficiary account specified in the contract.\",\"citations\":[{\"document_id\":\"inv-harbor-001\",\"field\":\"total\",\"quote\":\"Total due: USD 4,800.00\"},{\"document_id\":\"inv-harbor-001\",\"field\":\"invoice_number\",\"quote\":\"Invoice number: INV-HP-2026-0141\"},{\"document_id\":\"inv-harbor-001\",\"field\":\"invoice_date\",\"quote\":\"Invoice date: 2026-09-14\"},{\"document_id\":\"inv-harbor-001\",\"field\":\"supplier\",\"quote\":\"From: Harbor Print Co.\"},{\"document_id\":\"inv-harbor-001\",\"field\":\"buyer\",\"quote\":\"Bill to: Northwind Studio Ltd\"},{\"document_id\":\"inv-harbor-001\",\"field\":\"purchase_order\",\"quote\":\"Purchase order: PO-NW-2026-031\"},{\"document_id\":\"contract-harbor\",\"field\":\"contract_number\",\"quote\":\"Contract number: CT-NW-HP-2026\"},{\"document_id\":\"contract-harbor\",\"field\":\"clause_scope\",\"quote\":\"3. Scope: Printing of marketing brochures and posters for Northwind Studio clients.\"},{\"document_id\":\"inv-harbor-001\",\"field\":\"beneficiary\",\"quote\":\"Beneficiary: Harbor Print Co.\"},{\"document_id\":\"inv-harbor-001\",\"field\":\"account_number\",\"quote\":\"Account number: 000123456781\"},{\"document_id\":\"contract-harbor\",\"field\":\"clause_beneficiary_account\",\"quote\":\"6. Beneficiary account: Supplier is paid only to account number 000123456781.\"}],\"missing_evidence\":[]}"
+      }
+    ],
+    "parsed_output": {
+      "status": "ANSWER",
+      "answer": "This payment of USD 4,800.00 settles invoice INV-HP-2026-0141 dated 2026-09-14, issued by Harbor Print Co. to Northwind Studio Ltd under purchase order PO-NW-2026-031. It is made under contract CT-NW-HP-2026, which covers printing of marketing brochures and posters for Northwind Studio clients. The payment goes to the beneficiary Harbor Print Co., account number 000123456781, which matches the beneficiary account specified in the contract.",
+      "citations": [
+        {
+          "document_id": "inv-harbor-001",
+          "field": "total",
+          "quote": "Total due: USD 4,800.00"
+        },
+        {
+          "document_id": "inv-harbor-001",
+          "field": "invoice_number",
+          "quote": "Invoice number: INV-HP-2026-0141"
+        },
+        {
+          "document_id": "inv-harbor-001",
+          "field": "invoice_date",
+          "quote": "Invoice date: 2026-09-14"
+        },
+        {
+          "document_id": "inv-harbor-001",
+          "field": "supplier",
+          "quote": "From: Harbor Print Co."
+        },
+        {
+          "document_id": "inv-harbor-001",
+          "field": "buyer",
+          "quote": "Bill to: Northwind Studio Ltd"
+        },
+        {
+          "document_id": "inv-harbor-001",
+          "field": "purchase_order",
+          "quote": "Purchase order: PO-NW-2026-031"
+        },
+        {
+          "document_id": "contract-harbor",
+          "field": "contract_number",
+          "quote": "Contract number: CT-NW-HP-2026"
+        },
+        {
+          "document_id": "contract-harbor",
+          "field": "clause_scope",
+          "quote": "3. Scope: Printing of marketing brochures and posters for Northwind Studio clients."
+        },
+        {
+          "document_id": "inv-harbor-001",
+          "field": "beneficiary",
+          "quote": "Beneficiary: Harbor Print Co."
+        },
+        {
+          "document_id": "inv-harbor-001",
+          "field": "account_number",
+          "quote": "Account number: 000123456781"
+        },
+        {
+          "document_id": "contract-harbor",
+          "field": "clause_beneficiary_account",
+          "quote": "6. Beneficiary account: Supplier is paid only to account number 000123456781."
+        }
+      ],
+      "missing_evidence": []
+    }
+  },
+  "headers": {
+    "anthropic-ratelimit-input-tokens-limit": "5000000",
+    "anthropic-ratelimit-input-tokens-remaining": "4999000",
+    "anthropic-ratelimit-input-tokens-reset": "2026-11-04T06:36:41Z",
+    "anthropic-ratelimit-output-tokens-limit": "1000000",
+    "anthropic-ratelimit-output-tokens-remaining": "999000",
+    "anthropic-ratelimit-output-tokens-reset": "2026-11-04T06:36:44Z",
+    "anthropic-ratelimit-requests-limit": "10000",
+    "anthropic-ratelimit-requests-remaining": "9999",
+    "anthropic-ratelimit-requests-reset": "2026-11-04T06:36:40Z",
+    "anthropic-ratelimit-tokens-limit": "6000000",
+    "anthropic-ratelimit-tokens-remaining": "5998000",
+    "anthropic-ratelimit-tokens-reset": "2026-11-04T06:36:41Z",
+    "request-id": "req_011CghRdgdX9AfBZzdj7cxCV"
+  },
+  "latency_ms": 4481,
+  "cost_usd": 0.010584
+}

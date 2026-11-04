@@ -219,7 +219,7 @@
   "who": "owner",
   "how": "Claude Console > Settings > Limits and Usage; save a screenshot to docs/recon/ (gitignored, never committed)",
   "lands_in": "docs/recon/ (gitignored)",
-  "status": "pending",
+  "status": "done",
   "required": true,
   "needed_by": [
    "M0-06"
@@ -289,7 +289,7 @@
   "who": "owner",
   "how": "Claude Console > Settings > Limits > set the organisation spend limit (value from docs/budget.md)",
   "lands_in": "Claude Console",
-  "status": "pending",
+  "status": "done",
   "required": true,
   "needed_by": [
    "M0-06"

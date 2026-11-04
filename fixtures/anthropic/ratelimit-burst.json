@@ -1,0 +1,29 @@
+{
+  "kind": "burst",
+  "request": {
+    "model": "claude-haiku-5-5",
+    "parallel": 25,
+    "max_tokens": 5,
+    "maxRetries": 0
+  },
+  "elapsed_ms": 1782,
+  "status_counts": {
+    "200": 25
+  },
+  "sample_headers": {
+    "anthropic-ratelimit-input-tokens-limit": "5000000",
+    "anthropic-ratelimit-input-tokens-remaining": "5000000",
+    "anthropic-ratelimit-input-tokens-reset": "2026-11-04T06:36:54Z",
+    "anthropic-ratelimit-output-tokens-limit": "1000000",
+    "anthropic-ratelimit-output-tokens-remaining": "1000000",
+    "anthropic-ratelimit-output-tokens-reset": "2026-11-04T06:36:54Z",
+    "anthropic-ratelimit-requests-limit": "10000",
+    "anthropic-ratelimit-requests-remaining": "9993",
+    "anthropic-ratelimit-requests-reset": "2026-11-04T06:36:54Z",
+    "anthropic-ratelimit-tokens-limit": "6000000",
+    "anthropic-ratelimit-tokens-remaining": "6000000",
+    "anthropic-ratelimit-tokens-reset": "2026-11-04T06:36:54Z",
+    "request-id": "req_011CghRehpEaaVkAT9cZQA9N"
+  },
+  "any_429": null
+}
