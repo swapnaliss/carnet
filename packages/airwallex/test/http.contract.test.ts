@@ -1,4 +1,5 @@
 // HTTP core: timeout, retry with retry-after, 5xx exhaustion, jitter, no retry of a POST without a
+import { parseMajor } from "@carnet/domain";
 // request_id, x-api-version handling. Responses are the recorded fixtures; 429/5xx are constructed
 // (the sandbox never returned a 429 in M0-03, docs/evidence/airwallex-money-path.md).
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
@@ -88,7 +89,7 @@ describe("retry", () => {
     const balances = await p;
     expect(done).toBe(true);
     expect(stub.count("GET", BALANCES)).toBe(2);
-    expect(balances.find((b) => b.currency === "USD")?.availableAmount).toBeDefined();
+    expect(balances.find((b) => b.currency === "USD")?.available.minor).toBeTypeOf("bigint");
   });
 
   it("records the waited delay >= retry-after (seconds and HTTP-date forms)", async () => {
@@ -203,7 +204,7 @@ describe("x-api-version", () => {
     await client.createQuote({
       buyCurrency: "EUR",
       sellCurrency: "USD",
-      sellAmount: "100",
+      sellAmount: parseMajor("100", "USD"),
       validity: "MIN_15",
     });
     await client.getConversion("fa8ba678-99cb-4d69-9435-5d1b6428e5f0");

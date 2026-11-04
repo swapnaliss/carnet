@@ -1,4 +1,5 @@
 // Transfers: idempotent create (ADR 0007), failure mapping, amounts as decimal strings.
+import { parseMajor, type RequestId } from "@carnet/domain";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import {
   AirwallexApiError,
@@ -21,11 +22,11 @@ const recorded = loadFixture("transfer-create-local-usd");
 const recordedBody = recorded.response.body as { id: string; request_id: string };
 
 const input: CreateTransferInput = {
-  requestId: recordedBody.request_id,
+  requestId: recordedBody.request_id as RequestId,
   beneficiaryId: "bc0bfa01-7b09-45e3-9f2a-a3cc09eb54be",
   sourceCurrency: "USD",
   transferCurrency: "USD",
-  sourceAmount: "25",
+  sourceAmount: parseMajor("25", "USD"),
   transferMethod: "LOCAL",
   reason: "professional_business_services",
   reference: "M0-03 spike",
@@ -145,11 +146,11 @@ describe("transfer mapping", () => {
     expect(t.failure).toEqual({ code: null, type: "PAYMENT_RECALLED", message: "simulation" });
   });
 
-  it("amounts are major-unit decimal strings (SWIFT fee 13.41 on 30 EUR)", () => {
+  it("amounts map to domain Money in minor units (SWIFT fee 13.41 on 30 EUR)", () => {
     const t = TransferWire.parse(loadFixture("transfer-create-swift-eur").response.body);
-    expect(t.sourceAmount).toBe("30");
-    expect(t.feeAmount).toBe("13.41");
-    expect(t.amountPayerPays).toBe("43.41");
+    expect(t.sourceAmount).toEqual({ minor: 3000n, currency: "EUR" });
+    expect(t.fee).toEqual({ minor: 1341n, currency: "EUR" });
+    expect(t.amountPayerPays).toEqual({ minor: 4341n, currency: "EUR" });
   });
 
   it("rejects an unknown status rather than guessing", () => {

@@ -2,6 +2,7 @@
 // send the recorded request body and parse the recorded response (2xx) or raise the typed error with
 // the recorded status and code (non-2xx). A fixture with no wrapper must be listed in NO_WRAPPER, so
 // a new fixture forces a decision. No network: the fetch guard records any escaped call.
+import { type Currency, parseMajor, type RequestId } from "@carnet/domain";
 import { afterAll, describe, expect, it } from "vitest";
 import {
   AirwallexApiError,
@@ -46,6 +47,8 @@ const CLIENT_REFUSES = new Set([
 ]);
 
 type Req = Record<string, unknown>;
+/** A recorded wire amount (JSON number) as domain Money, via its decimal text. */
+const m = (n: unknown, currency: unknown) => parseMajor(String(n), currency as Currency);
 const asReq = (f: Fixture): Req =>
   f.request && typeof f.request === "object" ? (f.request as Req) : {};
 const pathOf = (f: Fixture) => new URL(f.path, "https://x");
@@ -95,8 +98,10 @@ function route(f: Fixture): Invoke | undefined {
         reason: req.reason,
         reference: req.reference,
       };
-      if (req.source_amount !== undefined) input.sourceAmount = String(req.source_amount);
-      if (req.transfer_amount !== undefined) input.transferAmount = String(req.transfer_amount);
+      if (req.source_amount !== undefined)
+        input.sourceAmount = m(req.source_amount, req.source_currency);
+      if (req.transfer_amount !== undefined)
+        input.transferAmount = m(req.transfer_amount, req.transfer_currency);
       if (req.fee_paid_by !== undefined) input.feePaidBy = req.fee_paid_by;
       return makeClient(s).createTransfer(input as unknown as CreateTransferInput);
     };
@@ -110,7 +115,7 @@ function route(f: Fixture): Invoke | undefined {
       makeClient(s).createQuote({
         buyCurrency: req.buy_currency,
         sellCurrency: req.sell_currency,
-        sellAmount: String(req.sell_amount),
+        sellAmount: m(req.sell_amount, req.sell_currency),
         validity: req.validity,
       } as CreateQuoteInput);
   if (k === "POST /api/v1/fx/conversions/create")
@@ -119,7 +124,7 @@ function route(f: Fixture): Invoke | undefined {
         requestId: req.request_id,
         buyCurrency: req.buy_currency,
         sellCurrency: req.sell_currency,
-        sellAmount: String(req.sell_amount),
+        sellAmount: m(req.sell_amount, req.sell_currency),
         reason: req.reason,
       };
       if (req.quote_id) input.quoteId = req.quote_id;
@@ -201,9 +206,9 @@ function route(f: Fixture): Invoke | undefined {
     return (s) =>
       makeClient(s).simulator.depositFunds({
         globalAccountId: String(req.global_account_id),
-        amount: String(req.amount),
-        currency: String(req.currency),
-        requestId: String(req.request_id),
+        amount: m(req.amount, req.currency),
+
+        requestId: req.request_id as RequestId,
       });
   return undefined;
 }

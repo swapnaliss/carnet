@@ -2,18 +2,12 @@
 // the M0-03 fixtures were recorded without it). The conversion id is `conversion_id`.
 // Quotes came back `MULTI_USE` in the sandbox (BL-01, M0-03): Carnet enforces one use per quote in
 // its own state (M3-03); the adapter does not rely on Airwallex rejecting a reused quote.
+// Amounts are domain Money; rates stay exact decimal strings (they are not money).
+import type { Currency, Money, RequestId } from "@carnet/domain";
 import { z } from "zod";
 import { authed } from "./auth";
 import { AirwallexApiError } from "./http";
-import {
-  type Ctx,
-  Currency,
-  encodeId,
-  type MajorAmount,
-  toWireAmount,
-  WireAmount,
-  WireRate,
-} from "./wire";
+import { type Ctx, CurrencySchema, encodeId, toMoney, toWireAmount, WireDecimal } from "./wire";
 
 export const QUOTE_VALIDITIES = [
   "MIN_1",
@@ -28,10 +22,10 @@ export type QuoteValidity = (typeof QUOTE_VALIDITIES)[number];
 
 export interface Quote {
   quoteId: string;
-  buyCurrency: string;
-  sellCurrency: string;
-  buyAmount: MajorAmount;
-  sellAmount: MajorAmount;
+  buyCurrency: Currency;
+  sellCurrency: Currency;
+  buyAmount: Money | null;
+  sellAmount: Money | null;
   clientRate: string;
   awxRate: string | null;
   currencyPair: string | null;
@@ -45,10 +39,10 @@ export interface Conversion {
   conversionId: string;
   requestId: string | null;
   status: string;
-  buyCurrency: string;
-  sellCurrency: string;
-  buyAmount: MajorAmount;
-  sellAmount: MajorAmount;
+  buyCurrency: Currency;
+  sellCurrency: Currency;
+  buyAmount: Money | null;
+  sellAmount: Money | null;
   clientRate: string;
   currencyPair: string | null;
   conversionDate: string | null;
@@ -59,12 +53,12 @@ export interface Conversion {
 export const QuoteWire = z
   .looseObject({
     quote_id: z.string(),
-    buy_currency: Currency,
-    sell_currency: Currency,
-    buy_amount: WireAmount,
-    sell_amount: WireAmount,
-    client_rate: WireRate,
-    awx_rate: WireRate.nullish(),
+    buy_currency: CurrencySchema,
+    sell_currency: CurrencySchema,
+    buy_amount: WireDecimal,
+    sell_amount: WireDecimal,
+    client_rate: WireDecimal,
+    awx_rate: WireDecimal.nullish(),
     currency_pair: z.string().nullish(),
     validity: z.string().nullish(),
     usage: z.string().nullish(),
@@ -72,12 +66,12 @@ export const QuoteWire = z
     valid_to_at: z.string().nullish(),
   })
   .transform(
-    (w): Quote => ({
+    (w, ctx): Quote => ({
       quoteId: w.quote_id,
       buyCurrency: w.buy_currency,
       sellCurrency: w.sell_currency,
-      buyAmount: w.buy_amount,
-      sellAmount: w.sell_amount,
+      buyAmount: toMoney(w.buy_amount, w.buy_currency, ctx, "buy_amount"),
+      sellAmount: toMoney(w.sell_amount, w.sell_currency, ctx, "sell_amount"),
       clientRate: w.client_rate,
       awxRate: w.awx_rate ?? null,
       currencyPair: w.currency_pair ?? null,
@@ -93,25 +87,25 @@ export const ConversionWire = z
     conversion_id: z.string(),
     request_id: z.string().nullish(),
     status: z.string(),
-    buy_currency: Currency,
-    sell_currency: Currency,
-    buy_amount: WireAmount,
-    sell_amount: WireAmount,
-    client_rate: WireRate,
+    buy_currency: CurrencySchema,
+    sell_currency: CurrencySchema,
+    buy_amount: WireDecimal,
+    sell_amount: WireDecimal,
+    client_rate: WireDecimal,
     currency_pair: z.string().nullish(),
     conversion_date: z.string().nullish(),
     created_at: z.string().nullish(),
     updated_at: z.string().nullish(),
   })
   .transform(
-    (w): Conversion => ({
+    (w, ctx): Conversion => ({
       conversionId: w.conversion_id,
       requestId: w.request_id ?? null,
       status: w.status,
       buyCurrency: w.buy_currency,
       sellCurrency: w.sell_currency,
-      buyAmount: w.buy_amount,
-      sellAmount: w.sell_amount,
+      buyAmount: toMoney(w.buy_amount, w.buy_currency, ctx, "buy_amount"),
+      sellAmount: toMoney(w.sell_amount, w.sell_currency, ctx, "sell_amount"),
       clientRate: w.client_rate,
       currencyPair: w.currency_pair ?? null,
       conversionDate: w.conversion_date ?? null,
@@ -120,28 +114,31 @@ export const ConversionWire = z
     }),
   );
 
+/** Exactly one side fixed: the amount sold (in sellCurrency) or bought (in buyCurrency). */
 type OneAmount =
-  | { sellAmount: MajorAmount; buyAmount?: never }
-  | { buyAmount: MajorAmount; sellAmount?: never };
+  | { sellAmount: Money; buyAmount?: never }
+  | { buyAmount: Money; sellAmount?: never };
 
 export type CreateQuoteInput = {
-  buyCurrency: string;
-  sellCurrency: string;
+  buyCurrency: Currency;
+  sellCurrency: Currency;
   validity: QuoteValidity;
 } & OneAmount;
 
 export type CreateConversionInput = {
-  requestId: string;
-  buyCurrency: string;
-  sellCurrency: string;
+  requestId: RequestId;
+  buyCurrency: Currency;
+  sellCurrency: Currency;
   reason: string;
   quoteId?: string;
 } & OneAmount;
 
-function amountFields(input: OneAmount): Record<string, number> {
+function amountFields(
+  input: OneAmount & { buyCurrency: Currency; sellCurrency: Currency },
+): Record<string, number> {
   return input.sellAmount !== undefined
-    ? { sell_amount: toWireAmount(input.sellAmount, "sellAmount") }
-    : { buy_amount: toWireAmount(input.buyAmount, "buyAmount") };
+    ? { sell_amount: toWireAmount(input.sellAmount, "sellAmount", input.sellCurrency) }
+    : { buy_amount: toWireAmount(input.buyAmount, "buyAmount", input.buyCurrency) };
 }
 
 export function quoteCreateBody(input: CreateQuoteInput): Record<string, unknown> {
@@ -172,7 +169,7 @@ export async function createQuote(ctx: Ctx, input: CreateQuoteInput): Promise<Qu
     path: "/api/v1/fx/quotes/create",
     json: quoteCreateBody(input),
     schema: QuoteWire,
-    retryable: true, // a quote creates no money movement
+    retryable: true, // a quote moves no money
     omitApiVersion: true,
   });
 }

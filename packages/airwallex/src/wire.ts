@@ -1,48 +1,98 @@
-// Shared wire helpers. Airwallex sends amounts as JSON numbers in major units (`100` is one hundred
-// dollars). The adapter hands them on as canonical decimal strings so the domain parses them into
-// integer minor units (`parseMajor`, M1-01) without ever doing float arithmetic.
+// Shared wire helpers. Airwallex amounts are JSON numbers in major units (`100` is one hundred
+// dollars). Inbound, the exact digits (see json.ts) go through the domain's `parseMajor` into integer
+// minor units: no float arithmetic. Outbound, a domain `Money` becomes a JSON number only when that
+// number reproduces the same minor units exactly; otherwise the call is refused.
+import {
+  type Currency,
+  CurrencySchema,
+  formatMajor,
+  type Money,
+  MoneyError,
+  parseMajor,
+} from "@carnet/domain";
 import { z } from "zod";
 import type { TokenCache } from "./auth";
 import { AirwallexInputError, type HttpClient } from "./http";
+import { WireNumber } from "./json";
 
 export interface Ctx {
   http: HttpClient;
   tokens: TokenCache;
 }
 
-/** A major-unit decimal string such as "25", "13.41" or "0.5". */
-export type MajorAmount = string;
+export { CurrencySchema };
 
-const DECIMAL = /^\d+(\.\d+)?$/;
-const SIGNED_DECIMAL = /^-?\d+(\.\d+)?$/;
+const PLAIN_DECIMAL = /^-?(0|[1-9]\d*)(\.\d+)?$/;
 
-/** Finite JSON number -> decimal string without exponent ("13.41", "-2", "0.000001"). */
-export function numberToDecimal(n: number): MajorAmount {
-  const s = String(n);
-  if (SIGNED_DECIMAL.test(s)) return s === "-0" ? "0" : s;
-  // exponent form (very small or very large): fixed notation, trailing zeros trimmed
-  return n.toFixed(12).replace(/\.?0+$/, "");
+/** Plain number (tests parse fixtures with JSON.parse) -> its shortest decimal text, if exact-looking. */
+function plainNumberText(n: number): string | undefined {
+  if (!Number.isFinite(n)) return undefined;
+  const s = Object.is(n, -0) ? "0" : String(n);
+  return PLAIN_DECIMAL.test(s) ? s : undefined;
 }
 
-/** Wire amount (number, or numeric string) -> canonical major-unit decimal string. */
-export const WireAmount = z
-  .union([z.number().refine(Number.isFinite), z.string().regex(SIGNED_DECIMAL)])
-  .transform((v) => (typeof v === "number" ? numberToDecimal(v) : v));
+/**
+ * A wire number as decimal text: the exact source digits when parsed by the client, or the
+ * shortest round-trip text of a plain number. Exponent forms ("1e2") are rejected, not guessed.
+ */
+export const WireDecimal = z
+  .union([z.instanceof(WireNumber), z.number(), z.string()])
+  .transform((v, ctx): string => {
+    const text =
+      v instanceof WireNumber ? v.source : typeof v === "number" ? plainNumberText(v) : v;
+    if (text === undefined || !PLAIN_DECIMAL.test(text)) {
+      ctx.addIssue({ code: "custom", message: `not a plain decimal: ${String(text ?? v)}` });
+      return z.NEVER;
+    }
+    return text;
+  });
 
-/** Wire rate (number) -> decimal string; rates are not money but must not be rounded either. */
-export const WireRate = WireAmount;
+/** A wire integer (sizes, epoch seconds). */
+export const WireInt = z
+  .union([z.instanceof(WireNumber), z.number()])
+  .transform((v) => (v instanceof WireNumber ? v.toNumber() : v))
+  .pipe(z.number().int());
 
-/** Validates a caller's major-unit amount and turns it into the JSON number Airwallex expects. */
-export function toWireAmount(amount: MajorAmount, field: string): number {
-  if (!DECIMAL.test(amount)) {
-    throw new AirwallexInputError(`${field} must be a major-unit decimal string, got "${amount}"`);
+/** Major-unit decimal text + currency -> domain Money, or a schema issue at `path`. */
+export function toMoney(
+  amount: string | null | undefined,
+  currency: Currency | null | undefined,
+  ctx: z.RefinementCtx,
+  path: string,
+): Money | null {
+  if (amount === null || amount === undefined) return null;
+  if (!currency) {
+    ctx.addIssue({ code: "custom", path: [path], message: "amount without a currency" });
+    return null;
   }
-  const n = Number(amount);
-  if (!Number.isFinite(n) || n <= 0) throw new AirwallexInputError(`${field} must be positive`);
+  try {
+    return parseMajor(amount, currency);
+  } catch (err) {
+    const message = err instanceof MoneyError ? err.message : "invalid amount";
+    ctx.addIssue({ code: "custom", path: [path], message });
+    return null;
+  }
+}
+
+/** Money -> the JSON number Airwallex expects, refused unless the number is exact. */
+export function toWireAmount(amount: Money, field: string, expectCurrency?: Currency): number {
+  if (expectCurrency && amount.currency !== expectCurrency) {
+    throw new AirwallexInputError(`${field} is ${amount.currency}, expected ${expectCurrency}`);
+  }
+  if (amount.minor <= 0n) throw new AirwallexInputError(`${field} must be positive`);
+  const n = Number(formatMajor(amount));
+  const text = plainNumberText(n);
+  let back: Money | undefined;
+  try {
+    back = text === undefined ? undefined : parseMajor(text, amount.currency);
+  } catch {
+    back = undefined;
+  }
+  if (!back || back.minor !== amount.minor) {
+    throw new AirwallexInputError(`${field} cannot be sent as an exact JSON number`);
+  }
   return n;
 }
-
-export const Currency = z.string().regex(/^[A-Z]{3}$/);
 
 export function encodeId(id: string): string {
   if (id === "" || /[/?#]/.test(id)) throw new AirwallexInputError(`invalid id "${id}"`);

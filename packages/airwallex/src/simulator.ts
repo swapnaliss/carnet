@@ -3,12 +3,14 @@
 // fixtures: RFI create/follow_up/close, transfer transition (`next_status`), deposit create.
 // A transition sometimes answers 500 although it was applied (BL-01, M0-04), so the implementation
 // confirms through an injected `confirmTransfer` (the client's getTransfer) before failing.
+
+import type { Currency, Money, RequestId } from "@carnet/domain";
 import { z } from "zod";
 import { authed } from "./auth";
 import { AirwallexApiError } from "./http";
 import { type Rfi, RfiWire } from "./rfis";
 import { type Transfer, TransferWire } from "./transfers";
-import { type Ctx, Currency, encodeId, type MajorAmount, toWireAmount, WireAmount } from "./wire";
+import { type Ctx, CurrencySchema, encodeId, toMoney, toWireAmount, WireDecimal } from "./wire";
 
 export type SimulatedNextStatus =
   | "OVERDUE"
@@ -29,8 +31,8 @@ export interface SimulatedQuestion {
 export interface SimulatedDeposit {
   id: string;
   status: string;
-  amount: MajorAmount;
-  currency: string;
+  amount: Money | null;
+  currency: Currency;
 }
 
 export interface TransitionResult {
@@ -55,19 +57,23 @@ export interface SandboxSimulator {
   /** Credits the global account; the sandbox forces the account's currency (HKD in M0-03). */
   depositFunds(input: {
     globalAccountId: string;
-    amount: MajorAmount;
-    currency: string;
-    requestId: string;
+    amount: Money;
+    requestId: RequestId;
   }): Promise<SimulatedDeposit>;
 }
 
 const DepositWire = z
-  .looseObject({ id: z.string(), status: z.string(), amount: WireAmount, currency: Currency })
+  .looseObject({
+    id: z.string(),
+    status: z.string(),
+    amount: WireDecimal,
+    currency: CurrencySchema,
+  })
   .transform(
-    (w): SimulatedDeposit => ({
+    (w, ctx): SimulatedDeposit => ({
       id: w.id,
       status: w.status,
-      amount: w.amount,
+      amount: toMoney(w.amount, w.currency, ctx, "amount"),
       currency: w.currency,
     }),
   );
@@ -165,16 +171,15 @@ export class AirwallexSandboxSimulator implements SandboxSimulator {
 
   async depositFunds(input: {
     globalAccountId: string;
-    amount: MajorAmount;
-    currency: string;
-    requestId: string;
+    amount: Money;
+    requestId: RequestId;
   }): Promise<SimulatedDeposit> {
     return this.#post(
       "/api/v1/simulation/deposit/create",
       {
         global_account_id: input.globalAccountId,
         amount: toWireAmount(input.amount, "amount"),
-        currency: input.currency,
+        currency: input.amount.currency,
         request_id: input.requestId,
       },
       DepositWire,

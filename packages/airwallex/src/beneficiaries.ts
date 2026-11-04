@@ -1,9 +1,11 @@
 // Beneficiaries: create and retrieve. The id field is `id` (not `beneficiary_id`), fixture
 // `beneficiary-create-us-usd-local`. A US LOCAL bank account needs `bank_account_category`, which the
 // generated schema omits (BL-01, M0-03): the adapter defaults it to "Checking".
+
+import type { Currency, RequestId } from "@carnet/domain";
 import { z } from "zod";
 import { authed } from "./auth";
-import { type Ctx, Currency, encodeId } from "./wire";
+import { type Ctx, CurrencySchema, encodeId } from "./wire";
 
 export interface BeneficiaryAddress {
   country_code: string;
@@ -37,7 +39,7 @@ export interface BeneficiaryDetails {
 }
 
 export interface CreateBeneficiaryInput {
-  requestId: string;
+  requestId: RequestId;
   nickname: string;
   beneficiary: BeneficiaryDetails;
   transferMethods: Array<"LOCAL" | "SWIFT">;
@@ -50,7 +52,7 @@ export interface Beneficiary {
   entityType: string;
   name: string | null;
   bankCountryCode: string;
-  accountCurrency: string;
+  accountCurrency: Currency;
   bankName: string | null;
   /** Last four characters of the account number or IBAN, for display. */
   accountHint: string | null;
@@ -67,7 +69,7 @@ export const BeneficiaryWire = z
       first_name: z.string().nullish(),
       last_name: z.string().nullish(),
       bank_details: z.looseObject({
-        account_currency: Currency,
+        account_currency: CurrencySchema,
         bank_country_code: z.string(),
         account_name: z.string().nullish(),
         account_number: z.string().nullish(),

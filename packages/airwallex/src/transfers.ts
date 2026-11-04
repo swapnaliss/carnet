@@ -7,25 +7,18 @@
 // - `fee_paid_by` is omitted unless the caller sets it: the sandbox answers 400 `fee_unknown` to
 //   `PAYER` since 4 Nov 2026 (BL-01, M0-05);
 // - a failed transfer may read FAILED or CANCELLED; the reason is in `failure{code,details.type,message}`.
+// Statuses, currencies, money and request ids are the domain's (`@carnet/domain`, M1-01).
+import {
+  type Currency,
+  type Money,
+  type RequestId,
+  TRANSFER_STATUSES,
+  type TransferStatus,
+} from "@carnet/domain";
 import { z } from "zod";
 import { authed } from "./auth";
 import { AirwallexApiError, AirwallexInputError, AirwallexTimeout } from "./http";
-import { type Ctx, Currency, encodeId, type MajorAmount, toWireAmount, WireAmount } from "./wire";
-
-export const TRANSFER_STATUSES = [
-  "IN_APPROVAL",
-  "APPROVAL_RECALLED",
-  "APPROVAL_REJECTED",
-  "APPROVAL_BLOCKED",
-  "SCHEDULED",
-  "OVERDUE",
-  "PROCESSING",
-  "SENT",
-  "PAID",
-  "FAILED",
-  "CANCELLED",
-] as const;
-export type TransferStatus = (typeof TRANSFER_STATUSES)[number];
+import { type Ctx, CurrencySchema, encodeId, toMoney, toWireAmount, WireDecimal } from "./wire";
 
 export type TransferMethod = "LOCAL" | "SWIFT";
 
@@ -42,15 +35,16 @@ export interface Transfer {
   shortReferenceId: string | null;
   beneficiaryId: string;
   transferMethod: string;
-  sourceCurrency: string;
-  sourceAmount: MajorAmount | null;
-  transferCurrency: string;
-  transferAmount: MajorAmount | null;
-  feeCurrency: string | null;
-  feeAmount: MajorAmount | null;
+  sourceCurrency: Currency;
+  sourceAmount: Money | null;
+  transferCurrency: Currency;
+  transferAmount: Money | null;
+  fee: Money | null;
   feePaidBy: string | null;
-  amountPayerPays: MajorAmount | null;
-  amountBeneficiaryReceives: MajorAmount | null;
+  /** In the source currency; includes the fee when the payer pays it. */
+  amountPayerPays: Money | null;
+  /** In the transfer currency. */
+  amountBeneficiaryReceives: Money | null;
   reason: string | null;
   reference: string | null;
   fundingStatus: string | null;
@@ -58,8 +52,6 @@ export interface Transfer {
   createdAt: string;
   updatedAt: string;
 }
-
-const nullable = <T extends z.ZodType>(s: T) => s.nullish().transform((v) => v ?? null);
 
 export const TransferWire = z
   .looseObject({
@@ -69,15 +61,15 @@ export const TransferWire = z
     short_reference_id: z.string().nullish(),
     beneficiary_id: z.string(),
     transfer_method: z.string(),
-    source_currency: Currency,
-    source_amount: nullable(WireAmount),
-    transfer_currency: Currency,
-    transfer_amount: nullable(WireAmount),
-    fee_currency: Currency.nullish(),
-    fee_amount: nullable(WireAmount),
+    source_currency: CurrencySchema,
+    source_amount: WireDecimal.nullish(),
+    transfer_currency: CurrencySchema,
+    transfer_amount: WireDecimal.nullish(),
+    fee_currency: CurrencySchema.nullish(),
+    fee_amount: WireDecimal.nullish(),
     fee_paid_by: z.string().nullish(),
-    amount_payer_pays: nullable(WireAmount),
-    amount_beneficiary_receives: nullable(WireAmount),
+    amount_payer_pays: WireDecimal.nullish(),
+    amount_beneficiary_receives: WireDecimal.nullish(),
     reason: z.string().nullish(),
     reference: z.string().nullish(),
     funding: z.looseObject({ status: z.string().nullish() }).nullish(),
@@ -92,7 +84,7 @@ export const TransferWire = z
     updated_at: z.string(),
   })
   .transform(
-    (w): Transfer => ({
+    (w, ctx): Transfer => ({
       id: w.id,
       requestId: w.request_id,
       status: w.status,
@@ -100,14 +92,18 @@ export const TransferWire = z
       beneficiaryId: w.beneficiary_id,
       transferMethod: w.transfer_method,
       sourceCurrency: w.source_currency,
-      sourceAmount: w.source_amount,
+      sourceAmount: toMoney(w.source_amount, w.source_currency, ctx, "source_amount"),
       transferCurrency: w.transfer_currency,
-      transferAmount: w.transfer_amount,
-      feeCurrency: w.fee_currency ?? null,
-      feeAmount: w.fee_amount,
+      transferAmount: toMoney(w.transfer_amount, w.transfer_currency, ctx, "transfer_amount"),
+      fee: toMoney(w.fee_amount, w.fee_currency, ctx, "fee_amount"),
       feePaidBy: w.fee_paid_by ?? null,
-      amountPayerPays: w.amount_payer_pays,
-      amountBeneficiaryReceives: w.amount_beneficiary_receives,
+      amountPayerPays: toMoney(w.amount_payer_pays, w.source_currency, ctx, "amount_payer_pays"),
+      amountBeneficiaryReceives: toMoney(
+        w.amount_beneficiary_receives,
+        w.transfer_currency,
+        ctx,
+        "amount_beneficiary_receives",
+      ),
       reason: w.reason ?? null,
       reference: w.reference ?? null,
       fundingStatus: w.funding?.status ?? null,
@@ -129,14 +125,14 @@ const TransferList = z.looseObject({
 });
 
 export interface CreateTransferInput {
-  /** Generated once per intent and persisted before the call (ADR 0007). */
-  requestId: string;
+  /** Minted once per intent and persisted before the call (ADR 0007). */
+  requestId: RequestId;
   beneficiaryId: string;
-  sourceCurrency: string;
-  transferCurrency: string;
-  /** Exactly one of sourceAmount / transferAmount, in major units. */
-  sourceAmount?: MajorAmount;
-  transferAmount?: MajorAmount;
+  sourceCurrency: Currency;
+  transferCurrency: Currency;
+  /** Exactly one of sourceAmount (in sourceCurrency) / transferAmount (in transferCurrency). */
+  sourceAmount?: Money;
+  transferAmount?: Money;
   transferMethod: TransferMethod;
   reason: string;
   reference: string;
@@ -157,9 +153,13 @@ export function transferCreateBody(input: CreateTransferInput): Record<string, u
     transfer_currency: input.transferCurrency,
   };
   if (input.sourceAmount !== undefined)
-    body.source_amount = toWireAmount(input.sourceAmount, "sourceAmount");
+    body.source_amount = toWireAmount(input.sourceAmount, "sourceAmount", input.sourceCurrency);
   if (input.transferAmount !== undefined)
-    body.transfer_amount = toWireAmount(input.transferAmount, "transferAmount");
+    body.transfer_amount = toWireAmount(
+      input.transferAmount,
+      "transferAmount",
+      input.transferCurrency,
+    );
   body.transfer_method = input.transferMethod;
   body.reason = input.reason;
   body.reference = input.reference;

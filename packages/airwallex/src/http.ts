@@ -1,7 +1,9 @@
 // HTTP core for the Airwallex REST API: one timeout per attempt, retries with full-jitter backoff on
 // 429/502/503/504 and network errors (honouring `retry-after`), typed errors, zod-validated bodies.
 // Secrets never reach a log line or an error message: only method, path, status and API code do.
+import { type ApiError, apiError } from "@carnet/domain";
 import type { z } from "zod";
+import { parseJsonPreservingNumbers } from "./json";
 
 export interface Logger {
   debug(obj: Record<string, unknown>, msg?: string): void;
@@ -307,7 +309,7 @@ export class HttpClient {
     const text = await res.text();
     let data: unknown;
     try {
-      data = text === "" ? null : JSON.parse(text);
+      data = text === "" ? null : parseJsonPreservingNumbers(text);
     } catch {
       throw new AirwallexInvalidResponse(opts.method, opts.path, ["body is not JSON"]);
     }
@@ -346,4 +348,30 @@ export class HttpClient {
     );
     return err;
   }
+}
+
+/**
+ * Maps an adapter error to the API error format (`@carnet/domain`, ADR 0004) for a route handler.
+ * Bad input is VALIDATION_FAILED; anything Airwallex did (or did not) answer is UPSTREAM_ERROR with
+ * the Airwallex status and code in `details`. Messages carry no secret (see the classes above).
+ */
+export function toApiError(err: unknown, correlationId: string): ApiError {
+  if (err instanceof AirwallexInputError) {
+    return apiError("VALIDATION_FAILED", err.message, correlationId);
+  }
+  if (err instanceof AirwallexApiError) {
+    return apiError("UPSTREAM_ERROR", "Airwallex rejected the request", correlationId, {
+      airwallex_status: err.status,
+      airwallex_code: err.code,
+    });
+  }
+  if (err instanceof AirwallexTimeout) {
+    return apiError("UPSTREAM_ERROR", "Airwallex did not answer in time", correlationId, {
+      airwallex_code: "timeout",
+    });
+  }
+  if (err instanceof AirwallexError) {
+    return apiError("UPSTREAM_ERROR", "Airwallex request failed", correlationId);
+  }
+  return apiError("INTERNAL", "Unexpected error", correlationId);
 }

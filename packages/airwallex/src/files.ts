@@ -5,7 +5,7 @@
 import { z } from "zod";
 import { authed } from "./auth";
 import { AirwallexInputError } from "./http";
-import type { Ctx } from "./wire";
+import { type Ctx, WireInt } from "./wire";
 
 export const MAX_FILENAME_CHARS = 50;
 
@@ -28,8 +28,8 @@ export const UploadWire = z
   .looseObject({
     file_id: z.string().min(1),
     filename: z.string().nullish(),
-    size: z.number().nullish(),
-    created: z.number().nullish(),
+    size: WireInt.nullish(),
+    created: WireInt.nullish(),
   })
   .transform(
     (w): UploadedFile => ({

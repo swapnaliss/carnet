@@ -16,11 +16,12 @@ export * from "./beneficiaries";
 export * from "./files";
 export * from "./fx";
 export * from "./http";
+export { WireNumber } from "./json";
 export * from "./rfis";
 export * from "./simulator";
 export * from "./transfers";
 export * from "./webhook";
-export type { Ctx, MajorAmount } from "./wire";
+export type { Ctx } from "./wire";
 
 export const packageName = "@carnet/airwallex";
 
