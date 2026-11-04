@@ -78,14 +78,16 @@ async function dropDatabase(maintenanceUrl: string, name: string): Promise<void>
  * Registers beforeAll/afterAll hooks and returns an accessor for the worker's database.
  * Call once at the top of a test file.
  */
-export function useTestDatabase(): () => TestDatabase {
+export function useTestDatabase(options: { prefix?: string } = {}): () => TestDatabase {
   let current: TestDatabase | undefined;
   let maintenanceUrl = "";
 
   beforeAll(async () => {
     const migration = requireUrl("DATABASE_MIGRATION_URL");
     const app = requireUrl("DATABASE_URL");
-    const name = `carnet_test_${workerId()}`;
+    // Another workspace's suite passes a prefix (apps/web: "web") so its databases never collide
+    // with this package's when both projects run at once.
+    const name = `carnet_test_${options.prefix ? `${options.prefix}_` : ""}${workerId()}`;
     if (!/^carnet_test_[0-9a-z_]+$/.test(name)) throw new Error(`bad test database name ${name}`);
     maintenanceUrl = migration.toString();
     await dropDatabase(maintenanceUrl, name); // a crashed earlier run may have left it behind

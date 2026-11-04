@@ -76,7 +76,10 @@ export function checkUpload(input: UploadFileInput): void {
 export async function uploadFile(ctx: Ctx, input: UploadFileInput): Promise<UploadedFile> {
   checkUpload(input);
   const form = new FormData();
-  form.append("file", new Blob([input.bytes], { type: input.contentType }), input.filename);
+  // Copied into an ArrayBuffer-backed view: under the DOM lib (apps/web) a BlobPart may not be
+  // backed by a SharedArrayBuffer.
+  const bytes = new Uint8Array(input.bytes);
+  form.append("file", new Blob([bytes], { type: input.contentType }), input.filename);
   return authed(ctx.http, ctx.tokens, {
     method: "POST",
     path: "/api/v1/files/upload",
