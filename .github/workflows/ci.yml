@@ -42,6 +42,10 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: secret scan (tracked and staged files)
+        run: ./scripts/check-no-secrets.sh
+      - name: dependency audit (npm audit --omit=dev --audit-level=high, minus .audit-allowlist.json)
+        run: node scripts/audit-check.mjs
       - name: database roles (admin step, packages/db/sql/roles.sql)
         run: docker exec -i ${{ job.services.postgres.id }} psql -U carnet -d carnet_test -v ON_ERROR_STOP=1 < packages/db/sql/roles.sql
       - name: biome and dependency direction

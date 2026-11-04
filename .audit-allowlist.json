@@ -1,0 +1,4 @@
+{
+  "$comment": "Accepted npm advisories for `npm audit --omit=dev --audit-level=high` (M1-10). Policy: an entry needs the advisory URL, the package, why it is not exploitable here, who accepted it, and an expiry date at most 30 days out. scripts/audit-check.mjs fails CI on any high or critical advisory not listed here, and on any expired entry. Empty means nothing is accepted.",
+  "advisories": []
+}
