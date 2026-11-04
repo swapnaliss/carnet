@@ -51,6 +51,7 @@ function SloCards({ s }: { s: SloSummary }) {
   const rec = s.reconcile;
   const beatStale = beat.ageMs === null || beat.ageMs > beat.maxAgeMs;
   const recStale = rec.ageMs === null || rec.ageMs > rec.maxAgeMs;
+  const finishedJobs = s.jobProcessing.samples + s.deadJobs.inWindow;
   return (
     <>
       <Section id="ops-slo" title={t.ops.slo.title} grid="md:grid-cols-3">
@@ -137,13 +138,18 @@ function SloCards({ s }: { s: SloSummary }) {
         <MetricCard
           id="health-dead-jobs"
           title={t.ops.health.deadJobs}
-          value={formatCount(s.deadJobs.inWindow, locale)}
+          // Jobs that finished (DONE or DEAD) in the window: with none, there is no data and no
+          // pass is shown (screens/ops.md: never a green pass without samples).
+          value={finishedJobs === 0 ? null : formatCount(s.deadJobs.inWindow, locale)}
           detail={`${t.ops.health.deadJobsAllTime}: ${formatCount(s.deadJobs.total, locale)}`}
-          {...(s.deadJobs.inWindow > 0
-            ? { verdict: { kind: "misses" as const, label: t.ops.slo.misses } }
-            : { verdict: { kind: "meets" as const, label: t.ops.slo.meets } })}
+          {...(finishedJobs === 0
+            ? {}
+            : s.deadJobs.inWindow > 0
+              ? { verdict: { kind: "misses" as const, label: t.ops.slo.misses } }
+              : { verdict: { kind: "meets" as const, label: t.ops.slo.meets } })}
           definition={t.ops.health.deadJobsDefinition}
           window={t.ops.slo.window}
+          samples={finishedJobs}
         />
       </Section>
 

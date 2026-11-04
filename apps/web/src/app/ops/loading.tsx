@@ -24,12 +24,19 @@ export default function OpsLoading() {
               {Array.from({ length: section.cards }, (_, i) => `${section.key}-${i}`).map((k) => (
                 <div
                   key={k}
-                  className="h-52 animate-pulse rounded-md border border-border bg-muted motion-reduce:animate-none"
+                  className="h-60 animate-pulse rounded-md border border-border bg-muted motion-reduce:animate-none"
                 />
               ))}
             </div>
           </div>
         ))}
+        <div aria-hidden="true" className="flex flex-col gap-3">
+          <div className="h-6 w-56 animate-pulse rounded-sm bg-muted" />
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="h-28 rounded-md border border-dashed border-border" />
+            <div className="h-28 rounded-md border border-dashed border-border" />
+          </div>
+        </div>
       </div>
     </>
   );
