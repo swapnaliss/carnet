@@ -2,9 +2,9 @@
 // 401 in the shared error format with no hint whether the email exists.
 import { ApiErrorSchema } from "@carnet/domain";
 import { describe, expect, it } from "vitest";
-import { cookieOf, getRequest, jsonRequest, signIn, useAuthTestEnv } from "./setup";
+import { cookieOf, getRequest, jsonRequest, setupAuthTestEnv, signIn } from "./setup";
 
-const env = useAuthTestEnv();
+const env = setupAuthTestEnv();
 
 describe("sign-in", () => {
   it("valid credentials set an HttpOnly, SameSite=Lax session cookie and return no token", async () => {

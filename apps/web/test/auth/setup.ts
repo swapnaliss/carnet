@@ -3,18 +3,12 @@
 // The handlers are the same ones /api/auth/[...all]/route.ts exports, built on this runtime.
 import { randomBytes } from "node:crypto";
 import { Writable } from "node:stream";
-import {
-  createUser,
-  type Db,
-  repoCtx,
-  schema,
-  seedDemoUsers,
-  type UserRole,
-} from "@carnet/db";
+import { createUser, type Db, repoCtx, schema, seedDemoUsers, type UserRole } from "@carnet/db";
 import type { BusinessId, UserId } from "@carnet/domain";
 import { hashPassword } from "better-auth/crypto";
 import { beforeAll } from "vitest";
-import { useTestDatabase } from "../../../../packages/db/test/harness";
+// Renamed on import: outside packages/db the linter treats `use*` as a React hook.
+import { useTestDatabase as testDatabase } from "../../../../packages/db/test/harness";
 import {
   type AuthHandlers,
   type AuthRuntime,
@@ -39,8 +33,8 @@ export interface AuthTestEnv {
   setNow(date: Date): void;
 }
 
-export function useAuthTestEnv(options: { production?: boolean } = {}): () => AuthTestEnv {
-  const database = useTestDatabase();
+export function setupAuthTestEnv(options: { production?: boolean } = {}): () => AuthTestEnv {
+  const database = testDatabase();
   let env: AuthTestEnv | undefined;
 
   beforeAll(async () => {
@@ -51,9 +45,11 @@ export function useAuthTestEnv(options: { production?: boolean } = {}): () => Au
       judge: randomBytes(12).toString("hex"),
     };
     const seeded = await seedDemoUsers(db, {
-      SEED_OWNER_PASSWORD: passwords.owner,
-      SEED_APPROVER_PASSWORD: passwords.approver,
-      SEED_JUDGE_PASSWORD: passwords.judge,
+      env: {
+        SEED_OWNER_PASSWORD: passwords.owner,
+        SEED_APPROVER_PASSWORD: passwords.approver,
+        SEED_JUDGE_PASSWORD: passwords.judge,
+      },
     });
     const logs: string[] = [];
     const sink = new Writable({
@@ -96,7 +92,7 @@ export function useAuthTestEnv(options: { production?: boolean } = {}): () => Au
 export function jsonRequest(
   path: string,
   body: unknown,
-  init: { ip?: string; cookie?: string; method?: string } = {},
+  init: { ip?: string | undefined; cookie?: string | undefined; method?: string } = {},
 ): Request {
   const headers = new Headers({ "content-type": "application/json", origin: ORIGIN });
   headers.set("x-forwarded-for", init.ip ?? "203.0.113.10");

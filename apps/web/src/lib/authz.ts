@@ -61,7 +61,11 @@ export interface Authz {
 export async function sessionCtx(rt: AuthRuntime, headers: Headers): Promise<AuthCtx | null> {
   const session = await rt.auth.api.getSession({ headers });
   if (!session) return null;
-  const { id, businessId, role } = session.user as { id: string; businessId?: unknown; role?: unknown };
+  const { id, businessId, role } = session.user as {
+    id: string;
+    businessId?: unknown;
+    role?: unknown;
+  };
   if (typeof businessId !== "string" || !isRole(role)) return null;
   return { businessId: businessId as BusinessId, userId: id as UserId, role };
 }
@@ -96,7 +100,11 @@ export function createAuthz(runtime: () => AuthRuntime): Authz {
             return errorResponse(error.code, error.message, requestId);
           }
           runtime().logger.error(
-            { event: "route.error", requestId, err: error instanceof Error ? error.message : "unknown" },
+            {
+              event: "route.error",
+              requestId,
+              err: error instanceof Error ? error.message : "unknown",
+            },
             "route handler failed",
           );
           return errorResponse("INTERNAL", "Something went wrong.", requestId);

@@ -99,7 +99,7 @@ function buildAuth(db: Db, settings: AuthSettings, log: Logger) {
     // Only the message is logged: better-auth's extra arguments can carry request data.
     logger: {
       level: "warn",
-      log: (level, message) => log[level]({ component: "better-auth" }, message),
+      log: (level, message) => log[level]({ source: "better-auth" }, message),
     },
   });
 }
@@ -295,7 +295,8 @@ export function createAuthHandlers(runtime: () => AuthRuntime): AuthHandlers {
     let rt: AuthRuntime | undefined;
     try {
       rt = runtime();
-      if (req.method === "POST" && path === "/sign-in/email") return await signIn(rt, req, requestId);
+      if (req.method === "POST" && path === "/sign-in/email")
+        return await signIn(rt, req, requestId);
       return await rt.auth.handler(req);
     } catch (error) {
       // Log the error class and message only; never the request.

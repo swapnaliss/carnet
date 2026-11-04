@@ -110,12 +110,8 @@
           "name": "audit_log_business_id_businesses_id_fk",
           "tableFrom": "audit_log",
           "tableTo": "businesses",
-          "columnsFrom": [
-            "business_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["business_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -255,12 +251,8 @@
           "name": "auth_accounts_user_id_users_id_fk",
           "tableFrom": "auth_accounts",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -364,12 +356,8 @@
           "name": "auth_sessions_user_id_users_id_fk",
           "tableFrom": "auth_sessions",
           "tableTo": "users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -566,12 +554,8 @@
           "name": "counterparties_business_id_businesses_id_fk",
           "tableFrom": "counterparties",
           "tableTo": "businesses",
-          "columnsFrom": [
-            "business_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["business_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -581,10 +565,7 @@
         "counterparties_id_business_id_key": {
           "name": "counterparties_id_business_id_key",
           "nullsNotDistinct": false,
-          "columns": [
-            "id",
-            "business_id"
-          ]
+          "columns": ["id", "business_id"]
         }
       },
       "policies": {},
@@ -696,12 +677,8 @@
           "name": "execution_attempts_business_id_businesses_id_fk",
           "tableFrom": "execution_attempts",
           "tableTo": "businesses",
-          "columnsFrom": [
-            "business_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["business_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -775,12 +752,8 @@
           "name": "idempotency_keys_business_id_businesses_id_fk",
           "tableFrom": "idempotency_keys",
           "tableTo": "businesses",
-          "columnsFrom": [
-            "business_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["business_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -788,11 +761,7 @@
       "compositePrimaryKeys": {
         "idempotency_keys_pkey": {
           "name": "idempotency_keys_pkey",
-          "columns": [
-            "business_id",
-            "endpoint",
-            "key"
-          ]
+          "columns": ["business_id", "endpoint", "key"]
         }
       },
       "uniqueConstraints": {},
@@ -1040,12 +1009,8 @@
           "name": "payments_business_id_businesses_id_fk",
           "tableFrom": "payments",
           "tableTo": "businesses",
-          "columnsFrom": [
-            "business_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["business_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1053,14 +1018,8 @@
           "name": "payments_counterparty_same_business_fk",
           "tableFrom": "payments",
           "tableTo": "counterparties",
-          "columnsFrom": [
-            "counterparty_id",
-            "business_id"
-          ],
-          "columnsTo": [
-            "id",
-            "business_id"
-          ],
+          "columnsFrom": ["counterparty_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1117,10 +1076,7 @@
       "compositePrimaryKeys": {
         "rate_limits_pkey": {
           "name": "rate_limits_pkey",
-          "columns": [
-            "key",
-            "window_start"
-          ]
+          "columns": ["key", "window_start"]
         }
       },
       "uniqueConstraints": {},
@@ -1297,12 +1253,8 @@
           "name": "users_business_id_businesses_id_fk",
           "tableFrom": "users",
           "tableTo": "businesses",
-          "columnsFrom": [
-            "business_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["business_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

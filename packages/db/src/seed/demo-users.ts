@@ -2,15 +2,18 @@
 // (role `viewer`). There is no public sign-up, so these rows are how users exist. Passwords come
 // only from the environment; a missing or short one aborts the seed (there is no default password),
 // in every environment. Idempotent: fixed ids, upserts, and the password hash is rewritten so a
-// rotated key takes effect on the next run. M1-06 `scripts/setup.ts` calls `seedDemoUsers(db)`.
+// rotated key takes effect on the next run. M1-06 `scripts/setup.ts` calls
+// `seedDemoUsers(db, { businessId: DEMO_BUSINESS_ID })` after `ensureDemoBusiness`, so the users join
+// that business; without `businessId` the seed creates (or reuses) its own default business.
 import type { BusinessId, UserId } from "@carnet/domain";
 import { hashPassword } from "better-auth/crypto";
 import { sql } from "drizzle-orm";
 import { type Db, withTransaction } from "../client";
 import { authAccounts, businesses, type UserRole, users } from "../schema/index";
 
-export const DEMO_BUSINESS_ID = "b1a61635-d7fe-43e3-ad8e-97a7016ef11c" as BusinessId;
-export const DEMO_BUSINESS_NAME = "Northwind Studio (demo)";
+/** The business used when the caller passes none (named apart from M1-06's DEMO_BUSINESS_ID). */
+export const SEED_DEFAULT_BUSINESS_ID = "b1a61635-d7fe-43e3-ad8e-97a7016ef11c" as BusinessId;
+export const SEED_DEFAULT_BUSINESS_NAME = "Northwind Studio (demo)";
 
 export const SEED_PASSWORD_ENV_KEYS = [
   "SEED_OWNER_PASSWORD",
@@ -86,11 +89,23 @@ function passwordsFrom(env: Record<string, string | undefined>): Map<SeedPasswor
   return new Map(SEED_PASSWORD_ENV_KEYS.map((k) => [k, env[k] as string]));
 }
 
+export interface SeedDemoUsersOptions {
+  /** Where the passwords come from (default `process.env`). */
+  env?: Record<string, string | undefined>;
+  /**
+   * The business the users join. It is created with `businessName` only if no row has this id, so an
+   * existing business (M1-06 `ensureDemoBusiness`) is left as it is. Default SEED_DEFAULT_BUSINESS_ID.
+   */
+  businessId?: BusinessId;
+  businessName?: string;
+}
+
 export async function seedDemoUsers(
   db: Db,
-  env: Record<string, string | undefined> = process.env,
+  options: SeedDemoUsersOptions = {},
 ): Promise<SeedResult> {
-  const passwords = passwordsFrom(env);
+  const passwords = passwordsFrom(options.env ?? process.env);
+  const businessId = options.businessId ?? SEED_DEFAULT_BUSINESS_ID;
   // Hash before the transaction: scrypt is slow and must not hold a connection open.
   const hashes = new Map<UserId, string>();
   for (const u of DEMO_USERS) {
@@ -100,7 +115,7 @@ export async function seedDemoUsers(
   return withTransaction(db, async (tx) => {
     await tx
       .insert(businesses)
-      .values({ id: DEMO_BUSINESS_ID, name: DEMO_BUSINESS_NAME })
+      .values({ id: businessId, name: options.businessName ?? SEED_DEFAULT_BUSINESS_NAME })
       .onConflictDoNothing({ target: businesses.id });
 
     const seeded: SeededUser[] = [];
@@ -109,7 +124,7 @@ export async function seedDemoUsers(
         .insert(users)
         .values({
           id: u.id,
-          businessId: DEMO_BUSINESS_ID,
+          businessId,
           email: u.email,
           name: u.name,
           role: u.role,
@@ -117,7 +132,8 @@ export async function seedDemoUsers(
         })
         .onConflictDoUpdate({
           target: users.email,
-          set: { name: u.name, role: u.role, updatedAt: sql`now()` },
+          // The seed decides where the demo users belong: a re-run with another businessId moves them.
+          set: { businessId, name: u.name, role: u.role, updatedAt: sql`now()` },
         })
         .returning({ id: users.id });
       if (!row) throw new Error("user upsert returned no row");
@@ -136,6 +152,6 @@ export async function seedDemoUsers(
         });
       seeded.push({ id: userId, email: u.email, role: u.role });
     }
-    return { businessId: DEMO_BUSINESS_ID, users: seeded };
+    return { businessId, users: seeded };
   });
 }

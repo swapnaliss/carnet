@@ -67,8 +67,28 @@ const en = {
   auth: {
     login: {
       title: "Sign in to Carnet",
-      body: "Sign-in is not available in this build yet. You can look around the app without signing in.",
+      body: "Use the email and password your business gave you. There is no public sign-up.",
       back: "Back to Carnet home",
+      email: "Email",
+      password: "Password",
+      submit: "Sign in",
+      submitPending: "Signing in",
+      errorInvalid: "Email or password is incorrect.",
+      errorRateLimited: "Too many failed attempts. Wait 15 minutes, then try again.",
+      errorGeneric: "Sign-in is unavailable right now. Try again in a moment.",
+    },
+    session: {
+      title: "You are signed in",
+      roleLabel: "Role",
+      readOnly: "This login is read-only. It can look at everything and change nothing.",
+      signOut: "Sign out",
+      signOutPending: "Signing out",
+      signOutError: "Sign-out failed. Try again.",
+    },
+    role: {
+      owner: "Owner",
+      approver: "Approver",
+      viewer: "Viewer (read-only)",
     },
   },
   common: {

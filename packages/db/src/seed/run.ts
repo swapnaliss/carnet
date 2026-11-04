@@ -8,7 +8,7 @@ async function main(): Promise<number> {
   let client: ReturnType<typeof createDbClientFromEnv> | undefined;
   try {
     client = createDbClientFromEnv(process.env, { max: 1 });
-    const result = await seedDemoUsers(client.db, process.env);
+    const result = await seedDemoUsers(client.db, { env: process.env });
     for (const u of result.users) console.log(`seed: ${u.role} ${u.email}`);
     console.log(`seed: business ${result.businessId}, ${result.users.length} users`);
     return 0;

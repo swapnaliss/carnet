@@ -1,9 +1,9 @@
 // AC: in production the session cookie is HttpOnly, SameSite=Lax and Secure. (A file of its own:
 // each file gets one test database.)
 import { describe, expect, it } from "vitest";
-import { signIn, useAuthTestEnv } from "./setup";
+import { setupAuthTestEnv, signIn } from "./setup";
 
-const prod = useAuthTestEnv({ production: true });
+const prod = setupAuthTestEnv({ production: true });
 
 describe("sign-in in production", () => {
   it("the session cookie is also Secure", async () => {
