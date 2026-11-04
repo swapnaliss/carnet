@@ -1,4 +1,5 @@
 // Webhook inbox additions (M1-05). System-level: takes `db`, not a tenant context.
+import { eq } from "drizzle-orm";
 import type { Db } from "../client";
 import { translateDbError } from "../errors";
 import { webhookEvents } from "../schema/index";
@@ -23,4 +24,12 @@ export async function insertWebhookEventIfNew(
   } catch (error) {
     throw translateDbError(error);
   }
+}
+
+/**
+ * Stamps the acknowledgement time (M1-09). The webhook route calls it as the last statement of the
+ * inbox transaction, so `acked_at - received_at` is the time to a committed, acknowledged event.
+ */
+export async function markWebhookEventAcked(db: Db, id: string, at: Date): Promise<void> {
+  await db.update(webhookEvents).set({ ackedAt: at }).where(eq(webhookEvents.id, id));
 }

@@ -80,11 +80,14 @@ export async function claimJobs(db: Db, options: ClaimOptions = {}): Promise<Out
   return result.rows.map(fromRaw);
 }
 
-/** Marks a claimed job DONE. */
+/**
+ * Marks a claimed job DONE. `locked_at` keeps the last claim time and `finished_at` is stamped, so
+ * processing time is `finished_at - locked_at` (M1-09 SLOs).
+ */
 export async function completeJob(db: Db, id: string): Promise<void> {
   await db
     .update(outboxJobs)
-    .set({ status: "DONE", lockedAt: null, lastError: null })
+    .set({ status: "DONE", lastError: null, finishedAt: sql`clock_timestamp()` })
     .where(eq(outboxJobs.id, id));
 }
 
@@ -101,9 +104,10 @@ export async function failJob(db: Db, id: string, failure: JobFailure): Promise<
     .update(outboxJobs)
     .set({
       status: failure.dead ? "DEAD" : "RETRY",
-      lockedAt: null,
       lastError: failure.error.slice(0, 4000),
-      ...(failure.dead ? {} : { runAfter: failure.runAfter }),
+      ...(failure.dead
+        ? { finishedAt: sql`clock_timestamp()` }
+        : { lockedAt: null, runAfter: failure.runAfter }),
     })
     .where(eq(outboxJobs.id, id));
 }

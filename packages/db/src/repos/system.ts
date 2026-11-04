@@ -52,6 +52,8 @@ export interface NewWebhookEvent {
   name: string;
   rawBody: string;
   signatureOk: boolean;
+  /** When the request arrived (M1-09 ack latency); defaults to the insert time. */
+  receivedAt?: Date;
 }
 
 /** Throws DuplicateWebhookEventError when the provider event id is already stored. */

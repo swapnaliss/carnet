@@ -7,6 +7,7 @@
 // malformed timestamp · 413 body over 256 KiB · 500 store failed (Airwallex redelivers) · 503 secret
 // not configured.
 import { verifyWebhook } from "@carnet/airwallex";
+import { currentRequestId, withRequestContext } from "../../../../lib/request-context";
 import { appDb } from "../../../../server/db";
 import {
   errorResponse,
@@ -19,8 +20,11 @@ import {
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function POST(req: Request): Promise<Response> {
-  const requestId = crypto.randomUUID();
+// The request id (a safe inbound x-request-id or a new one) is set by withRequestContext (M1-09) and
+// returned in the x-request-id header and the error body.
+export const POST = withRequestContext(async (req: Request): Promise<Response> => {
+  const receivedAt = new Date();
+  const requestId = currentRequestId();
   const logger = webhookLogger();
   const secret = process.env.AIRWALLEX_WEBHOOK_SECRET;
   if (!secret) {
@@ -47,5 +51,5 @@ export async function POST(req: Request): Promise<Response> {
     return errorResponse("UNAUTHENTICATED", "invalid webhook signature", requestId);
   }
 
-  return storeVerifiedWebhook(raw, { db: appDb().db, logger, requestId });
-}
+  return storeVerifiedWebhook(raw, { db: appDb().db, logger, requestId, receivedAt });
+});

@@ -17,9 +17,12 @@ export const outboxJobs = pgTable(
     lockedAt: tstz("locked_at"),
     lastError: text("last_error"),
     createdAt: createdAt(),
+    // M1-09: set when the job becomes DONE or DEAD (processing time = finished_at - locked_at).
+    finishedAt: tstz("finished_at"),
   },
   (t) => [
     index("outbox_jobs_status_run_after_idx").on(t.status, t.runAfter),
+    index("outbox_jobs_finished_at_idx").on(t.finishedAt),
     check("outbox_jobs_status_check", oneOf("status", JOB_STATUSES)),
   ],
 );

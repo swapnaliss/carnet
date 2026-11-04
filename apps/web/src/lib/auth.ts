@@ -10,7 +10,7 @@
 //   minutes), answers failures in the shared error format with one message whether or not the
 //   email exists, and never returns the session token in the body (the cookie is HttpOnly);
 // - better-auth's own in-memory limiter is off (one limiter, in the database).
-import { createHash, randomUUID } from "node:crypto";
+import { createHash } from "node:crypto";
 import {
   createDbClientFromEnv,
   type Db,
@@ -24,6 +24,11 @@ import { type ApiError, apiError, type ErrorCode, httpStatusOf } from "@carnet/d
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createLogger, type Logger, logger } from "./logger";
+import {
+  requestIdOf as baseRequestIdOf,
+  currentContext,
+  withRequestContext,
+} from "./request-context";
 
 export const AUTH_ENV_KEYS = ["BETTER_AUTH_SECRET", "BETTER_AUTH_URL"] as const;
 export const AUTH_BASE_PATH = "/api/auth";
@@ -144,12 +149,12 @@ export function getAuthRuntime(): AuthRuntime {
 
 // --- shared error responses ----------------------------------------------------------------------
 
-const REQUEST_ID = /^[A-Za-z0-9._:-]{1,128}$/;
-
-/** Carnet's correlation id: a well-formed incoming `x-request-id`, or a new one. */
+/**
+ * Carnet's correlation id (M1-09, ./request-context.ts): the current request's id inside
+ * `withRequestContext`, else a well-formed incoming `x-request-id`, else a new one.
+ */
 export function requestIdOf(req: Request): string {
-  const incoming = req.headers.get("x-request-id");
-  return incoming && REQUEST_ID.test(incoming) ? incoming : randomUUID();
+  return currentContext().request_id ?? baseRequestIdOf(req);
 }
 
 export function errorResponse(
@@ -307,5 +312,6 @@ export function createAuthHandlers(runtime: () => AuthRuntime): AuthHandlers {
       return errorResponse("INTERNAL", "Authentication is unavailable.", requestId);
     }
   };
-  return { GET: handle, POST: handle };
+  const wrapped = withRequestContext(handle);
+  return { GET: wrapped, POST: wrapped };
 }

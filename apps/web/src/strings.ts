@@ -63,6 +63,77 @@ const en = {
       title: "No activity yet",
       body: "Webhooks, jobs and payment attempts appear here as they happen. None have been recorded.",
     },
+    intro:
+      "Service levels and health, computed from the timestamps Carnet stores in its database. Figures cover the last 24 hours unless a card says otherwise.",
+    generatedAt: "Computed at",
+    utc: "UTC",
+    slo: {
+      title: "Service levels",
+      webhookAck: "Webhook acknowledged, p95",
+      webhookAckDefinition:
+        "Time from a webhook request arriving to its event and job being committed. Target under 300 ms.",
+      jobQueue: "Job wait, p95",
+      jobQueueDefinition:
+        "Time from a job being queued to the worker picking it up, for jobs that succeeded on the first try.",
+      jobProcessing: "Job processing, p95",
+      jobProcessingDefinition:
+        "Time the worker spent on its last attempt, for jobs that succeeded.",
+      meets: "Meets target",
+      misses: "Misses target",
+      noData: "No data yet",
+      samples: "samples",
+      median: "Median",
+      target: "Target",
+      window: "Last 24 hours",
+      windowNow: "Right now",
+      windowAllTime: "All time",
+    },
+    health: {
+      title: "Worker and queue",
+      queueDepth: "Jobs waiting or running",
+      queueDepthDefinition: "Jobs pending, waiting to retry, or running now.",
+      deadJobs: "Jobs that gave up",
+      deadJobsDefinition:
+        "Jobs that failed every retry and stopped (DEAD). The number in the last 24 hours is shown below.",
+      deadJobsWindow: "In the last 24 hours",
+      heartbeat: "Worker heartbeat",
+      heartbeatDefinition: "When the worker last reported in. It reports every 30 seconds.",
+      heartbeatStale: "The worker has not reported in the last 2 minutes.",
+      heartbeatNone: "No worker has reported yet.",
+      lastReport: "Last report",
+    },
+    reconciler: {
+      lastRun: "Last reconcile run",
+      definition:
+        "When Carnet last finished checking Airwallex for missed updates. It runs every 60 seconds.",
+      stale:
+        "The reconciler has not completed in the last 3 minutes. Missed webhooks will not be recovered until it runs.",
+      never: "The reconciler has not completed a run yet.",
+    },
+    money: {
+      title: "Payments needing attention",
+      incidents: "Paid, then failed",
+      incidentsDefinition:
+        "Transfers Airwallex reported as paid that later failed, from the audit log, in the last 24 hours.",
+      unknown: "Attempts being confirmed",
+      unknownDefinition:
+        "Requests sent to Airwallex whose result is not known yet. Carnet looks them up; it never resends them.",
+    },
+    later: {
+      title: "Coming with later work",
+      agentRuns: "Agent runs and model spend",
+      agentRunsBody: "Model runs, tokens, cost and latency appear here once drafting is built.",
+      auditChain: "Audit chain check",
+      auditChainBody:
+        "A check that the audit log has not been altered appears here once the hash chain is built.",
+    },
+    error: {
+      panel:
+        "Carnet could not compute these figures. No payment was affected. Try again in a minute.",
+    },
+    loading: {
+      status: "Loading system health",
+    },
   },
   auth: {
     login: {
@@ -110,6 +181,10 @@ const en = {
     notFound: {
       title: "Page not found",
       body: "This page does not exist, or it belongs to another business.",
+    },
+    forbidden: {
+      title: "Your role cannot open this page",
+      body: "Ask the owner of this business if you need access. Nothing was changed.",
     },
   },
 } as const;

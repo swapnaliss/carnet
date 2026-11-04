@@ -11,3 +11,4 @@ export * from "./payments";
 export * from "./system";
 export * from "./users";
 export * from "./webhook-events";
+export * from "./worker-heartbeats";

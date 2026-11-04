@@ -23,6 +23,7 @@ export const M1_TABLES = [
   "system_flags",
   "users",
   "webhook_events",
+  "worker_heartbeats",
 ] as const;
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "[::1]", "postgres"]);

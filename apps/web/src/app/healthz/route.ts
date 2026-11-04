@@ -1,7 +1,8 @@
 import { healthPayload } from "../../health";
+import { withRequestContext } from "../../lib/request-context";
 
 export const dynamic = "force-dynamic";
 
-export function GET(): Response {
-  return Response.json(healthPayload(), { headers: { "cache-control": "no-store" } });
-}
+export const GET = withRequestContext(() =>
+  Response.json(healthPayload(), { headers: { "cache-control": "no-store" } }),
+);

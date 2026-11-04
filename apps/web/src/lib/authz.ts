@@ -10,6 +10,7 @@
 import { type RepoCtx, repoCtx, USER_ROLES, type UserRole } from "@carnet/db";
 import type { BusinessId, ErrorCode, UserId } from "@carnet/domain";
 import { type AuthRuntime, errorResponse, getAuthRuntime, requestIdOf } from "./auth";
+import { withRequestContext } from "./request-context";
 
 export type Role = UserRole;
 
@@ -89,8 +90,8 @@ export function createAuthz(runtime: () => AuthRuntime): Authz {
       };
     },
     repo: (ctx) => repoCtx(runtime().db, ctx.businessId),
-    guarded(guard, handler) {
-      return async (req, route) => {
+    guarded<P>(guard: Guard, handler: (req: Request, ctx: AuthCtx, route: P) => Promise<Response>) {
+      return withRequestContext(async (req: Request, route: P) => {
         const requestId = requestIdOf(req);
         try {
           const ctx = await guard(req);
@@ -109,7 +110,7 @@ export function createAuthz(runtime: () => AuthRuntime): Authz {
           );
           return errorResponse("INTERNAL", "Something went wrong.", requestId);
         }
-      };
+      });
     },
   };
 }
