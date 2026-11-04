@@ -50,12 +50,16 @@ export default defineConfig({
             },
             {
               // apps/web database-backed tests (webhook route, worker): own `carnet_test_web_*` DBs.
-              extends: "./apps/web/vitest.config.ts",
+              // Not `extends`: that merges in apps/web's unit includes and runs them twice.
               test: {
                 name: "web-db",
                 root: "./apps/web",
                 include: ["test/**/*.int.test.ts"],
                 exclude: ["**/node_modules/**"],
+                env: { LOG_LEVEL: "warn" },
+                maxWorkers: 4,
+                testTimeout: 60_000,
+                hookTimeout: 60_000,
                 sequence: { groupOrder: 2 },
               },
             },
