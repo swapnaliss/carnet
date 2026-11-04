@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import { connection } from "next/server";
 import type { ReactNode } from "react";
 import { AppShell } from "@/components/shell/app-shell";
 import { t } from "@/strings";
@@ -35,7 +36,10 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  // Every page renders per request: Next.js puts the proxy's CSP nonce on its scripts only during a
+  // request-time render (M1-10, lib/security-headers.ts). A prerendered page would have none.
+  await connection();
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body className="min-h-dvh antialiased">

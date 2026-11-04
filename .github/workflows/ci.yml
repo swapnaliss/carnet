@@ -11,7 +11,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     services:
       postgres:
         image: postgres:17-alpine
@@ -42,6 +42,10 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: secret scan (tracked and staged files)
+        run: ./scripts/check-no-secrets.sh
+      - name: dependency audit (npm audit --omit=dev --audit-level=high, minus .audit-allowlist.json)
+        run: node scripts/audit-check.mjs
       - name: database roles (admin step, packages/db/sql/roles.sql)
         run: docker exec -i ${{ job.services.postgres.id }} psql -U carnet -d carnet_test -v ON_ERROR_STOP=1 < packages/db/sql/roles.sql
       - name: biome and dependency direction
@@ -50,6 +54,12 @@ jobs:
       - run: npm test
       - name: next build
         run: npm run build
+      # Accessibility (axe), Core Web Vitals budgets and the CSP check run on the production build
+      # (playwright.config.ts starts `next start` on port 3000). BL-01: M1-07's checks were local only.
+      - name: playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: playwright (axe, web vitals, CSP)
+        run: npx playwright test
       - name: landing checks
         run: ./scripts/landing-checks.sh
   docker:
