@@ -15,6 +15,7 @@ export default defineConfig({
             "packages/*/src/**/*.test.ts",
             "packages/*/test/**/*.test.ts",
             "apps/*/src/**/*.test.ts",
+            "apps/*/test/**/*.test.ts",
           ],
           exclude: ["**/*.int.test.ts", "**/node_modules/**"],
         },

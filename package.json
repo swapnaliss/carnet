@@ -22,6 +22,7 @@
     "test": "vitest run",
     "build": "npm run build -w @carnet/web",
     "smoke": "./scripts/toolchain-smoke.sh",
+    "design:contrast": "node scripts/design-contrast.ts",
     "dataset:generate": "node scripts/dataset/generate.mjs",
     "dataset:check": "node scripts/dataset/check.mjs fixtures/dataset"
   },
