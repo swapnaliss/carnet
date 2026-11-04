@@ -1,19 +1,27 @@
 // AC: a valid inbound x-request-id is echoed; a malformed one is replaced; the same id appears in the
 // log line, the response header and the error body. Exercised on the webhook route (a bad signature
-// answers 401 in the shared error format and logs the rejection; no database is touched).
+// answers 401 in the shared error format and logs the rejection). Since M1-10 the route counts a
+// rate-limit window in the database before verifying, so this runs on its own test database.
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { POST } from "../../src/app/api/webhooks/airwallex/route";
 import { SAFE_REQUEST_ID, withRequestContext } from "../../src/lib/request-context";
+import { closeAppDb } from "../../src/server/db";
 import { setWebhookLogger } from "../../src/server/webhooks/airwallex";
-import { TEST_WEBHOOK_SECRET, webhookRequest } from "../support";
+import { TEST_WEBHOOK_SECRET, webhookRequest, webTestDatabase } from "../support";
 import { capture, capturedLogger } from "./capture";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
+const db = webTestDatabase();
+
 beforeAll(() => {
+  process.env.DATABASE_URL = db().appUrl;
   process.env.AIRWALLEX_WEBHOOK_SECRET = TEST_WEBHOOK_SECRET;
 });
-afterAll(() => setWebhookLogger(null));
+afterAll(async () => {
+  setWebhookLogger(null);
+  await closeAppDb();
+});
 
 async function rejected(requestId: string | null) {
   const c = capture();
