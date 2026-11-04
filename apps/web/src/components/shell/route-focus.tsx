@@ -11,6 +11,7 @@ import { useEffect, useRef } from "react";
 export function RouteFocus() {
   const pathname = usePathname();
   const first = useRef(true);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the effect must re-run on each route change
   useEffect(() => {
     if (first.current) {
       first.current = false;

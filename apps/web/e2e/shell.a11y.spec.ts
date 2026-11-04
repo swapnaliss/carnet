@@ -10,6 +10,7 @@ const pages = [
   { name: "plan (empty state)", path: "/plan" },
   { name: "ops (empty state)", path: "/ops" },
   { name: "not found", path: "/does-not-exist" },
+  { name: "page error", path: "/error-preview" },
 ] as const;
 
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
@@ -56,6 +57,19 @@ test("a client-side route change moves focus to the new page's h1", async ({ pag
   await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Ops" }).click();
   await expect(page).toHaveURL(/\/ops$/);
   await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
+});
+
+test("the page-level error renders inside the shell, says nothing was sent, and shows no stack", async ({
+  page,
+}) => {
+  await page.goto("/error-preview");
+  const heading = page.getByRole("heading", { level: 1, name: "Carnet could not load this page" });
+  await expect(heading).toBeFocused();
+  await expect(page.getByText("No money or answers were sent from this page.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Go to the queue" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Main" })).toBeVisible();
+  await expect(page.locator("main")).not.toContainText("error-preview: deliberate");
 });
 
 test("the nav marks the current page", async ({ page }) => {

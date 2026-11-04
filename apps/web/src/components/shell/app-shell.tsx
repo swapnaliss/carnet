@@ -15,7 +15,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <>
       <a
         href="#main"
-        className="sr-only z-50 rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+        className="fixed inset-x-0 top-0 z-50 flex h-(--shell-header-height) -translate-y-full items-center bg-primary px-4 text-sm font-medium text-primary-foreground underline underline-offset-4 shadow-3 focus:translate-y-0 focus-visible:outline-offset-[-4px] focus-visible:outline-primary-foreground md:px-6"
       >
         {t.shell.skipLink}
       </a>
