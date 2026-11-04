@@ -56,13 +56,30 @@ export function rateLimitKey(route: string, kind: SubjectKind, subject: string):
   return `${route}:${kind}:${subject}`;
 }
 
+/** Proxies in front of the app that append to `x-forwarded-for` (TRUSTED_PROXY_HOPS, default 1). */
+export function trustedProxyHops(env: Record<string, string | undefined> = process.env): number {
+  const n = Number(env.TRUSTED_PROXY_HOPS ?? "1");
+  return Number.isInteger(n) && n >= 0 ? n : 1;
+}
+
 /**
- * The caller's IP for per-IP counters: the first `x-forwarded-for` hop, else `x-real-ip`.
- * Behind the platform proxy these come from the proxy.
+ * The caller's IP for per-IP counters. A client can write any `x-forwarded-for` it likes; each
+ * trusted proxy appends the address it received the request from. So the trustworthy entry is the
+ * one the outermost trusted proxy appended: `hops` entries from the right. Entries to its left are
+ * client-supplied and ignored. With `hops = 0` (no proxy) the header is ignored entirely.
+ * When the header is shorter than `hops` (the request skipped a proxy), its leftmost entry is used.
+ * Falls back to `x-real-ip`, then "unknown". The hop count for the hosting platform is set in its
+ * environment and verified on the first deploy (M1-06).
  */
-export function clientIp(req: Request): string {
-  const forwarded = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwarded || req.headers.get("x-real-ip")?.trim() || "unknown";
+export function clientIp(req: Request, hops: number = trustedProxyHops()): string {
+  const chain = (req.headers.get("x-forwarded-for") ?? "")
+    .split(",")
+    .map((h) => h.trim())
+    .filter(Boolean);
+  if (hops > 0 && chain.length > 0) {
+    return chain[Math.max(0, chain.length - hops)] ?? "unknown";
+  }
+  return req.headers.get("x-real-ip")?.trim() || "unknown";
 }
 
 /** `rate_limits.key` values for a login attempt. The email is lower-cased and hashed. */

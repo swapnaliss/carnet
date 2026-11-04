@@ -15,8 +15,8 @@ import {
   createDbClientFromEnv,
   type Db,
   hitRateLimit,
-  peekRateLimit,
   type RateLimitState,
+  refundRateLimit,
   schema,
 } from "@carnet/db";
 import { betterAuth } from "better-auth";
@@ -208,23 +208,38 @@ async function signIn(rt: AuthRuntime, req: Request, requestId: string): Promise
     return errorResponse("VALIDATION_FAILED", "Send an email and a password.", requestId);
   }
 
+  // Count first, atomically (hitRateLimit), so concurrent attempts can never exceed the limit; an
+  // attempt that is refused, succeeds or errors gives its hits back, so only failures stay counted.
   const now = rt.now();
   const keys = loginRateLimitKeys(body.email, clientIp(req));
-  const before = await Promise.all([
-    peekRateLimit(rt.db, keys.email, LOGIN_RATE_LIMITS.email, now),
-    peekRateLimit(rt.db, keys.ip, LOGIN_RATE_LIMITS.ip, now),
+  const hits = await Promise.all([
+    hitRateLimit(rt.db, keys.email, LOGIN_RATE_LIMITS.email, now),
+    hitRateLimit(rt.db, keys.ip, LOGIN_RATE_LIMITS.ip, now),
   ]);
-  const refused = limitedResponse(before, requestId);
+  const giveBack = () =>
+    Promise.all([
+      refundRateLimit(rt.db, keys.email, LOGIN_RATE_LIMITS.email, now),
+      refundRateLimit(rt.db, keys.ip, LOGIN_RATE_LIMITS.ip, now),
+    ]);
+  const refused = limitedResponse(hits, requestId);
   if (refused) {
+    await giveBack();
     rt.logger.warn({ event: "auth.login.rate_limited", requestId }, "login refused by rate limit");
     return refused;
   }
 
-  const res = await rt.auth.handler(
-    new Request(req.url, { method: "POST", headers: req.headers, body: text }),
-  );
+  let res: Response;
+  try {
+    res = await rt.auth.handler(
+      new Request(req.url, { method: "POST", headers: req.headers, body: text }),
+    );
+  } catch (error) {
+    await giveBack();
+    throw error;
+  }
 
   if (res.ok) {
+    await giveBack();
     const data = (await res.json()) as { user?: { id?: string; role?: string } };
     rt.logger.info(
       { event: "auth.login.succeeded", requestId, userId: data.user?.id, role: data.user?.role },
@@ -235,14 +250,11 @@ async function signIn(rt: AuthRuntime, req: Request, requestId: string): Promise
   }
 
   if (res.status === 401) {
-    await Promise.all([
-      hitRateLimit(rt.db, keys.email, LOGIN_RATE_LIMITS.email, now),
-      hitRateLimit(rt.db, keys.ip, LOGIN_RATE_LIMITS.ip, now),
-    ]);
     rt.logger.info({ event: "auth.login.failed", requestId }, "login failed");
     return errorResponse("UNAUTHENTICATED", INVALID_CREDENTIALS, requestId);
   }
 
+  await giveBack();
   rt.logger.warn({ event: "auth.login.error", requestId, status: res.status }, "login error");
   if (res.status === 400) {
     return errorResponse("VALIDATION_FAILED", "Send a valid email and password.", requestId);
