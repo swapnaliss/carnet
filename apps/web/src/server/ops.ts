@@ -6,7 +6,8 @@
 //   200 { status: "ok" | "breach", breaches: SloBreach[], summary: SloSummary }
 import { createHash, timingSafeEqual } from "node:crypto";
 import { type Db, getSloSummary, type SloBreach, type SloSummary, sloBreaches } from "@carnet/db";
-import { apiError, type ErrorCode, httpStatusOf } from "@carnet/domain";
+import type { ErrorCode } from "@carnet/domain";
+import { errorResponse } from "../lib/errors";
 import { logger } from "../lib/logger";
 import { currentRequestId, withRequestContext } from "../lib/request-context";
 
@@ -27,10 +28,7 @@ export function opsTokenMatches(header: string | null, expected: string): boolea
 }
 
 function problem(code: ErrorCode, message: string): Response {
-  return Response.json(apiError(code, message, currentRequestId()), {
-    status: httpStatusOf(code),
-    headers: { "cache-control": "no-store" },
-  });
+  return errorResponse(code, message, currentRequestId());
 }
 
 export function createSloHandler(deps: {

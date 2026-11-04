@@ -10,25 +10,27 @@
 //   minutes), answers failures in the shared error format with one message whether or not the
 //   email exists, and never returns the session token in the body (the cookie is HttpOnly);
 // - better-auth's own in-memory limiter is off (one limiter, in the database).
-import { createHash } from "node:crypto";
 import {
   createDbClientFromEnv,
   type Db,
   hitRateLimit,
-  peekRateLimit,
-  type RateLimitRule,
   type RateLimitState,
+  refundRateLimit,
   schema,
 } from "@carnet/db";
-import { type ApiError, apiError, type ErrorCode, httpStatusOf } from "@carnet/domain";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { errorResponse } from "./errors";
 import { createLogger, type Logger, logger } from "./logger";
+import { clientIp, LOGIN_RATE_LIMITS, loginRateLimitKeys } from "./ratelimit";
 import {
   requestIdOf as baseRequestIdOf,
   currentContext,
   withRequestContext,
 } from "./request-context";
+
+// Moved to ./errors and ./ratelimit (M1-10); re-exported for M1-04 call sites.
+export { clientIp, errorResponse, LOGIN_RATE_LIMITS, loginRateLimitKeys };
 
 export const AUTH_ENV_KEYS = ["BETTER_AUTH_SECRET", "BETTER_AUTH_URL"] as const;
 export const AUTH_BASE_PATH = "/api/auth";
@@ -36,11 +38,6 @@ export const SESSION_COOKIE_PREFIX = "carnet";
 /** Session lifetime and refresh interval, seconds. */
 export const SESSION_TTL_SECONDS = 8 * 60 * 60;
 export const SESSION_UPDATE_AGE_SECONDS = 60 * 60;
-
-export const LOGIN_RATE_LIMITS = {
-  email: { limit: 5, windowMs: 15 * 60 * 1000 },
-  ip: { limit: 20, windowMs: 15 * 60 * 1000 },
-} as const satisfies Record<string, RateLimitRule>;
 
 const MAX_LOGIN_BODY_BYTES = 8 * 1024;
 const MIN_SECRET_LENGTH = 32;
@@ -157,35 +154,7 @@ export function requestIdOf(req: Request): string {
   return currentContext().request_id ?? baseRequestIdOf(req);
 }
 
-export function errorResponse(
-  code: ErrorCode,
-  message: string,
-  requestId: string,
-  headers: Record<string, string> = {},
-): Response {
-  const body: ApiError = apiError(code, message, requestId);
-  return Response.json(body, {
-    status: httpStatusOf(code),
-    headers: { "cache-control": "no-store", "x-request-id": requestId, ...headers },
-  });
-}
-
 // --- login rate limit ----------------------------------------------------------------------------
-
-/**
- * The caller's IP for the per-IP counter: the first `x-forwarded-for` hop, else `x-real-ip`.
- * Behind the platform proxy these come from the proxy; M1-10 hardens which hop is trusted.
- */
-export function clientIp(req: Request): string {
-  const forwarded = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwarded || req.headers.get("x-real-ip")?.trim() || "unknown";
-}
-
-/** `rate_limits.key` values for a login attempt. The email is lower-cased and hashed. */
-export function loginRateLimitKeys(email: string, ip: string): { email: string; ip: string } {
-  const digest = createHash("sha256").update(email.trim().toLowerCase()).digest("hex");
-  return { email: `login:email:${digest}`, ip: `login:ip:${ip}` };
-}
 
 function limitedResponse(states: RateLimitState[], requestId: string): Response | null {
   const limited = states.filter((s) => s.limited);
@@ -242,23 +211,38 @@ async function signIn(rt: AuthRuntime, req: Request, requestId: string): Promise
     return errorResponse("VALIDATION_FAILED", "Send an email and a password.", requestId);
   }
 
+  // Count first, atomically (hitRateLimit), so concurrent attempts can never exceed the limit; an
+  // attempt that is refused, succeeds or errors gives its hits back, so only failures stay counted.
   const now = rt.now();
   const keys = loginRateLimitKeys(body.email, clientIp(req));
-  const before = await Promise.all([
-    peekRateLimit(rt.db, keys.email, LOGIN_RATE_LIMITS.email, now),
-    peekRateLimit(rt.db, keys.ip, LOGIN_RATE_LIMITS.ip, now),
+  const hits = await Promise.all([
+    hitRateLimit(rt.db, keys.email, LOGIN_RATE_LIMITS.email, now),
+    hitRateLimit(rt.db, keys.ip, LOGIN_RATE_LIMITS.ip, now),
   ]);
-  const refused = limitedResponse(before, requestId);
+  const giveBack = () =>
+    Promise.all([
+      refundRateLimit(rt.db, keys.email, LOGIN_RATE_LIMITS.email, now),
+      refundRateLimit(rt.db, keys.ip, LOGIN_RATE_LIMITS.ip, now),
+    ]);
+  const refused = limitedResponse(hits, requestId);
   if (refused) {
+    await giveBack();
     rt.logger.warn({ event: "auth.login.rate_limited", requestId }, "login refused by rate limit");
     return refused;
   }
 
-  const res = await rt.auth.handler(
-    new Request(req.url, { method: "POST", headers: req.headers, body: text }),
-  );
+  let res: Response;
+  try {
+    res = await rt.auth.handler(
+      new Request(req.url, { method: "POST", headers: req.headers, body: text }),
+    );
+  } catch (error) {
+    await giveBack();
+    throw error;
+  }
 
   if (res.ok) {
+    await giveBack();
     const data = (await res.json()) as { user?: { id?: string; role?: string } };
     rt.logger.info(
       { event: "auth.login.succeeded", requestId, userId: data.user?.id, role: data.user?.role },
@@ -269,14 +253,11 @@ async function signIn(rt: AuthRuntime, req: Request, requestId: string): Promise
   }
 
   if (res.status === 401) {
-    await Promise.all([
-      hitRateLimit(rt.db, keys.email, LOGIN_RATE_LIMITS.email, now),
-      hitRateLimit(rt.db, keys.ip, LOGIN_RATE_LIMITS.ip, now),
-    ]);
     rt.logger.info({ event: "auth.login.failed", requestId }, "login failed");
     return errorResponse("UNAUTHENTICATED", INVALID_CREDENTIALS, requestId);
   }
 
+  await giveBack();
   rt.logger.warn({ event: "auth.login.error", requestId, status: res.status }, "login error");
   if (res.status === 400) {
     return errorResponse("VALIDATION_FAILED", "Send a valid email and password.", requestId);

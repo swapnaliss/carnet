@@ -1,5 +1,6 @@
 import { resolve } from "node:path";
 import type { NextConfig } from "next";
+import { staticSecurityHeaders } from "./src/lib/security-headers";
 
 const config: NextConfig = {
   output: "standalone",
@@ -8,6 +9,15 @@ const config: NextConfig = {
   poweredByHeader: false,
   // `forbidden()` answers 403 from a page (a viewer on /ops, M1-09).
   experimental: { authInterrupts: true },
+  // Fixed security headers on every path (M1-10); the CSP with its nonce comes from src/proxy.ts.
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: staticSecurityHeaders({ production: process.env.NODE_ENV === "production" }),
+      },
+    ];
+  },
 };
 
 export default config;

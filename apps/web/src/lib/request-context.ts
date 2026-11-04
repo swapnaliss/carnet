@@ -13,6 +13,7 @@
 // `request_id: "process:<uuid>"`, the id of the process's lifetime, so every line has one.
 import { AsyncLocalStorage } from "node:async_hooks";
 import { randomUUID } from "node:crypto";
+import { REQUEST_ID_HEADER, resolveRequestId } from "./request-id";
 
 export interface CorrelationFields {
   request_id?: string;
@@ -28,13 +29,14 @@ const storage = new AsyncLocalStorage<CorrelationFields>();
 /** The id of this process's lifetime, for lines outside any request or job. */
 export const PROCESS_CORRELATION_ID = `process:${randomUUID()}`;
 
-/** Only these inbound ids are honoured; anything else is replaced (header injection, log forging). */
-export const SAFE_REQUEST_ID = /^[A-Za-z0-9._:-]{8,128}$/;
+export { REQUEST_ID_HEADER, SAFE_REQUEST_ID } from "./request-id";
 
-/** A safe inbound `x-request-id`, or a new UUID. */
+/**
+ * A safe inbound `x-request-id`, or a new UUID. Behind src/proxy.ts the header is already resolved
+ * (the proxy sets it on the request), so the route, the page and the response share one id.
+ */
 export function requestIdOf(req: Request): string {
-  const incoming = req.headers.get("x-request-id");
-  return incoming && SAFE_REQUEST_ID.test(incoming) ? incoming : randomUUID();
+  return resolveRequestId(req.headers.get(REQUEST_ID_HEADER));
 }
 
 /** Runs `fn` with `fields` as the current context (nested calls inherit and extend the outer one). */

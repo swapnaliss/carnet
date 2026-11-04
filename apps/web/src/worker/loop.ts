@@ -3,7 +3,8 @@
 // exponential backoff and jitter (`run_after`) and becomes DEAD after `maxAttempts`, with the last
 // error stored. While jobs are due it drains them without sleeping. It enqueues the reconcile job
 // itself every `reconcileEveryMs` (at most one queued at a time), logs a heartbeat every
-// `heartbeatMs`, and `stop()` lets the in-flight job finish before `run()` resolves.
+// `heartbeatMs`, prunes expired rate-limit windows every `pruneEveryMs` (M1-10), and `stop()` lets
+// the in-flight job finish before `run()` resolves.
 import { hostname } from "node:os";
 import {
   claimJobs,
@@ -20,6 +21,7 @@ import { type CorrelationFields, runWithContext } from "../lib/request-context";
 import type { Logger } from "../server/log";
 import { DEFAULT_MAX_ATTEMPTS, retryDelayMs } from "./backoff";
 import type { AirwallexReader, HandlerContext, HandlerRegistry } from "./handlers/index";
+import { PRUNE_INTERVAL_MS, pruneExpiredRateLimits } from "./prune";
 import { RECONCILE_INTERVAL_MS, RECONCILE_JOB_KIND } from "./reconcile";
 
 export const DEFAULT_POLL_MS = 1_000;
@@ -40,6 +42,8 @@ export interface WorkerOptions {
   /** Null disables the self-enqueued reconcile job (tests). */
   reconcileEveryMs?: number | null;
   heartbeatMs?: number;
+  /** How often expired rate-limit windows are deleted; null disables it (tests). */
+  pruneEveryMs?: number | null;
   killSwitchDeferMs?: number;
   now?: () => number;
   /** Heartbeat row key (default `host:pid`). */
@@ -89,6 +93,8 @@ export function createWorker(options: WorkerOptions): Worker {
   const reconcileEveryMs =
     options.reconcileEveryMs === undefined ? RECONCILE_INTERVAL_MS : options.reconcileEveryMs;
   const heartbeatMs = options.heartbeatMs ?? HEARTBEAT_MS;
+  const pruneEveryMs =
+    options.pruneEveryMs === undefined ? PRUNE_INTERVAL_MS : options.pruneEveryMs;
   const deferMs = options.killSwitchDeferMs ?? KILL_SWITCH_DEFER_MS;
   const now = options.now ?? Date.now;
   const workerId = options.workerId ?? `${hostname()}:${process.pid}`;
@@ -98,6 +104,7 @@ export function createWorker(options: WorkerOptions): Worker {
   let stopping = false;
   let wake: (() => void) | null = null;
   let nextReconcileAt = 0;
+  let nextPruneAt = 0;
   let nextHeartbeatAt = 0;
 
   const sleep = (ms: number) =>
@@ -198,6 +205,11 @@ export function createWorker(options: WorkerOptions): Worker {
       nextReconcileAt = t + reconcileEveryMs;
       const id = await enqueueSingletonJob(db, { kind: RECONCILE_JOB_KIND, payload: {} });
       if (id) logger.debug({ jobId: id }, "reconcile job enqueued");
+    }
+    if (pruneEveryMs !== null && t >= nextPruneAt) {
+      nextPruneAt = t + pruneEveryMs;
+      const pruned = await pruneExpiredRateLimits(db, t);
+      if (pruned > 0) logger.debug({ pruned }, "expired rate-limit windows pruned");
     }
   }
 

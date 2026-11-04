@@ -8,9 +8,13 @@
 //             settings (guard those with requireRole("owner"))
 //   viewer    read-only: any non-GET/HEAD request through these guards is 403 (the judge login)
 import { type RepoCtx, repoCtx, USER_ROLES, type UserRole } from "@carnet/db";
-import type { BusinessId, ErrorCode, UserId } from "@carnet/domain";
-import { type AuthRuntime, errorResponse, getAuthRuntime, requestIdOf } from "./auth";
+import type { BusinessId, UserId } from "@carnet/domain";
+import { type AuthRuntime, getAuthRuntime, requestIdOf } from "./auth";
+import { forbidden, problemResponse, unauthenticated } from "./errors";
 import { withRequestContext } from "./request-context";
+
+// The error helpers moved to ./errors (M1-10); re-exported so M1-04 call sites keep working.
+export { forbidden, HttpProblem, notFound, unauthenticated } from "./errors";
 
 export type Role = UserRole;
 
@@ -19,22 +23,6 @@ export interface AuthCtx {
   readonly userId: UserId;
   readonly role: Role;
 }
-
-/** A refusal a guard or handler throws; `guarded` turns it into the shared error format. */
-export class HttpProblem extends Error {
-  readonly code: ErrorCode;
-  constructor(code: ErrorCode, message: string) {
-    super(message);
-    this.name = "HttpProblem";
-    this.code = code;
-  }
-}
-
-export const unauthenticated = () => new HttpProblem("UNAUTHENTICATED", "Sign in to continue.");
-export const forbidden = () =>
-  new HttpProblem("FORBIDDEN", "Your role does not allow this action.");
-/** Also the answer for another business's resource: never 403, never data. */
-export const notFound = () => new HttpProblem("NOT_FOUND", "Not found.");
 
 const READ_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
 
@@ -97,18 +85,7 @@ export function createAuthz(runtime: () => AuthRuntime): Authz {
           const ctx = await guard(req);
           return await handler(req, ctx, route);
         } catch (error) {
-          if (error instanceof HttpProblem) {
-            return errorResponse(error.code, error.message, requestId);
-          }
-          runtime().logger.error(
-            {
-              event: "route.error",
-              requestId,
-              err: error instanceof Error ? error.message : "unknown",
-            },
-            "route handler failed",
-          );
-          return errorResponse("INTERNAL", "Something went wrong.", requestId);
+          return problemResponse(error, requestId, runtime().logger);
         }
       });
     },

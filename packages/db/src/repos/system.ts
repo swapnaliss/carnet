@@ -2,7 +2,7 @@
 // (webhook inbox, outbox, rate limits, system flags) and the bootstrap that creates a tenant.
 // They take `db`, not a tenant context, and none of them reads a tenant table.
 import { type BusinessId, type Money, newBusinessId } from "@carnet/domain";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { Db } from "../client";
 import {
   DuplicateWebhookEventError,
@@ -10,7 +10,7 @@ import {
   SystemFlagsMissingError,
   translateDbError,
 } from "../errors";
-import { businesses, outboxJobs, rateLimits, systemFlags, webhookEvents } from "../schema/index";
+import { businesses, outboxJobs, systemFlags, webhookEvents } from "../schema/index";
 import { moneyFromDb } from "./context";
 
 // --- bootstrap -----------------------------------------------------------------------------------
@@ -108,22 +108,6 @@ export async function enqueueJob(db: Db, job: NewJob): Promise<string> {
     .returning({ id: outboxJobs.id });
   if (!row) throw new Error("insert returned no row");
   return row.id;
-}
-
-// --- rate limits ---------------------------------------------------------------------------------
-
-/** Atomically counts one hit in the (key, window) bucket and returns the new count. */
-export async function incrementRateLimit(db: Db, key: string, windowStart: Date): Promise<number> {
-  const [row] = await db
-    .insert(rateLimits)
-    .values({ key, windowStart, count: 1 })
-    .onConflictDoUpdate({
-      target: [rateLimits.key, rateLimits.windowStart],
-      set: { count: sql`${rateLimits.count} + 1` },
-    })
-    .returning({ count: rateLimits.count });
-  if (!row) throw new Error("upsert returned no row");
-  return row.count;
 }
 
 // --- system flags --------------------------------------------------------------------------------

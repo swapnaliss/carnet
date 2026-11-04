@@ -19,6 +19,7 @@ import * as attempts from "../src/repos/attempts";
 import * as context from "../src/repos/context";
 import * as repos from "../src/repos/index";
 import * as outbox from "../src/repos/outbox";
+import * as rateLimits from "../src/repos/rate-limits";
 import * as system from "../src/repos/system";
 import * as webhookEvents from "../src/repos/webhook-events";
 import * as workerHeartbeats from "../src/repos/worker-heartbeats";
@@ -27,12 +28,14 @@ import { useTestDatabase } from "./harness";
 const db = useTestDatabase();
 
 type RepoFn = (...args: never[]) => unknown;
-// System modules take `db`: provider and platform tables, and the worker's reconciler lookups
+// System modules take `db`: provider and platform tables (rate_limits has no business_id; its keys
+// name the route and subject), and the worker's reconciler lookups
 // (attempts.ts), which return the owning business id so the caller continues with a tenant context.
 const helperNames = new Set([
   ...Object.keys(context),
   ...Object.keys(system),
   ...Object.keys(outbox),
+  ...Object.keys(rateLimits),
   ...Object.keys(webhookEvents),
   ...Object.keys(workerHeartbeats),
   ...Object.keys(attempts),
