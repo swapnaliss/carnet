@@ -1,10 +1,26 @@
-// Process wrapper for worker mode: SIGTERM or SIGINT asks the loop to stop, the in-flight job
-// finishes, the pool closes and the process exits 0 (ADR 0014: platforms send SIGTERM on deploy).
-import type { Logger } from "../server/log";
-import { createRegistry, type HandlerRegistry, JOB_KIND, registerHandler } from "./handlers/index";
+// Worker mode's one start function and its process wiring (ADR 0005, 0014).
+//
+//   await startWorker({ signal })      // or { stopped: somePromise }
+//
+// builds the database pool, the Airwallex client and the handler registry from the environment,
+// runs the loop until the signal aborts (or `stopped` settles), lets the in-flight job finish,
+// closes the pool and resolves. A process entry only has to turn SIGTERM/SIGINT into that signal
+// (`stopSignalFromProcess`) and exit 0 when the promise resolves (src/worker/main.ts does exactly
+// that; M1-06's PROCESS_MODE switch can call `startWorker` the same way).
+import { configFromEnv, createAirwallexClient } from "@carnet/airwallex";
+import { createDbClientFromEnv } from "@carnet/db";
+import { createLogger, type Logger } from "../server/log";
+import { DEFAULT_MAX_ATTEMPTS } from "./backoff";
+import {
+  type AirwallexReader,
+  createRegistry,
+  type HandlerRegistry,
+  JOB_KIND,
+  registerHandler,
+} from "./handlers/index";
 import { handleRfiSync } from "./handlers/rfi";
 import { handleTransferSync } from "./handlers/transfer";
-import type { Worker } from "./loop";
+import { createWorker, DEFAULT_POLL_MS } from "./loop";
 import { handleReconcile } from "./reconcile";
 
 /** The handlers worker mode runs. Later tickets register theirs here (M2-04, M2-07, M3-03). */
@@ -29,34 +45,68 @@ export function intFromEnv(
   return n;
 }
 
-export async function runWorkerProcess(input: {
-  worker: Worker;
-  logger: Logger;
-  close: () => Promise<void>;
-  exit?: (code: number) => void;
-}): Promise<void> {
-  const { worker, logger, close } = input;
-  const exit = input.exit ?? ((code: number) => process.exit(code));
-  const onSignal = (signal: NodeJS.Signals) => {
-    logger.info({ signal }, "shutdown requested; finishing the in-flight job");
-    worker.stop();
-  };
-  process.on("SIGTERM", onSignal);
-  process.on("SIGINT", onSignal);
-  let code = 0;
+export interface StartWorkerOptions {
+  /** Aborting it stops the loop after the in-flight job. */
+  signal?: AbortSignal;
+  /** Alternative to `signal`: the loop stops when this settles. */
+  stopped?: Promise<unknown>;
+  /** Defaults to process.env (DATABASE_URL, AIRWALLEX_*, WORKER_POLL_MS, OUTBOX_MAX_ATTEMPTS). */
+  env?: Record<string, string | undefined>;
+  logger?: Logger;
+  /** Tests only: replace the handlers, the Airwallex reader or the reconcile cadence. */
+  registry?: HandlerRegistry;
+  airwallex?: AirwallexReader;
+  reconcileEveryMs?: number | null;
+}
+
+/** Runs worker mode until stopped. Rejects on a configuration error (it names the key, never a value). */
+export async function startWorker(options: StartWorkerOptions = {}): Promise<void> {
+  const env = options.env ?? process.env;
+  const logger = options.logger ?? createLogger({ process: "worker" });
+  const pollMs = intFromEnv(env, "WORKER_POLL_MS", DEFAULT_POLL_MS);
+  const maxAttempts = intFromEnv(env, "OUTBOX_MAX_ATTEMPTS", DEFAULT_MAX_ATTEMPTS);
+  const db = createDbClientFromEnv(env, {
+    max: 4,
+    onIdleError: (error) => logger.warn({ error: error.message }, "idle database client error"),
+  });
+  let airwallex: AirwallexReader;
+  try {
+    airwallex = options.airwallex ?? createAirwallexClient({ ...configFromEnv(env), logger });
+  } catch (error) {
+    await db.close().catch(() => undefined);
+    throw error;
+  }
+  const worker = createWorker({
+    db: db.db,
+    registry: options.registry ?? defaultRegistry(),
+    airwallex,
+    logger,
+    pollMs,
+    maxAttempts,
+    ...(options.reconcileEveryMs === undefined
+      ? {}
+      : { reconcileEveryMs: options.reconcileEveryMs }),
+  });
+  const stop = () => worker.stop();
+  if (options.signal?.aborted) stop();
+  options.signal?.addEventListener("abort", stop, { once: true });
+  options.stopped?.then(stop, stop);
   try {
     await worker.run();
-  } catch (error) {
-    code = 1;
-    logger.error(
-      { error: error instanceof Error ? error.message : String(error) },
-      "worker crashed",
-    );
   } finally {
-    process.off("SIGTERM", onSignal);
-    process.off("SIGINT", onSignal);
-    await close().catch(() => undefined);
+    options.signal?.removeEventListener("abort", stop);
+    await db.close().catch(() => undefined);
   }
-  logger.info({ code }, "worker exited");
-  exit(code);
+}
+
+/** An AbortSignal that aborts on the first SIGTERM or SIGINT (platforms send SIGTERM on deploy). */
+export function stopSignalFromProcess(logger: Logger): AbortSignal {
+  const controller = new AbortController();
+  const onSignal = (signal: NodeJS.Signals) => {
+    logger.info({ signal }, "shutdown requested; finishing the in-flight job");
+    controller.abort();
+  };
+  process.once("SIGTERM", onSignal);
+  process.once("SIGINT", onSignal);
+  return controller.signal;
 }

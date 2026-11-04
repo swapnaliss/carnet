@@ -19,15 +19,19 @@ import {
   loadFixture,
   makeClient,
 } from "../../../packages/airwallex/test/fixture-loader";
-import { useTestDatabase, withClient } from "../../../packages/db/test/harness";
+import {
+  useTestDatabase as registerTestDatabase,
+  withClient,
+} from "../../../packages/db/test/harness";
 
 export { blockedCalls, FetchStub, loadFixture, makeClient };
 
 export const TEST_WEBHOOK_SECRET = "whsec_test_only_not_a_real_secret";
 
 /** One isolated database for this test file (call at the top level). */
-export function useWebTestDatabase() {
-  return useTestDatabase({ prefix: "web" });
+export function webTestDatabase() {
+  // Aliased: in this React workspace the linter would read `use…` as a React hook.
+  return registerTestDatabase({ prefix: "web" });
 }
 
 export const WEBHOOK_DIR = fileURLToPath(

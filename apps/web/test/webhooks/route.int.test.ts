@@ -9,11 +9,11 @@ import {
   recordedDeliveries,
   signedHeaders,
   TEST_WEBHOOK_SECRET,
-  useWebTestDatabase,
   webhookRequest,
+  webTestDatabase,
 } from "../support";
 
-const db = useWebTestDatabase();
+const db = webTestDatabase();
 
 beforeAll(() => {
   // The route reads its configuration from the environment, like production.
