@@ -15,15 +15,26 @@ import {
 } from "@carnet/domain";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ForeignKeyViolationError } from "../src/errors";
+import * as attempts from "../src/repos/attempts";
 import * as context from "../src/repos/context";
 import * as repos from "../src/repos/index";
+import * as outbox from "../src/repos/outbox";
 import * as system from "../src/repos/system";
+import * as webhookEvents from "../src/repos/webhook-events";
 import { useTestDatabase } from "./harness";
 
 const db = useTestDatabase();
 
 type RepoFn = (...args: never[]) => unknown;
-const helperNames = new Set([...Object.keys(context), ...Object.keys(system)]);
+// System modules take `db`: provider and platform tables, and the worker's reconciler lookups
+// (attempts.ts), which return the owning business id so the caller continues with a tenant context.
+const helperNames = new Set([
+  ...Object.keys(context),
+  ...Object.keys(system),
+  ...Object.keys(outbox),
+  ...Object.keys(webhookEvents),
+  ...Object.keys(attempts),
+]);
 const tenantRepoFns: [string, RepoFn][] = Object.entries(repos as Record<string, unknown>).filter(
   (e): e is [string, RepoFn] => typeof e[1] === "function" && !helperNames.has(e[0]),
 );
@@ -158,6 +169,13 @@ const cases: Record<string, () => Promise<void>> = {
   },
   getPayment: async () => {
     expect(await repos.getPayment(ctxA(), B.paymentId)).toBeNull();
+  },
+  getPaymentForUpdate: async () => {
+    const { app } = db();
+    const found = await app.db.transaction((tx) =>
+      repos.getPaymentForUpdate(repos.repoCtx(tx, A.businessId), B.paymentId),
+    );
+    expect(found).toBeNull();
   },
   listPayments: async () => {
     const rows = await repos.listPayments(ctxA());
