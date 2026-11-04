@@ -8,13 +8,19 @@ import pg from "pg";
 
 export const MIGRATIONS_FOLDER = join(dirname(fileURLToPath(import.meta.url)), "..", "migrations");
 
-/** Applies pending migrations as the migration role. Already-applied migrations are skipped. */
-export async function runMigrations(migrationUrl: string): Promise<void> {
+/**
+ * Applies pending migrations as the migration role. Already-applied migrations are skipped.
+ * `folder` overrides the source tree's folder (the deploy image ships its own copy).
+ */
+export async function runMigrations(
+  migrationUrl: string,
+  folder: string = MIGRATIONS_FOLDER,
+): Promise<void> {
   const client = new pg.Client({ connectionString: migrationUrl, connectionTimeoutMillis: 5_000 });
   await client.connect();
   try {
     await migrate(drizzle(client), {
-      migrationsFolder: MIGRATIONS_FOLDER,
+      migrationsFolder: folder,
       migrationsTable: "__drizzle_migrations",
       migrationsSchema: "drizzle",
     });
