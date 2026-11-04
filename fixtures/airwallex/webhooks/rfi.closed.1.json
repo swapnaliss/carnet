@@ -1,0 +1,28 @@
+{
+  "received_at": "2026-11-04T06:05:34.934Z",
+  "status_returned": 500,
+  "path": "/api/webhooks/airwallex",
+  "headers": {
+    "host": "carnet-placeholder.onrender.com",
+    "user-agent": "ReactorNetty/1.1.23",
+    "content-length": "245",
+    "accept": "*/*",
+    "accept-encoding": "gzip, br",
+    "cdn-loop": "cloudflare; loops=1",
+    "cf-connecting-ip": "REDACTED",
+    "cf-ipcountry": "REDACTED",
+    "cf-ray": "REDACTED",
+    "cf-visitor": "{\"scheme\":\"https\"}",
+    "content-type": "application/json",
+    "render-proxy-ttl": "4",
+    "rndr-id": "REDACTED",
+    "traceparent": "REDACTED",
+    "true-client-ip": "REDACTED",
+    "x-forwarded-for": "REDACTED",
+    "x-forwarded-proto": "https",
+    "x-request-start": "REDACTED",
+    "x-signature": "d7679a88b5d5e539463a909d429e4a0b874774ceea8175567ed9968a132be74e",
+    "x-timestamp": "1793772334890"
+  },
+  "body_utf8": "{\"id\":\"3f66acd8-f261-4ed3-8edc-79ab83e25ace\",\"name\":\"rfi.closed\",\"account_id\":\"acct_bEEzbdD8Ps6YnCJ_GJiawQ\",\"data\":{\"id\":\"d723bf59-592c-4d86-a8bd-3cfd104f318f\",\"type\":\"TRANSACTION\"},\"created_at\":\"2026-11-04T06:05:34+0000\",\"version\":\"2026-08-21\"}"
+}

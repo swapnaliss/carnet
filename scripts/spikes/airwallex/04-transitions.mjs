@@ -38,6 +38,7 @@ export const FAILURE_TYPES = [
   "UNABLE_TO_APPLY",
 ];
 
+// 4 Nov 2026: fee_paid_by PAYER on USD LOCAL now returns 400 fee_unknown; omitting it works (BL-01).
 export async function newTransfer(name, benId, cur, method, amount) {
   const r = await call(name, "POST", "/api/v1/transfers/create", {
     body: {
@@ -49,7 +50,6 @@ export async function newTransfer(name, benId, cur, method, amount) {
       transfer_method: method,
       reason: "professional_business_services",
       reference: "M0-03 spike",
-      fee_paid_by: "PAYER",
     },
   });
   return must(r);

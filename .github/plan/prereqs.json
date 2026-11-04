@@ -84,7 +84,7 @@
   "who": "owner",
   "how": "decide in M0-07 after the organisers answer the AWS-credits question (P-12); worker prepares the comparison in docs/budget.md",
   "lands_in": "docs/adr/0019-hosting-platform.md, docs/budget.md, .dev-refs.md (gitignored)",
-  "status": "pending",
+  "status": "done",
   "required": true,
   "needed_by": [
    "M0-05",
@@ -326,7 +326,7 @@
     "who": "owner",
     "how": "Render dashboard > Account Settings > Git providers (or GitHub > Settings > Applications > Render > Configure) > grant access to swapnaliss/carnet only; then tell the worker",
     "lands_in": "-",
-    "status": "pending",
+    "status": "done",
     "required": true,
     "needed_by": ["M0-07", "M0-05", "M1-06"]
   }

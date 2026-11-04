@@ -1,0 +1,28 @@
+{
+  "received_at": "2026-11-04T06:05:16.368Z",
+  "status_returned": 200,
+  "path": "/api/webhooks/airwallex",
+  "headers": {
+    "host": "carnet-placeholder.onrender.com",
+    "user-agent": "ReactorNetty/1.1.23",
+    "content-length": "1724",
+    "accept": "*/*",
+    "accept-encoding": "gzip, br",
+    "cdn-loop": "cloudflare; loops=1",
+    "cf-connecting-ip": "REDACTED",
+    "cf-ipcountry": "REDACTED",
+    "cf-ray": "REDACTED",
+    "cf-visitor": "{\"scheme\":\"https\"}",
+    "content-type": "application/json",
+    "render-proxy-ttl": "4",
+    "rndr-id": "REDACTED",
+    "traceparent": "REDACTED",
+    "true-client-ip": "REDACTED",
+    "x-forwarded-for": "REDACTED",
+    "x-forwarded-proto": "https",
+    "x-request-start": "REDACTED",
+    "x-signature": "086fd6590797607eb4407c1e181bc42c93d9ee7aca92900b5dae0f23b195a4c6",
+    "x-timestamp": "1793772316314"
+  },
+  "body_utf8": "{\"id\":\"dbf2f150-64c5-48c2-87de-e9d77f83ef85\",\"name\":\"payout.transfer.funding.scheduled\",\"account_id\":\"acct_bEEzbdD8Ps6YnCJ_GJiawQ\",\"data\":{\"amount_beneficiary_receives\":20,\"amount_payer_pays\":23,\"beneficiary\":{\"address\":{\"city\":\"New York\",\"country_code\":\"US\",\"postcode\":\"10001\",\"state\":\"New York\",\"street_address\":\"350 Fifth Avenue\"},\"bank_details\":{\"account_currency\":\"USD\",\"account_name\":\"Northwind Test Supplies LLC\",\"account_number\":\"1234567890\",\"account_routing_type1\":\"aba\",\"account_routing_value1\":\"021000021\",\"bank_account_category\":\"Checking\",\"bank_country_code\":\"US\",\"bank_name\":\"JPMorgan Chase Bank, NA\",\"local_clearing_system\":\"ACH\"},\"entity_type\":\"COMPANY\",\"type\":\"BANK_ACCOUNT\"},\"beneficiary_id\":\"bc0bfa01-7b09-45e3-9f2a-a3cc09eb54be\",\"created_at\":\"2026-11-04T06:05:15+0000\",\"fee_amount\":3,\"fee_currency\":\"USD\",\"fee_paid_by\":\"PAYER\",\"funding\":{\"status\":\"SCHEDULED\"},\"id\":\"dc23bf4c-28cf-4aa0-b38b-c0c29389aac1\",\"payer\":{\"additional_info\":{\"business_incorporation_date\":\"2025-04-08\",\"business_registration_number\":\"X12345678\",\"business_registration_type\":\"COMPANY\"},\"address\":{\"city\":\"Barito Timur\",\"country_code\":\"IN\",\"postcode\":\"76714\",\"state\":\"Nevada\",\"street_address\":\"Jl. Jend. Sudirman No. 76\"},\"company_name\":\"Sandbox Business\",\"entity_type\":\"COMPANY\"},\"reason\":\"professional_business_services\",\"reference\":\"M0-03 spike\",\"remarks\":\"\",\"request_id\":\"70d202e6-535d-49f4-9711-4faa303d15a7\",\"short_reference_id\":\"P261104-AZWHFEE\",\"source_amount\":20,\"source_currency\":\"USD\",\"status\":\"SCHEDULED\",\"swift_charge_option\":\"SHARED\",\"transfer_currency\":\"USD\",\"transfer_date\":\"2026-11-04\",\"transfer_method\":\"LOCAL\",\"updated_at\":\"2026-11-04T06:05:15+0000\"},\"created_at\":\"2026-11-04T06:05:15+0000\",\"version\":\"2026-08-21\"}"
+}
