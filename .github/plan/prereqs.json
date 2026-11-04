@@ -329,5 +329,17 @@
     "status": "done",
     "required": true,
     "needed_by": ["M0-07", "M0-05", "M1-06"]
+  },
+  {
+    "id": "P-22",
+    "what": "Render workspace has a payment method on file, so paid resources (carnet-web, carnet-worker, carnet-db) can be created; the $50 credits are drawn first",
+    "kind": "purchase",
+    "who": "owner",
+    "how": "Render dashboard > Billing (https://dashboard.render.com/billing) > add a card to \"swapnali's workspace\" and confirm the $50 credits show as applied. Do not create services; the worker does that. Expected cost is about $20/month prorated (starter web + starter worker + Postgres basic-256mb; list prices unverified), inside the credits, so no cash is spent.",
+    "lands_in": "-",
+    "verify": "render blueprints validate render.yaml -o json | grep -q '\"valid\": true'",
+    "status": "pending",
+    "required": true,
+    "needed_by": ["M1-06", "M1-08", "M1-GATE"]
   }
 ]
