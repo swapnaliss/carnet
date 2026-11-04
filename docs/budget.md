@@ -56,6 +56,33 @@ no worker upgrades a plan on its own. The grant is first-party API only, one cla
 3. The in-product caps above and the kill switch (M4-02).
 4. `/ops` shows model spend to date from `agent_runs.cost` (M1-09, M4-02).
 
-## Hosting (filled by M0-07)
-Railway, Render and AWS: comparison rows with source URL and date per cell go here. Until then the
-only number in this file for hosting is the PROJECT.md §5 assumption of $5-20 a month.
+## Hosting (filled by M0-07, fetched 3 Nov 2026)
+Every cell cites its page, all fetched on 3 Nov 2026. "unverified" means the figure was not on a page I could
+fetch that day; none is guessed. Render's pricing page is rendered by JavaScript and returned no table, so its
+paid prices are unverified until the owner reads them in the dashboard create form.
+
+| Field | Render | Railway | AWS |
+|---|---|---|---|
+| Free tier or trial, expiry | Hobby workspace has no monthly fee ([faq](https://render.com/docs/faq)). Free web service: 750 free instance hours a month per workspace. Free Postgres: 1 GB, **expires 30 days after creation**, 14-day grace, then deleted ([free](https://render.com/docs/free)) | Free Trial: $5 one-time credit, expires after 30 days; Free: $1 a month; Hobby: $5 a month with $5 usage included ([pricing](https://railway.com/pricing)) | "up to $200 in credits": $100 at once, up to $100 more for exploring services; up to 6 months; free-plan account closes after 6 months or when credits run out ([free](https://aws.amazon.com/free/)) |
+| Sleep on idle | Free web service spins down after 15 minutes without inbound traffic, about one minute to wake; paid services do not sleep ([free](https://render.com/docs/free)) | "a service sleeps somewhere between 5 and 10 minutes after its last outbound traffic"; which plans or services this applies to is not stated ([app-sleeping](https://docs.railway.com/reference/app-sleeping)) | App Runner provisioned instances keep the app warm; services can be paused ([apprunner pricing](https://aws.amazon.com/apprunner/pricing/)) |
+| Managed Postgres: price, size, versions | Plans from `0.1c-256mb` up; versions 13 to 18; storage 1 GB or multiples of 5 GB ([plans](https://render.com/docs/compute-plans), [creating](https://render.com/docs/postgresql-creating-connecting)). **Monthly prices unverified.** | Single-node template on the official Postgres image; versions not listed; volumes 0.5 GB Free/Trial, 5 GB Hobby, 50 GB Pro ([postgresql](https://docs.railway.com/databases/postgresql), [volumes](https://docs.railway.com/reference/volumes)). Priced by usage: memory about $10 per GB a month, volume about $0.15 per GB a month ([pricing](https://railway.com/pricing)) | RDS Free Tier "750 hours on a selection of Single-AZ instance databases" for one year, 20 GB gp2 storage, 20 GB backup storage ([rds pricing](https://aws.amazon.com/rds/postgresql/pricing/)). **Instance and storage prices unverified.** |
+| Backups, point-in-time recovery | Paid plans: PITR past 3 days (Hobby) or 7 days (Pro workspace); logical exports kept 7 days. Free plan: neither ([backups](https://render.com/docs/postgresql-backups)) | Native Backups and a separate point-in-time recovery option exist; plan limits and price unverified ([postgresql](https://docs.railway.com/databases/postgresql)) | Automated backups billed beyond the free 20 GB; retention range and PITR not on the page: unverified |
+| Always-on background worker | Supported as a paid service type; no free worker ("Other service types don't support Free instances"); plans `0.5c-512mb` (legacy Starter) and up ([free](https://render.com/docs/free), [plans](https://render.com/docs/compute-plans)). **Price unverified.** | Services run continuously; worker price is usage-based, about $20 per vCPU and $10 per GB a month ([pricing](https://railway.com/pricing)); sleep behaviour for workers not stated | App Runner has no worker type documented on its page; ECS Fargate not fetched: unverified |
+| Regions | Oregon, Ohio, Virginia, Frankfurt, Singapore ([regions](https://render.com/docs/regions)) | US West (California), US East (Virginia), EU West (Amsterdam), Southeast Asia (Singapore) ([regions](https://docs.railway.com/reference/regions)) | not fetched: unverified |
+| Custom domain and HTTPS | Additional domains $0.25 each a month ([faq](https://render.com/docs/faq)); HTTPS on the default `onrender.com` hostname: verified 3 Nov 2026, the free placeholder answered `/healthz` with HTTP 200 over HTTP/2 (Singapore, Docker build from `main`, about 2 minutes from create to live) | not on the fetched pages: unverified | not fetched: unverified |
+| Deploy from Docker image or Git | Prebuilt image from any public registry, or private from Docker Hub, GHCR, GitLab, Google Artifact Registry, ECR ([deploy-an-image](https://render.com/docs/deploy-an-image)); Git-backed Docker build needs Render's GitHub access to the repo (observed 3 Nov: the CLI rejects the private repo URL as "invalid or unfetchable") | not on the fetched pages: unverified | not fetched: unverified |
+| Log retention | Hobby 7 days, Pro 14 days ([logging](https://render.com/docs/logging)) | Trial 7 days, Free 3 days, Hobby 7 days, Pro 30 days ([pricing](https://railway.com/pricing)) | not fetched: unverified |
+| Monthly cost, web + worker + Postgres, build period and judging window | individual paid prices unverified (not fetchable). **Owner statement, 4 Nov 2026: the Render account already holds $50 of credits, which cover hosting, so no cash is spent and no account upgrade is needed.** The $50 is the owner's figure, not read from a page by me; the free web service and free Postgres cost $0 but sleep, have no worker and no backups | about $5 plan plus usage; the sum for our scale is unverified | $0 within credits if granted and eligible; sum unverified |
+
+### Recommendation
+Render, which is the owner's choice (3 Nov 2026), meets the ADR 0014 contract: a Docker build from the M0-02
+Dockerfile, a managed Postgres with point-in-time recovery on paid plans, a paid background worker type, a
+`healthCheckPath`, a public HTTPS hostname and the Singapore region. The web service must be a paid instance,
+because a free one sleeps after 15 minutes and would miss webhooks and stall the worker. The free Postgres has no
+backups and expires 30 days after creation (created on 3 Nov that is 3 Dec, after the judging window) so it is
+only a fallback if the paid price does not fit. Railway is the closest alternative; AWS is only worth it if
+the organisers grant credits (P-12). **Cost, recorded by the owner on 4 Nov 2026:** the Render account already
+holds $50 of credits, which the owner says are enough, so hosting draws on credits and no cash is spent (the $40
+cash ceiling is untouched). The individual monthly prices stay "unverified"; the paid web, worker and Postgres
+are created in M1-06, and that ticket checks the credit balance against the prices shown in the create form
+before creating them and logs a shortfall to the owner.
