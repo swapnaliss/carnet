@@ -24,7 +24,7 @@ export function EmptyState({
   return (
     <section
       aria-labelledby="empty-state-title"
-      className="flex flex-col items-start gap-3 rounded-md border border-border bg-card p-6 md:p-8"
+      className="flex max-w-2xl flex-col items-start gap-3 rounded-md border border-border bg-card p-6 md:p-8"
     >
       <span className="flex size-10 items-center justify-center rounded-md bg-muted text-muted-foreground">
         <Icon aria-hidden="true" className="size-5" />
@@ -32,7 +32,7 @@ export function EmptyState({
       <Heading id="empty-state-title" className="text-lg leading-tight font-semibold">
         {title}
       </Heading>
-      <p className="max-w-[68ch] text-muted-foreground">{body}</p>
+      <p className="max-w-[65ch] text-pretty text-muted-foreground">{body}</p>
       {action}
     </section>
   );

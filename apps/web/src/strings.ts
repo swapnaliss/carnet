@@ -21,8 +21,8 @@ const en = {
     },
     header: {
       home: "Carnet home",
-      sandbox: "Sandbox",
-      sandboxHint: "Connected to the Airwallex sandbox. No real money moves.",
+      sandbox: "Sandbox · no real money",
+      sandboxHint: "Connected to the Airwallex sandbox.",
     },
   },
   home: {
@@ -67,7 +67,7 @@ const en = {
   auth: {
     login: {
       title: "Sign in to Carnet",
-      body: "Sign-in is not available in this build yet. It arrives with the accounts step; until then there is nothing to sign in to.",
+      body: "Sign-in is not available in this build yet. You can look around the app without signing in.",
       back: "Back to Carnet home",
     },
   },
@@ -76,16 +76,20 @@ const en = {
       loading: "Loading",
       retry: "Try again",
       error: {
-        title: "This page could not be shown",
-        body: "Something went wrong while loading it. No payment or answer was sent. Try again, or go back to the home page.",
+        title: "Carnet could not load this page",
+        body: "No money or answers were sent from this page. Try again, or go to the queue.",
+        correlationId: "Reference for support",
       },
     },
     action: {
       home: "Go to Carnet home",
+      queue: "Go to the queue",
+      copy: "Copy",
+      copied: "Copied",
     },
     notFound: {
       title: "Page not found",
-      body: "There is no page at this address. It may have moved, or the link may be mistyped.",
+      body: "This page does not exist, or it belongs to another business.",
     },
   },
 } as const;

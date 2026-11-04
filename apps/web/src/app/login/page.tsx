@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: t.auth.login.title };
 // Token-styled placeholder; M1-04 replaces the body with the better-auth sign-in form.
 export default function LoginPage() {
   return (
-    <div className="mx-auto max-w-md">
+    <div className="max-w-md">
       <EmptyState
         headingLevel={1}
         icon={LogIn}

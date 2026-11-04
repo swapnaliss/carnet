@@ -68,6 +68,8 @@ M1-07 branch (on top of `9948646`), 4 Nov 2026, local Linux machine, Chromium fr
 |---|---|---|---|---|---|---|
 | 2026-11-04 | M1-07 branch (`9948646`+) | 375×812 mobile | 1064 ms / 1096 ms | 0.0000 / 0.0000 | not measured | pass (< 1.8 s, < 0.05) |
 | 2026-11-04 | M1-07 branch (`9948646`+) | 1440×900 desktop | 704 ms / 1052 ms | 0.0042 / 0.0042 | not measured | pass (< 1.8 s, < 0.05) |
+| 2026-11-04 | M1-07 branch, after design review fixes | 375×812 mobile | 756 ms / 868 ms | 0.0000 / 0.0000 | not measured | pass (< 1.8 s, < 0.05) |
+| 2026-11-04 | M1-07 branch, after design review fixes | 1440×900 desktop | 1060 ms / 1072 ms | 0.0020 / 0.0041 | not measured | pass (< 1.8 s, < 0.05) |
 
 INP is not measured in M1-07: the shell has no interaction beyond links (the ticket's AC covers LCP and
 CLS only). The first ticket with a client interaction (M2-08 hold screen) adds the INP measurement.
