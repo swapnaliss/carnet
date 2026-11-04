@@ -58,7 +58,21 @@ jobs:
       # (playwright.config.ts starts `next start` on port 3000). BL-01: M1-07's checks were local only.
       - name: playwright browsers
         run: npx playwright install --with-deps chromium
-      - name: playwright (axe, web vitals, CSP)
+      # /ops e2e (M1-09) signs in as the seeded users: credentials are random per run, masked, and
+      # exist only in this job (no repository secret).
+      - name: e2e credentials (generated per run)
+        run: |
+          for key in SEED_OWNER_PASSWORD SEED_APPROVER_PASSWORD SEED_JUDGE_PASSWORD BETTER_AUTH_SECRET; do
+            value=$(openssl rand -hex 32)
+            echo "::add-mask::$value"
+            echo "$key=$value" >> "$GITHUB_ENV"
+          done
+          echo "BETTER_AUTH_URL=http://localhost:3000" >> "$GITHUB_ENV"
+      - name: e2e database (migrate and seed the demo users)
+        run: |
+          npm run db:migrate -w packages/db
+          npx tsx packages/db/src/seed/run.ts
+      - name: playwright (axe, web vitals, CSP, /ops roles)
         run: npx playwright test
       - name: landing checks
         run: ./scripts/landing-checks.sh
