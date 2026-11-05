@@ -273,7 +273,7 @@
   "who": "owner",
   "how": "hosting dashboard > project > Variables; set DATABASE_URL, DATABASE_MIGRATION_URL, BETTER_AUTH_SECRET, BETTER_AUTH_URL, the three SEED_*_PASSWORD keys, and the P-03, P-04, P-06 keys",
   "lands_in": "hosting platform env; owner's password manager",
-  "status": "pending",
+  "status": "done",
   "required": true,
   "needed_by": [
    "M1-06",
