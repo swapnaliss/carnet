@@ -7,9 +7,12 @@ import { afterAll, beforeAll } from "vitest";
 import { createDbClient, type DbClient } from "../src/client";
 import { runMigrations } from "../src/migrate";
 
-/** The tables M1-02 creates (docs/architecture.md §5). */
+/** The tables M1-02 creates (docs/architecture.md §5), plus the better-auth tables (M1-04). */
 export const M1_TABLES = [
   "audit_log",
+  "auth_accounts",
+  "auth_sessions",
+  "auth_verifications",
   "businesses",
   "counterparties",
   "execution_attempts",
@@ -20,6 +23,7 @@ export const M1_TABLES = [
   "system_flags",
   "users",
   "webhook_events",
+  "worker_heartbeats",
 ] as const;
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "[::1]", "postgres"]);
@@ -75,14 +79,16 @@ async function dropDatabase(maintenanceUrl: string, name: string): Promise<void>
  * Registers beforeAll/afterAll hooks and returns an accessor for the worker's database.
  * Call once at the top of a test file.
  */
-export function useTestDatabase(): () => TestDatabase {
+export function useTestDatabase(options: { prefix?: string } = {}): () => TestDatabase {
   let current: TestDatabase | undefined;
   let maintenanceUrl = "";
 
   beforeAll(async () => {
     const migration = requireUrl("DATABASE_MIGRATION_URL");
     const app = requireUrl("DATABASE_URL");
-    const name = `carnet_test_${workerId()}`;
+    // Another workspace's suite passes a prefix (apps/web: "web") so its databases never collide
+    // with this package's when both projects run at once.
+    const name = `carnet_test_${options.prefix ? `${options.prefix}_` : ""}${workerId()}`;
     if (!/^carnet_test_[0-9a-z_]+$/.test(name)) throw new Error(`bad test database name ${name}`);
     maintenanceUrl = migration.toString();
     await dropDatabase(maintenanceUrl, name); // a crashed earlier run may have left it behind

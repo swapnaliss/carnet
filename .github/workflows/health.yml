@@ -1,0 +1,42 @@
+# Scheduled health check (ADR 0015, M1-09). Every 15 minutes, and on demand, it calls the deployed
+# /healthz and the token-protected SLO summary (/api/ops/slo) and fails on a breach: webhook ack p95
+# over 300 ms, a job that went DEAD in the last 24 h, a worker heartbeat older than 2 minutes, or no
+# reconcile run in 3 minutes. Skipped while the repository variable DEPLOY_URL is unset (before the
+# first deploy). The token is the repository secret OPS_CHECK_TOKEN, referenced by name only.
+name: health
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: health
+  cancel-in-progress: true
+jobs:
+  check:
+    if: ${{ vars.DEPLOY_URL != '' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      DEPLOY_URL: ${{ vars.DEPLOY_URL }}
+      OPS_CHECK_TOKEN: ${{ secrets.OPS_CHECK_TOKEN }}
+    steps:
+      - name: /healthz answers 200
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 30 --retry 2 --retry-delay 5 \
+            "${DEPLOY_URL%/}/healthz"
+      - name: SLO summary has no breach
+        run: |
+          if [ -z "$OPS_CHECK_TOKEN" ]; then
+            echo "::error::repository secret OPS_CHECK_TOKEN is not set"
+            exit 1
+          fi
+          body=$(curl --fail-with-body --silent --show-error --max-time 30 --retry 2 --retry-delay 5 \
+            -H "Authorization: Bearer ${OPS_CHECK_TOKEN}" "${DEPLOY_URL%/}/api/ops/slo")
+          echo "$body" | jq '{status, breaches, webhookAck: .summary.webhookAck, deadJobs: .summary.deadJobs, workerHeartbeat: .summary.workerHeartbeat, reconcile: .summary.reconcile}'
+          status=$(echo "$body" | jq -r .status)
+          if [ "$status" != "ok" ]; then
+            echo "::error::SLO breach: $(echo "$body" | jq -c .breaches)"
+            exit 1
+          fi

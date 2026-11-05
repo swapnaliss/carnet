@@ -1,0 +1,4 @@
+# gitleaks false positives (fingerprint per line). Each is reviewed: not a secret.
+# M1-04: the synthetic demo owner's user id (a UUID, public in packages/db/src/seed/demo-users.ts)
+# matched generic-api-key in a test query; the test now reads it from DEMO_USERS.
+858b83c2c4123792e633d3feeda1f20cdac77d31:apps/web/test/auth/logging.test.ts:generic-api-key:49

@@ -7,7 +7,7 @@
 //              The table grants come with the migrations (0001_grants.sql, default privileges).
 //   --migrate  applies pending migrations as the migration role (DATABASE_MIGRATION_URL).
 //   always     seeds, as the app role (DATABASE_URL): the demo business and its placeholder
-//              counterparty, then the demo users through `seedDemoUsers` (M1-04) when it is available.
+//              counterparty, then the demo users through `seedDemoUsers` (M1-04; needs the three SEED_*_PASSWORD keys).
 //              Prints the row counts so two runs can be compared.
 //
 // In the image it is bundled to runtime/setup.mjs (`node runtime/setup.mjs`). Synthetic data only.
@@ -15,8 +15,14 @@ import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import * as carnetDb from "@carnet/db";
-import { createDbClient, ensureDemoBusiness, MIGRATIONS_FOLDER, runMigrations } from "@carnet/db";
+import {
+  createDbClient,
+  DEMO_BUSINESS_ID,
+  ensureDemoBusiness,
+  MIGRATIONS_FOLDER,
+  runMigrations,
+  seedDemoUsers,
+} from "@carnet/db";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = new Set(process.argv.slice(2));
@@ -79,14 +85,10 @@ async function main(): Promise<void> {
     const demo = await ensureDemoBusiness(client.db);
     log("demo business ready", { businessId: demo.businessId, inserted: demo.inserted });
 
-    // M1-04 exports seedDemoUsers(db) from @carnet/db; until it lands this step is skipped.
-    const seedDemoUsers = (carnetDb as Record<string, unknown>).seedDemoUsers;
-    if (typeof seedDemoUsers === "function") {
-      await (seedDemoUsers as (db: carnetDb.Db) => Promise<unknown>)(client.db);
-      log("demo users ready");
-    } else {
-      log("demo users skipped: seedDemoUsers is not available yet (M1-04)");
-    }
+    // Owner, approver and read-only judge join the demo business. Aborts (naming the keys, never the
+    // values) when a SEED_*_PASSWORD key is missing or shorter than 8 characters.
+    const seeded = await seedDemoUsers(client.db, { businessId: DEMO_BUSINESS_ID });
+    log("demo users ready", { users: seeded.users.map((u) => u.role) });
 
     const { rows } = await client.pool.query<{
       businesses: string;

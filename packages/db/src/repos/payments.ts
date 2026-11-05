@@ -101,6 +101,20 @@ export async function getPayment(ctx: RepoCtx, id: PaymentId): Promise<Payment |
   return row ? toPayment(row) : null;
 }
 
+/**
+ * Reads the payment and locks its row until the transaction ends (`ctx.db` must be a transaction).
+ * Serialises concurrent transfer updates so `applyTransferUpdate` always compares against the latest
+ * stored state (M1-05).
+ */
+export async function getPaymentForUpdate(ctx: RepoCtx, id: PaymentId): Promise<Payment | null> {
+  const [row] = await ctx.db
+    .select()
+    .from(payments)
+    .where(and(eq(payments.businessId, ctx.businessId), eq(payments.id, id)))
+    .for("update");
+  return row ? toPayment(row) : null;
+}
+
 export interface PaymentFilter {
   transferStatus?: TransferStatus;
   limit?: number;

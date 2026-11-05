@@ -8,7 +8,6 @@ const pages = [
   { name: "shell home", path: "/" },
   { name: "queue (empty state)", path: "/queue" },
   { name: "plan (empty state)", path: "/plan" },
-  { name: "ops (empty state)", path: "/ops" },
   { name: "not found", path: "/does-not-exist" },
   { name: "page error", path: "/error-preview" },
 ] as const;
@@ -54,8 +53,9 @@ test("the skip link is the first tab stop and moves focus to main", async ({ pag
 
 test("a client-side route change moves focus to the new page's h1", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Ops" }).click();
-  await expect(page).toHaveURL(/\/ops$/);
+  // Plan, not Ops: /ops needs a session since M1-09 (apps/web/e2e/ops.spec.ts covers it).
+  await page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Plan" }).click();
+  await expect(page).toHaveURL(/\/plan$/);
   await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
 });
 

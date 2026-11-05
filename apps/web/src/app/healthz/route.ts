@@ -1,5 +1,6 @@
 import { createDbClient, type DbClient } from "@carnet/db";
 import { appVersion, healthPayload, probeDb } from "../../health";
+import { withRequestContext } from "../../lib/request-context";
 
 export const dynamic = "force-dynamic";
 
@@ -16,9 +17,9 @@ function dbClient(): DbClient | null {
   return client;
 }
 
-export async function GET(): Promise<Response> {
+export const GET = withRequestContext(async () => {
   const c = dbClient();
   const db = await probeDb(c ? () => c.pool.query("SELECT 1") : null);
   const { httpStatus, body } = healthPayload(db, appVersion());
   return Response.json(body, { status: httpStatus, headers: { "cache-control": "no-store" } });
-}
+});

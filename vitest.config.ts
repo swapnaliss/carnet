@@ -25,7 +25,14 @@ export default defineConfig({
             "apps/*/src/**/*.test.ts",
             "apps/*/test/**/*.test.ts",
           ],
-          exclude: ["**/*.int.test.ts", "**/node_modules/**"],
+          // apps/web/test/auth needs the same local Postgres roles as packages/db (M1-04).
+          exclude: [
+            "**/*.int.test.ts",
+            "**/node_modules/**",
+            ...(hasDbRoles ? [] : ["apps/web/test/auth/**"]),
+          ],
+          testTimeout: 30_000,
+          hookTimeout: 60_000,
         },
       },
       {
@@ -46,6 +53,21 @@ export default defineConfig({
                 include: ["test/**/*.int.test.ts"],
                 // Its own maxWorkers needs its own group; it runs after the other projects.
                 sequence: { groupOrder: 1 },
+              },
+            },
+            {
+              // apps/web database-backed tests (webhook route, worker): own `carnet_test_web_*` DBs.
+              // Not `extends`: that merges in apps/web's unit includes and runs them twice.
+              test: {
+                name: "web-db",
+                root: "./apps/web",
+                include: ["test/**/*.int.test.ts"],
+                exclude: ["**/node_modules/**"],
+                env: { LOG_LEVEL: "warn" },
+                maxWorkers: 4,
+                testTimeout: 60_000,
+                hookTimeout: 60_000,
+                sequence: { groupOrder: 2 },
               },
             },
           ]
