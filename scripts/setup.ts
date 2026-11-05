@@ -54,6 +54,8 @@ async function applyRoles(): Promise<void> {
   const script = [
     `\\set migrator_password ${quote(need("DB_MIGRATOR_PASSWORD"))}`,
     `\\set app_password ${quote(need("DB_APP_PASSWORD"))}`,
+    // A managed Postgres admin is not a superuser: roles.sql then takes its `hosted` branch.
+    ...(args.has("--hosted") ? ["\\set hosted 1"] : []),
     // The file's text on stdin (not `\i`), so a psql in a container works too.
     readFileSync(rolesFile, "utf8"),
     "",
