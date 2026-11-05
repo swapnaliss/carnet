@@ -60,3 +60,7 @@ SELECT EXISTS (
   GRANT carnet_migrator TO CURRENT_USER WITH SET TRUE;
 \endif
 SELECT format('ALTER DATABASE %I OWNER TO carnet_migrator', current_database()) \gexec
+-- Hosted: Render creates `public` owned by the admin user (not pg_database_owner), so move it too.
+\if :{?hosted}
+  ALTER SCHEMA public OWNER TO carnet_migrator;
+\endif
