@@ -62,7 +62,8 @@ export function snapshotRound(s: Pick<RfiVersion, "status" | "answeredRequests">
 }
 
 export type RfiIngestPlan =
-  | { readonly outcome: "stale" | "duplicate" }
+  | { readonly outcome: "stale" }
+  | { readonly outcome: "duplicate" }
   /** The stored RFI is CLOSED or EXPIRED; nothing can change it (a newer snapshot is only recorded). */
   | { readonly outcome: "terminal" }
   | {
