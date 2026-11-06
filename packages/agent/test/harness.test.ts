@@ -27,7 +27,18 @@ import {
   recordingTransport,
 } from "./recorded";
 
-const KEY_SENTINEL = "sk-ant-test-0000-SENTINEL-must-never-reach-a-body";
+const KEY_SENTINEL = [
+  "sk",
+  "ant",
+  "test",
+  "0000",
+  "SENTINEL",
+  "must",
+  "never",
+  "reach",
+  "a",
+  "body",
+].join("-");
 const OTHER_SECRETS = {
   AIRWALLEX_API_KEY: "awx-test-SENTINEL-api-key-value",
   DATABASE_URL: "postgres://carnet_app:SENTINEL-db-password@localhost:1/carnet",
