@@ -1,5 +1,6 @@
 // Public surface of @carnet/domain. Pure TypeScript: no framework, SDK or I/O (zod is the only
 // runtime dependency).
+export * from "./documents/index";
 export * from "./errors";
 export * from "./ids";
 export * from "./money";

@@ -13,6 +13,7 @@ export type RfiId = Brand<string, "RfiId">;
 export type AttemptId = Brand<string, "AttemptId">;
 export type ApprovalId = Brand<string, "ApprovalId">;
 export type RunId = Brand<string, "RunId">;
+export type DocumentId = Brand<string, "DocumentId">;
 /**
  * The Airwallex `request_id`: minted once per intent (when the ExecutionAttempt is persisted) and
  * reused only to retry that same operation. After a timeout, look the object up; never mint a new one.
@@ -37,4 +38,5 @@ export const newRfiId = (): RfiId => uuid() as RfiId;
 export const newAttemptId = (): AttemptId => uuid() as AttemptId;
 export const newApprovalId = (): ApprovalId => uuid() as ApprovalId;
 export const newRunId = (): RunId => uuid() as RunId;
+export const newDocumentId = (): DocumentId => uuid() as DocumentId;
 export const newRequestId = (): RequestId => uuid() as RequestId;
