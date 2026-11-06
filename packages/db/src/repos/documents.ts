@@ -1,6 +1,6 @@
 // Documents repository (M2-01, ADR 0003). Bytes and their SHA-256 are immutable: there is no update
 // function here, the app role cannot UPDATE those columns, and a trigger refuses the change for every
-// role (migration 0005). The hash is computed here from the bytes, and the table's CHECK recomputes
+// role (migration 0007). The hash is computed here from the bytes, and the table's CHECK recomputes
 // it in the database, so a stored hash always describes the stored bytes.
 //
 // M2-02 reads bytes and kind with `getDocumentContent`; M2-07 re-hashes the bytes with

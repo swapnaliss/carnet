@@ -11,6 +11,7 @@ export * from "./execution-attempts";
 export * from "./idempotency-keys";
 export * from "./outbox";
 export * from "./payments";
+export * from "./plans";
 export * from "./rate-limits";
 export * from "./system";
 export * from "./users";

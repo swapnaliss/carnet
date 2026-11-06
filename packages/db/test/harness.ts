@@ -26,6 +26,8 @@ export const M1_TABLES = [
   "idempotency_keys",
   "outbox_jobs",
   "payments",
+  "plan_actions",
+  "plans",
   "rate_limits",
   "system_flags",
   "users",
