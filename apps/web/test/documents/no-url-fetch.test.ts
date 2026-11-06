@@ -35,8 +35,9 @@ describe("no server-side fetch of a user-supplied URL", () => {
   it("scans the workspace", () => expect(files.length).toBeGreaterThan(30));
 
   // The Airwallex client builds every URL from its configured base URL plus a fixed path; `input` there
-  // is the parameter name of its fetch wrapper, not user data. Reviewed in M0-04.
-  const ALLOWED = new Set(["packages/airwallex/src/http.ts"]);
+  // is the parameter name of its fetch wrapper, not user data. Reviewed in M0-04. The agent harness (M2-00) wraps the SDK's fixed Anthropic endpoint
+  // the same way: `input` is the transport parameter.
+  const ALLOWED = new Set(["packages/airwallex/src/http.ts", "packages/agent/src/harness.ts"]);
 
   it("no fetch/http call takes a request-derived URL", () => {
     const hits = files
