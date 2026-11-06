@@ -21,7 +21,11 @@ import { addUser, ORIGIN, sessionCookie, setupAuthTestEnv } from "../auth/setup"
 import { apiRoutes } from "./api-routes";
 
 /** route (relative to src/app/api) → how its test proves 404 cross-tenant and 403 for the viewer. */
-export const CROSS_TENANT_CASES: Record<string, string> = {};
+export const CROSS_TENANT_CASES: Record<string, string> = {
+  // M2-04: test/security/rfi-ingest-routes.int.test.ts (404 cross-tenant, viewer 403, audited link).
+  "v1/rfis/[id]": "rfi-ingest-routes.int.test.ts",
+  "v1/rfis/[id]/link": "rfi-ingest-routes.int.test.ts",
+};
 
 const env = setupAuthTestEnv();
 const cookies = { owner: "", approver: "", judge: "", otherOwner: "" };

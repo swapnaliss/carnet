@@ -356,6 +356,17 @@ const cases: Record<string, () => Promise<void>> = {
     });
     expect(found).toBeNull();
   },
+  linkRfiToPayment: async () => {
+    // A cannot link B's RFI, nor link its own RFI to B's payment.
+    expect(await repos.linkRfiToPayment(ctxA(), B.rfiId, A.paymentId)).toBeNull();
+    const own = await db().app.db.transaction((tx) =>
+      repos.linkRfiToPayment(repos.repoCtx(tx, A.businessId), A.rfiId, B.paymentId),
+    );
+    expect(own).toBeNull();
+  },
+  unlinkRfi: async () => {
+    expect(await repos.unlinkRfi(ctxA(), B.rfiId)).toBeNull();
+  },
   insertRfiQuestions: async () => {
     expect(await repos.insertRfiQuestions(ctxA(), B.rfiId, [question("stolen")])).toBe(0);
   },

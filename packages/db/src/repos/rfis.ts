@@ -293,3 +293,38 @@ export async function paymentHasHoldingRfi(ctx: RepoCtx, paymentId: PaymentId): 
     .limit(1);
   return row !== undefined;
 }
+
+/**
+ * Links an orphan (or relinks any) RFI to one of this business's payments by owner decision. Returns
+ * null when the RFI or the payment is not this business's. Call inside a transaction.
+ */
+export async function linkRfiToPayment(
+  ctx: RepoCtx,
+  rfiId: RfiId,
+  paymentId: PaymentId,
+): Promise<{ before: Rfi; after: Rfi } | null> {
+  const before = await getRfiForUpdate(ctx, rfiId);
+  if (!before) return null;
+  const [pay] = await ctx.db
+    .select({ id: payments.id })
+    .from(payments)
+    .where(and(eq(payments.id, paymentId), eq(payments.businessId, ctx.businessId)));
+  if (!pay) return null;
+  const after = await updateRfi(ctx, rfiId, { paymentId, orphanReason: null, linkedBy: "owner" });
+  return after ? { before, after } : null;
+}
+
+/** Owner removes a link: the RFI returns to the orphan queue with reason OWNER_UNLINKED. */
+export async function unlinkRfi(
+  ctx: RepoCtx,
+  rfiId: RfiId,
+): Promise<{ before: Rfi; after: Rfi } | null> {
+  const before = await getRfiForUpdate(ctx, rfiId);
+  if (!before) return null;
+  const after = await updateRfi(ctx, rfiId, {
+    paymentId: null,
+    orphanReason: "OWNER_UNLINKED",
+    linkedBy: "owner",
+  });
+  return after ? { before, after } : null;
+}

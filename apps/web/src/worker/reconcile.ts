@@ -1,19 +1,26 @@
 // The reconcile job (ADR 0005, 0007): recovers what a missed or late webhook would have told us.
-// 1. `GET /rfis` in open statuses, through the same RFI handler as webhooks.
+// 1. `GET /rfis` (TRANSACTION; ACTION_REQUIRED, ANSWERED, CLOSED) through the same ingest as webhooks
+//    (M2-04), then the expiring-soon flag on RFIs near their `expires_at`.
 // 2. Every payment whose transfer can still change: fetch and apply (same transfer handler).
 // 3. Execution attempts in UNKNOWN: look the object up by request_id. Found -> CONFIRMED and the
 //    transfer is applied to its payment. Not found -> stays UNKNOWN with an alert line; a new request
 //    is never sent from here (absence from a list is not proof, BL-01 6625872848).
 // Each item is isolated: one failing lookup is logged and the pass continues.
-import { listAttemptsByStatus, listOpenTransfers, repoCtx, updateAttemptStatus } from "@carnet/db";
-import type { AttemptId, PaymentId } from "@carnet/domain";
+import {
+  listAttemptsByStatus,
+  listOpenTransfers,
+  refreshRfiExpiringSoon,
+  repoCtx,
+  updateAttemptStatus,
+} from "@carnet/db";
+import { type AttemptId, type PaymentId, RFI_EXPIRING_SOON_MS } from "@carnet/domain";
 import { type HandlerContext, JOB_KIND, type JobHandler } from "./handlers/index";
-import { recordRfi } from "./handlers/rfi";
+import { ingestRfi } from "./handlers/rfi";
 import { applyFetchedTransfer, syncTransfer } from "./handlers/transfer";
 
 export const RECONCILE_INTERVAL_MS = 60_000;
 export const RECONCILE_JOB_KIND = JOB_KIND.reconcile;
-const OPEN_RFI_STATUSES = ["ACTION_REQUIRED", "ANSWERED"] as const;
+const POLLED_RFI_STATUSES = ["ACTION_REQUIRED", "ANSWERED", "CLOSED"] as const;
 
 export interface ReconcileSummary {
   rfis: number;
@@ -39,11 +46,15 @@ export async function runReconcile(ctx: HandlerContext): Promise<ReconcileSummar
   };
 
   try {
-    const { items } = await ctx.airwallex.listRfis({ statuses: [...OPEN_RFI_STATUSES] });
+    const { items } = await ctx.airwallex.listRfis({
+      statuses: [...POLLED_RFI_STATUSES],
+      types: ["TRANSACTION"],
+    });
     for (const rfi of items) {
-      recordRfi(ctx, rfi, "reconcile");
+      await ingestRfi(ctx, rfi, "reconcile");
       summary.rfis += 1;
     }
+    await refreshRfiExpiringSoon(ctx.db, new Date(), RFI_EXPIRING_SOON_MS);
   } catch (error) {
     summary.errors += 1;
     ctx.logger.warn({ step: "rfis", error: message(error) }, "reconcile: RFI poll failed");

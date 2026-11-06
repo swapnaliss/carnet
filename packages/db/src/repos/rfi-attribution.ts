@@ -55,6 +55,14 @@ export async function attributeRfi(
 }
 
 /**
+ * Serialises RFI ingest for one business until the caller's transaction ends (the per-source guard,
+ * ADR 0018 amendment 1, and the first insert of an RFI). Call inside a transaction.
+ */
+export async function lockRfiIngest(tx: Db, businessId: BusinessId): Promise<void> {
+  await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`rfi-ingest:${businessId}`}))`);
+}
+
+/**
  * The scheduled expiry check: sets `expiring_soon` on RFIs still waiting for an answer whose
  * `expires_at` is within `windowMs` (or past), and clears it elsewhere. Returns the rows changed.
  * Mirrors `rfiExpiringSoon` in @carnet/domain.
