@@ -18,14 +18,16 @@ import {
   JOB_KIND,
   registerHandler,
 } from "./handlers/index";
+import { type PlanInputsLoader, registerPlanHandlers } from "./handlers/plan";
 import { handleRfiSync } from "./handlers/rfi";
 import { handleTransferSync } from "./handlers/transfer";
 import { createWorker, DEFAULT_POLL_MS } from "./loop";
 import { handleReconcile } from "./reconcile";
 
 /** The handlers worker mode runs. Later tickets register theirs here (M2-04, M2-07, M3-03). */
-export function defaultRegistry(): HandlerRegistry {
+export function defaultRegistry(planInputs?: PlanInputsLoader): HandlerRegistry {
   const registry = createRegistry();
+  registerPlanHandlers(registry, planInputs);
   registerHandler(registry, JOB_KIND.transferSync, handleTransferSync);
   registerHandler(registry, JOB_KIND.rfiSync, handleRfiSync);
   registerHandler(registry, JOB_KIND.reconcile, handleReconcile);
@@ -55,6 +57,8 @@ export interface StartWorkerOptions {
   logger?: Logger;
   /** Tests only: replace the handlers, the Airwallex reader or the reconcile cadence. */
   registry?: HandlerRegistry;
+  /** Reads the planner's inputs; `plan.rerun` is registered only when this is supplied (M3-01/M2). */
+  planInputs?: PlanInputsLoader;
   airwallex?: AirwallexReader;
   reconcileEveryMs?: number | null;
 }
@@ -78,7 +82,7 @@ export async function startWorker(options: StartWorkerOptions = {}): Promise<voi
   }
   const worker = createWorker({
     db: db.db,
-    registry: options.registry ?? defaultRegistry(),
+    registry: options.registry ?? defaultRegistry(options.planInputs),
     airwallex,
     logger,
     pollMs,
