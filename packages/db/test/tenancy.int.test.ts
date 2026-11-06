@@ -15,6 +15,7 @@ import {
 } from "@carnet/domain";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ForeignKeyViolationError } from "../src/errors";
+import * as agentStore from "../src/repos/agent-store";
 import * as attempts from "../src/repos/attempts";
 import * as context from "../src/repos/context";
 import * as repos from "../src/repos/index";
@@ -31,7 +32,10 @@ type RepoFn = (...args: never[]) => unknown;
 // System modules take `db`: provider and platform tables (rate_limits has no business_id; its keys
 // name the route and subject), and the worker's reconciler lookups
 // (attempts.ts), which return the owning business id so the caller continues with a tenant context.
+// agent-store.ts only composes the agent-runs functions below for @carnet/agent (its methods are
+// proven per business in agent-runs.int.test.ts).
 const helperNames = new Set([
+  ...Object.keys(agentStore),
   ...Object.keys(context),
   ...Object.keys(system),
   ...Object.keys(outbox),
@@ -51,6 +55,8 @@ interface Fixture {
   paymentId: PaymentId;
   attemptId: AttemptId;
   requestId: RequestId;
+  agentRunId: string;
+  agentStepId: string;
 }
 
 const ENDPOINT = "POST /api/v1/payments";
@@ -83,7 +89,26 @@ async function seed(name: string): Promise<Fixture> {
     response: { business: name },
   });
   await repos.appendAudit(ctx, { actorType: "user", action: "seed", subject: name });
+  const agentRun = await repos.createAgentRun(ctx, { kind: "draft", ref: "rfi-same-ref" });
+  const agentStep = await repos.recordAgentStep(ctx, {
+    runId: agentRun.id,
+    step: "q1",
+    promptVersion: "aaaaaaaaaaaa",
+    model: "claude-sonnet-5-5",
+    inputHash: "same-hash",
+    outcome: "ok",
+    output: { business: name },
+    stopReason: "end_turn",
+    inputTokens: 10,
+    outputTokens: 5,
+    costNanoUsd: 70_000,
+    latencyMs: 1,
+    providerRequestId: null,
+  });
+  if (!agentStep) throw new Error("seed: agent step not recorded");
   return {
+    agentRunId: agentRun.id,
+    agentStepId: agentStep.id,
     businessId,
     userId: user.id,
     counterpartyId: cp.id,
@@ -109,6 +134,8 @@ async function snapshotB(): Promise<unknown> {
     attempt: await repos.getAttempt(b, B.attemptId),
     idem: await repos.getIdempotencyRecord(b, ENDPOINT, KEY),
     audit: await repos.listAudit(b),
+    agentRun: await repos.getAgentRun(b, B.agentRunId),
+    agentSteps: await repos.listAgentSteps(b, B.agentRunId),
   };
 }
 
@@ -245,6 +272,61 @@ const cases: Record<string, () => Promise<void>> = {
     const rows = await repos.listAudit(ctxA());
     expect(rows.length).toBeGreaterThan(0);
     expect(ownedBy(rows, A.businessId)).toBe(true);
+  },
+  createAgentRun: async () => {
+    const r = await repos.createAgentRun(ctxA(), { kind: "draft", ref: "rfi-same-ref" });
+    expect(r.businessId).toBe(A.businessId);
+  },
+  getAgentRun: async () => {
+    expect(await repos.getAgentRun(ctxA(), B.agentRunId)).toBeNull();
+  },
+  finishAgentRun: async () => {
+    expect(await repos.finishAgentRun(ctxA(), B.agentRunId, "FAILED")).toBeNull();
+  },
+  recordAgentStep: async () => {
+    // A step on B's run through A's context writes nothing (and does not touch B's totals).
+    const r = await repos.recordAgentStep(ctxA(), {
+      runId: B.agentRunId,
+      step: "stolen",
+      promptVersion: "bbbbbbbbbbbb",
+      model: "claude-haiku-5-5",
+      inputHash: "h",
+      outcome: "ok",
+      output: {},
+      stopReason: "end_turn",
+      inputTokens: 1,
+      outputTokens: 1,
+      costNanoUsd: 600,
+      latencyMs: 1,
+      providerRequestId: null,
+    });
+    expect(r).toBeNull();
+  },
+  listAgentSteps: async () => {
+    expect(await repos.listAgentSteps(ctxA(), B.agentRunId)).toEqual([]);
+    const own = await repos.listAgentSteps(ctxA(), A.agentRunId);
+    expect(own.length).toBeGreaterThan(0);
+    expect(ownedBy(own, A.businessId)).toBe(true);
+  },
+  findReplayableAgentStep: async () => {
+    // Same kind, ref, step, hash and version in both businesses: A replays only its own output.
+    const hit = await repos.findReplayableAgentStep(ctxA(), {
+      kind: "draft",
+      ref: "rfi-same-ref",
+      step: "q1",
+      inputHash: "same-hash",
+      promptVersion: "aaaaaaaaaaaa",
+    });
+    expect(hit?.id).toBe(A.agentStepId);
+    expect(hit?.output).toEqual({ business: "a-co" });
+  },
+  countAgentCalls: async () => {
+    const n = await repos.countAgentCalls(ctxA(), {
+      kind: "draft",
+      ref: "rfi-same-ref",
+      step: "q1",
+    });
+    expect(n).toBe(1);
   },
 };
 
