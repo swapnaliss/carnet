@@ -11,6 +11,7 @@ import {
   newRequestId,
   type PaymentId,
   type RequestId,
+  type RfiId,
   type UserId,
 } from "@carnet/domain";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -21,6 +22,7 @@ import * as context from "../src/repos/context";
 import * as repos from "../src/repos/index";
 import * as outbox from "../src/repos/outbox";
 import * as rateLimits from "../src/repos/rate-limits";
+import * as rfiAttribution from "../src/repos/rfi-attribution";
 import * as system from "../src/repos/system";
 import * as webhookEvents from "../src/repos/webhook-events";
 import * as workerHeartbeats from "../src/repos/worker-heartbeats";
@@ -40,6 +42,7 @@ const helperNames = new Set([
   ...Object.keys(system),
   ...Object.keys(outbox),
   ...Object.keys(rateLimits),
+  ...Object.keys(rfiAttribution),
   ...Object.keys(webhookEvents),
   ...Object.keys(workerHeartbeats),
   ...Object.keys(attempts),
@@ -57,6 +60,8 @@ interface Fixture {
   requestId: RequestId;
   agentRunId: string;
   agentStepId: string;
+  rfiId: RfiId;
+  transferId: string;
 }
 
 const ENDPOINT = "POST /api/v1/payments";
@@ -106,15 +111,55 @@ async function seed(name: string): Promise<Fixture> {
     providerRequestId: null,
   });
   if (!agentStep) throw new Error("seed: agent step not recorded");
+  const transferId = `tr-${name}`;
+  await repos.updatePaymentTransfer(ctx, payment.id, {
+    transferId,
+    transferStatus: "PROCESSING",
+    transferUpdatedAt: new Date("2026-11-03T09:57:00Z"),
+  });
+  const rfi = await repos.insertRfi(ctx, {
+    airwallexRfiId: `rfi-${name}`,
+    type: "TRANSACTION",
+    subType: null,
+    airwallexStatus: "ACTION_REQUIRED",
+    airwallexUpdatedAt: new Date("2026-11-03T09:57:38Z"),
+    airwallexAnsweredRequests: 0,
+    state: "DRAFTING",
+    round: 1,
+    expiresAt: null,
+    paymentId: payment.id,
+    orphanReason: null,
+    linkedBy: "match",
+    sourceKey: `TRANSFER:${transferId}`,
+    conflict: false,
+  });
+  await repos.insertRfiQuestions(ctx, rfi.id, [question(`q-${name}`)]);
   return {
     agentRunId: agentRun.id,
     agentStepId: agentStep.id,
+    rfiId: rfi.id,
+    transferId,
     businessId,
     userId: user.id,
     counterpartyId: cp.id,
     paymentId: payment.id,
     attemptId: attempt.id,
     requestId,
+  };
+}
+
+function question(id: string): repos.NewRfiQuestion {
+  return {
+    round: 1,
+    airwallexQuestionId: id,
+    position: 0,
+    title: { en: "Purpose?", zh: null },
+    description: { en: "Spike question", zh: null },
+    comment: null,
+    answerType: "TEXT",
+    sources: [],
+    reopened: false,
+    needsDrafting: true,
   };
 }
 
@@ -136,6 +181,8 @@ async function snapshotB(): Promise<unknown> {
     audit: await repos.listAudit(b),
     agentRun: await repos.getAgentRun(b, B.agentRunId),
     agentSteps: await repos.listAgentSteps(b, B.agentRunId),
+    rfis: await repos.listRfis(b),
+    questions: await repos.listRfiQuestions(b, B.rfiId),
   };
 }
 
@@ -258,6 +305,70 @@ const cases: Record<string, () => Promise<void>> = {
   appendAudit: async () => {
     const e = await repos.appendAudit(ctxA(), { actorType: "user", action: "x", subject: "y" });
     expect(e.businessId).toBe(A.businessId);
+  },
+  getRfi: async () => {
+    expect(await repos.getRfi(ctxA(), B.rfiId)).toBeNull();
+  },
+  getRfiForUpdate: async () => {
+    const found = await db().app.db.transaction((tx) =>
+      repos.getRfiForUpdate(repos.repoCtx(tx, A.businessId), B.rfiId),
+    );
+    expect(found).toBeNull();
+  },
+  getRfiByAirwallexIdForUpdate: async () => {
+    const found = await db().app.db.transaction((tx) =>
+      repos.getRfiByAirwallexIdForUpdate(repos.repoCtx(tx, A.businessId), "rfi-b-co"),
+    );
+    expect(found).toBeNull();
+  },
+  listRfis: async () => {
+    const rows = await repos.listRfis(ctxA());
+    expect(rows.length).toBeGreaterThan(0);
+    expect(ownedBy(rows, A.businessId)).toBe(true);
+    expect(await repos.listRfis(ctxA(), { paymentId: B.paymentId })).toEqual([]);
+  },
+  insertRfi: async () => {
+    const r = await repos.insertRfi(ctxA(), {
+      airwallexRfiId: "rfi-b-co", // the same Airwallex id as B's: unique per business only
+      type: "TRANSACTION",
+      subType: null,
+      airwallexStatus: "ACTION_REQUIRED",
+      airwallexUpdatedAt: new Date(),
+      airwallexAnsweredRequests: 0,
+      state: "ACTION_REQUIRED",
+      round: 1,
+      expiresAt: null,
+      paymentId: null,
+      orphanReason: "NO_SOURCES",
+      linkedBy: null,
+      sourceKey: null,
+      conflict: false,
+    });
+    expect(r.businessId).toBe(A.businessId);
+  },
+  updateRfi: async () => {
+    expect(await repos.updateRfi(ctxA(), B.rfiId, { state: "EXPIRED" })).toBeNull();
+  },
+  findOpenRfiBySourceKey: async () => {
+    const found = await repos.findOpenRfiBySourceKey(ctxA(), {
+      type: "TRANSACTION",
+      sourceKey: `TRANSFER:${B.transferId}`,
+    });
+    expect(found).toBeNull();
+  },
+  insertRfiQuestions: async () => {
+    expect(await repos.insertRfiQuestions(ctxA(), B.rfiId, [question("stolen")])).toBe(0);
+  },
+  listRfiQuestions: async () => {
+    expect(await repos.listRfiQuestions(ctxA(), B.rfiId)).toEqual([]);
+  },
+  paymentIdsByTransferIds: async () => {
+    const map = await repos.paymentIdsByTransferIds(ctxA(), [B.transferId, A.transferId]);
+    expect([...map.values()]).toEqual([A.paymentId]);
+  },
+  paymentHasHoldingRfi: async () => {
+    expect(await repos.paymentHasHoldingRfi(ctxA(), B.paymentId)).toBe(false);
+    expect(await repos.paymentHasHoldingRfi(ctxA(), A.paymentId)).toBe(true);
   },
   listAudit: async () => {
     const rows = await repos.listAudit(ctxA());

@@ -10,6 +10,7 @@ export * from "./idempotency-keys";
 export * from "./outbox-jobs";
 export * from "./payments";
 export * from "./rate-limits";
+export * from "./rfis";
 export * from "./system-flags";
 export * from "./users";
 export * from "./webhook-events";
