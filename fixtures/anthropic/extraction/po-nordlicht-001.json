@@ -1,0 +1,43 @@
+{
+  "kind": "extraction",
+  "document_id": "po-nordlicht-001",
+  "file": "po-nordlicht-001.pdf",
+  "sha256": "0598939b8e635f3558ac82f3e95241e66c5581651cb5dbf705bee959903b2c90",
+  "doc_type": "purchase_order",
+  "prompt_version": "789f54d7a11c",
+  "model": "claude-haiku-5-5",
+  "recorded_at": "2026-11-06T17:09:18.424Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgn3VTbSP7E7v7qZpRmZL",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 3209,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 286,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"purchase_order\",\"value\":\"PO-NW-2026-058\",\"quote\":\"Purchase order number: PO-NW-2026-058\",\"page\":1},{\"key\":\"order_date\",\"value\":\"2026-09-10\",\"quote\":\"Order date: 2026-09-10\",\"page\":1},{\"key\":\"buyer\",\"value\":\"Northwind Studio Ltd\",\"quote\":\"Buyer: Northwind Studio Ltd\",\"page\":1},{\"key\":\"supplier\",\"value\":\"Nordlicht Software GmbH\",\"quote\":\"Supplier: Nordlicht Software GmbH\",\"page\":1},{\"key\":\"total\",\"value\":\"EUR 5,600.00\",\"quote\":\"Order total: EUR 5,600.00\",\"page\":1},{\"key\":\"iban\",\"value\":\"DE22000000000000000002\",\"quote\":\"IBAN: DE22000000000000000002\",\"page\":1}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgn3VTFrAsWrKFpNPtPxb",
+      "latency_ms": 1721
+    }
+  ]
+}

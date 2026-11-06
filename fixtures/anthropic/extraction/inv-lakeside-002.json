@@ -1,0 +1,43 @@
+{
+  "kind": "extraction",
+  "document_id": "inv-lakeside-002",
+  "file": "inv-lakeside-002.pdf",
+  "sha256": "27359d59a89914f6b04c1e933e73b0266d078abae506f4409ab7b76f0e5e4960",
+  "doc_type": "invoice",
+  "prompt_version": "552c05e3154b",
+  "model": "claude-haiku-5-5",
+  "recorded_at": "2026-11-06T17:08:56.816Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgn3TqnNBiQXpJF9NAprd",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 3473,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 415,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"invoice_number\",\"value\":\"LF-2026-0455\",\"quote\":\"Invoice number: LF-2026-0455\",\"page\":1},{\"key\":\"invoice_date\",\"value\":\"2026-10-05\",\"quote\":\"Invoice date: 2026-10-05\",\"page\":1},{\"key\":\"due_date\",\"value\":\"2026-11-04\",\"quote\":\"Due date: 2026-11-04\",\"page\":1},{\"key\":\"supplier\",\"value\":\"Lakeside Freight LLC\",\"quote\":\"From: Lakeside Freight LLC\",\"page\":1},{\"key\":\"buyer\",\"value\":\"Northwind Studio Ltd\",\"quote\":\"Bill to: Northwind Studio Ltd\",\"page\":1},{\"key\":\"line_item_total\",\"value\":\"USD 980.00\",\"quote\":\"Line 1: Express freight, Rotterdam to Chicago - USD 980.00\",\"page\":1},{\"key\":\"total\",\"value\":\"USD 980.00\",\"quote\":\"Total due: USD 980.00\",\"page\":1},{\"key\":\"beneficiary\",\"value\":\"Lakeside Freight LLC\",\"quote\":\"Beneficiary: Lakeside Freight LLC\",\"page\":1},{\"key\":\"account_number\",\"value\":\"000987654329\",\"quote\":\"Account number: 000987654329\",\"page\":1}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgn3TqV1ED7f5pXui2fnV",
+      "latency_ms": 2065
+    }
+  ]
+}

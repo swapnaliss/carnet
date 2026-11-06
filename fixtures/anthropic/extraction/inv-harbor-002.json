@@ -1,0 +1,43 @@
+{
+  "kind": "extraction",
+  "document_id": "inv-harbor-002",
+  "file": "inv-harbor-002.pdf",
+  "sha256": "d29e7e263f5baa4b61a8a92f11c25b21af581a8302f2b56d46a08757ca8a76bb",
+  "doc_type": "invoice",
+  "prompt_version": "552c05e3154b",
+  "model": "claude-haiku-5-5",
+  "recorded_at": "2026-11-06T17:08:52.232Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgn3TUMX6WNfqkxKmhgzp",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 3443,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 465,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"invoice_number\",\"value\":\"INV-HP-2026-0163\",\"quote\":\"Invoice number: INV-HP-2026-0163\",\"page\":1},{\"key\":\"invoice_date\",\"value\":\"2026-10-02\",\"quote\":\"Invoice date: 2026-10-02\",\"page\":1},{\"key\":\"due_date\",\"value\":\"2026-11-01\",\"quote\":\"Due date: 2026-11-01\",\"page\":1},{\"key\":\"supplier\",\"value\":\"Harbor Print Co.\",\"quote\":\"From: Harbor Print Co.\",\"page\":1},{\"key\":\"buyer\",\"value\":\"Northwind Studio Ltd\",\"quote\":\"Bill to: Northwind Studio Ltd\",\"page\":1},{\"key\":\"purchase_order\",\"value\":\"PO-NW-2026-044\",\"quote\":\"Purchase order: PO-NW-2026-044\",\"page\":1},{\"key\":\"line_item_total\",\"value\":\"USD 2,150.00\",\"quote\":\"Line 1: Poster printing, 200 units - USD 2,150.00\",\"page\":1},{\"key\":\"total\",\"value\":\"USD 2,150.00\",\"quote\":\"Total due: USD 2,150.00\",\"page\":1},{\"key\":\"beneficiary\",\"value\":\"Harbor Print Co.\",\"quote\":\"Beneficiary: Harbor Print Co.\",\"page\":1},{\"key\":\"account_number\",\"value\":\"000123456781\",\"quote\":\"Account number: 000123456781\",\"page\":1}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgn3TU1gaz7QMDmq3JAfS",
+      "latency_ms": 2489
+    }
+  ]
+}

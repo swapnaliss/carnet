@@ -1,0 +1,48 @@
+{
+  "kind": "extraction",
+  "document_id": "contract-harbor",
+  "file": "contract-harbor.pdf",
+  "sha256": "b4ff0b79c940dbf0f4abad67d81975d15cc6dbdd572af6bdb14e7326374924a5",
+  "doc_type": "contract",
+  "prompt_version": "17e122e799e9",
+  "model": "claude-haiku-5-5",
+  "recorded_at": "2026-11-06T17:08:43.355Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgn3SU1QCCiv4x8GETkWJ",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 5311,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 1584,
+          "output_tokens_details": {
+            "thinking_tokens": 881
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "",
+            "signature": "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"
+          },
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"contract_number\",\"value\":\"CT-NW-HP-2026\",\"quote\":\"Contract number: CT-NW-HP-2026\",\"page\":1},{\"key\":\"clause_parties\",\"value\":\"Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier).\",\"quote\":\"1. Parties: Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier).\",\"page\":1},{\"key\":\"clause_effective_date\",\"value\":\"2026-01-15\",\"quote\":\"2. Effective date: 2026-01-15.\",\"page\":1},{\"key\":\"clause_scope\",\"value\":\"Printing of marketing brochures and posters for Northwind Studio clients.\",\"quote\":\"3. Scope: Printing of marketing brochures and posters for Northwind Studio clients.\",\"page\":1},{\"key\":\"clause_payment_terms\",\"value\":\"Buyer pays each invoice within 30 days of the invoice date.\",\"quote\":\"4. Payment: Buyer pays each invoice within 30 days of the invoice date.\",\"page\":2},{\"key\":\"clause_fee_cap\",\"value\":\"Total fees under this contract will not exceed USD 60,000.00.\",\"quote\":\"5. Fees: Total fees under this contract will not exceed USD 60,000.00.\",\"page\":2},{\"key\":\"clause_beneficiary_account\",\"value\":\"Supplier is paid only to account number 000123456781.\",\"quote\":\"6. Beneficiary account: Supplier is paid only to account number 000123456781.\",\"page\":2},{\"key\":\"clause_governing_law\",\"value\":\"The laws of the Netherlands apply.\",\"quote\":\"7. Governing law: The laws of the Netherlands apply.\",\"page\":2},{\"key\":\"clause_signatories\",\"value\":\"Finance (synthetic signature block)\",\"quote\":\"Signed for Northwind Studio Ltd: Finance (synthetic signature block)\",\"page\":2},{\"key\":\"clause_signatories\",\"value\":\"Authorised signatory (synthetic signature block)\",\"quote\":\"Signed for Harbor Print Co.: Authorised signatory (synthetic signature block)\",\"page\":2}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgn3STgJwkJNJrSJiHBkW",
+      "latency_ms": 7271
+    }
+  ]
+}

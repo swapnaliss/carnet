@@ -1,0 +1,43 @@
+{
+  "kind": "extraction",
+  "document_id": "inv-nordlicht-001",
+  "file": "inv-nordlicht-001.pdf",
+  "sha256": "dc24a0ecbf26e5d0136ae55b2e17e8d2898fd0640b123f455c206a0c13f9817c",
+  "doc_type": "invoice",
+  "prompt_version": "552c05e3154b",
+  "model": "claude-haiku-5-5",
+  "recorded_at": "2026-11-06T17:09:21.254Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgn3Vb2uRuRyV64BpW5np",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 3479,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 486,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"invoice_number\",\"value\":\"NL-2026-0307\",\"quote\":\"Invoice number: NL-2026-0307\",\"page\":1},{\"key\":\"invoice_date\",\"value\":\"2026-09-30\",\"quote\":\"Invoice date: 2026-09-30\",\"page\":1},{\"key\":\"due_date\",\"value\":\"2026-10-30\",\"quote\":\"Due date: 2026-10-30\",\"page\":1},{\"key\":\"supplier\",\"value\":\"Nordlicht Software GmbH\",\"quote\":\"From: Nordlicht Software GmbH\",\"page\":1},{\"key\":\"buyer\",\"value\":\"Northwind Studio Ltd\",\"quote\":\"Bill to: Northwind Studio Ltd\",\"page\":1},{\"key\":\"purchase_order\",\"value\":\"PO-NW-2026-058\",\"quote\":\"Purchase order: PO-NW-2026-058\",\"page\":1},{\"key\":\"line_item_total\",\"value\":\"EUR 5,600.00\",\"quote\":\"Line 1: Portal development sprint, 28 days - EUR 5,600.00\",\"page\":1},{\"key\":\"total\",\"value\":\"EUR 5,600.00\",\"quote\":\"Total due: EUR 5,600.00\",\"page\":1},{\"key\":\"beneficiary\",\"value\":\"Nordlicht Software GmbH\",\"quote\":\"Beneficiary: Nordlicht Software GmbH\",\"page\":1},{\"key\":\"iban\",\"value\":\"DE22000000000000000002\",\"quote\":\"IBAN: DE22000000000000000002\",\"page\":1}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgn3Vag58a879usnJ7KCN",
+      "latency_ms": 2807
+    }
+  ]
+}
