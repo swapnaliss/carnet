@@ -18,6 +18,7 @@ const en = {
       queue: "Queue",
       plan: "Plan",
       ops: "Ops",
+      payments: "Payments",
     },
     header: {
       home: "Carnet home",
@@ -174,6 +175,11 @@ const en = {
         body: "No money or answers were sent from this page. Try again, or go to the queue.",
         correlationId: "Reference for support",
       },
+      stale: {
+        title: "This may be out of date",
+        body: "Carnet could not refresh this page for {seconds} seconds. What you see is the last update it received. It keeps trying.",
+        checkNow: "Check now",
+      },
     },
     action: {
       home: "Go to Carnet home",
@@ -190,7 +196,176 @@ const en = {
       body: "Ask the owner of this business if you need access. Nothing was changed.",
     },
   },
+  money: {
+    unavailable: "Amount unavailable",
+  },
+  status: {
+    label: "Transfer status",
+    transfer: {
+      none: { label: "Not sent", hint: "No transfer has been created in Airwallex yet." },
+      inApproval: {
+        label: "In approval",
+        hint: "Waiting for approval in your Airwallex account.",
+      },
+      approvalRecalled: {
+        label: "Approval recalled",
+        hint: "The approval request was withdrawn in Airwallex. Nothing was sent.",
+      },
+      approvalRejected: {
+        label: "Approval rejected",
+        hint: "An approver in Airwallex rejected this transfer. Nothing was sent.",
+      },
+      approvalBlocked: {
+        label: "Approval blocked",
+        hint: "Airwallex blocked the approval. Nothing was sent.",
+      },
+      scheduled: {
+        label: "Scheduled",
+        hint: "Airwallex has the transfer and will process it on the value date.",
+      },
+      overdue: {
+        label: "Overdue",
+        hint: "Past its scheduled date and not yet processed. Airwallex reports it as overdue.",
+      },
+      processing: { label: "Processing", hint: "Airwallex is processing the transfer." },
+      sent: {
+        label: "Sent, not yet paid",
+        hint: "Airwallex has sent the funds. Sent is not final; it can still fail.",
+      },
+      paid: {
+        label: "Paid",
+        hint: "Airwallex reports the funds as paid. A paid transfer can still be returned.",
+      },
+      failed: { label: "Failed", hint: "Airwallex reports: {failureReason}" },
+      cancelledFailed: {
+        label: "Not sent (failed)",
+        hint: "Airwallex ended this transfer: {failureReason}. This does not mean anyone cancelled it.",
+      },
+      cancelled: {
+        label: "Cancelled",
+        hint: "Airwallex reports the transfer as cancelled. Nothing was sent.",
+      },
+      unknown: {
+        label: "Unknown status",
+        hint: "Airwallex returned a status Carnet does not know: {raw}.",
+      },
+      failureUnknown: "no reason given",
+      failureReasons: {
+        INCORRECT_ROUTING: "the bank routing details were not accepted",
+        INCORRECT_ACCOUNT_NUMBER: "the account number was not accepted",
+        ACCOUNT_CLOSED: "the beneficiary account is closed",
+        BENEFICIARY_BANK_REJECTED: "the beneficiary bank rejected the payment",
+      },
+    },
+    attempt: {
+      sending: {
+        label: "Sending to Airwallex",
+        hint: "Carnet saved the payment and is sending it to Airwallex.",
+      },
+      unknown: {
+        label: "Confirming with Airwallex",
+        hint: "Airwallex did not confirm in time. Carnet is looking the request up before doing anything else; it will not send it twice.",
+      },
+      rejected: {
+        label: "Refused by Airwallex",
+        hint: "Airwallex refused this transfer. Nothing was sent.",
+      },
+    },
+  },
+  payments: {
+    title: "Sandbox payments",
+    intro:
+      "Each status is what Airwallex last reported to Carnet, through a webhook or Carnet's check every 60 seconds. This page looks for changes every 3 seconds.",
+    loading: "Loading payments",
+    loadingOne: "Loading payment",
+    empty: {
+      title: "No payments yet",
+      bodyOwner:
+        "Create a sandbox payment to watch it move through Airwallex. Nothing has been sent.",
+      bodyViewer: "The owner has not created a payment yet. Nothing has been sent.",
+    },
+    list: {
+      title: "Payments",
+      caption: "Sandbox payments, newest first",
+      reference: "Reference",
+      amount: "Amount",
+      status: "Status",
+      created: "Created",
+    },
+    readOnly: "You can look at payments. Only the owner can create one.",
+    create: {
+      title: "Create a sandbox payment",
+      body: "Carnet checks the sandbox wallet, then sends a real transfer in the Airwallex sandbox to the demo supplier. No real money moves.",
+      amount: "Amount (USD)",
+      amountHint: "Up to 2 decimals, for example 25.00.",
+      reference: "Reference",
+      referenceHint: "Shown to the supplier, for example an invoice number.",
+      submit: "Create payment",
+      submitPending: "Creating payment",
+      errorAmount: "Enter an amount greater than 0 with at most 2 decimals.",
+      errorReference: "Enter a reference.",
+      errorGeneric: "The payment could not be created. Nothing was sent. Try again.",
+      errorOffline: "Carnet did not answer. Nothing was sent. Check your connection and try again.",
+    },
+    live: {
+      checked: "Live · checked {seconds} s ago",
+      retrying: "Retrying · last checked {seconds} s ago",
+      paused: "Paused while this tab is hidden",
+    },
+    announce: {
+      status: "{reference}, {amount}: Airwallex reports {status}.",
+      attempt: "{reference}, {amount}: {state}.",
+      several: "{count} payments changed status.",
+    },
+    detail: {
+      back: "All payments",
+      progress: "Progress",
+      stepSaved: "Saved in Carnet",
+      stepSent: "Sent to Airwallex",
+      stepConfirmed: "Airwallex created the transfer",
+      stepWaiting: "Waiting",
+      stepRefused: "Airwallex refused the transfer",
+      failureCode: "Airwallex failure code",
+      failedNext:
+        "Nothing more will happen to this transfer. Check the supplier's bank details, then create a new payment.",
+      transfer: "Transfer",
+      transferId: "Airwallex transfer id",
+      requestId: "Request id",
+      method: "Method",
+      lastUpdate: "Last update from Airwallex",
+      notYet: "Not yet",
+      webhooks: "Updates received from Airwallex",
+      webhooksEmpty:
+        "No webhook has arrived for this transfer yet. Carnet also checks Airwallex every 60 seconds.",
+      webhooksCaption: "Webhooks that named this transfer, oldest first",
+      event: "Event",
+      received: "Received",
+      signature: "Signature",
+      signatureOk: "Verified",
+      signatureBad: "Not verified",
+      processed: "Applied",
+      pending: "Pending",
+    },
+    simulate: {
+      title: "Sandbox controls",
+      body: "Ask the Airwallex sandbox to move this transfer on. The change comes back as a normal Airwallex update; nothing on this page changes until it does.",
+      sent: "Simulate sent",
+      paid: "Simulate paid",
+      pending: "Asking the sandbox",
+      queued: "Requested. The new status appears when Airwallex reports it.",
+      error: "The request could not be queued. Nothing changed. Try again.",
+      needsTransfer: "Available once Airwallex has created the transfer.",
+      noneAvailable: "No sandbox step is available for this payment in its current state.",
+    },
+  },
 } as const;
+
+/** Fills `{name}` placeholders in a string from `strings.ts`. */
+export function fill(template: string, values: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (match, key: string) =>
+    key in values ? String(values[key]) : match,
+  );
+}
 
 export const strings = { en } as const;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, CalendarRange, ListChecks, type LucideIcon } from "lucide-react";
+import { Activity, Banknote, CalendarRange, ListChecks, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,8 @@ import { t } from "@/strings";
 
 const items: ReadonlyArray<{ href: string; label: string; icon: LucideIcon }> = [
   { href: "/queue", label: t.shell.nav.queue, icon: ListChecks },
+  // M1-08: the walking-skeleton payments (create, live status). M2-03 folds them into the queue.
+  { href: "/payments", label: t.shell.nav.payments, icon: Banknote },
   { href: "/plan", label: t.shell.nav.plan, icon: CalendarRange },
   { href: "/ops", label: t.shell.nav.ops, icon: Activity },
 ];
