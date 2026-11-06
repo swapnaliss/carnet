@@ -42,6 +42,8 @@ describe("no server-side fetch of a user-supplied URL", () => {
   it("no fetch/http call takes a request-derived URL", () => {
     const hits = files
       .filter((f) => !ALLOWED.has(relative(ROOT, f)))
+      // Browser code ("use client") fetches this app's own API from the user's browser: not server-side.
+      .filter((f) => !/^\s*(?:\/\/[^\n]*\n\s*)*["']use client["']/.test(readFileSync(f, "utf8")))
       .flatMap((f) =>
         readFileSync(f, "utf8")
           .split("\n")
