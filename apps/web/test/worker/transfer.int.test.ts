@@ -211,7 +211,19 @@ describe("AC8: RFI events never change payments.transfer_status", () => {
       "rfi.closed",
     ]);
     for (const d of rfiFiles) await post(d.body);
+    const stored = await query<{ n: string }>(
+      db().appUrl,
+      "SELECT count(*)::text AS n FROM outbox_jobs",
+    );
+    expect(stored[0]?.n).toBe("3"); // three distinct events, one job each, before the worker runs
     await h.drain();
+    // A job that did not finish (claimed by another process, or retrying) must say so here, rather
+    // than showing up later as a wrong fetch count.
+    const unfinished = await query(
+      db().appUrl,
+      "SELECT id, status, attempts, last_error FROM outbox_jobs WHERE status <> 'DONE'",
+    );
+    expect(unfinished).toEqual([]);
 
     const after = await paymentRow(db().app.db, ref);
     expect(after.transferStatus).toBe(before.transferStatus);

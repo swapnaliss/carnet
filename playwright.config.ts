@@ -4,7 +4,9 @@ import { defineConfig, devices } from "@playwright/test";
 // the dev server: accessibility and Core Web Vitals are measured on what ships.
 // PORT_OFFSET keeps parallel worktrees off each other's ports.
 const port = 3000 + Number(process.env.PORT_OFFSET ?? 0);
-const baseURL = `http://localhost:${port}`;
+// E2E_BASE_URL points the run at a deployed origin (M1-08, BL-01 6625891576); no local server then.
+const deployed = process.env.E2E_BASE_URL;
+const baseURL = deployed ?? `http://localhost:${port}`;
 
 export default defineConfig({
   testDir: "apps/web/e2e",
@@ -14,15 +16,17 @@ export default defineConfig({
   reporter: [["list"]],
   timeout: 30_000,
   use: { baseURL, ...devices["Desktop Chrome"] },
-  webServer: {
-    command: `npm run start -w @carnet/web -- --port ${port}`,
-    // Turns on /error-preview so the page-level error state is checked like every other page.
-    env: { CARNET_ERROR_PREVIEW: "1" },
-    // Readiness is the home page: /healthz is 503 when no database is configured (M1-06).
-    url: `${baseURL}/`,
-    reuseExistingServer: false,
-    timeout: 60_000,
-    stdout: "ignore",
-    stderr: "pipe",
-  },
+  webServer: deployed
+    ? undefined
+    : {
+        command: `npm run start -w @carnet/web -- --port ${port}`,
+        // Turns on /error-preview so the page-level error state is checked like every other page.
+        env: { CARNET_ERROR_PREVIEW: "1" },
+        // Readiness is the home page: /healthz is 503 when no database is configured (M1-06).
+        url: `${baseURL}/`,
+        reuseExistingServer: false,
+        timeout: 60_000,
+        stdout: "ignore",
+        stderr: "pipe",
+      },
 });

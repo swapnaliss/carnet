@@ -26,6 +26,10 @@ export const CROSS_TENANT_CASES: Record<string, string> = {
     "test/documents/documents.int.test.ts: another business's session gets 404 for the bytes",
   "v1/documents/[id]/meta":
     "test/documents/documents.int.test.ts: another business's session gets 404 for the metadata",
+  "v1/payments/[id]":
+    "test/payments/api.int.test.ts 'cross-tenant': another business's id is 404 with no data, both ways",
+  "v1/payments/[id]/simulate":
+    "test/payments/api.int.test.ts 'cross-tenant': foreign id 404 and no job queued; viewer 403",
 };
 
 const env = setupAuthTestEnv();

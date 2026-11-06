@@ -20,7 +20,12 @@ import {
 import { type CorrelationFields, runWithContext } from "../lib/request-context";
 import type { Logger } from "../server/log";
 import { DEFAULT_MAX_ATTEMPTS, retryDelayMs } from "./backoff";
-import type { AirwallexReader, HandlerContext, HandlerRegistry } from "./handlers/index";
+import type {
+  AirwallexReader,
+  AirwallexWriter,
+  HandlerContext,
+  HandlerRegistry,
+} from "./handlers/index";
 import { PRUNE_INTERVAL_MS, pruneExpiredRateLimits } from "./prune";
 import { RECONCILE_INTERVAL_MS, RECONCILE_JOB_KIND } from "./reconcile";
 
@@ -33,6 +38,8 @@ export interface WorkerOptions {
   db: Db;
   registry: HandlerRegistry;
   airwallex: AirwallexReader;
+  /** The mutating calls (M1-08); without it, mutating handlers fail their jobs. */
+  airwallexWriter?: AirwallexWriter;
   logger: Logger;
   pollMs?: number;
   /** Total attempts before DEAD (OUTBOX_MAX_ATTEMPTS, default 8). */
@@ -98,7 +105,12 @@ export function createWorker(options: WorkerOptions): Worker {
   const deferMs = options.killSwitchDeferMs ?? KILL_SWITCH_DEFER_MS;
   const now = options.now ?? Date.now;
   const workerId = options.workerId ?? `${hostname()}:${process.pid}`;
-  const ctx: HandlerContext = { db, airwallex: options.airwallex, logger };
+  const ctx: HandlerContext = {
+    db,
+    airwallex: options.airwallex,
+    ...(options.airwallexWriter ? { airwallexWriter: options.airwallexWriter } : {}),
+    logger,
+  };
   const stats = { processed: 0, failed: 0, deferred: 0 };
 
   let stopping = false;
