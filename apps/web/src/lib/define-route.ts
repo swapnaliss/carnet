@@ -6,6 +6,10 @@
 //      a body needs `Content-Type: application/json` (415) and fits the size cap (413); a route
 //      without a body schema refuses a body (400). All field issues come back in one 400.
 //   4. the handler, which gets typed, validated input only and is never called on invalid input
+// A `multipart` route (M2-01 uploads) is the one body kind the handler reads itself, through
+// `input.multipart()`: the handler counts its own caps and audits the outcome before the body is read.
+// The reader still enforces the media type (415), a hard streamed byte cap whatever Content-Length
+// says (413), and maps an unparseable body to 400.
 // Anything thrown becomes the shared error format (lib/errors.ts); a 500 carries no internals.
 //
 // `defineRawRoute` is the documented raw-body variant for a route that must see the exact bytes (the
@@ -54,7 +58,7 @@ export const RAW_BODY_ROUTES = {
     "better-auth's handler owns parsing; lib/auth.ts adds size cap, validation and rate limit",
 } as const;
 
-/** The ceiling for any route's body (`maxBodyBytes` may only lower it). */
+/** The ceiling for any route's body, multipart uploads included (`maxBodyBytes` may only lower it). */
 export const MAX_BODY_BYTES = 5 * 1024 * 1024;
 /** Default cap on JSON bodies when MAX_JSON_BODY_BYTES is unset. */
 export const DEFAULT_MAX_JSON_BODY_BYTES = 1024 * 1024;
@@ -75,6 +79,30 @@ export interface RouteContext {
 export type RouteHandler = (req: Request, context?: RouteContext) => Promise<Response>;
 
 type Schema = z.ZodType | undefined;
+
+/** A `multipart/form-data` body kind: the whole body is at most `maxBytes()` (≤ MAX_BODY_BYTES). */
+export interface MultipartSpec {
+  readonly maxBytes: () => number;
+}
+
+export interface MultipartFile {
+  readonly field: string;
+  /** The client's filename, unsanitised: untrusted. */
+  readonly name: string;
+  /** The client's declared type: untrusted, never used to decide the type. */
+  readonly declaredType: string;
+  readonly bytes: Uint8Array;
+}
+
+export interface MultipartForm {
+  readonly files: readonly MultipartFile[];
+  readonly fields: readonly { readonly field: string; readonly value: string }[];
+}
+
+type Multipart = MultipartSpec | undefined;
+type MultipartOf<M extends Multipart> = M extends MultipartSpec
+  ? () => Promise<MultipartForm>
+  : undefined;
 type Out<S extends Schema> = S extends z.ZodType ? z.output<S> : undefined;
 type CtxOf<A extends AuthRule> = A extends "public" ? null : AuthCtx;
 type RepoOf<A extends AuthRule> = A extends "public" ? null : RepoCtx;
@@ -84,6 +112,7 @@ export interface RouteInput<
   B extends Schema,
   Q extends Schema,
   P extends Schema,
+  M extends Multipart = undefined,
 > {
   readonly req: Request;
   readonly requestId: string;
@@ -93,6 +122,8 @@ export interface RouteInput<
   readonly body: Out<B>;
   readonly query: Out<Q>;
   readonly params: Out<P>;
+  /** Reads and parses the multipart body (only on a `multipart` route; call it at most once). */
+  readonly multipart: MultipartOf<M>;
 }
 
 export interface RouteSpec<
@@ -100,6 +131,7 @@ export interface RouteSpec<
   B extends Schema,
   Q extends Schema,
   P extends Schema,
+  M extends Multipart = undefined,
 > {
   readonly method: HttpMethod;
   readonly auth: A;
@@ -108,8 +140,10 @@ export interface RouteSpec<
   readonly params?: P;
   /** Lowers the JSON body cap (MAX_JSON_BODY_BYTES, at most MAX_BODY_BYTES). */
   readonly maxBodyBytes?: number;
+  /** A multipart/form-data body the handler reads with `input.multipart()` (exclusive with `body`). */
+  readonly multipart?: M;
   readonly rateLimit?: { readonly name: RouteRateLimitName; readonly by: "user" | "ip" };
-  readonly handler: (input: RouteInput<A, B, Q, P>) => Promise<Response>;
+  readonly handler: (input: RouteInput<A, B, Q, P, M>) => Promise<Response>;
 }
 
 export interface RawRouteSpec {
@@ -175,7 +209,7 @@ function mediaType(req: Request): string | null {
 }
 
 /** Reads at most `cap` bytes; a longer body is 413 without reading the rest. */
-async function readCapped(req: Request, cap: number): Promise<Uint8Array> {
+async function readCapped(req: Request, cap: number): Promise<Uint8Array<ArrayBuffer>> {
   const declared = Number(req.headers.get("content-length") ?? "NaN");
   if (Number.isFinite(declared) && declared > cap) throw payloadTooLarge();
   if (!req.body) return new Uint8Array(0);
@@ -217,6 +251,47 @@ async function readJsonBody(req: Request, cap: number): Promise<unknown> {
       { location: "body", path: "", code: "invalid_json", message: "The body is not valid JSON." },
     ]);
   }
+}
+
+const MULTIPART_TYPE = "multipart/form-data";
+
+/** Reads a multipart body under a hard cap and parses it; never trusts names or declared types. */
+async function readMultipartBody(req: Request, maxBytes: number): Promise<MultipartForm> {
+  const contentType = req.headers.get("content-type") ?? "";
+  if (mediaType(req) !== MULTIPART_TYPE || !/;\s*boundary=/i.test(contentType)) {
+    throw unsupportedMediaType(MULTIPART_TYPE);
+  }
+  const cap = Math.min(maxBytes, MAX_BODY_BYTES);
+  const raw = await readCapped(req, cap);
+  let form: FormData;
+  try {
+    // The body is already in memory and capped, so the platform parser cannot be made to buffer more.
+    form = await new Response(raw, { headers: { "content-type": contentType } }).formData();
+  } catch {
+    throw validationFailed([
+      {
+        location: "body",
+        path: "",
+        code: "invalid_multipart",
+        message: "The body is not valid multipart/form-data.",
+      },
+    ]);
+  }
+  const files: MultipartFile[] = [];
+  const fields: { field: string; value: string }[] = [];
+  for (const [field, value] of form.entries()) {
+    if (typeof value === "string") {
+      fields.push({ field, value });
+      continue;
+    }
+    files.push({
+      field,
+      name: value.name,
+      declaredType: value.type,
+      bytes: new Uint8Array(await value.arrayBuffer()),
+    });
+  }
+  return { files, fields };
 }
 
 async function refuseBody(req: Request): Promise<void> {
@@ -285,7 +360,8 @@ export function createRouteKit(deps: RouteDeps) {
     B extends Schema = undefined,
     Q extends Schema = undefined,
     P extends Schema = undefined,
-  >(spec: RouteSpec<A, B, Q, P>): RouteHandler {
+    M extends Multipart = undefined,
+  >(spec: RouteSpec<A, B, Q, P, M>): RouteHandler {
     const label = `defineRoute(${spec.method})`;
     for (const [name, schema] of [
       ["body", spec.body],
@@ -298,8 +374,12 @@ export function createRouteKit(deps: RouteDeps) {
     if (spec.rateLimit?.by === "user" && spec.auth === "public") {
       throw new Error(`${label}: a public route cannot be rate limited by user`);
     }
-    if (spec.body && (spec.method === "GET" || spec.method === "DELETE")) {
+    if ((spec.body || spec.multipart) && (spec.method === "GET" || spec.method === "DELETE")) {
       throw new Error(`${label}: ${spec.method} takes no body`);
+    }
+    if (spec.body && spec.multipart) throw new Error(`${label}: body and multipart are exclusive`);
+    if (spec.multipart && spec.auth === "public") {
+      throw new Error(`${label}: a multipart (upload) route must be authenticated`);
     }
     const guard =
       spec.auth === "public"
@@ -324,9 +404,18 @@ export function createRouteKit(deps: RouteDeps) {
           ? parseInto(spec.query, queryObject(new URL(req.url)), "query", issues)
           : undefined;
         let body: unknown;
+        let multipart: (() => Promise<MultipartForm>) | undefined;
         if (spec.body) {
           const raw = await readJsonBody(req, spec.maxBodyBytes ?? maxJsonBodyBytes());
           body = parseInto(spec.body, raw, "body", issues);
+        } else if (spec.multipart) {
+          const { maxBytes } = spec.multipart;
+          let read = false;
+          multipart = () => {
+            if (read) throw new Error("the multipart body was already read");
+            read = true;
+            return readMultipartBody(req, maxBytes());
+          };
         } else {
           await refuseBody(req);
         }
@@ -340,6 +429,7 @@ export function createRouteKit(deps: RouteDeps) {
           body: body as Out<B>,
           query: query as Out<Q>,
           params: params as Out<P>,
+          multipart: multipart as MultipartOf<M>,
         });
       } catch (error) {
         return problemResponse(error, requestId, deps.logger());
