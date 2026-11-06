@@ -70,13 +70,20 @@ function attemptStatus(attempt: AttemptDto | null): StatusDescription {
   }
 }
 
+/** A failure type in plain words ("the bank routing details were not accepted"), never the raw code. */
+export function plainReason(type: string | null): string {
+  if (!type) return t.status.transfer.failureUnknown;
+  const known = (t.status.transfer.failureReasons as Record<string, string>)[type];
+  return known ?? type.toLowerCase().replaceAll("_", " ");
+}
+
 /**
  * The badge for a payment (docs/design/components.md StatusBadge). The transfer status comes only
  * from what Carnet stored from Airwallex; before a transfer exists, the attempt state is shown.
  */
 export function describeStatus(p: PaymentDto): StatusDescription {
   const s = t.status.transfer;
-  const reason = p.failure_type ?? s.failureUnknown;
+  const reason = plainReason(p.failure_type);
   const of = (
     key: string,
     tone: Tone,

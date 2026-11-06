@@ -5,6 +5,7 @@ import {
   CircleCheck,
   CircleDashed,
   LoaderCircle,
+  OctagonX,
   ShieldCheck,
   ShieldX,
 } from "lucide-react";
@@ -21,14 +22,28 @@ import { useStatusChanges } from "./use-status-changes";
 
 const card = "flex flex-col gap-4 rounded-md border border-border bg-card p-4 md:p-6";
 
-function Step({ done, label, at }: { done: boolean; label: string; at: string | null }) {
-  const Icon = done ? CircleCheck : CircleDashed;
+function Step({
+  done,
+  failed = false,
+  label,
+  at,
+}: {
+  done: boolean;
+  failed?: boolean;
+  label: string;
+  at: string | null;
+}) {
+  const Icon = failed ? OctagonX : done ? CircleCheck : CircleDashed;
   return (
     <li className="flex items-start gap-3">
       <Icon
         aria-hidden="true"
         className={
-          done ? "mt-0.5 size-5 text-status-success-fg" : "mt-0.5 size-5 text-muted-foreground"
+          failed
+            ? "mt-0.5 size-5 text-status-danger-fg"
+            : done
+              ? "mt-0.5 size-5 text-status-success-fg"
+              : "mt-0.5 size-5 text-muted-foreground"
         }
       />
       <span className="flex flex-col">
@@ -43,7 +58,12 @@ function Step({ done, label, at }: { done: boolean; label: string; at: string | 
 
 function Progress({ payment }: { payment: PaymentDto }) {
   const a = payment.attempt;
-  const confirmed = a?.status === "CONFIRMED" || payment.transfer_id !== null;
+  const refused = a?.status === "REJECTED";
+  // A transfer id means Airwallex has the transfer, so it was sent: the steps never contradict.
+  const confirmed = !refused && (a?.status === "CONFIRMED" || payment.transfer_id !== null);
+  const sent = Boolean(a?.sent_at) || confirmed || refused;
+  const sentAt =
+    a?.sent_at ?? (confirmed ? (a?.confirmed_at ?? payment.transfer_updated_at) : null);
   return (
     <section aria-labelledby="progress-title" className={card}>
       <h2 id="progress-title" className="text-lg leading-tight font-semibold">
@@ -51,16 +71,21 @@ function Progress({ payment }: { payment: PaymentDto }) {
       </h2>
       <ol className="flex flex-col gap-3">
         <Step done label={t.payments.detail.stepSaved} at={a?.created_at ?? payment.created_at} />
-        <Step
-          done={Boolean(a?.sent_at)}
-          label={t.payments.detail.stepSent}
-          at={a?.sent_at ?? null}
-        />
-        <Step
-          done={confirmed}
-          label={t.payments.detail.stepConfirmed}
-          at={a?.confirmed_at ?? (confirmed ? payment.transfer_updated_at : null)}
-        />
+        <Step done={sent} label={t.payments.detail.stepSent} at={sentAt} />
+        {refused ? (
+          <Step
+            done
+            failed
+            label={t.payments.detail.stepRefused}
+            at={a?.confirmed_at ?? a?.sent_at ?? null}
+          />
+        ) : (
+          <Step
+            done={confirmed}
+            label={t.payments.detail.stepConfirmed}
+            at={a?.confirmed_at ?? (confirmed ? payment.transfer_updated_at : null)}
+          />
+        )}
       </ol>
     </section>
   );
@@ -84,12 +109,19 @@ function TransferFacts({ payment }: { payment: PaymentDto }) {
       </h2>
       <dl className="grid gap-4 sm:grid-cols-2">
         <Field label={d.transferId}>
-          <span className="font-mono text-sm">{payment.transfer_id ?? d.notYet}</span>
+          <span className="font-mono text-sm break-all">{payment.transfer_id ?? d.notYet}</span>
         </Field>
         <Field label={d.requestId}>
-          <span className="font-mono text-sm">{payment.attempt?.request_id ?? d.notYet}</span>
+          <span className="font-mono text-sm break-all">
+            {payment.attempt?.request_id ?? d.notYet}
+          </span>
         </Field>
         <Field label={d.method}>{payment.method}</Field>
+        {payment.failure_type ? (
+          <Field label={d.failureCode}>
+            <span className="font-mono text-sm">{payment.failure_type}</span>
+          </Field>
+        ) : null}
         <Field label={d.lastUpdate}>
           {payment.transfer_updated_at ? (
             <time dateTime={payment.transfer_updated_at}>
@@ -171,7 +203,15 @@ function SimulateControls({ payment }: { payment: PaymentDto }) {
   const s = t.payments.simulate;
   const [pending, setPending] = useState<"SENT" | "PAID" | null>(null);
   const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
-  const ready = payment.transfer_id !== null && !payment.final;
+  // The sandbox takes SENT from SCHEDULED or PROCESSING and PAID from SENT (docs/evidence/
+  // airwallex-money-path.md); a finished, refused or not-yet-created payment has nothing to simulate.
+  const st = payment.transfer_status;
+  const allowed = {
+    SENT: st === "SCHEDULED" || st === "PROCESSING",
+    PAID: st === "SENT",
+  } as const;
+  const waiting = payment.transfer_id === null && payment.attempt?.status !== "REJECTED";
+  const reason = waiting ? s.needsTransfer : allowed.SENT || allowed.PAID ? null : s.noneAvailable;
 
   async function request(nextStatus: "SENT" | "PAID") {
     setPending(nextStatus);
@@ -204,7 +244,7 @@ function SimulateControls({ payment }: { payment: PaymentDto }) {
           <Button
             key={next}
             variant="outline"
-            disabled={!ready || pending !== null}
+            disabled={!allowed[next] || pending !== null}
             aria-busy={pending === next || undefined}
             onClick={() => request(next)}
           >
@@ -213,7 +253,7 @@ function SimulateControls({ payment }: { payment: PaymentDto }) {
           </Button>
         ))}
       </div>
-      {ready ? null : <p className="text-sm text-muted-foreground">{s.needsTransfer}</p>}
+      {reason ? <p className="text-sm text-muted-foreground">{reason}</p> : null}
       <p
         role={message?.kind === "error" ? "alert" : undefined}
         className={
@@ -262,6 +302,9 @@ export function PaymentDetail({
         <div className="flex flex-col gap-2" data-testid="payment-status">
           <span className="sr-only">{t.status.label}</span>
           <StatusBadge status={status} size="md" showHint />
+          {payment.failure_type ? (
+            <p className="max-w-[65ch] text-sm">{t.payments.detail.failedNext}</p>
+          ) : null}
         </div>
         <LiveIndicator
           lastSuccessAt={poll.lastSuccessAt}

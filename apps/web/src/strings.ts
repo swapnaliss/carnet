@@ -250,6 +250,12 @@ const en = {
         hint: "Airwallex returned a status Carnet does not know: {raw}.",
       },
       failureUnknown: "no reason given",
+      failureReasons: {
+        INCORRECT_ROUTING: "the bank routing details were not accepted",
+        INCORRECT_ACCOUNT_NUMBER: "the account number was not accepted",
+        ACCOUNT_CLOSED: "the beneficiary account is closed",
+        BENEFICIARY_BANK_REJECTED: "the beneficiary bank rejected the payment",
+      },
     },
     attempt: {
       sending: {
@@ -318,6 +324,10 @@ const en = {
       stepSent: "Sent to Airwallex",
       stepConfirmed: "Airwallex created the transfer",
       stepWaiting: "Waiting",
+      stepRefused: "Airwallex refused the transfer",
+      failureCode: "Airwallex failure code",
+      failedNext:
+        "Nothing more will happen to this transfer. Check the supplier's bank details, then create a new payment.",
       transfer: "Transfer",
       transferId: "Airwallex transfer id",
       requestId: "Request id",
@@ -345,6 +355,7 @@ const en = {
       queued: "Requested. The new status appears when Airwallex reports it.",
       error: "The request could not be queued. Nothing changed. Try again.",
       needsTransfer: "Available once Airwallex has created the transfer.",
+      noneAvailable: "No sandbox step is available for this payment in its current state.",
     },
   },
 } as const;
