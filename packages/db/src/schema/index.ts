@@ -4,6 +4,7 @@ export * from "./audit-log";
 export * from "./auth";
 export * from "./businesses";
 export * from "./counterparties";
+export * from "./documents";
 export * from "./execution-attempts";
 export * from "./idempotency-keys";
 export * from "./outbox-jobs";

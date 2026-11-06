@@ -1,4 +1,4 @@
-import { TRANSFER_STATUSES } from "@carnet/domain";
+import { DOCUMENT_KINDS, DOCUMENT_MIMES, TRANSFER_STATUSES } from "@carnet/domain";
 import { describe, expect, it } from "vitest";
 import {
   DuplicateRequestIdError,
@@ -6,11 +6,16 @@ import {
   translateDbError,
   UniqueViolationError,
 } from "./errors";
-import { TRANSFER_STATUS_VALUES } from "./schema/index";
+import { DOCUMENT_KIND_VALUES, DOCUMENT_MIME_VALUES, TRANSFER_STATUS_VALUES } from "./schema/index";
 
 describe("schema", () => {
   it("the payments.transfer_status CHECK list equals the domain's TRANSFER_STATUSES", () => {
     expect([...TRANSFER_STATUS_VALUES]).toEqual([...TRANSFER_STATUSES]);
+  });
+
+  it("the documents kind and mime CHECK lists equal the domain's (M2-01)", () => {
+    expect([...DOCUMENT_KIND_VALUES]).toEqual([...DOCUMENT_KINDS]);
+    expect([...DOCUMENT_MIME_VALUES]).toEqual([...DOCUMENT_MIMES]);
   });
 });
 

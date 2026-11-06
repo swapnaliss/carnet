@@ -6,6 +6,7 @@ import {
   type AttemptId,
   type BusinessId,
   type CounterpartyId,
+  type DocumentId,
   money,
   newPaymentId,
   newRequestId,
@@ -39,6 +40,7 @@ const helperNames = new Set([
   ...Object.keys(webhookEvents),
   ...Object.keys(workerHeartbeats),
   ...Object.keys(attempts),
+  "sha256Hex", // repos/documents: a pure hash helper, no table access
 ]);
 const tenantRepoFns: [string, RepoFn][] = Object.entries(repos as Record<string, unknown>).filter(
   (e): e is [string, RepoFn] => typeof e[1] === "function" && !helperNames.has(e[0]),
@@ -51,6 +53,7 @@ interface Fixture {
   paymentId: PaymentId;
   attemptId: AttemptId;
   requestId: RequestId;
+  documentId: DocumentId;
 }
 
 const ENDPOINT = "POST /api/v1/payments";
@@ -83,6 +86,12 @@ async function seed(name: string): Promise<Fixture> {
     response: { business: name },
   });
   await repos.appendAudit(ctx, { actorType: "user", action: "seed", subject: name });
+  const doc = await repos.storeDocument(ctx, {
+    kind: "invoice",
+    filename: `${name}.pdf`,
+    mime: "application/pdf",
+    bytes: new TextEncoder().encode(`%PDF-1.7 ${name}\n%%EOF`),
+  });
   return {
     businessId,
     userId: user.id,
@@ -90,6 +99,7 @@ async function seed(name: string): Promise<Fixture> {
     paymentId: payment.id,
     attemptId: attempt.id,
     requestId,
+    documentId: doc.document.id,
   };
 }
 
@@ -109,6 +119,8 @@ async function snapshotB(): Promise<unknown> {
     attempt: await repos.getAttempt(b, B.attemptId),
     idem: await repos.getIdempotencyRecord(b, ENDPOINT, KEY),
     audit: await repos.listAudit(b),
+    documents: await repos.listDocuments(b),
+    content: await repos.getDocumentContent(b, B.documentId),
   };
 }
 
@@ -234,6 +246,37 @@ const cases: Record<string, () => Promise<void>> = {
   },
   listAudit: async () => {
     const rows = await repos.listAudit(ctxA());
+    expect(rows.length).toBeGreaterThan(0);
+    expect(ownedBy(rows, A.businessId)).toBe(true);
+  },
+  storeDocument: async () => {
+    // A uploads the exact bytes B holds: A gets its own row, never B's (dedupe is per business).
+    const bBytes = (await repos.getDocumentContent(ctxB(), B.documentId))?.bytes;
+    expect(bBytes).toBeDefined();
+    const r = await repos.storeDocument(ctxA(), {
+      kind: "other",
+      filename: "copy.pdf",
+      mime: "application/pdf",
+      bytes: bBytes ?? new Uint8Array(1),
+    });
+    expect(r.deduplicated).toBe(false);
+    expect(r.document.businessId).toBe(A.businessId);
+    expect(r.document.id).not.toBe(B.documentId);
+  },
+  getDocument: async () => {
+    expect(await repos.getDocument(ctxA(), B.documentId)).toBeNull();
+    expect((await repos.getDocument(ctxA(), A.documentId))?.businessId).toBe(A.businessId);
+  },
+  getDocumentContent: async () => {
+    expect(await repos.getDocumentContent(ctxA(), B.documentId)).toBeNull();
+  },
+  findDocumentBySha256: async () => {
+    const b = await repos.getDocument(ctxB(), B.documentId);
+    const found = await repos.findDocumentBySha256(ctxA(), b?.sha256 ?? "");
+    expect(found === null || found.businessId === A.businessId).toBe(true);
+  },
+  listDocuments: async () => {
+    const rows = await repos.listDocuments(ctxA());
     expect(rows.length).toBeGreaterThan(0);
     expect(ownedBy(rows, A.businessId)).toBe(true);
   },

@@ -52,14 +52,27 @@ function state(key: string, rule: RateLimitRule, now: Date, count: number, allow
   } satisfies RateLimitState;
 }
 
-/** Atomically counts one hit in the (key, window) bucket and returns the new count. */
-export async function incrementRateLimit(db: Db, key: string, windowStart: Date): Promise<number> {
+function assertAmount(amount: number): void {
+  if (!Number.isInteger(amount) || amount < 1) throw new RangeError("amount must be >= 1");
+}
+
+/**
+ * Atomically adds `amount` (default one hit) to the (key, window) bucket and returns the new count.
+ * An amount above one counts a quantity such as bytes (M2-01 upload byte cap).
+ */
+export async function incrementRateLimit(
+  db: Db,
+  key: string,
+  windowStart: Date,
+  amount = 1,
+): Promise<number> {
+  assertAmount(amount);
   const [row] = await db
     .insert(rateLimits)
-    .values({ key, windowStart, count: 1 })
+    .values({ key, windowStart, count: amount })
     .onConflictDoUpdate({
       target: [rateLimits.key, rateLimits.windowStart],
-      set: { count: sql`${rateLimits.count} + 1` },
+      set: { count: sql`${rateLimits.count} + ${amount}` },
     })
     .returning({ count: rateLimits.count });
   if (!row) throw new Error("upsert returned no row");
@@ -85,16 +98,18 @@ export async function peekRateLimit(
 
 /**
  * Records one hit (atomic upsert-increment) and decides on it: allowed while the new count is at most
- * `limit`. Of any number of concurrent calls in one window, exactly `limit` are allowed.
+ * `limit`. Of any number of concurrent calls in one window, exactly `limit` are allowed. With
+ * `amount` it records that many units at once (bytes), allowed while the new total is at most `limit`.
  */
 export async function hitRateLimit(
   db: Db,
   key: string,
   rule: RateLimitRule,
   now: Date = new Date(),
+  amount = 1,
 ): Promise<RateLimitState> {
   assertRule(rule);
-  const count = await incrementRateLimit(db, key, windowStartOf(now, rule.windowMs));
+  const count = await incrementRateLimit(db, key, windowStartOf(now, rule.windowMs), amount);
   return state(key, rule, now, count, count <= rule.limit);
 }
 
@@ -107,11 +122,13 @@ export async function refundRateLimit(
   key: string,
   rule: RateLimitRule,
   now: Date = new Date(),
+  amount = 1,
 ): Promise<void> {
+  assertAmount(amount);
   const windowStart = windowStartOf(now, rule.windowMs);
   await db
     .update(rateLimits)
-    .set({ count: sql`greatest(${rateLimits.count} - 1, 0)` })
+    .set({ count: sql`greatest(${rateLimits.count} - ${amount}, 0)` })
     .where(and(eq(rateLimits.key, key), eq(rateLimits.windowStart, windowStart)));
 }
 
