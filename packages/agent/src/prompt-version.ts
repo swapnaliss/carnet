@@ -51,7 +51,9 @@ export function schemaSubsetViolations(schema: z.ZodType): string[] {
     walk(n.items, `${path}/[]`);
     for (const key of ["anyOf", "oneOf", "allOf"]) {
       const list = n[key];
-      if (Array.isArray(list)) list.forEach((c, i) => walk(c, `${path}/${key}${i}`));
+      if (Array.isArray(list)) {
+        for (const [i, c] of list.entries()) walk(c, `${path}/${key}${i}`);
+      }
     }
   };
   walk(jsonSchemaOf(schema), "");
