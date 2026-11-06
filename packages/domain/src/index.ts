@@ -7,5 +7,6 @@ export * from "./money";
 export * from "./payments";
 export * from "./planner/index";
 export * from "./rfi/index";
+export * from "./payee-status";
 export * from "./schemas";
 export * from "./status";

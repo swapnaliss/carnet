@@ -9,6 +9,7 @@ export * from "./documents";
 export * from "./execution-attempts";
 export * from "./idempotency-keys";
 export * from "./outbox-jobs";
+export * from "./payee-links";
 export * from "./payments";
 export * from "./plans";
 export * from "./rate-limits";
