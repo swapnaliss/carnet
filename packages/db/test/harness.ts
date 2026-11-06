@@ -9,7 +9,7 @@ import { runMigrations } from "../src/migrate";
 
 /**
  * The tables M1-02 creates (docs/architecture.md §5), plus the better-auth tables (M1-04), the
- * model run tables (M2-00) and the RFI tables (M2-04).
+ * model run tables (M2-00), documents (M2-01) and the RFI tables (M2-04).
  */
 export const M1_TABLES = [
   "agent_runs",
@@ -20,10 +20,13 @@ export const M1_TABLES = [
   "auth_verifications",
   "businesses",
   "counterparties",
+  "documents",
   "execution_attempts",
   "idempotency_keys",
   "outbox_jobs",
   "payments",
+  "plan_actions",
+  "plans",
   "rate_limits",
   "rfi_questions",
   "rfis",

@@ -1,5 +1,7 @@
 import {
   AIRWALLEX_RFI_STATUSES,
+  DOCUMENT_KINDS,
+  DOCUMENT_MIMES,
   RFI_ORPHAN_REASONS,
   RFI_STATES,
   TRANSFER_STATUSES,
@@ -13,6 +15,8 @@ import {
 } from "./errors";
 import {
   AIRWALLEX_RFI_STATUS_VALUES,
+  DOCUMENT_KIND_VALUES,
+  DOCUMENT_MIME_VALUES,
   RFI_ORPHAN_REASON_VALUES,
   RFI_STATE_VALUES,
   TRANSFER_STATUS_VALUES,
@@ -26,6 +30,11 @@ describe("schema", () => {
     expect([...RFI_STATE_VALUES]).toEqual([...RFI_STATES]);
     expect([...RFI_ORPHAN_REASON_VALUES]).toEqual([...RFI_ORPHAN_REASONS]);
     expect([...AIRWALLEX_RFI_STATUS_VALUES]).toEqual([...AIRWALLEX_RFI_STATUSES]);
+  });
+
+  it("the documents kind and mime CHECK lists equal the domain's (M2-01)", () => {
+    expect([...DOCUMENT_KIND_VALUES]).toEqual([...DOCUMENT_KINDS]);
+    expect([...DOCUMENT_MIME_VALUES]).toEqual([...DOCUMENT_MIMES]);
   });
 });
 

@@ -5,6 +5,7 @@ import type {
   AttemptId,
   BusinessId,
   CounterpartyId,
+  DocumentId,
   PaymentId,
   RequestId,
   RfiId,
@@ -32,6 +33,7 @@ export const AttemptIdSchema = uuidOf<AttemptId>();
 export const ApprovalIdSchema = uuidOf<ApprovalId>();
 export const RunIdSchema = uuidOf<RunId>();
 export const RequestIdSchema = uuidOf<RequestId>();
+export const DocumentIdSchema = uuidOf<DocumentId>();
 
 export const CurrencySchema = z.enum(CURRENCIES as [Currency, ...Currency[]]);
 

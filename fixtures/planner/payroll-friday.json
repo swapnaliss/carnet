@@ -1,0 +1,57 @@
+{
+  "_comment": "Payroll Friday with one held payment. The USD balance and the USD to EUR rate shape follow the M0 fixtures (balances-after-transfer-create; fx-current-rate: CLIENT level 0.8847 EUR per USD at 2026-11-03T09:43:19Z). Amounts are synthetic and scaled so the scenario is decisive. Minor units are decimal strings. The fee config is config/fees.json.",
+  "businessId": "biz-agency",
+  "now": "2026-11-04T09:00:00.000Z",
+  "balances": [
+    { "businessId": "biz-agency", "currency": "EUR", "availableMinor": "500000" },
+    { "businessId": "biz-agency", "currency": "USD", "availableMinor": "800000" }
+  ],
+  "held": [
+    { "businessId": "biz-agency", "paymentId": "pay-supplier", "currency": "EUR", "amountMinor": "250000" }
+  ],
+  "obligations": [
+    {
+      "businessId": "biz-agency",
+      "id": "ob-payroll",
+      "payee": "Payroll (team)",
+      "amountMinor": "400000",
+      "currency": "EUR",
+      "dueAt": "2026-11-06T09:00:00.000Z",
+      "criticality": 1,
+      "paymentId": null,
+      "payoutMethod": "SWIFT"
+    },
+    {
+      "businessId": "biz-agency",
+      "id": "ob-supplier",
+      "payee": "Nordlicht Print GmbH",
+      "amountMinor": "250000",
+      "currency": "EUR",
+      "dueAt": "2026-11-06T09:00:00.000Z",
+      "criticality": 2,
+      "paymentId": "pay-supplier",
+      "payoutMethod": "SWIFT"
+    },
+    {
+      "businessId": "biz-agency",
+      "id": "ob-bill",
+      "payee": "Hosting bill",
+      "amountMinor": "250000",
+      "currency": "EUR",
+      "dueAt": "2026-11-06T09:00:00.000Z",
+      "criticality": 3,
+      "paymentId": null,
+      "payoutMethod": "SWIFT"
+    }
+  ],
+  "reserveFloor": [
+    { "businessId": "biz-agency", "currency": "EUR", "minor": "50000" },
+    { "businessId": "biz-agency", "currency": "USD", "minor": "100000" }
+  ],
+  "fxRates": [{ "sell": "USD", "buy": "EUR", "rate": "0.8847", "asOf": "2026-11-03T09:43:19.000Z" }],
+  "policy": {
+    "version": 1,
+    "hash": "policy-v1",
+    "autoConvertLimits": [{ "currency": "USD", "minor": "500000" }]
+  }
+}

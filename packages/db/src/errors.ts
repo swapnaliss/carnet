@@ -101,3 +101,13 @@ export function translateDbError(error: unknown): unknown {
     return new ForeignKeyViolationError(pgError.constraint ?? "unknown");
   return error;
 }
+
+/** Another writer stored a different plan under the same revision number (M3-02). */
+export class PlanRevisionConflictError extends DbError {
+  override readonly name = "PlanRevisionConflictError";
+  readonly revision: number;
+  constructor(businessId: string, revision: number) {
+    super(`plan revision ${revision} of business ${businessId} exists with different inputs`);
+    this.revision = revision;
+  }
+}

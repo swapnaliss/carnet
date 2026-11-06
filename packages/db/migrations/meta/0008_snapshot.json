@@ -1,6 +1,6 @@
 {
-  "id": "80b19eeb-b4b4-4c97-9890-ea7aa9fbac08",
-  "prevId": "bdc7b630-7d1e-4f94-a9a1-ae588ff05c7e",
+  "id": "69aeb253-e2cd-4690-838e-e9bdd3bda80d",
+  "prevId": "bb35f4a2-0103-4da6-8cd3-b386426b7ebc",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -905,6 +905,155 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.documents": {
+      "name": "documents",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "business_id": {
+          "name": "business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "filename": {
+          "name": "filename",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mime": {
+          "name": "mime",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "size": {
+          "name": "size",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sha256": {
+          "name": "sha256",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bytes": {
+          "name": "bytes",
+          "type": "bytea",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "documents_business_id_created_at_idx": {
+          "name": "documents_business_id_created_at_idx",
+          "columns": [
+            {
+              "expression": "business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "documents_business_id_sha256_key": {
+          "name": "documents_business_id_sha256_key",
+          "columns": [
+            {
+              "expression": "business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sha256",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "documents_business_id_businesses_id_fk": {
+          "name": "documents_business_id_businesses_id_fk",
+          "tableFrom": "documents",
+          "tableTo": "businesses",
+          "columnsFrom": ["business_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "documents_id_business_id_key": {
+          "name": "documents_id_business_id_key",
+          "nullsNotDistinct": false,
+          "columns": ["id", "business_id"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "documents_kind_check": {
+          "name": "documents_kind_check",
+          "value": "\"kind\" IN ('invoice', 'contract', 'purchase_order', 'statement', 'other')"
+        },
+        "documents_mime_check": {
+          "name": "documents_mime_check",
+          "value": "\"mime\" IN ('application/pdf', 'image/jpeg', 'image/png')"
+        },
+        "documents_filename_check": {
+          "name": "documents_filename_check",
+          "value": "char_length(\"documents\".\"filename\") BETWEEN 1 AND 50"
+        },
+        "documents_size_check": {
+          "name": "documents_size_check",
+          "value": "\"documents\".\"size\" > 0 AND \"documents\".\"size\" = octet_length(\"documents\".\"bytes\")"
+        },
+        "documents_sha256_check": {
+          "name": "documents_sha256_check",
+          "value": "\"documents\".\"sha256\" = encode(sha256(\"documents\".\"bytes\"), 'hex')"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.execution_attempts": {
       "name": "execution_attempts",
       "schema": "",
@@ -1397,6 +1546,235 @@
         "payments_transfer_status_check": {
           "name": "payments_transfer_status_check",
           "value": "\"transfer_status\" IN ('IN_APPROVAL', 'APPROVAL_RECALLED', 'APPROVAL_REJECTED', 'APPROVAL_BLOCKED', 'SCHEDULED', 'OVERDUE', 'PROCESSING', 'SENT', 'PAID', 'FAILED', 'CANCELLED')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.plan_actions": {
+      "name": "plan_actions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "plan_id": {
+          "name": "plan_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "business_id": {
+          "name": "business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "seq": {
+          "name": "seq",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason_code": {
+          "name": "reason_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "params": {
+          "name": "params",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reason_facts": {
+          "name": "reason_facts",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "needs_approval": {
+          "name": "needs_approval",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "plan_actions_business_id_idx": {
+          "name": "plan_actions_business_id_idx",
+          "columns": [
+            {
+              "expression": "business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "plan_actions_plan_same_business_fk": {
+          "name": "plan_actions_plan_same_business_fk",
+          "tableFrom": "plan_actions",
+          "tableTo": "plans",
+          "columnsFrom": ["plan_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "plan_actions_plan_id_seq_key": {
+          "name": "plan_actions_plan_id_seq_key",
+          "nullsNotDistinct": false,
+          "columns": ["plan_id", "seq"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "plan_actions_kind_check": {
+          "name": "plan_actions_kind_check",
+          "value": "\"kind\" IN ('fund', 'convert', 'defer', 'escalate', 'payout')"
+        },
+        "plan_actions_seq_check": {
+          "name": "plan_actions_seq_check",
+          "value": "\"seq\" > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.plans": {
+      "name": "plans",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "business_id": {
+          "name": "business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "revision": {
+          "name": "revision",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inputs_hash": {
+          "name": "inputs_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "content_hash": {
+          "name": "content_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "policy_version": {
+          "name": "policy_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "policy_hash": {
+          "name": "policy_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "held_funds_visible_in_balances": {
+          "name": "held_funds_visible_in_balances",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "planned_at": {
+          "name": "planned_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "trigger": {
+          "name": "trigger",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "inputs": {
+          "name": "inputs",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "plans_business_id_businesses_id_fk": {
+          "name": "plans_business_id_businesses_id_fk",
+          "tableFrom": "plans",
+          "tableTo": "businesses",
+          "columnsFrom": ["business_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "plans_business_id_revision_key": {
+          "name": "plans_business_id_revision_key",
+          "nullsNotDistinct": false,
+          "columns": ["business_id", "revision"]
+        },
+        "plans_id_business_id_key": {
+          "name": "plans_id_business_id_key",
+          "nullsNotDistinct": false,
+          "columns": ["id", "business_id"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "plans_revision_check": {
+          "name": "plans_revision_check",
+          "value": "\"revision\" > 0"
         }
       },
       "isRLSEnabled": false

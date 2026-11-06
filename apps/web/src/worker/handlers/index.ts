@@ -13,19 +13,36 @@ export const JOB_KIND = {
   rfiSync: "rfi.sync",
   /** Every 60 s, enqueued by the loop itself, one at a time. */
   reconcile: "reconcile",
+  /** M1-08: create the Airwallex transfer for a payment's INTENT attempt (mutating). */
+  transferCreate: "transfer.create",
+  /** M1-08: owner-requested sandbox transition of a payment's transfer (mutating, sandbox only). */
+  transferSimulate: "transfer.simulate",
 } as const;
 export type JobKind = (typeof JOB_KIND)[keyof typeof JOB_KIND];
 
-/** The read-only adapter calls the worker's handlers use. Mutating calls arrive with M1-08/M2-07. */
+/** The read-only adapter calls the worker's handlers use. */
 export type AirwallexReader = Pick<
   AirwallexClient,
   "getTransfer" | "getRfi" | "listRfis" | "findTransferByRequestId"
 >;
 
+/** The mutating adapter calls (M1-08). Only handlers registered with `mutating: true` use them. */
+export type AirwallexWriter = Pick<AirwallexClient, "createTransfer" | "createBeneficiary"> & {
+  readonly simulator: Pick<AirwallexClient["simulator"], "transitionTransfer">;
+};
+
 export interface HandlerContext {
   readonly db: Db;
   readonly airwallex: AirwallexReader;
+  /** Absent in read-only setups (tests); a mutating handler fails its job without it. */
+  readonly airwallexWriter?: AirwallexWriter;
   readonly logger: Logger;
+}
+
+/** The writer, or an error that fails the job (it retries, then goes DEAD; nothing is sent). */
+export function requireWriter(ctx: HandlerContext): AirwallexWriter {
+  if (!ctx.airwallexWriter) throw new Error("no mutating Airwallex client configured");
+  return ctx.airwallexWriter;
 }
 
 export type JobHandler = (payload: unknown, ctx: HandlerContext, job: OutboxJob) => Promise<void>;

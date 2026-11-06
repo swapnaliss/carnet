@@ -11,24 +11,31 @@ import { configFromEnv, createAirwallexClient } from "@carnet/airwallex";
 import { createDbClientFromEnv } from "@carnet/db";
 import { createLogger, type Logger } from "../server/log";
 import { DEFAULT_MAX_ATTEMPTS } from "./backoff";
+import { handleTransferCreate } from "./handlers/create-transfer";
 import {
   type AirwallexReader,
+  type AirwallexWriter,
   createRegistry,
   type HandlerRegistry,
   JOB_KIND,
   registerHandler,
 } from "./handlers/index";
+import { type PlanInputsLoader, registerPlanHandlers } from "./handlers/plan";
 import { handleRfiSync } from "./handlers/rfi";
+import { handleTransferSimulate } from "./handlers/simulate-transfer";
 import { handleTransferSync } from "./handlers/transfer";
 import { createWorker, DEFAULT_POLL_MS } from "./loop";
 import { handleReconcile } from "./reconcile";
 
 /** The handlers worker mode runs. Later tickets register theirs here (M2-04, M2-07, M3-03). */
-export function defaultRegistry(): HandlerRegistry {
+export function defaultRegistry(planInputs?: PlanInputsLoader): HandlerRegistry {
   const registry = createRegistry();
+  registerPlanHandlers(registry, planInputs);
   registerHandler(registry, JOB_KIND.transferSync, handleTransferSync);
   registerHandler(registry, JOB_KIND.rfiSync, handleRfiSync);
   registerHandler(registry, JOB_KIND.reconcile, handleReconcile);
+  registerHandler(registry, JOB_KIND.transferCreate, handleTransferCreate, { mutating: true });
+  registerHandler(registry, JOB_KIND.transferSimulate, handleTransferSimulate, { mutating: true });
   return registry;
 }
 
@@ -55,7 +62,10 @@ export interface StartWorkerOptions {
   logger?: Logger;
   /** Tests only: replace the handlers, the Airwallex reader or the reconcile cadence. */
   registry?: HandlerRegistry;
+  /** Reads the planner's inputs; `plan.rerun` is registered only when this is supplied (M3-01/M2). */
+  planInputs?: PlanInputsLoader;
   airwallex?: AirwallexReader;
+  airwallexWriter?: AirwallexWriter;
   reconcileEveryMs?: number | null;
 }
 
@@ -70,16 +80,24 @@ export async function startWorker(options: StartWorkerOptions = {}): Promise<voi
     onIdleError: (error) => logger.warn({ error: error.message }, "idle database client error"),
   });
   let airwallex: AirwallexReader;
+  let airwallexWriter: AirwallexWriter | undefined = options.airwallexWriter;
   try {
-    airwallex = options.airwallex ?? createAirwallexClient({ ...configFromEnv(env), logger });
+    if (options.airwallex) {
+      airwallex = options.airwallex;
+    } else {
+      const client = createAirwallexClient({ ...configFromEnv(env), logger });
+      airwallex = client;
+      airwallexWriter ??= client;
+    }
   } catch (error) {
     await db.close().catch(() => undefined);
     throw error;
   }
   const worker = createWorker({
     db: db.db,
-    registry: options.registry ?? defaultRegistry(),
+    registry: options.registry ?? defaultRegistry(options.planInputs),
     airwallex,
+    ...(airwallexWriter ? { airwallexWriter } : {}),
     logger,
     pollMs,
     maxAttempts,

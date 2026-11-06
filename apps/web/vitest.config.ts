@@ -14,9 +14,9 @@ if (!hasDbRoles) {
 
 export default defineConfig({
   test: {
-    include: ["src/**/*.test.ts", "test/**/*.test.ts"],
+    include: ["src/**/*.test.ts", "test/**/*.test.ts", "tests/**/*.test.ts"],
     exclude: [
-      ...(hasDbRoles ? [] : ["**/*.int.test.ts", "test/auth/**"]),
+      ...(hasDbRoles ? [] : ["**/*.int.test.ts", "test/auth/**", "tests/**"]),
       "src/**/*.int.test.ts",
       "**/node_modules/**",
       "e2e/**",

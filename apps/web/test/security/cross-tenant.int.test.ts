@@ -25,6 +25,14 @@ export const CROSS_TENANT_CASES: Record<string, string> = {
   // M2-04: test/security/rfi-ingest-routes.int.test.ts (404 cross-tenant, viewer 403, audited link).
   "v1/rfis/[id]": "rfi-ingest-routes.int.test.ts",
   "v1/rfis/[id]/link": "rfi-ingest-routes.int.test.ts",
+  "v1/documents/[id]":
+    "test/documents/documents.int.test.ts: another business's session gets 404 for the bytes",
+  "v1/documents/[id]/meta":
+    "test/documents/documents.int.test.ts: another business's session gets 404 for the metadata",
+  "v1/payments/[id]":
+    "test/payments/api.int.test.ts 'cross-tenant': another business's id is 404 with no data, both ways",
+  "v1/payments/[id]/simulate":
+    "test/payments/api.int.test.ts 'cross-tenant': foreign id 404 and no job queued; viewer 403",
 };
 
 const env = setupAuthTestEnv();
@@ -111,8 +119,8 @@ describe("inventory: every id-taking API route has a cross-tenant case", () => {
   it("lists the id routes and requires a case for each", () => {
     const idRoutes = apiRoutes().filter((r) => /\[(?!\.\.\.)[^\]]+\]/.test(r));
     for (const route of idRoutes) expect(CROSS_TENANT_CASES, route).toHaveProperty(route);
-    // Today: none (auth/[...all] is a catch-all, not a resource id). M1-08 adds the first.
-    expect(idRoutes).toEqual(Object.keys(CROSS_TENANT_CASES));
+    // auth/[...all] is a catch-all, not a resource id; M2-01 adds the documents routes.
+    expect([...idRoutes].sort()).toEqual(Object.keys(CROSS_TENANT_CASES).sort());
   });
 });
 

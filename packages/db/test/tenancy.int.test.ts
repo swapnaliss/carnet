@@ -6,10 +6,13 @@ import {
   type AttemptId,
   type BusinessId,
   type CounterpartyId,
+  type DocumentId,
   money,
   newPaymentId,
   newRequestId,
+  nextRevision,
   type PaymentId,
+  type PlanInputsInput,
   type RequestId,
   type RfiId,
   type UserId,
@@ -46,6 +49,7 @@ const helperNames = new Set([
   ...Object.keys(webhookEvents),
   ...Object.keys(workerHeartbeats),
   ...Object.keys(attempts),
+  "sha256Hex", // repos/documents: a pure hash helper, no table access
 ]);
 const tenantRepoFns: [string, RepoFn][] = Object.entries(repos as Record<string, unknown>).filter(
   (e): e is [string, RepoFn] => typeof e[1] === "function" && !helperNames.has(e[0]),
@@ -58,10 +62,31 @@ interface Fixture {
   paymentId: PaymentId;
   attemptId: AttemptId;
   requestId: RequestId;
+  documentId: DocumentId;
   agentRunId: string;
   agentStepId: string;
   rfiId: RfiId;
   transferId: string;
+}
+
+/** An empty plan for a business: enough to give every tenant a stored revision. */
+function emptyPlanInputs(businessId: string): PlanInputsInput {
+  return {
+    businessId,
+    now: "2026-11-04T09:00:00.000Z",
+    balances: [],
+    held: [],
+    obligations: [],
+    reserveFloor: [],
+    fxRates: [],
+    config: {
+      swiftPayoutFee: [],
+      fxSpreadBps: 0,
+      heldFundsVisibleInBalances: true,
+      deferGraceDays: { "2": 1, "3": 1 },
+    },
+    policy: { version: 1, hash: "p", autoConvertLimits: [] },
+  };
 }
 
 const ENDPOINT = "POST /api/v1/payments";
@@ -94,6 +119,14 @@ async function seed(name: string): Promise<Fixture> {
     response: { business: name },
   });
   await repos.appendAudit(ctx, { actorType: "user", action: "seed", subject: name });
+  const doc = await repos.storeDocument(ctx, {
+    kind: "invoice",
+    filename: `${name}.pdf`,
+    mime: "application/pdf",
+    bytes: new TextEncoder().encode(`%PDF-1.7 ${name}\n%%EOF`),
+  });
+  const planInputs = emptyPlanInputs(businessId);
+  await repos.insertPlanRevision(ctx, nextRevision(null, planInputs), { inputs: planInputs });
   const agentRun = await repos.createAgentRun(ctx, { kind: "draft", ref: "rfi-same-ref" });
   const agentStep = await repos.recordAgentStep(ctx, {
     runId: agentRun.id,
@@ -145,6 +178,7 @@ async function seed(name: string): Promise<Fixture> {
     paymentId: payment.id,
     attemptId: attempt.id,
     requestId,
+    documentId: doc.document.id,
   };
 }
 
@@ -179,6 +213,9 @@ async function snapshotB(): Promise<unknown> {
     attempt: await repos.getAttempt(b, B.attemptId),
     idem: await repos.getIdempotencyRecord(b, ENDPOINT, KEY),
     audit: await repos.listAudit(b),
+    documents: await repos.listDocuments(b),
+    content: await repos.getDocumentContent(b, B.documentId),
+    plans: await repos.listPlanRevisions(b),
     agentRun: await repos.getAgentRun(b, B.agentRunId),
     agentSteps: await repos.listAgentSteps(b, B.agentRunId),
     rfis: await repos.listRfis(b),
@@ -283,6 +320,15 @@ const cases: Record<string, () => Promise<void>> = {
   getAttemptByRequestId: async () => {
     expect(await repos.getAttemptByRequestId(ctxA(), B.requestId)).toBeNull();
   },
+  listAttemptsForRefs: async () => {
+    // B's payment id asked through A's context returns nothing; A's own is found.
+    expect(await repos.listAttemptsForRefs(ctxA(), "transfer", [B.paymentId])).toEqual([]);
+    const own = await repos.listAttemptsForRefs(ctxA(), "transfer", [A.paymentId, B.paymentId]);
+    expect(own.map((a) => a.id)).toEqual([A.attemptId]);
+  },
+  listWebhookEventsForPayment: async () => {
+    expect(await repos.listWebhookEventsForPayment(ctxA(), B.paymentId)).toEqual([]);
+  },
   updateAttemptStatus: async () => {
     expect(await repos.updateAttemptStatus(ctxA(), B.attemptId, "REJECTED")).toBeNull();
   },
@@ -385,6 +431,56 @@ const cases: Record<string, () => Promise<void>> = {
     const rows = await repos.listAudit(ctxA());
     expect(rows.length).toBeGreaterThan(0);
     expect(ownedBy(rows, A.businessId)).toBe(true);
+  },
+  storeDocument: async () => {
+    // A uploads the exact bytes B holds: A gets its own row, never B's (dedupe is per business).
+    const bBytes = (await repos.getDocumentContent(ctxB(), B.documentId))?.bytes;
+    expect(bBytes).toBeDefined();
+    const r = await repos.storeDocument(ctxA(), {
+      kind: "other",
+      filename: "copy.pdf",
+      mime: "application/pdf",
+      bytes: bBytes ?? new Uint8Array(1),
+    });
+    expect(r.deduplicated).toBe(false);
+    expect(r.document.businessId).toBe(A.businessId);
+    expect(r.document.id).not.toBe(B.documentId);
+  },
+  getDocument: async () => {
+    expect(await repos.getDocument(ctxA(), B.documentId)).toBeNull();
+    expect((await repos.getDocument(ctxA(), A.documentId))?.businessId).toBe(A.businessId);
+  },
+  getDocumentContent: async () => {
+    expect(await repos.getDocumentContent(ctxA(), B.documentId)).toBeNull();
+  },
+  findDocumentBySha256: async () => {
+    const b = await repos.getDocument(ctxB(), B.documentId);
+    const found = await repos.findDocumentBySha256(ctxA(), b?.sha256 ?? "");
+    expect(found === null || found.businessId === A.businessId).toBe(true);
+  },
+  listDocuments: async () => {
+    const rows = await repos.listDocuments(ctxA());
+    expect(rows.length).toBeGreaterThan(0);
+    expect(ownedBy(rows, A.businessId)).toBe(true);
+  },
+  insertPlanRevision: async () => {
+    const inputs = emptyPlanInputs(B.businessId);
+    // B's plan cannot be written through A's context.
+    await expect(
+      repos.insertPlanRevision(ctxA(), nextRevision(null, inputs), { inputs }),
+    ).rejects.toThrow(/another business/);
+  },
+  getLatestPlan: async () => {
+    expect((await repos.getLatestPlan(ctxA()))?.plan.business_id).toBe(A.businessId);
+  },
+  getPlanByRevision: async () => {
+    expect((await repos.getPlanByRevision(ctxA(), 1))?.plan.business_id).toBe(A.businessId);
+    expect(await repos.getPlanByRevision(ctxA(), 99)).toBeNull();
+  },
+  listPlanRevisions: async () => {
+    const rows = await repos.listPlanRevisions(ctxA());
+    expect(rows.length).toBeGreaterThan(0);
+    expect(rows.every((r) => r.plan.business_id === A.businessId)).toBe(true);
   },
   createAgentRun: async () => {
     const r = await repos.createAgentRun(ctxA(), { kind: "draft", ref: "rfi-same-ref" });
