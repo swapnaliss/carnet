@@ -1,0 +1,6 @@
+{
+  "heldFundsVisibleInBalances": true,
+  "swiftPayoutFee": { "EUR": "13.41" },
+  "fxSpreadBps": 50,
+  "deferGraceDays": { "2": 7, "3": 14 }
+}
