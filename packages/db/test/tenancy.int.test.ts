@@ -209,6 +209,15 @@ const cases: Record<string, () => Promise<void>> = {
   getAttemptByRequestId: async () => {
     expect(await repos.getAttemptByRequestId(ctxA(), B.requestId)).toBeNull();
   },
+  listAttemptsForRefs: async () => {
+    // B's payment id asked through A's context returns nothing; A's own is found.
+    expect(await repos.listAttemptsForRefs(ctxA(), "transfer", [B.paymentId])).toEqual([]);
+    const own = await repos.listAttemptsForRefs(ctxA(), "transfer", [A.paymentId, B.paymentId]);
+    expect(own.map((a) => a.id)).toEqual([A.attemptId]);
+  },
+  listWebhookEventsForPayment: async () => {
+    expect(await repos.listWebhookEventsForPayment(ctxA(), B.paymentId)).toEqual([]);
+  },
   updateAttemptStatus: async () => {
     expect(await repos.updateAttemptStatus(ctxA(), B.attemptId, "REJECTED")).toBeNull();
   },

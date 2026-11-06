@@ -8,9 +8,9 @@ import {
   type PaymentId,
   type TransferStatus,
 } from "@carnet/domain";
-import { and, desc, eq, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, isNotNull, type SQL, sql } from "drizzle-orm";
 import { translateDbError } from "../errors";
-import { payments } from "../schema/index";
+import { outboxJobs, payments, webhookEvents } from "../schema/index";
 import { currencyFromDb, moneyFromDb, type RepoCtx } from "./context";
 
 /**
@@ -162,4 +162,60 @@ export async function updatePaymentTransfer(
   } catch (error) {
     throw translateDbError(error);
   }
+}
+
+export interface PaymentWebhookEvent {
+  /** Carnet's inbox row id. */
+  readonly id: string;
+  /** Airwallex's event id (the de-duplication key). */
+  readonly providerEventId: string;
+  readonly name: string;
+  readonly receivedAt: Date;
+  readonly ackedAt: Date | null;
+  readonly processedAt: Date | null;
+  readonly signatureOk: boolean;
+  /** The body exactly as delivered (the signature was checked over these bytes). */
+  readonly rawBody: string;
+}
+
+/**
+ * The webhook deliveries that named this payment's transfer (M1-08), oldest first. Tenant-scoped: the
+ * transfer id must belong to a payment of `ctx.businessId`, so another business's payment id returns
+ * nothing. An event is linked through the `transfer.sync` job the inbox wrote with it (M1-05).
+ */
+export async function listWebhookEventsForPayment(
+  ctx: RepoCtx,
+  paymentId: PaymentId,
+  limit = 50,
+): Promise<PaymentWebhookEvent[]> {
+  return ctx.db
+    .select({
+      id: webhookEvents.id,
+      providerEventId: webhookEvents.providerEventId,
+      name: webhookEvents.name,
+      receivedAt: webhookEvents.receivedAt,
+      ackedAt: webhookEvents.ackedAt,
+      processedAt: webhookEvents.processedAt,
+      signatureOk: webhookEvents.signatureOk,
+      rawBody: webhookEvents.rawBody,
+    })
+    .from(webhookEvents)
+    .innerJoin(
+      outboxJobs,
+      and(
+        eq(outboxJobs.kind, "transfer.sync"),
+        sql`${outboxJobs.payload} ->> 'webhookEventId' = ${webhookEvents.id}::text`,
+      ),
+    )
+    .innerJoin(
+      payments,
+      and(
+        eq(payments.businessId, ctx.businessId),
+        eq(payments.id, paymentId),
+        isNotNull(payments.transferId),
+        sql`${outboxJobs.payload} ->> 'transferId' = ${payments.transferId}`,
+      ),
+    )
+    .orderBy(asc(webhookEvents.receivedAt), asc(webhookEvents.id))
+    .limit(Math.min(Math.max(limit, 1), 200));
 }
