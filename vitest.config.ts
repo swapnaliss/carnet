@@ -15,6 +15,9 @@ if (!hasDbRoles) {
 
 export default defineConfig({
   test: {
+    // Names every test file, also when output is piped (CI logs, `| tee`): M3-02's gate counts the
+    // property tests in that log.
+    reporters: ["default"],
     projects: [
       {
         test: {
