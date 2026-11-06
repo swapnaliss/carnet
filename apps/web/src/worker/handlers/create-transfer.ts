@@ -147,7 +147,7 @@ export async function executeTransferAttempt(
 ): Promise<TransferCreateOutcome> {
   const rc = repoCtx(ctx.db, businessId);
   const attempt = await getAttempt(rc, attemptId);
-  if (!attempt || attempt.kind !== "transfer") throw new Error("transfer attempt not found");
+  if (attempt?.kind !== "transfer") throw new Error("transfer attempt not found");
   if (attempt.status !== "INTENT" && attempt.status !== "SENT_TO_AIRWALLEX") {
     // CONFIRMED and REJECTED are done; UNKNOWN belongs to the reconciler (lookup, never resend).
     ctx.logger.info(

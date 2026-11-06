@@ -21,7 +21,12 @@ import { addUser, ORIGIN, sessionCookie, setupAuthTestEnv } from "../auth/setup"
 import { apiRoutes } from "./api-routes";
 
 /** route (relative to src/app/api) → how its test proves 404 cross-tenant and 403 for the viewer. */
-export const CROSS_TENANT_CASES: Record<string, string> = {};
+export const CROSS_TENANT_CASES: Record<string, string> = {
+  "v1/payments/[id]":
+    "test/payments/api.int.test.ts 'cross-tenant': another business's id is 404 with no data, both ways",
+  "v1/payments/[id]/simulate":
+    "test/payments/api.int.test.ts 'cross-tenant': foreign id 404 and no job queued; viewer 403",
+};
 
 const env = setupAuthTestEnv();
 const cookies = { owner: "", approver: "", judge: "", otherOwner: "" };

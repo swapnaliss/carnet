@@ -48,7 +48,7 @@ import {
 } from "@carnet/domain";
 import { z } from "zod";
 import type { Role } from "../lib/authz";
-import type { createRouteKit } from "../lib/define-route";
+import type { AuthRule, createRouteKit, RouteSpec } from "../lib/define-route";
 import { conflict, HttpProblem, notFound } from "../lib/errors";
 import { JOB_KIND } from "../worker/handlers/index";
 import type { BalanceReader } from "./airwallex";
@@ -67,7 +67,11 @@ export interface AttemptDto {
   readonly sent_at: string | null;
   readonly confirmed_at: string | null;
   readonly sends: number;
-  readonly error: { readonly kind: string; readonly code?: string; readonly message: string } | null;
+  readonly error: {
+    readonly kind: string;
+    readonly code?: string;
+    readonly message: string;
+  } | null;
 }
 
 export interface PaymentDto {
@@ -184,7 +188,10 @@ function latestAttempts(attempts: ExecutionAttempt[]): Map<string, ExecutionAtte
   return out;
 }
 
-export async function loadPaymentList(repo: RepoCtx, now = new Date()): Promise<PaymentListResponse> {
+export async function loadPaymentList(
+  repo: RepoCtx,
+  now = new Date(),
+): Promise<PaymentListResponse> {
   const payments = await listPayments(repo, { limit: PAYMENT_LIST_LIMIT });
   const attempts = latestAttempts(
     await listAttemptsForRefs(
@@ -247,7 +254,11 @@ function replay(record: IdempotencyRecord, hash: string, requestId: string): Res
   }
   return Response.json(record.response, {
     status: record.responseStatus,
-    headers: { "cache-control": "no-store", "idempotent-replayed": "true", "x-request-id": requestId },
+    headers: {
+      "cache-control": "no-store",
+      "idempotent-replayed": "true",
+      "x-request-id": requestId,
+    },
   });
 }
 
@@ -346,21 +357,32 @@ export async function createPaymentWithAttempt(
 
 const IdParams = z.strictObject({ id: PaymentIdSchema });
 
-export function createPaymentRoutes(
-  kit: ReturnType<typeof createRouteKit>,
-  deps: { balances: BalanceReader; now?: () => Date },
-) {
+/** Keeps a spec's generics so a route file can pass it straight to `defineRoute`. */
+function spec<
+  A extends AuthRule,
+  B extends z.ZodType | undefined = undefined,
+  Q extends z.ZodType | undefined = undefined,
+  P extends z.ZodType | undefined = undefined,
+>(s: RouteSpec<A, B, Q, P>): RouteSpec<A, B, Q, P> {
+  return s;
+}
+
+/**
+ * The four route specs. Route files declare `export const GET = defineRoute(specs.list)` (the M1-10
+ * inventory requires `defineRoute(` in each file); tests build the same specs on a test kit.
+ */
+export function paymentRouteSpecs(deps: { balances: BalanceReader; now?: () => Date }) {
   const now = deps.now ?? (() => new Date());
   const noStore = { "cache-control": "no-store" };
 
-  const list = kit.defineRoute({
+  const list = spec({
     method: "GET",
     auth: "session",
     handler: async ({ repo }) =>
       Response.json(await loadPaymentList(repo, now()), { headers: noStore }),
   });
 
-  const create = kit.defineRoute({
+  const create = spec({
     method: "POST",
     auth: { roles: ["owner"] },
     body: CreatePaymentBodySchema,
@@ -372,7 +394,7 @@ export function createPaymentRoutes(
       }),
   });
 
-  const detail = kit.defineRoute({
+  const detail = spec({
     method: "GET",
     auth: "session",
     params: IdParams,
@@ -383,7 +405,7 @@ export function createPaymentRoutes(
     },
   });
 
-  const simulate = kit.defineRoute({
+  const simulate = spec({
     method: "POST",
     auth: { roles: ["owner"] },
     params: IdParams,
@@ -411,4 +433,18 @@ export function createPaymentRoutes(
   });
 
   return { list, create, detail, simulate };
+}
+
+/** The specs bound to a route kit (tests). */
+export function createPaymentRoutes(
+  kit: ReturnType<typeof createRouteKit>,
+  deps: { balances: BalanceReader; now?: () => Date },
+) {
+  const s = paymentRouteSpecs(deps);
+  return {
+    list: kit.defineRoute(s.list),
+    create: kit.defineRoute(s.create),
+    detail: kit.defineRoute(s.detail),
+    simulate: kit.defineRoute(s.simulate),
+  };
 }
