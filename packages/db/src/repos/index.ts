@@ -6,6 +6,7 @@ export * from "./audit-log";
 export * from "./businesses";
 export * from "./context";
 export * from "./counterparties";
+export * from "./documents";
 export * from "./execution-attempts";
 export * from "./idempotency-keys";
 export * from "./outbox";

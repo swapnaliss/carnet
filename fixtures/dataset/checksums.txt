@@ -25,4 +25,6 @@ d1b94d940e5406460ce8d5dbe4ef198f0d0868458fcfd4c3283451dcaa3cdbf1  rfi-sets/rfi-s
 7dedf31c81a4a2395eb9ac0486afcd09d3cfe987591c478ad8322d4392b47ab5  rfi-sets/rfi-set-nordlicht-scan.json
 4efd03db5cabe5afc00a0132dea3bad660e0ef7480efb46abbc6f2e4eaf7901c  rfi-sets/rfi-set-rhein-contradict.json
 86c54f19b3a8ddd5b3b473a9f8dd54cd0b2f63e1acc685f1c6a87f5fb73cb605  rfi-sets/rfi-set-rhein-followup.json
+3ecbff29392de3faa16902d863dbac12896a09c757796866d844fe47a1aae7be  scans/inv-nordlicht-scan-001.jpg
+8109e2bef1be467938ae69751cc22dc0ad8ba2adfbd3888e596d6544f472589e  scans/inv-nordlicht-scan-001.png
 feeb2a384ca8ab39be7709f1e2690cd4487acea402847dc703172392efcafaea  stmt-altstadt-001.pdf

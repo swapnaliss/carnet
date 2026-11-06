@@ -11,6 +11,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { crc32, deflateSync } from "node:zlib";
 import PDFDocument from "pdfkit";
+import { encodeGrayJpeg } from "./jpeg.mjs";
 
 export const SEED = 20261102;
 const FIXED_DATE = new Date("2026-10-30T00:00:00Z");
@@ -437,10 +438,13 @@ function crcChunk(type, data) {
   return Buffer.concat([len, t, data, crc]);
 }
 
-// Rasterise upper-case text lines to an 8-bit grayscale PNG with deterministic faint noise.
-function scanPng(textLines, seed) {
-  const W = 827;
-  const H = 1169;
+const SCAN_W = 827;
+const SCAN_H = 1169;
+
+// Rasterise upper-case text lines to 8-bit grayscale pixels with deterministic faint noise.
+function scanPixels(textLines, seed) {
+  const W = SCAN_W;
+  const H = SCAN_H;
   const S = 3;
   const rand = mulberry32(seed);
   const px = Buffer.alloc(W * H);
@@ -463,6 +467,14 @@ function scanPng(textLines, seed) {
       });
     });
   });
+  return px;
+}
+
+// The scan as a PNG (embedded in the image-only PDF, and written as scans/*.png for M2-01).
+function scanPng(textLines, seed) {
+  const W = SCAN_W;
+  const H = SCAN_H;
+  const px = scanPixels(textLines, seed);
   const raw = Buffer.alloc((W + 1) * H);
   for (let y = 0; y < H; y++) {
     raw[y * (W + 1)] = 0;
@@ -1198,6 +1210,16 @@ export async function generate(outDir) {
       facts: factsFor(d),
     });
   }
+  // M2-01: the image-only scan also as standalone PNG and JPEG files (the upload endpoint's image
+  // fixtures). Not ground-truth documents: they carry no facts of their own.
+  const scan = docs.find((d) => d.scan);
+  mkdirSync(join(out, "scans"), { recursive: true });
+  writeFileSync(join(out, "scans", `${scan.id}.png`), scanPng(scan.scanLines, SEED ^ 0x5ca1));
+  writeFileSync(
+    join(out, "scans", `${scan.id}.jpg`),
+    encodeGrayJpeg(scanPixels(scan.scanLines, SEED ^ 0x5ca1), SCAN_W, SCAN_H, 75),
+  );
+
   const sets = rfiSets();
   const groundTruth = {
     dataset: "northwind-synthetic-v1",

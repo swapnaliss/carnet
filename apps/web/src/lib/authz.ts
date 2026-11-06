@@ -22,6 +22,8 @@ export interface AuthCtx {
   readonly businessId: BusinessId;
   readonly userId: UserId;
   readonly role: Role;
+  /** The better-auth session row id (per-session upload caps, M2-01); absent outside a session. */
+  readonly sessionId?: string;
 }
 
 const READ_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
@@ -56,7 +58,12 @@ export async function sessionCtx(rt: AuthRuntime, headers: Headers): Promise<Aut
     role?: unknown;
   };
   if (typeof businessId !== "string" || !isRole(role)) return null;
-  return { businessId: businessId as BusinessId, userId: id as UserId, role };
+  return {
+    businessId: businessId as BusinessId,
+    userId: id as UserId,
+    role,
+    sessionId: session.session.id,
+  };
 }
 
 export function createAuthz(runtime: () => AuthRuntime): Authz {
