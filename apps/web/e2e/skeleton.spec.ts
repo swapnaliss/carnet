@@ -23,6 +23,10 @@ async function signIn(page: Page, email: string, password: string): Promise<void
 test("the owner creates a payment and the UI shows each new status within 6 s, announced", async ({
   page,
 }) => {
+  test.skip(
+    !process.env.E2E_BASE_URL && !process.env.AIRWALLEX_CLIENT_ID,
+    "creates a real sandbox transfer: set E2E_BASE_URL (deployed) or run the stack with AIRWALLEX_* keys; skipped locally without them.",
+  );
   test.setTimeout(240_000);
   await signIn(page, ownerEmail, ownerPassword ?? "");
   await page.goto("/payments");
