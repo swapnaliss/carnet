@@ -9,6 +9,8 @@
 //   login     5 failed sign-ins per email and 20 per IP, per 15 minutes (only failures count)
 //   approval  20 per minute per user (registered for M2-07; a route opts in with `rateLimit`)
 //   webhook   RATE_LIMIT_WEBHOOK_PER_MIN (default 600) per minute per source IP
+//   payee_status  PAYEE_STATUS_RATE_LIMIT_PER_MIN (default 30) per minute per IP, and per live link
+//             (token-hash prefix); counted directly in server/payee-status.ts (M3-06)
 // Expired windows are deleted by the worker (src/worker/prune.ts).
 import { createHash } from "node:crypto";
 import { type Db, hitRateLimit, type RateLimitRule, type RateLimitState } from "@carnet/db";
@@ -50,7 +52,7 @@ export type RouteRateLimitName = keyof typeof ROUTE_RATE_LIMITS;
 /** Windows older than this are pruned; longer than the longest window (15 minutes). */
 export const RATE_LIMIT_RETENTION_MS = 60 * MINUTE;
 
-export type SubjectKind = "user" | "email" | "ip";
+export type SubjectKind = "user" | "email" | "ip" | "token";
 
 export function rateLimitKey(route: string, kind: SubjectKind, subject: string): string {
   return `${route}:${kind}:${subject}`;

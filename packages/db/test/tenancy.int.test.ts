@@ -2,6 +2,7 @@
 // not a system function or a context helper) must take `ctx` first and have a case below in which
 // business A's context cannot read, update or delete business B's rows. A new repository function
 // without a case, or without `ctx` first, fails this file.
+import { createHash } from "node:crypto";
 import {
   type AttemptId,
   type BusinessId,
@@ -20,6 +21,7 @@ import * as attempts from "../src/repos/attempts";
 import * as context from "../src/repos/context";
 import * as repos from "../src/repos/index";
 import * as outbox from "../src/repos/outbox";
+import * as payeeLinkLookup from "../src/repos/payee-link-lookup";
 import * as rateLimits from "../src/repos/rate-limits";
 import * as system from "../src/repos/system";
 import * as webhookEvents from "../src/repos/webhook-events";
@@ -39,6 +41,7 @@ const helperNames = new Set([
   ...Object.keys(context),
   ...Object.keys(system),
   ...Object.keys(outbox),
+  ...Object.keys(payeeLinkLookup),
   ...Object.keys(rateLimits),
   ...Object.keys(webhookEvents),
   ...Object.keys(workerHeartbeats),
@@ -57,6 +60,7 @@ interface Fixture {
   requestId: RequestId;
   agentRunId: string;
   agentStepId: string;
+  linkId: string;
 }
 
 const ENDPOINT = "POST /api/v1/payments";
@@ -106,9 +110,18 @@ async function seed(name: string): Promise<Fixture> {
     providerRequestId: null,
   });
   if (!agentStep) throw new Error("seed: agent step not recorded");
+  const link = await repos.createPayeeLink(ctx, {
+    paymentId: payment.id,
+    tokenHash: createHash("sha256").update(name).digest("hex"),
+    expiresAt: new Date(Date.now() + 3_600_000),
+    disclosureLevel: "GENERIC",
+    createdBy: user.id,
+  });
+  if (!link) throw new Error("seed link not created");
   return {
     agentRunId: agentRun.id,
     agentStepId: agentStep.id,
+    linkId: link.id,
     businessId,
     userId: user.id,
     counterpartyId: cp.id,
@@ -136,6 +149,7 @@ async function snapshotB(): Promise<unknown> {
     audit: await repos.listAudit(b),
     agentRun: await repos.getAgentRun(b, B.agentRunId),
     agentSteps: await repos.listAgentSteps(b, B.agentRunId),
+    payeeLinks: await repos.listPayeeLinks(b, B.paymentId),
   };
 }
 
@@ -254,6 +268,28 @@ const cases: Record<string, () => Promise<void>> = {
       response: {},
     });
     expect(r.businessId).toBe(A.businessId);
+  },
+  createPayeeLink: async () => {
+    // A cannot create a link for B's payment; nothing is written.
+    const r = await repos.createPayeeLink(ctxA(), {
+      paymentId: B.paymentId,
+      tokenHash: createHash("sha256").update("cross").digest("hex"),
+      expiresAt: new Date(Date.now() + 3_600_000),
+      disclosureLevel: "GENERIC",
+      createdBy: A.userId,
+    });
+    expect(r).toBeNull();
+  },
+  listPayeeLinks: async () => {
+    expect(await repos.listPayeeLinks(ctxA(), B.paymentId)).toEqual([]);
+    const own = await repos.listPayeeLinks(ctxA(), A.paymentId);
+    expect(own.length).toBeGreaterThan(0);
+    expect(ownedBy(own, A.businessId)).toBe(true);
+  },
+  revokePayeeLink: async () => {
+    expect(await repos.revokePayeeLink(ctxA(), B.paymentId, B.linkId)).toBeNull();
+    // Right link id, wrong payment: still not found.
+    expect(await repos.revokePayeeLink(ctxA(), A.paymentId, B.linkId)).toBeNull();
   },
   appendAudit: async () => {
     const e = await repos.appendAudit(ctxA(), { actorType: "user", action: "x", subject: "y" });

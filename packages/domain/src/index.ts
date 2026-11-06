@@ -3,5 +3,6 @@
 export * from "./errors";
 export * from "./ids";
 export * from "./money";
+export * from "./payee-status";
 export * from "./schemas";
 export * from "./status";

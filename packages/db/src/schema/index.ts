@@ -8,6 +8,7 @@ export * from "./counterparties";
 export * from "./execution-attempts";
 export * from "./idempotency-keys";
 export * from "./outbox-jobs";
+export * from "./payee-links";
 export * from "./payments";
 export * from "./rate-limits";
 export * from "./system-flags";

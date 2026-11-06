@@ -21,7 +21,12 @@ import { addUser, ORIGIN, sessionCookie, setupAuthTestEnv } from "../auth/setup"
 import { apiRoutes } from "./api-routes";
 
 /** route (relative to src/app/api) → how its test proves 404 cross-tenant and 403 for the viewer. */
-export const CROSS_TENANT_CASES: Record<string, string> = {};
+export const CROSS_TENANT_CASES: Record<string, string> = {
+  "v1/payments/[id]/payee-links":
+    "test/payee/payee-links-api.int.test.ts: another business's payment id answers 404 on list and create, nothing written; viewer 403 on create",
+  "v1/payments/[id]/payee-links/[linkId]":
+    "test/payee/payee-links-api.int.test.ts: another business's session answers 404 on revoke and the link stays active; viewer 403",
+};
 
 const env = setupAuthTestEnv();
 const cookies = { owner: "", approver: "", judge: "", otherOwner: "" };
@@ -107,7 +112,6 @@ describe("inventory: every id-taking API route has a cross-tenant case", () => {
   it("lists the id routes and requires a case for each", () => {
     const idRoutes = apiRoutes().filter((r) => /\[(?!\.\.\.)[^\]]+\]/.test(r));
     for (const route of idRoutes) expect(CROSS_TENANT_CASES, route).toHaveProperty(route);
-    // Today: none (auth/[...all] is a catch-all, not a resource id). M1-08 adds the first.
     expect(idRoutes).toEqual(Object.keys(CROSS_TENANT_CASES));
   });
 });
