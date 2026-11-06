@@ -2,7 +2,7 @@
 // (webhook inbox, outbox, rate limits, system flags) and the bootstrap that creates a tenant.
 // They take `db`, not a tenant context, and none of them reads a tenant table.
 import { type BusinessId, type Money, newBusinessId } from "@carnet/domain";
-import { eq } from "drizzle-orm";
+import { eq, gte, sql } from "drizzle-orm";
 import type { Db } from "../client";
 import {
   DuplicateWebhookEventError,
@@ -10,7 +10,7 @@ import {
   SystemFlagsMissingError,
   translateDbError,
 } from "../errors";
-import { businesses, outboxJobs, systemFlags, webhookEvents } from "../schema/index";
+import { agentSteps, businesses, outboxJobs, systemFlags, webhookEvents } from "../schema/index";
 import { moneyFromDb } from "./context";
 
 // --- bootstrap -----------------------------------------------------------------------------------
@@ -134,4 +134,18 @@ export async function getSystemFlags(db: Db): Promise<SystemFlags> {
     perRunCap: moneyFromDb(row.perRunCapMinor, row.capCurrency),
     updatedAt: row.updatedAt,
   };
+}
+
+// --- model spend ---------------------------------------------------------------------------------
+
+/**
+ * Model spend in nano-USD of every step since `since`, across all businesses: the daily cap in
+ * system_flags is one platform-wide budget (M2-00).
+ */
+export async function agentSpendSince(db: Db, since: Date): Promise<number> {
+  const [row] = await db
+    .select({ total: sql<string>`coalesce(sum(${agentSteps.costNanoUsd}), 0)` })
+    .from(agentSteps)
+    .where(gte(agentSteps.createdAt, since));
+  return Number(row?.total ?? 0);
 }

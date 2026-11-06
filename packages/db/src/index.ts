@@ -5,8 +5,22 @@ export * from "./errors";
 export * from "./migrate";
 export * from "./queries/slo";
 export * from "./repos/index";
-export type { AttemptKind, AttemptStatus, JobStatus, UserRole } from "./schema/index";
+export type {
+  AgentRunStatus,
+  AgentStepOutcome,
+  AttemptKind,
+  AttemptStatus,
+  JobStatus,
+  UserRole,
+} from "./schema/index";
 export * as schema from "./schema/index";
-export { ATTEMPT_KINDS, ATTEMPT_STATUSES, JOB_STATUSES, USER_ROLES } from "./schema/index";
+export {
+  AGENT_RUN_STATUSES,
+  AGENT_STEP_OUTCOMES,
+  ATTEMPT_KINDS,
+  ATTEMPT_STATUSES,
+  JOB_STATUSES,
+  USER_ROLES,
+} from "./schema/index";
 export * from "./seed/demo-business";
 export * from "./seed/demo-users";
