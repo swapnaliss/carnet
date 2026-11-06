@@ -1,5 +1,5 @@
 import { type AttemptId, type BusinessId, newAttemptId, type RequestId } from "@carnet/domain";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { DuplicateRequestIdError, pgErrorOf, translateDbError } from "../errors";
 import { type AttemptKind, type AttemptStatus, executionAttempts } from "../schema/index";
 import type { RepoCtx } from "./context";
@@ -84,6 +84,27 @@ export async function getAttemptByRequestId(
       ),
     );
   return row ? toAttempt(row) : null;
+}
+
+/** The attempts of one kind for these payments (or conversions, RFIs), oldest first (M1-08). */
+export async function listAttemptsForRefs(
+  ctx: RepoCtx,
+  kind: AttemptKind,
+  refIds: readonly string[],
+): Promise<ExecutionAttempt[]> {
+  if (refIds.length === 0) return [];
+  const rows = await ctx.db
+    .select()
+    .from(executionAttempts)
+    .where(
+      and(
+        eq(executionAttempts.businessId, ctx.businessId),
+        eq(executionAttempts.kind, kind),
+        inArray(executionAttempts.refId, [...refIds]),
+      ),
+    )
+    .orderBy(asc(executionAttempts.createdAt), asc(executionAttempts.id));
+  return rows.map(toAttempt);
 }
 
 const TERMINAL: readonly AttemptStatus[] = ["CONFIRMED", "REJECTED"];

@@ -5,7 +5,13 @@
 //    transfer is applied to its payment. Not found -> stays UNKNOWN with an alert line; a new request
 //    is never sent from here (absence from a list is not proof, BL-01 6625872848).
 // Each item is isolated: one failing lookup is logged and the pass continues.
-import { listAttemptsByStatus, listOpenTransfers, repoCtx, updateAttemptStatus } from "@carnet/db";
+import {
+  getAttempt,
+  listAttemptsByStatus,
+  listOpenTransfers,
+  repoCtx,
+  updateAttemptStatus,
+} from "@carnet/db";
 import type { AttemptId, PaymentId } from "@carnet/domain";
 import { type HandlerContext, JOB_KIND, type JobHandler } from "./handlers/index";
 import { recordRfi } from "./handlers/rfi";
@@ -83,12 +89,18 @@ export async function runReconcile(ctx: HandlerContext): Promise<ReconcileSummar
         summary.attemptsUnresolved += 1;
         continue;
       }
-      await updateAttemptStatus(
-        repoCtx(ctx.db, attempt.businessId),
-        attempt.id as AttemptId,
-        "CONFIRMED",
-        { transferId: transfer.id, status: transfer.status, resolvedBy: "reconcile_lookup" },
-      );
+      const rc = repoCtx(ctx.db, attempt.businessId);
+      // Keep what the sender recorded (sentAt, sends, the error that made it UNKNOWN).
+      const stored = await getAttempt(rc, attempt.id as AttemptId);
+      const prior =
+        typeof stored?.response === "object" && stored.response !== null ? stored.response : {};
+      await updateAttemptStatus(rc, attempt.id as AttemptId, "CONFIRMED", {
+        ...prior,
+        transferId: transfer.id,
+        status: transfer.status,
+        confirmedAt: new Date().toISOString(),
+        resolvedBy: "reconcile_lookup",
+      });
       summary.attemptsConfirmed += 1;
       ctx.logger.info(
         { attemptId: attempt.id, transferId: transfer.id },
