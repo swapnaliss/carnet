@@ -27,7 +27,12 @@ export {
   usageOf,
   worstCaseCostNanoUsd,
 } from "./pricing";
-export { canonicalJson, jsonSchemaOf, promptVersion } from "./prompt-version";
+export {
+  canonicalJson,
+  jsonSchemaOf,
+  promptVersion,
+  schemaSubsetViolations,
+} from "./prompt-version";
 export { inputHash, lookupReplay } from "./replay";
 export type {
   AgentFlags,

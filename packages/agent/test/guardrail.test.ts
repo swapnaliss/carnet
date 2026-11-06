@@ -2,9 +2,25 @@
 // AC8: prompt versions. Plus the delimiter guarantee of wrapUntrusted.
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-import { composeSystem, promptVersion, scanInjection, wrapUntrusted } from "../src/index";
+import {
+  composeSystem,
+  promptVersion,
+  scanInjection,
+  schemaSubsetViolations,
+  wrapUntrusted,
+} from "../src/index";
 import { BENIGN, INJECTIONS } from "./injection-cases";
-import { DRAFT_SYSTEM, Draft } from "./prompts";
+import { DRAFT_SYSTEM, Draft, Extraction } from "./prompts";
+
+describe("schema subset (BL-01: z.record yields an object the model can only return as {})", () => {
+  it("accepts the working subset and flags z.record", () => {
+    expect(schemaSubsetViolations(Draft)).toEqual([]);
+    expect(schemaSubsetViolations(Extraction)).toEqual([]);
+    expect(schemaSubsetViolations(z.object({ m: z.record(z.string(), z.string()) }))).toEqual([
+      "/m",
+    ]);
+  });
+});
 
 describe("AC9: injection pre-scan", () => {
   it("has at least 15 injection payloads (with delimiter forgery) and 15 benign texts", () => {

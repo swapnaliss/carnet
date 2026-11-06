@@ -34,3 +34,26 @@ export function promptVersion(system: string, schema: z.ZodType): string {
   const material = `${composeSystem(system)}\n\u0000\n${canonicalJson(jsonSchemaOf(schema))}`;
   return sha256Hex(material).slice(0, 12);
 }
+
+/**
+ * Parts of a zod schema the API's decoder cannot honour (docs/evidence/anthropic-spike.md): a
+ * `z.record` becomes an object with no properties, so the model can only return `{}`. Returns the
+ * path of every such object; a prompt's test asserts it is empty (BL-01).
+ */
+export function schemaSubsetViolations(schema: z.ZodType): string[] {
+  const found: string[] = [];
+  const walk = (node: unknown, path: string): void => {
+    if (!node || typeof node !== "object") return;
+    const n = node as Record<string, unknown>;
+    const props = n.properties as Record<string, unknown> | undefined;
+    if (n.type === "object" && (!props || Object.keys(props).length === 0)) found.push(path || "/");
+    for (const [k, v] of Object.entries(props ?? {})) walk(v, `${path}/${k}`);
+    walk(n.items, `${path}/[]`);
+    for (const key of ["anyOf", "oneOf", "allOf"]) {
+      const list = n[key];
+      if (Array.isArray(list)) list.forEach((c, i) => walk(c, `${path}/${key}${i}`));
+    }
+  };
+  walk(jsonSchemaOf(schema), "");
+  return found;
+}
