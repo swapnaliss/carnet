@@ -33,7 +33,7 @@ const bytea = customType<{ data: Uint8Array; driverData: Buffer }>({
 // ADR 0003: bytes in Postgres with their SHA-256, immutable. The CHECK recomputes the hash and the
 // size from the bytes, so a row can never carry a hash of other bytes. The app role may update only
 // `kind` and `filename`, and a trigger refuses any change to bytes, sha256, size, mime or business
-// for every role (migration 0004). Identical bytes in one business are one row.
+// for every role (migration 0005). Identical bytes in one business are one row.
 export const documents = pgTable(
   "documents",
   {

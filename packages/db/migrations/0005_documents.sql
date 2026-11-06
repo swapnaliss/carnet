@@ -18,7 +18,8 @@ CREATE TABLE "documents" (
 --> statement-breakpoint
 ALTER TABLE "documents" ADD CONSTRAINT "documents_business_id_businesses_id_fk" FOREIGN KEY ("business_id") REFERENCES "public"."businesses"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "documents_business_id_created_at_idx" ON "documents" USING btree ("business_id","created_at");--> statement-breakpoint
-CREATE UNIQUE INDEX "documents_business_id_sha256_key" ON "documents" USING btree ("business_id","sha256");--> statement-breakpoint
+CREATE UNIQUE INDEX "documents_business_id_sha256_key" ON "documents" USING btree ("business_id","sha256");
+--> statement-breakpoint
 -- M2-01 (ADR 0003): stored bytes and their hash are immutable. Two layers:
 -- 1. privileges: the app role may INSERT, SELECT and DELETE, and UPDATE only kind and filename;
 -- 2. a trigger refuses a change to bytes, sha256, size, mime or business_id for every role, the owner
