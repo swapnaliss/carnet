@@ -111,3 +111,11 @@ export class PlanRevisionConflictError extends DbError {
     this.revision = revision;
   }
 }
+
+/** Another writer inserted a facts version first (M2-02); reload and decide again. */
+export class FactsVersionConflictError extends DbError {
+  override readonly name = "FactsVersionConflictError";
+  constructor(documentId: string) {
+    super(`document ${documentId} got a new facts version while this one was being written`);
+  }
+}

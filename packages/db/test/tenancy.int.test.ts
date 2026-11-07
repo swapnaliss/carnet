@@ -120,6 +120,24 @@ async function seed(name: string): Promise<Fixture> {
     mime: "application/pdf",
     bytes: new TextEncoder().encode(`%PDF-1.7 ${name}\n%%EOF`),
   });
+  await repos.insertFactsVersion(ctx, {
+    documentId: doc.document.id,
+    source: "model",
+    status: "EXTRACTED",
+    textLayer: true,
+    facts: [
+      {
+        key: "supplier",
+        value: name,
+        parsed: { type: "text", text: name },
+        quote: `Supplier: ${name}`,
+        page: 1,
+        quote_verified: true,
+        needs_confirmation: false,
+        issues: [],
+      },
+    ],
+  });
   const planInputs = emptyPlanInputs(businessId);
   await repos.insertPlanRevision(ctx, nextRevision(null, planInputs), { inputs: planInputs });
   const agentRun = await repos.createAgentRun(ctx, { kind: "draft", ref: "rfi-same-ref" });
@@ -340,6 +358,35 @@ const cases: Record<string, () => Promise<void>> = {
     const rows = await repos.listDocuments(ctxA());
     expect(rows.length).toBeGreaterThan(0);
     expect(ownedBy(rows, A.businessId)).toBe(true);
+  },
+  insertFactsVersion: async () => {
+    // A cannot attach facts to B's document: the composite key refuses it, and nothing is written.
+    await expect(
+      repos.insertFactsVersion(ctxA(), {
+        documentId: B.documentId,
+        source: "model",
+        status: "EXTRACTED",
+        textLayer: true,
+        facts: [],
+      }),
+    ).rejects.toMatchObject({ name: "ForeignKeyViolationError" });
+    expect(await repos.listFactVersions(ctxB(), B.documentId)).toHaveLength(1);
+  },
+  getFactsVersion: async () => {
+    expect(await repos.getFactsVersion(ctxA(), B.documentId, 1)).toBeNull();
+    expect((await repos.getFactsVersion(ctxA(), A.documentId, 1))?.documentId).toBe(A.documentId);
+  },
+  getLatestFacts: async () => {
+    expect(await repos.getLatestFacts(ctxA(), B.documentId)).toBeNull();
+    expect((await repos.getLatestFacts(ctxA(), A.documentId))?.documentId).toBe(A.documentId);
+  },
+  listFactVersions: async () => {
+    expect(await repos.listFactVersions(ctxA(), B.documentId)).toEqual([]);
+    expect(await repos.listFactVersions(ctxA(), A.documentId)).toHaveLength(1);
+  },
+  getUsableFacts: async () => {
+    expect(await repos.getUsableFacts(ctxA(), B.documentId)).toBeNull();
+    expect((await repos.getUsableFacts(ctxA(), A.documentId))?.document_id).toBe(A.documentId);
   },
   insertPlanRevision: async () => {
     const inputs = emptyPlanInputs(B.businessId);

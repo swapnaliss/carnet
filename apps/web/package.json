@@ -13,6 +13,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@carnet/agent": "0.0.0",
     "@carnet/airwallex": "0.0.0",
     "@carnet/db": "0.0.0",
     "@carnet/domain": "0.0.0",
