@@ -8,9 +8,8 @@ import { createDbClient, type DbClient } from "../src/client";
 import { runMigrations } from "../src/migrate";
 
 /**
- * The tables M1-02 creates (docs/architecture.md §5), plus the better-auth tables (M1-04) and the
- * model run tables (M2-00)
- * and documents (M2-01).
+ * The tables M1-02 creates (docs/architecture.md §5), plus the better-auth tables (M1-04), the
+ * model run tables (M2-00), documents (M2-01) and the RFI tables (M2-04).
  */
 export const M1_TABLES = [
   "agent_runs",
@@ -30,6 +29,8 @@ export const M1_TABLES = [
   "plan_actions",
   "plans",
   "rate_limits",
+  "rfi_questions",
+  "rfis",
   "system_flags",
   "users",
   "webhook_events",

@@ -23,7 +23,7 @@ export const FACT_VERSION_STATUS_VALUES = ["EXTRACTED", "EXTRACTION_FAILED"] as 
 
 // ADR 0010 (M2-02): the facts extracted from a document, versioned and immutable. A re-extraction or an
 // owner correction inserts version n+1; the app role has no UPDATE or DELETE on this table and a
-// trigger refuses both for every role (migration 0008). `facts` holds `{key, value, parsed, quote,
+// trigger refuses both for every role (migration 0010). `facts` holds `{key, value, parsed, quote,
 // page, quote_verified, needs_confirmation, issues}` per fact; `quote_verified` is set by code only.
 export const documentFacts = pgTable(
   "document_facts",

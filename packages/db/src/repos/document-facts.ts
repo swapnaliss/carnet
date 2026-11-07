@@ -1,6 +1,6 @@
 // Document facts repository (M2-02, ADR 0010). Versions are immutable: `insertFactsVersion` is the only
 // writer, there is no update or delete function, the app role has no UPDATE or DELETE on the table, and
-// a trigger refuses both for every role (migration 0008). A re-extraction, an owner correction and an
+// a trigger refuses both for every role (migration 0010). A re-extraction, an owner correction and an
 // owner confirmation each insert version n+1.
 //
 // Call `insertFactsVersion` inside the transaction that also enqueues `document.extracted` (ADR 0005).

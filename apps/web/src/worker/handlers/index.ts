@@ -9,7 +9,7 @@ import type { Logger } from "../../server/log";
 export const JOB_KIND = {
   /** `payout.transfer.*` webhook or a poll: fetch the transfer, apply it to its payment. */
   transferSync: "transfer.sync",
-  /** `rfi.*` webhook: fetch the RFI (placeholder until M2-04 registers its ingest handler). */
+  /** `rfi.*` webhook: fetch the RFI and ingest it (M2-04, handlers/rfi.ts). */
   rfiSync: "rfi.sync",
   /** Every 60 s, enqueued by the loop itself, one at a time. */
   reconcile: "reconcile",

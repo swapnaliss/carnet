@@ -19,6 +19,8 @@ export interface NewBusiness {
   id?: BusinessId;
   name: string;
   timezone?: string;
+  /** The business's Airwallex account id (attributes orphan RFIs, M2-04). */
+  airwallexAccountId?: string;
 }
 
 /** Creates a tenant and returns its id (seed and sign-up only). Read it back with a context. */
@@ -29,6 +31,7 @@ export async function createBusiness(db: Db, input: NewBusiness): Promise<Busine
       id: input.id ?? newBusinessId(),
       name: input.name,
       ...(input.timezone ? { timezone: input.timezone } : {}),
+      ...(input.airwallexAccountId ? { airwallexAccountId: input.airwallexAccountId } : {}),
     })
     .returning({ id: businesses.id });
   if (!row) throw new Error("insert returned no row");

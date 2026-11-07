@@ -8,6 +8,7 @@ export interface Business {
   readonly name: string;
   readonly timezone: string;
   readonly policyVersion: number;
+  readonly airwallexAccountId: string | null;
   readonly createdAt: Date;
 }
 
@@ -17,6 +18,7 @@ const toBusiness = (r: Row): Business => ({
   name: r.name,
   timezone: r.timezone,
   policyVersion: r.policyVersion,
+  airwallexAccountId: r.airwallexAccountId,
   createdAt: r.createdAt,
 });
 
@@ -30,6 +32,7 @@ export interface BusinessPatch {
   name?: string;
   timezone?: string;
   policyVersion?: number;
+  airwallexAccountId?: string | null;
 }
 
 export async function updateBusiness(ctx: RepoCtx, patch: BusinessPatch): Promise<Business | null> {
