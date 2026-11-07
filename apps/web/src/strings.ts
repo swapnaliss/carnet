@@ -231,25 +231,6 @@ const en = {
         "This link was already created and its address cannot be shown again. Revoke it and create a new one.",
       readOnly: "This login is read-only, so it cannot create or revoke links.",
     },
-    page: {
-      title: "Payment",
-      back: "Back to the queue",
-      reference: "Reference",
-      amount: "Amount",
-      status: "Status at Airwallex",
-      noTransfer: "No transfer yet",
-      loading: "Loading payment",
-      view: {
-        AWAITING_APPROVAL: "Awaiting approval",
-        NOT_SENT: "Not sent",
-        SCHEDULED: "Scheduled",
-        OVERDUE: "Overdue",
-        PROCESSING: "Processing",
-        SENT: "Sent",
-        PAID: "Paid",
-        FAILED: "Failed",
-      },
-    },
   },
   common: {
     state: {

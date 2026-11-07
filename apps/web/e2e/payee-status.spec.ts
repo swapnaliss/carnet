@@ -88,7 +88,7 @@ test.describe("owner and payee flow", () => {
       await page.emulateMedia({ colorScheme: scheme });
       await signIn(page, "owner");
       await page.goto(`/payments/${paymentId}`);
-      await expect(page.getByRole("heading", { level: 1, name: "Payment" })).toBeVisible();
+      await expect(page.getByRole("heading", { level: 1, name: REFERENCE })).toBeVisible();
       await expect(page.getByText("No status links yet")).toBeVisible();
       await axe(page, `owner-empty-${scheme}`, info);
 
