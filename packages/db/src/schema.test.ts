@@ -1,4 +1,11 @@
-import { DOCUMENT_KINDS, DOCUMENT_MIMES, TRANSFER_STATUSES } from "@carnet/domain";
+import {
+  AIRWALLEX_RFI_STATUSES,
+  DOCUMENT_KINDS,
+  DOCUMENT_MIMES,
+  RFI_ORPHAN_REASONS,
+  RFI_STATES,
+  TRANSFER_STATUSES,
+} from "@carnet/domain";
 import { describe, expect, it } from "vitest";
 import {
   DuplicateRequestIdError,
@@ -6,11 +13,23 @@ import {
   translateDbError,
   UniqueViolationError,
 } from "./errors";
-import { DOCUMENT_KIND_VALUES, DOCUMENT_MIME_VALUES, TRANSFER_STATUS_VALUES } from "./schema/index";
+import {
+  AIRWALLEX_RFI_STATUS_VALUES,
+  DOCUMENT_KIND_VALUES,
+  DOCUMENT_MIME_VALUES,
+  RFI_ORPHAN_REASON_VALUES,
+  RFI_STATE_VALUES,
+  TRANSFER_STATUS_VALUES,
+} from "./schema/index";
 
 describe("schema", () => {
   it("the payments.transfer_status CHECK list equals the domain's TRANSFER_STATUSES", () => {
     expect([...TRANSFER_STATUS_VALUES]).toEqual([...TRANSFER_STATUSES]);
+  });
+  it("the rfis CHECK lists equal the domain's RFI states, orphan reasons and Airwallex statuses", () => {
+    expect([...RFI_STATE_VALUES]).toEqual([...RFI_STATES]);
+    expect([...RFI_ORPHAN_REASON_VALUES]).toEqual([...RFI_ORPHAN_REASONS]);
+    expect([...AIRWALLEX_RFI_STATUS_VALUES]).toEqual([...AIRWALLEX_RFI_STATUSES]);
   });
 
   it("the documents kind and mime CHECK lists equal the domain's (M2-01)", () => {

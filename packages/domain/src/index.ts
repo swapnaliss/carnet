@@ -6,5 +6,6 @@ export * from "./ids";
 export * from "./money";
 export * from "./payments";
 export * from "./planner/index";
+export * from "./rfi/index";
 export * from "./schemas";
 export * from "./status";

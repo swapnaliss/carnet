@@ -12,6 +12,7 @@ export * from "./outbox-jobs";
 export * from "./payments";
 export * from "./plans";
 export * from "./rate-limits";
+export * from "./rfis";
 export * from "./system-flags";
 export * from "./users";
 export * from "./webhook-events";

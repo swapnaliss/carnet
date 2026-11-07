@@ -13,6 +13,8 @@ export * from "./outbox";
 export * from "./payments";
 export * from "./plans";
 export * from "./rate-limits";
+export * from "./rfi-attribution";
+export * from "./rfis";
 export * from "./system";
 export * from "./users";
 export * from "./webhook-events";
