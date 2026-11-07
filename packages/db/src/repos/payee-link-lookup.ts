@@ -14,6 +14,7 @@ import { payeeLinks, payments } from "../schema/index";
 export interface PayeeLinkTarget {
   readonly linkId: string;
   readonly paymentId: string;
+  readonly businessId: string;
   readonly tokenHash: string;
   readonly expiresAt: Date;
   readonly revokedAt: Date | null;
@@ -31,6 +32,7 @@ export async function findPayeeLinkByTokenHash(
     .select({
       linkId: payeeLinks.id,
       paymentId: payeeLinks.paymentId,
+      businessId: payeeLinks.businessId,
       tokenHash: payeeLinks.tokenHash,
       expiresAt: payeeLinks.expiresAt,
       revokedAt: payeeLinks.revokedAt,
@@ -52,6 +54,7 @@ export async function findPayeeLinkByTokenHash(
   return {
     linkId: row.linkId,
     paymentId: row.paymentId,
+    businessId: row.businessId,
     tokenHash: row.tokenHash,
     expiresAt: row.expiresAt,
     revokedAt: row.revokedAt,

@@ -13,9 +13,11 @@ import {
   type Db,
   findPayeeLinkByTokenHash,
   type PayeeLinkTarget,
+  paymentHasHoldingRfi,
+  repoCtx,
   touchPayeeLinkViewed,
 } from "@carnet/db";
-import { type PayeeStatus, payeeStatus } from "@carnet/domain";
+import { type BusinessId, type PayeeStatus, type PaymentId, payeeStatus } from "@carnet/domain";
 import { consumeRateLimit, type RateLimitRule, rateLimitKey } from "../lib/ratelimit";
 
 export const PAYEE_TOKEN_BYTES = 32;
@@ -65,14 +67,12 @@ export function payeeStatusRateLimit(env: Env = process.env): RateLimitRule {
   };
 }
 
-/** Whether an open Airwallex RFI is holding this payment. */
-export type OpenRfiLookup = (db: Db, paymentId: string) => Promise<boolean>;
+/** Whether an open Airwallex RFI is holding this payment (scoped to the link's business). */
+export type OpenRfiLookup = (db: Db, businessId: string, paymentId: string) => Promise<boolean>;
 
-/**
- * No `rfis` table exists until M2-04, so no RFI can be open yet. M2-04 replaces this with a query on
- * `rfis` (open = not ANSWERED/CLOSED/EXPIRED) and the route picks it up unchanged (BL-01).
- */
-export const noOpenRfi: OpenRfiLookup = async () => false;
+/** An RFI linked to the payment is in a holding state (M2-04 `rfis`, ADR 0006). */
+export const holdingRfi: OpenRfiLookup = (db, businessId, paymentId) =>
+  paymentHasHoldingRfi(repoCtx(db, businessId as BusinessId), paymentId as PaymentId);
 
 export interface PayeeStatusDeps {
   readonly db: Db;
@@ -127,7 +127,7 @@ export async function lookupPayeeStatus(
   );
   if (!byToken.allowed) return { kind: "limited", retryAfter: byToken.retryAfter };
 
-  const openRfi = await deps.openRfi(deps.db, link.paymentId);
+  const openRfi = await deps.openRfi(deps.db, link.businessId, link.paymentId);
   await touchPayeeLinkViewed(deps.db, link.linkId, now);
   return {
     kind: "ok",

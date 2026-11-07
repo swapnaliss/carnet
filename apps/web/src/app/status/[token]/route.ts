@@ -3,7 +3,7 @@
 import { logger } from "../../../lib/logger";
 import { withRequestContext } from "../../../lib/request-context";
 import { appDb } from "../../../server/db";
-import { noOpenRfi } from "../../../server/payee-status";
+import { holdingRfi } from "../../../server/payee-status";
 import { createPayeeStatusHandler } from "../../../server/payee-status-handler";
 
 export const runtime = "nodejs";
@@ -13,7 +13,7 @@ const handler = createPayeeStatusHandler({
   db: () => appDb().db,
   logger: () => logger(),
   now: () => new Date(),
-  openRfi: noOpenRfi,
+  openRfi: holdingRfi,
 });
 
 export const GET = withRequestContext(handler);

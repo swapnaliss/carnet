@@ -9,10 +9,12 @@ import {
   createPayment,
   type Db,
   getBusiness,
+  insertRfi,
   repoCtx,
   revokePayeeLink,
   schema,
   updatePaymentTransfer,
+  updateRfi,
 } from "@carnet/db";
 import {
   type DisclosureLevel,
@@ -23,7 +25,7 @@ import {
 } from "@carnet/domain";
 import { eq, sql } from "drizzle-orm";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
-import { hashPayeeToken, newPayeeToken } from "../../src/server/payee-status";
+import { hashPayeeToken, holdingRfi, newPayeeToken } from "../../src/server/payee-status";
 import { createPayeeStatusHandler } from "../../src/server/payee-status-handler";
 import { setupAuthTestEnv } from "../auth/setup";
 
@@ -384,5 +386,43 @@ describe("no outbound call", () => {
     await call(handler(), newPayeeToken());
     for (const spy of spies) expect(spy).not.toHaveBeenCalled();
     for (const spy of spies) spy.mockRestore();
+  });
+});
+
+describe("wired to the rfis table (M2-04)", () => {
+  it("a linked RFI in a holding state shows the opt-in wording; once it is closed the link reads Processing", async () => {
+    await setTransfer("PROCESSING");
+    const ctx = repoCtx(env().db, env().businessId);
+    const rfi = await insertRfi(ctx, {
+      airwallexRfiId: `rfi-payee-${Date.now()}`,
+      type: "TRANSACTION",
+      subType: null,
+      airwallexStatus: "ACTION_REQUIRED",
+      airwallexUpdatedAt: new Date(),
+      airwallexAnsweredRequests: 0,
+      state: "DRAFTING",
+      round: 1,
+      expiresAt: null,
+      paymentId,
+      orphanReason: null,
+      linkedBy: "match",
+      sourceKey: `TRANSFER:payee-${Date.now()}`,
+      conflict: false,
+    });
+    const generic = await makeLink("GENERIC");
+    const delayed = await makeLink("DELAYED_FOR_VERIFICATION");
+    const real = createPayeeStatusHandler({
+      db: () => env().db,
+      logger: () => env().rt.logger,
+      now: () => now,
+      openRfi: holdingRfi,
+      env: HIGH_LIMIT,
+    });
+    const word = async (token: string) =>
+      /class="word [a-z]+">([^<]+)</.exec(await (await call(real, token)).text())?.[1];
+    expect(await word(generic.token)).toBe("Processing");
+    expect(await word(delayed.token)).toBe("Delayed for verification");
+    await updateRfi(ctx, rfi.id, { state: "CLOSED" });
+    expect(await word(delayed.token)).toBe("Processing");
   });
 });
