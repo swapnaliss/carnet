@@ -1,3 +1,4 @@
+import { resolve } from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, test } from "@playwright/test";
 
@@ -14,6 +15,13 @@ test.skip(
   !ownerPassword,
   "E2E_OWNER_PASSWORD (or SEED_OWNER_PASSWORD) is not set; skeleton e2e skipped.",
 );
+
+// Evidence screenshots (M1-08): written only when E2E_EVIDENCE_DIR is set, so normal runs leave no files.
+const evidenceDir = process.env.E2E_EVIDENCE_DIR;
+async function shot(page: Page, name: string): Promise<void> {
+  if (!evidenceDir) return;
+  await page.screenshot({ path: resolve(evidenceDir, `${name}.png`), fullPage: true });
+}
 
 async function signIn(page: Page, email: string, password: string): Promise<void> {
   const res = await page.request.post("/api/auth/sign-in/email", { data: { email, password } });
@@ -46,6 +54,7 @@ test("the owner creates a payment and the UI shows each new status within 6 s, a
   const status = page.getByTestId("payment-status");
   await expect(status).toContainText(/Scheduled|Processing/, { timeout: 90_000 });
   await expect(status).toContainText("Processing", { timeout: 90_000 });
+  await shot(page, "1-owner-payment-processing");
 
   // Ask the sandbox for SENT. Measure from the stored change (server `transfer_updated_at`) to the UI.
   await page.getByRole("button", { name: "Simulate sent" }).click();
@@ -68,6 +77,7 @@ test("the owner creates a payment and the UI shows each new status within 6 s, a
   test.info().annotations.push({ type: "ui-lag-ms", description: String(lag) });
   expect(lag).toBeLessThan(6_000);
   await expect(page.locator("#live-region")).toContainText("Sent, not yet paid");
+  await shot(page, "2-owner-payment-sent");
 
   const results = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
@@ -75,6 +85,10 @@ test("the owner creates a payment and the UI shows each new status within 6 s, a
   expect(
     results.violations.filter((v) => v.impact === "serious" || v.impact === "critical"),
   ).toEqual([]);
+
+  await page.goto("/payments");
+  await expect(page.getByRole("heading", { level: 1, name: "Sandbox payments" })).toBeVisible();
+  await shot(page, "3-owner-payments-list");
 });
 
 test("the viewer (judge) sees the list and has no create form", async ({ page }) => {
@@ -83,6 +97,7 @@ test("the viewer (judge) sees the list and has no create form", async ({ page })
   await page.goto("/payments");
   await expect(page.getByText("Only the owner can create one.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Create payment" })).toHaveCount(0);
+  await shot(page, "4-viewer-payments-list");
   const denied = await page.request.post("/api/v1/payments", {
     headers: { "idempotency-key": "e2e-viewer-denied-0001" },
     data: { amount: { amount: "1.00", currency: "USD" }, reference: "viewer" },
