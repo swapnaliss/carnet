@@ -94,7 +94,8 @@ describe("next.config.ts: fixed headers on every path", () => {
     expect(dev).not.toContain("strict-transport-security");
 
     const rules = (await config.headers?.()) ?? [];
-    expect(rules).toHaveLength(1);
-    expect(rules[0]?.source).toBe("/:path*");
+    // The global rule, then the payee status page's own (M3-06).
+    expect(rules.map((r) => r.source)).toEqual(["/:path*", "/status/:token"]);
+    expect(rules[1]?.headers).toContainEqual({ key: "Referrer-Policy", value: "no-referrer" });
   });
 });

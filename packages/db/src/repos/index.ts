@@ -10,6 +10,8 @@ export * from "./documents";
 export * from "./execution-attempts";
 export * from "./idempotency-keys";
 export * from "./outbox";
+export * from "./payee-link-lookup";
+export * from "./payee-links";
 export * from "./payments";
 export * from "./plans";
 export * from "./rate-limits";

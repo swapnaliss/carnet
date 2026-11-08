@@ -4,6 +4,7 @@ export * from "./documents/index";
 export * from "./errors";
 export * from "./ids";
 export * from "./money";
+export * from "./payee-status";
 export * from "./payments";
 export * from "./planner/index";
 export * from "./rfi/index";

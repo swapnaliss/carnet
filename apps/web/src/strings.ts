@@ -166,6 +166,72 @@ const en = {
       viewer: "Viewer (read-only)",
     },
   },
+  payee: {
+    // The public status page (M3-06). Plain words only: no amount, name, reference or reason.
+    public: {
+      title: "Payment status",
+      heading: "Payment status",
+      statusLabel: "Status",
+      updatedLabel: "Last updated",
+      processing: "Processing",
+      sent: "Sent",
+      paid: "Paid",
+      failed: "Failed",
+      delayed: "Delayed for verification",
+      footnote: "This page shows the latest status reported for one payment. It is read-only.",
+      unavailableTitle: "This link is not available",
+      unavailableBody:
+        "Check the link you were given, or ask the person who sent it to share a new one.",
+      limitedTitle: "Too many requests",
+      limitedBody: "Wait a minute, then open the link again.",
+      errorTitle: "Status is unavailable right now",
+      errorBody: "Try again in a few minutes.",
+    },
+    // The owner panel on the payment page.
+    owner: {
+      title: "Payee status link",
+      intro:
+        "Give your payee a read-only link that shows where this payment stands. Carnet does not send it: copy it and share it yourself.",
+      create: "Create status link",
+      createPending: "Creating link",
+      levelLegend: "What the payee will see",
+      levelGeneric: "Standard status",
+      levelGenericHint:
+        "Processing, Sent, Paid or Failed. A payment held for information reads Processing.",
+      levelDelayed: "Say when it is delayed for verification",
+      levelDelayedHint:
+        "While the payment is held, the payee sees Delayed for verification instead of Processing.",
+      expiryLabel: "Link expires after",
+      expiryHint: "Between 1 hour and 30 days.",
+      expiryHours: "hours",
+      newLinkTitle: "Your new link",
+      newLinkHint:
+        "Copy it now. For security Carnet shows this address once and cannot show it again.",
+      linkLabel: "Link address",
+      copy: "Copy link",
+      copied: "Link copied",
+      listTitle: "Links for this payment",
+      empty: "No status links yet. Create one to share the status of this payment.",
+      expires: "Expires",
+      created: "Created",
+      lastViewed: "Last opened",
+      neverViewed: "Not opened yet",
+      stateActive: "Active",
+      stateExpired: "Expired",
+      stateRevoked: "Revoked",
+      revoke: "Revoke link",
+      revokePending: "Revoking link",
+      revokeLabel: "Revoke link created {created}",
+      loading: "Loading links",
+      errorLoad: "Carnet could not load the links. Nothing was changed. Try again.",
+      errorCreate: "Carnet could not create the link. Nothing was shared. Try again.",
+      errorRevoke: "Carnet could not revoke the link. It may still work. Try again.",
+      errorForbidden: "Your role cannot create or revoke links. Ask an owner or approver.",
+      replayed:
+        "This link was already created and its address cannot be shown again. Revoke it and create a new one.",
+      readOnly: "This login is read-only, so it cannot create or revoke links.",
+    },
+  },
   common: {
     state: {
       loading: "Loading",
