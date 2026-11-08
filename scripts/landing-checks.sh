@@ -54,9 +54,28 @@ changed_workspaces() {
   ' 2>/dev/null || echo ALL
 }
 
+# The database tests skip themselves when the Postgres URLs are unset, and a skipped test passes. A
+# check that can pass by skipping is not a check (BL-01, found by the M2 manager): fail loudly instead.
+# Start the local stack (`docker compose up -d postgres`; POSTGRES_PORT=5432+PORT_OFFSET in a worktree)
+# and export the three URLs (see .env.example and packages/db/sql/roles.sql).
+require_test_database() {
+  local missing=""
+  for k in TEST_DATABASE_URL DATABASE_URL DATABASE_MIGRATION_URL; do
+    if [ -z "${!k:-}" ]; then missing="$missing $k"; fi
+  done
+  if [ -n "$missing" ]; then
+    echo "landing-checks: the database tests would be skipped; unset:$missing" >&2
+    echo "landing-checks: start the local Postgres and export these URLs (see .env.example)" >&2
+    exit 1
+  fi
+}
+
 if [ -f package.json ]; then
   scope=ALL
   [ "$FAST" = 1 ] && scope=$(changed_workspaces)
+  case " $scope " in
+    *" ALL "* | *" packages/db "* | *" apps/web "*) require_test_database ;;
+  esac
   if [ "$scope" = ALL ]; then
     npm run typecheck
     npm run lint
