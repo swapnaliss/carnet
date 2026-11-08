@@ -1,0 +1,162 @@
+{
+  "deploy_url": "https://carnet-web.onrender.com",
+  "started_at": "2026-11-08T11:50:37.982Z",
+  "steps": [
+    {
+      "at_ms": 971,
+      "name": "owner signed in"
+    },
+    {
+      "at_ms": 1353,
+      "name": "payment created",
+      "payment_id": "cfd00679-142b-4b64-85ed-9fdf35c36b30",
+      "status": 201
+    },
+    {
+      "at_ms": 1572,
+      "name": "idempotent replay",
+      "status": 201,
+      "same_id": true
+    },
+    {
+      "at_ms": 3877,
+      "name": "reached: attempt CONFIRMED with a transfer",
+      "transfer_status": "SCHEDULED",
+      "waited_ms": 2305
+    },
+    {
+      "at_ms": 6066,
+      "name": "reached: PROCESSING",
+      "transfer_status": "PROCESSING",
+      "waited_ms": 2189
+    },
+    {
+      "at_ms": 10867,
+      "name": "reached: SENT",
+      "transfer_status": "SENT",
+      "waited_ms": 4530
+    },
+    {
+      "at_ms": 13181,
+      "name": "reached: PAID",
+      "transfer_status": "PAID",
+      "waited_ms": 2200
+    },
+    {
+      "at_ms": 19065,
+      "name": "viewer checked",
+      "create_status": 403,
+      "list_status": 200,
+      "list_count": 6
+    }
+  ],
+  "finished_at": "2026-11-08T11:50:57.048Z",
+  "payment_id": "cfd00679-142b-4b64-85ed-9fdf35c36b30",
+  "transfer_id": "40ac1ea9-293c-4d45-b3d4-e0ce3b5724ce",
+  "request_id": "f3482252-1196-4121-8584-e89283c11621",
+  "attempt_status": "CONFIRMED",
+  "attempt": {
+    "created_at": "2026-11-08T11:50:39.166Z",
+    "sent_at": "2026-11-08T11:50:39.874Z",
+    "confirmed_at": "2026-11-08T11:50:40.872Z",
+    "sends": 1,
+    "row_before_call": true
+  },
+  "ui_status": "PAID",
+  "transfer_status": "PAID",
+  "idempotency": {
+    "replay_status": 201,
+    "replay_same_payment": true,
+    "payments_with_reference": 1
+  },
+  "simulations": [
+    {
+      "next_status": "SENT",
+      "queued_to_stored_ms": 4801,
+      "transfer_updated_at": "2026-11-08T11:50:47.000Z"
+    },
+    {
+      "next_status": "PAID",
+      "queued_to_stored_ms": 2314,
+      "transfer_updated_at": "2026-11-08T11:50:49.000Z"
+    }
+  ],
+  "webhooks": [
+    {
+      "event_id": "4efa410a-5173-4f04-9249-11fbfafd6788",
+      "name": "payout.transfer.funding.scheduled",
+      "signature_ok": true,
+      "received_at": "2026-11-08T11:50:40.926Z",
+      "acked_at": "2026-11-08T11:50:40.939Z",
+      "processed_at": "2026-11-08T11:50:41.954Z",
+      "ack_ms": 13,
+      "apply_ms": 1028
+    },
+    {
+      "event_id": "90604734-af18-402c-b49e-d8e0b7f56f39",
+      "name": "payout.transfer.funding.processing",
+      "signature_ok": true,
+      "received_at": "2026-11-08T11:50:40.951Z",
+      "acked_at": "2026-11-08T11:50:40.955Z",
+      "processed_at": "2026-11-08T11:50:42.014Z",
+      "ack_ms": 4,
+      "apply_ms": 1063
+    },
+    {
+      "event_id": "54543345-45c5-41b5-ae1c-1e51b12b3567",
+      "name": "payout.transfer.scheduled",
+      "signature_ok": true,
+      "received_at": "2026-11-08T11:50:41.000Z",
+      "acked_at": "2026-11-08T11:50:41.004Z",
+      "processed_at": "2026-11-08T11:50:42.062Z",
+      "ack_ms": 4,
+      "apply_ms": 1062
+    },
+    {
+      "event_id": "daae48fb-f219-4c80-94cc-c6c8d9e26465",
+      "name": "payout.transfer.processing",
+      "signature_ok": true,
+      "received_at": "2026-11-08T11:50:41.028Z",
+      "acked_at": "2026-11-08T11:50:41.033Z",
+      "processed_at": "2026-11-08T11:50:42.114Z",
+      "ack_ms": 5,
+      "apply_ms": 1086
+    },
+    {
+      "event_id": "6d9890eb-2a5c-4bc6-8171-16e8b5d0df7e",
+      "name": "payout.transfer.funding.funded",
+      "signature_ok": true,
+      "received_at": "2026-11-08T11:50:41.117Z",
+      "acked_at": "2026-11-08T11:50:41.121Z",
+      "processed_at": "2026-11-08T11:50:42.168Z",
+      "ack_ms": 4,
+      "apply_ms": 1051
+    },
+    {
+      "event_id": "9fd9b7ea-5e21-4109-a573-a1d8b3495dc7",
+      "name": "payout.transfer.sent",
+      "signature_ok": true,
+      "received_at": "2026-11-08T11:50:46.423Z",
+      "acked_at": "2026-11-08T11:50:46.428Z",
+      "processed_at": "2026-11-08T11:50:47.253Z",
+      "ack_ms": 5,
+      "apply_ms": 830
+    },
+    {
+      "event_id": "42ea64dd-910b-4824-8032-0966a2970d9b",
+      "name": "payout.transfer.paid",
+      "signature_ok": true,
+      "received_at": "2026-11-08T11:50:49.655Z",
+      "acked_at": "2026-11-08T11:50:49.659Z",
+      "processed_at": "2026-11-08T11:50:50.760Z",
+      "ack_ms": 4,
+      "apply_ms": 1105
+    }
+  ],
+  "webhooks_all_signature_ok": true,
+  "viewer": {
+    "create_status": 403,
+    "list_status": 200,
+    "list_count": 6
+  }
+}
