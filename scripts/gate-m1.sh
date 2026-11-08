@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 # M1 milestone gate (M1-GATE, issue #22): the ticket's Validation Gate as a repeatable script.
 #   DEPLOY_URL=https://<deployed origin> ./scripts/gate-m1.sh
-# Clones the current repository into $TMPDIR, so the gate runs from a clean state. Needs Docker and the
-# local database keys (DATABASE_URL, DATABASE_MIGRATION_URL, SEED_*_PASSWORD) in the environment.
+# Clones the current repository into $TMPDIR, so the gate runs from a clean state. Needs Docker. The local
+# database URLs and the seed passwords are set below for the throwaway database unless already exported.
 # The ticket's block has no `! cmd` lines; if one is ever added, write it as `if cmd; then echo ... >&2; exit 1; fi`
 # (a `!` line under set -e can never fail).
 set -euo pipefail
 : "${DEPLOY_URL:?DEPLOY_URL (the deployed origin) is required}"
+# Local, throwaway database only (the compose Postgres this script resets). Synthetic role credentials as in
+# the Makefile; seed passwords are random per run and never printed or stored.
+export DATABASE_URL="${DATABASE_URL:-postgres://carnet_app:carnet_app@localhost:5432/carnet}"
+export DATABASE_MIGRATION_URL="${DATABASE_MIGRATION_URL:-postgres://carnet_migrator:carnet_migrator@localhost:5432/carnet}"
+for k in SEED_OWNER_PASSWORD SEED_APPROVER_PASSWORD SEED_JUDGE_PASSWORD; do
+  if [ -z "${!k:-}" ]; then export "$k=$(head -c 24 /dev/urandom | base64 | tr -d '/+=\n')"; fi
+done
 W="${TMPDIR:-/tmp}/carnet-gate-m1"; rm -rf "$W"
 git clone --quiet "$(git rev-parse --show-toplevel)" "$W"
 cd "$W"
