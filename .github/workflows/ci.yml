@@ -44,6 +44,9 @@ jobs:
       - run: npm ci
       - name: secret scan (tracked and staged files)
         run: ./scripts/check-no-secrets.sh
+      # BL-01: workflow files were only YAML-parsed. rhysd/actionlint 1.7.7, pinned by digest.
+      - name: workflow lint (actionlint)
+        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint@sha256:887a259a5a534f3c4f36cb02dca341673c6089431057242cdc931e9f133147e9
       - name: dependency audit (npm audit --omit=dev --audit-level=high, minus .audit-allowlist.json)
         run: node scripts/audit-check.mjs
       - name: database roles (admin step, packages/db/sql/roles.sql)
