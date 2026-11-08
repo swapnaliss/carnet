@@ -64,7 +64,7 @@ const rfiRows = (appUrl = db().appUrl) =>
 const draftJobs = () =>
   query<{ payload: { rfiId: string; round: number; businessId: string } }>(
     db().appUrl,
-    "SELECT payload FROM outbox_jobs WHERE kind = 'rfi.draft'",
+    "SELECT payload FROM outbox_jobs WHERE kind = 'rfi.draft' ORDER BY (payload->>'round')::int, created_at",
   );
 
 describe("AC1: recorded RFI webhooks create the RFI, its questions and DRAFTING, with one rfi.draft job", () => {
