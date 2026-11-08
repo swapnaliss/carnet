@@ -23,3 +23,19 @@ The 7 raw webhook bodies are in `fixtures/airwallex/m1-skeleton/`.
 
 The Airwallex webhook subscription must point at the deployed `/api/webhooks/airwallex` URL.
 Until it did, events stayed `Queued` in the Airwallex console and no request reached the service.
+
+## Screenshots
+
+`screenshots/` comes from `apps/web/e2e/skeleton.spec.ts` run against the deployed service
+(2 passed). The owner test creates a real sandbox transfer, waits for Processing, asks the sandbox
+for SENT, and checks the UI follows within 6 s.
+
+| File | Shows |
+|---|---|
+| `1-owner-payment-processing.png` | Payment `Processing`, with verified, applied webhooks listed |
+| `2-owner-payment-sent.png` | `Sent, not yet paid` after the simulated SENT (the sticky header appears mid-page: a full-page capture artefact) |
+| `3-owner-payments-list.png` | Owner list with the create form |
+| `4-viewer-payments-list.png` | Judge list with no create form: "Only the owner can create one." |
+
+Rows still `Processing` or `Sent` in the list are earlier runs whose later events were not delivered
+while the webhook pointed at the old placeholder URL.
