@@ -52,6 +52,16 @@ export function workerId(): string {
   return process.env.VITEST_POOL_ID ?? process.env.VITEST_WORKER_ID ?? "0";
 }
 
+/**
+ * The worker's database name part: pool id plus the pid of the Vitest process that owns the worker.
+ * Pool ids repeat in every Vitest run, so two runs against one Postgres (two worktrees or sessions on
+ * the same port, or a manual run beside a landing check) used to share `carnet_test_<pool>` and drop,
+ * migrate and DELETE FROM each other's tables mid-test (BL-01, flaky worker tests).
+ */
+export function workerKey(): string {
+  return `${workerId()}_p${process.ppid}`;
+}
+
 function requireUrl(key: "DATABASE_URL" | "DATABASE_MIGRATION_URL"): URL {
   const raw = process.env[key];
   if (!raw) throw new Error(`${key} is not set (see .env.example and packages/db/sql/roles.sql)`);
@@ -99,7 +109,7 @@ export function useTestDatabase(options: { prefix?: string } = {}): () => TestDa
     const app = requireUrl("DATABASE_URL");
     // Another workspace's suite passes a prefix (apps/web: "web") so its databases never collide
     // with this package's when both projects run at once.
-    const name = `carnet_test_${options.prefix ? `${options.prefix}_` : ""}${workerId()}`;
+    const name = `carnet_test_${options.prefix ? `${options.prefix}_` : ""}${workerKey()}`;
     if (!/^carnet_test_[0-9a-z_]+$/.test(name)) throw new Error(`bad test database name ${name}`);
     maintenanceUrl = migration.toString();
     await dropDatabase(maintenanceUrl, name); // a crashed earlier run may have left it behind
