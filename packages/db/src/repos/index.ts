@@ -1,6 +1,8 @@
 // Tenant repositories (ctx first) and system repositories (db first). See context.ts.
 export * from "./agent-runs";
 export * from "./agent-store";
+export * from "./approval-sweeps";
+export * from "./approvals";
 export * from "./attempts";
 export * from "./audit-log";
 export * from "./businesses";

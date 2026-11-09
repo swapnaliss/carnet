@@ -5,6 +5,9 @@
 // 3. Execution attempts in UNKNOWN: look the object up by request_id. Found -> CONFIRMED and the
 //    transfer is applied to its payment. Not found -> stays UNKNOWN with an alert line; a new request
 //    is never sent from here (absence from a list is not proof, BL-01 6625872848).
+//    A respond attempt (M2-07) is resolved by fetching its RFI instead (`resolveRespondAttempt`):
+//    ANSWERED confirms, ACTION_REQUIRED re-sends the same attempt or asks for a new approval, CLOSED
+//    expires the RFI. Approvals past their TTL (or invalidated by the kill switch) are swept first.
 // Each item is isolated: one failing lookup is logged and the pass continues.
 import {
   getAttempt,
@@ -16,8 +19,10 @@ import {
 } from "@carnet/db";
 import { type AttemptId, type PaymentId, RFI_EXPIRING_SOON_MS } from "@carnet/domain";
 import { sweepStuckDrafting } from "./handlers/draft";
+import { sweepApprovals } from "./approval-sweep";
 import { type HandlerContext, JOB_KIND, type JobHandler } from "./handlers/index";
 import { ingestRfi } from "./handlers/rfi";
+import { resolveRespondAttempt } from "./handlers/rfi-respond";
 import { applyFetchedTransfer, syncTransfer } from "./handlers/transfer";
 
 export const RECONCILE_INTERVAL_MS = 60_000;
@@ -32,6 +37,7 @@ export interface ReconcileSummary {
   transfersApplied: number;
   attemptsConfirmed: number;
   attemptsUnresolved: number;
+  approvalsExpired: number;
   errors: number;
 }
 
@@ -47,8 +53,20 @@ export async function runReconcile(ctx: HandlerContext): Promise<ReconcileSummar
     transfersApplied: 0,
     attemptsConfirmed: 0,
     attemptsUnresolved: 0,
+    approvalsExpired: 0,
     errors: 0,
   };
+
+  try {
+    const swept = await sweepApprovals(ctx);
+    summary.approvalsExpired = swept.ttlExpired + swept.killSwitchExpired;
+  } catch (error) {
+    summary.errors += 1;
+    ctx.logger.warn(
+      { step: "approvals", error: message(error) },
+      "reconcile: approval sweep failed",
+    );
+  }
 
   try {
     const { items } = await ctx.airwallex.listRfis({
@@ -90,8 +108,25 @@ export async function runReconcile(ctx: HandlerContext): Promise<ReconcileSummar
   }
 
   for (const attempt of await listAttemptsByStatus(ctx.db, ["UNKNOWN"])) {
+    if (attempt.kind === "respond") {
+      try {
+        const r = await resolveRespondAttempt(ctx, {
+          businessId: attempt.businessId,
+          attemptId: attempt.id as AttemptId,
+        });
+        if (r.resolution === "confirmed") summary.attemptsConfirmed += 1;
+        else if (r.resolution === "unresolved") summary.attemptsUnresolved += 1;
+      } catch (error) {
+        summary.errors += 1;
+        ctx.logger.warn(
+          { step: "attempts", attemptId: attempt.id, error: message(error) },
+          "reconcile: respond attempt lookup failed",
+        );
+      }
+      continue;
+    }
     if (attempt.kind !== "transfer") {
-      // Conversions (M3-03) and RFI responses (M2-07) register their own resolvers.
+      // Conversions (M3-03) register their own resolver.
       ctx.logger.warn(
         { attemptId: attempt.id, kind: attempt.kind, alert: "attempt_unresolved" },
         "reconcile: no resolver for this attempt kind yet; left UNKNOWN",

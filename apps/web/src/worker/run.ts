@@ -30,6 +30,7 @@ import {
 } from "./handlers/index";
 import { type PlanInputsLoader, registerPlanHandlers } from "./handlers/plan";
 import { handleRfiSync } from "./handlers/rfi";
+import { handleAnswerSubmitted, handleRfiRespond } from "./handlers/rfi-respond";
 import { handleTransferSimulate } from "./handlers/simulate-transfer";
 import { handleTransferSync } from "./handlers/transfer";
 import { createWorker, DEFAULT_POLL_MS } from "./loop";
@@ -45,6 +46,10 @@ export function defaultRegistry(planInputs?: PlanInputsLoader): HandlerRegistry 
   registerHandler(registry, RFI_DRAFT_JOB_KIND, handleRfiDraft);
   registerHandler(registry, DRAFT_EVENT_KIND.ready, handleDraftEvent);
   registerHandler(registry, DRAFT_EVENT_KIND.needsOwner, handleDraftEvent);
+  // Not `mutating`: the handler enforces the kill switch itself at consume, so a re-run of an attempt
+  // already past INTENT still resolves while execution is off (ADR 0007; M2-07).
+  registerHandler(registry, JOB_KIND.rfiRespond, handleRfiRespond);
+  registerHandler(registry, JOB_KIND.answerSubmitted, handleAnswerSubmitted);
   registerHandler(registry, DOCUMENT_JOB_KIND.extract, handleDocumentExtract);
   registerHandler(registry, DOCUMENT_JOB_KIND.extracted, handleDocumentExtracted);
   registerHandler(registry, JOB_KIND.transferCreate, handleTransferCreate, { mutating: true });
