@@ -25,7 +25,8 @@ ALTER TABLE "approvals" ADD CONSTRAINT "approvals_approver_id_users_id_fk" FOREI
 CREATE INDEX "approvals_business_id_subject_ref_idx" ON "approvals" USING btree ("business_id","kind","subject_ref");--> statement-breakpoint
 CREATE INDEX "approvals_status_expires_at_idx" ON "approvals" USING btree ("status","expires_at");--> statement-breakpoint
 CREATE UNIQUE INDEX "approvals_nonce_key" ON "approvals" USING btree ("nonce");--> statement-breakpoint
-CREATE UNIQUE INDEX "approvals_one_live_per_subject" ON "approvals" USING btree ("business_id","kind","subject_ref") WHERE "status" IN ('PENDING', 'APPROVED');--> statement-breakpoint
+CREATE UNIQUE INDEX "approvals_one_live_per_subject" ON "approvals" USING btree ("business_id","kind","subject_ref") WHERE "status" IN ('PENDING', 'APPROVED');
+--> statement-breakpoint
 -- M2-07 (ADR 0008): an approval is bound to the content it was granted for. Only the status columns
 -- (status, end_reason, consumed_at, updated_at) may change; a trigger refuses a change to anything the
 -- hash covers or the approver saw, for every role (the app role included).

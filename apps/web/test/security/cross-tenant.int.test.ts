@@ -33,10 +33,18 @@ export const CROSS_TENANT_CASES: Record<string, string> = {
     "test/documents/documents.int.test.ts: another business's session gets 404 for the bytes",
   "v1/documents/[id]/meta":
     "test/documents/documents.int.test.ts: another business's session gets 404 for the metadata",
+  "v1/documents/[id]/facts":
+    "test/documents/facts.int.test.ts: another business's session gets 404 for the facts",
+  "v1/documents/[id]/facts/[version]/confirm":
+    "test/documents/facts.int.test.ts: another business's owner gets 404 and no version is written; viewer 403",
   "v1/payments/[id]":
     "test/payments/api.int.test.ts 'cross-tenant': another business's id is 404 with no data, both ways",
   "v1/payments/[id]/simulate":
     "test/payments/api.int.test.ts 'cross-tenant': foreign id 404 and no job queued; viewer 403",
+  "v1/payments/[id]/payee-links":
+    "test/payee/payee-links-api.int.test.ts: another business's payment id answers 404 on list and create, nothing written; viewer 403 on create",
+  "v1/payments/[id]/payee-links/[linkId]":
+    "test/payee/payee-links-api.int.test.ts: another business's session answers 404 on revoke and the link stays active; viewer 403",
 };
 
 const env = setupAuthTestEnv();

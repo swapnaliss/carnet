@@ -101,6 +101,19 @@ A heartbeat older than 2 minutes means the worker is down.
 `https://carnet-web.onrender.com/api/webhooks/airwallex`. The host is Render's `onrender.com` name for
 `carnet-web`. It is fixed by the service name and does not change between deploys. No custom domain.
 
+## Airwallex allowlist and webhook subscription
+
+- The Airwallex API key has an **IP allowlist**. It must hold Render's outbound ranges `74.220.52.0/24` and
+  `74.220.60.0/24`, plus the IP of any machine that logs in (local runs, the live-run script). A request from
+  an address outside it gets an HTML 403 from a Google front end **before** the credentials are checked, so a
+  wrong key and a blocked IP look the same. If Render's ranges change, worker login fails with that 403.
+- The webhook subscription must point at the URL above. A recreated or copied subscription keeps the old URL
+  (it was `carnet-placeholder`), and its events then stay `Queued` in the Airwallex console while nothing reaches
+  this service. Check the URL after any recreate; editing it asks for the account password.
+- A new subscription has a new signing secret. Store it as `AIRWALLEX_WEBHOOK_SECRET` in the `carnet-secrets`
+  environment group (Environment Variables, not Secret Files) and redeploy web and worker.
+- Events queued before a URL fix are not resent on their own. Use **Re-trigger** on the event in the console.
+
 ## Platform behaviour
 
 | Topic | M0-07 note | Found in M1-06 (5 Nov 2026) |

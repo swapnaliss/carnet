@@ -1,0 +1,48 @@
+{
+  "kind": "extraction",
+  "document_id": "inv-nordlicht-scan-001",
+  "file": "inv-nordlicht-scan-001.pdf",
+  "sha256": "6a9d155d12abaf3513879eb03634ecbaa8f27e394d4bc62def3c4e4c13a270f0",
+  "doc_type": "invoice",
+  "prompt_version": "552c05e3154b",
+  "model": "claude-haiku-5-5",
+  "recorded_at": "2026-11-06T17:09:27.626Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgn3VzghaRDoNfBDcEn6C",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 2873,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 838,
+          "output_tokens_details": {
+            "thinking_tokens": 451
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "",
+            "signature": "CAQSmgsKEAgTGAI4AUIIdGhpbmtpbmcSDLEIk4+5DdNKXCXM2hoMmiKpgK1J/EUg6I1oIjBEemCcBoD6jUsCPmY9QDNBv30+9UKmu6f7JK5NQkaxgmInsUiSBwmIuz/DyTr+yVcqtwrTZlimoAiEk+R7VASAy/TQONc7qHdwuo0eVSQKq4+kZxUIcEgknfsZNE7IsEWGPPkp5kL6G2UA99oHElN4UOxcHoiLA2E4wo4e2xWV90FtpqtS3vagSPILb0NQvMMt1FgvsQkDnm6qrw0f+MamXdGr1mxjVjTnebVgbkgWFws7E/K09huzj9rvd3E7xUTXCLgfeYp3ney5r6p9lmFjeaYl7QmM1Nwg1EAgEyHvmCGQJozH7jZNp2SsFuve9ABbJbRSIuvdg9UnrR5kek8gTc4kj0vsWeIp0I9KK6BHdP+PMWgjTZ2W9Qol04NS1/RzBcwJEJD+eLqkRofuCeqCmxnO/htnlX16BynneBIntwImOh+PZ1kIrXuag6WimaJRfRw0V9OsxywMP9s66zSWJ+GToPBVjaWuWwQ9pR9mQestFxRNJYg/U/X6C73Rto0Nrv7mAEl8x7DEao+fAV9Ib2fSN46o/OvSLJ6vMP+IHPXLeoEQEclEGjYWtgCv4/W1iXAKPddSsF6PlLlP517/O2X/1mO88oB/g1K5YoEweWed7Engs6nxfZR3JWsAg9Y5W72QEDUQOSNTdk9fIXnzhkzT3ea00FRbm6U5Jn6Dsb4l37uyg+5QZnRMSVIFGnm++B7t3ILJZP/g5eV0lctwrOi4hc5RQnRZXhuCMGdkMu30zMfKkpbztyM9r9FXti86QhJQ8RPVyCvej3LCf7RhlEM2OinIaT/jF9acneRp8qSOLrHoTHO5zi49mT800UGPrsQ6BXVDWjj/FrUQ/9HWWTRFa2++s9oy6np0aQWqGJZdzfeyUnrHMEFVSC3Z77xUYhEL6kXRnmKngwTH0aL3kcrbZhzu5euB8uJyRLO9Cg9O1tgjrttFT14GDSQRPfMv81hyRQAFzdbqNezpX103TjMt+g+bNmqBw8Y8n/FQ+/WEriBL0vEVb5r0TL+dfrqQCHsXbOqM0uOo4Gw3/kWU5qDG4dJZHaACN5ELnptOkFFE5/2l+lyhDSYP4yklHoXR0MhcZ7LFNOefX43RYehMqdEWPK6xckGLUbGqCp2xMHkwpGiGYWes0cfOex1aoPCJ3dinXQ0FL0SB5D927WX8tVKvn1Ythsy1yrCoawhi6U99k4gAzbMUZnKUwbC67rXqE4v5GD1SF6taWfN4yx7xvOdHUaYwzbd11l/9K8oC+Q1E1TQomp+jDUCFkN/YKsOOPhhbnsrW4C19VjQRLyHAzj2+s2Jn1/ynoeGuxmUxVCmvGw4HLeLSCiR5Q8QH7x7qmGuiFqapCl/BjEnLphHw8nQLTc0R/UTnRUT/HGgmeD/AmrW4J5OqmbOGboCtJK1CsY+kMdaqRaeLXbMaNqoUQpAItpoBFRWljgngEFBGCDXcOCZsDJ9KJLbZbVEEKgwdAd/x4ZxZ8kGJ/vgL6C/giTeAnfN8mP9fahln2b7DULOYGXkGRUz8rOkG+xpAxGVHiRUgxgb0+36vW1Ok7nPhrX3VNOt1ocXFDqqVgLtLj5tkwc5U1/ZpNSiEjYHCF/r8GLDgqMbeD0pqZF1ZLVuEXqya+pkgm1H9rfeUTe0+pdKCq1HG8Y2cCu3wGC/8gq3ZtjNCNzJuDwwEol5pPUBCedsCwjoENXnVWD93k/mOX19ye/Yo54h24DK+vG7trhrjm4em0HQF6PKinPe/MXlrygg8Bg/yzYWmYL2wC9IfQldqeHwpolbO61Ch5cj9xeyVoaeYndGU4Lmlq90UhpGsQGLVkWe++LAU6dc/ZrAglE19/5QQ7pOtCSsYAQ=="
+          },
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"invoice_number\",\"value\":\"NL-2026-0341\",\"quote\":\"INVOICE NUMBER: NL-2026-0341\",\"page\":1},{\"key\":\"invoice_date\",\"value\":\"2026-10-12\",\"quote\":\"INVOICE DATE: 2026-10-12\",\"page\":1},{\"key\":\"supplier\",\"value\":\"NORDLICHT SOFTWARE GMBH\",\"quote\":\"FROM: NORDLICHT SOFTWARE GMBH\",\"page\":1},{\"key\":\"buyer\",\"value\":\"NORTHWIND STUDIO LTD\",\"quote\":\"BILL TO: NORTHWIND STUDIO LTD\",\"page\":1},{\"key\":\"total\",\"value\":\"EUR 3,100.00\",\"quote\":\"TOTAL DUE: EUR 3,100.00\",\"page\":1},{\"key\":\"beneficiary\",\"value\":\"NORDLICHT SOFTWARE GMBH\",\"quote\":\"BENEFICIARY: NORDLICHT SOFTWARE GMBH\",\"page\":1},{\"key\":\"iban\",\"value\":\"DE22000000000000000002\",\"quote\":\"IBAN: DE22000000000000000002\",\"page\":1}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgn3VzPba4o9HhRXKyHit",
+      "latency_ms": 3650
+    }
+  ]
+}

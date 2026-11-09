@@ -33,6 +33,7 @@ import {
   type DocumentMeta,
   type DocumentRejectReason,
   type DocumentUploadResponse,
+  extractionTypeOf,
   inspectDocumentBytes,
   sanitizeFilename,
 } from "@carnet/domain";
@@ -52,6 +53,7 @@ import {
   validationFailed,
 } from "../../lib/errors";
 import { rateLimitKey } from "../../lib/ratelimit";
+import { enqueueDocumentExtraction } from "./jobs";
 import { type UploadLimits, uploadLimits } from "./limits";
 import { checkPdf } from "./pdf";
 
@@ -275,6 +277,14 @@ export function documentRouteSpecs(deps: DocumentRouteDeps): DocumentRouteSpecs 
               kind: result.document.kind,
             },
           });
+          // M2-02: a new document of an extractable kind is queued for extraction, in the same
+          // transaction as the row (ADR 0005). A deduplicated upload queues nothing.
+          if (!result.deduplicated && extractionTypeOf(result.document.kind)) {
+            await enqueueDocumentExtraction(tx, {
+              businessId: repo.businessId,
+              documentId: result.document.id,
+            });
+          }
           return result;
         });
         const body: DocumentUploadResponse = {

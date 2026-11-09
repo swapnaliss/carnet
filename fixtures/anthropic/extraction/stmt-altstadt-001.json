@@ -1,0 +1,43 @@
+{
+  "kind": "extraction",
+  "document_id": "stmt-altstadt-001",
+  "file": "stmt-altstadt-001.pdf",
+  "sha256": "feeb2a384ca8ab39be7709f1e2690cd4487acea402847dc703172392efcafaea",
+  "doc_type": "statement",
+  "prompt_version": "863936630183",
+  "model": "claude-haiku-5-5",
+  "recorded_at": "2026-11-06T17:09:23.939Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgn3VoD9QuccWdvQm7BM4",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 3144,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 410,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"account_holder\",\"value\":\"Northwind Studio Ltd\",\"quote\":\"Account holder: Northwind Studio Ltd\",\"page\":1},{\"key\":\"period_start\",\"value\":\"2026-10-01\",\"quote\":\"Statement period: 2026-10-01 to 2026-10-31\",\"page\":1},{\"key\":\"period_end\",\"value\":\"2026-10-31\",\"quote\":\"Statement period: 2026-10-01 to 2026-10-31\",\"page\":1},{\"key\":\"opening_balance\",\"value\":\"EUR 21,400.00\",\"quote\":\"Opening balance: EUR 21,400.00\",\"page\":1},{\"key\":\"credit\",\"value\":\"EUR 8,400.00\",\"quote\":\"2026-10-05 Credit EUR 8,400.00 from Altstadt Verlag GmbH ref NW-INV-2026-018\",\"page\":1},{\"key\":\"payer\",\"value\":\"Altstadt Verlag GmbH\",\"quote\":\"2026-10-05 Credit EUR 8,400.00 from Altstadt Verlag GmbH ref NW-INV-2026-018\",\"page\":1},{\"key\":\"closing_balance\",\"value\":\"EUR 29,800.00\",\"quote\":\"Closing balance: EUR 29,800.00\",\"page\":1}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgn3VntYYqvxfvRPG1mkh",
+      "latency_ms": 2660
+    }
+  ]
+}

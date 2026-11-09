@@ -1,5 +1,5 @@
 {
-  "id": "522ba809-8ace-4def-8f7c-7b0bf42c4f93",
+  "id": "6774974d-85e7-470a-a686-8b971112f6cd",
   "prevId": "69aeb253-e2cd-4690-838e-e9bdd3bda80d",
   "version": "7",
   "dialect": "postgresql",
@@ -311,239 +311,6 @@
         "agent_steps_cost_check": {
           "name": "agent_steps_cost_check",
           "value": "\"cost_nano_usd\" >= 0"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.approvals": {
-      "name": "approvals",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "business_id": {
-          "name": "business_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "kind": {
-          "name": "kind",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "subject_ref": {
-          "name": "subject_ref",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "hash": {
-          "name": "hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "nonce": {
-          "name": "nonce",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "approver_id": {
-          "name": "approver_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'PENDING'"
-        },
-        "end_reason": {
-          "name": "end_reason",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "consumed_at": {
-          "name": "consumed_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "shown_snapshot": {
-          "name": "shown_snapshot",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "approvals_business_id_subject_ref_idx": {
-          "name": "approvals_business_id_subject_ref_idx",
-          "columns": [
-            {
-              "expression": "business_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "kind",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "subject_ref",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "approvals_status_expires_at_idx": {
-          "name": "approvals_status_expires_at_idx",
-          "columns": [
-            {
-              "expression": "status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "expires_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "approvals_nonce_key": {
-          "name": "approvals_nonce_key",
-          "columns": [
-            {
-              "expression": "nonce",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "approvals_one_live_per_subject": {
-          "name": "approvals_one_live_per_subject",
-          "columns": [
-            {
-              "expression": "business_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "kind",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "subject_ref",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"status\" IN ('PENDING', 'APPROVED')",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "approvals_business_id_businesses_id_fk": {
-          "name": "approvals_business_id_businesses_id_fk",
-          "tableFrom": "approvals",
-          "tableTo": "businesses",
-          "columnsFrom": ["business_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "approvals_approver_id_users_id_fk": {
-          "name": "approvals_approver_id_users_id_fk",
-          "tableFrom": "approvals",
-          "tableTo": "users",
-          "columnsFrom": ["approver_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "approvals_kind_check": {
-          "name": "approvals_kind_check",
-          "value": "\"kind\" IN ('rfi_answer')"
-        },
-        "approvals_status_check": {
-          "name": "approvals_status_check",
-          "value": "\"status\" IN ('PENDING', 'APPROVED', 'REJECTED', 'EXPIRED', 'CONSUMED')"
-        },
-        "approvals_end_reason_check": {
-          "name": "approvals_end_reason_check",
-          "value": "\"end_reason\" IN ('REJECTED_BY_USER', 'SUPERSEDED', 'TTL', 'KILL_SWITCH', 'RFI_CHANGED')"
-        },
-        "approvals_hash_check": {
-          "name": "approvals_hash_check",
-          "value": "\"approvals\".\"hash\" ~ '^[0-9a-f]{64}$'"
-        },
-        "approvals_consumed_check": {
-          "name": "approvals_consumed_check",
-          "value": "(\"status\" = 'CONSUMED') = (\"consumed_at\" IS NOT NULL)"
         }
       },
       "isRLSEnabled": false
@@ -1600,6 +1367,156 @@
         "outbox_jobs_status_check": {
           "name": "outbox_jobs_status_check",
           "value": "\"status\" IN ('PENDING', 'RUNNING', 'DONE', 'RETRY', 'DEAD')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.payee_links": {
+      "name": "payee_links",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "payment_id": {
+          "name": "payment_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "business_id": {
+          "name": "business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "disclosure_level": {
+          "name": "disclosure_level",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'GENERIC'"
+        },
+        "revoked_at": {
+          "name": "revoked_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "last_viewed_at": {
+          "name": "last_viewed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "payee_links_token_hash_key": {
+          "name": "payee_links_token_hash_key",
+          "columns": [
+            {
+              "expression": "token_hash",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "payee_links_business_id_payment_id_idx": {
+          "name": "payee_links_business_id_payment_id_idx",
+          "columns": [
+            {
+              "expression": "business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "payment_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "payee_links_payment_id_payments_id_fk": {
+          "name": "payee_links_payment_id_payments_id_fk",
+          "tableFrom": "payee_links",
+          "tableTo": "payments",
+          "columnsFrom": ["payment_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "payee_links_business_id_businesses_id_fk": {
+          "name": "payee_links_business_id_businesses_id_fk",
+          "tableFrom": "payee_links",
+          "tableTo": "businesses",
+          "columnsFrom": ["business_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "payee_links_created_by_users_id_fk": {
+          "name": "payee_links_created_by_users_id_fk",
+          "tableFrom": "payee_links",
+          "tableTo": "users",
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "payee_links_token_hash_check": {
+          "name": "payee_links_token_hash_check",
+          "value": "\"token_hash\" ~ '^[0-9a-f]{64}$'"
+        },
+        "payee_links_disclosure_level_check": {
+          "name": "payee_links_disclosure_level_check",
+          "value": "\"disclosure_level\" IN ('GENERIC', 'DELAYED_FOR_VERIFICATION')"
         }
       },
       "isRLSEnabled": false

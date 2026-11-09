@@ -1,0 +1,48 @@
+{
+  "kind": "extraction",
+  "document_id": "contract-nordlicht",
+  "file": "contract-nordlicht.pdf",
+  "sha256": "ce9e981465054deec7bf9fb442d883cdee35955434c24153ee7a46674f63e4ab",
+  "doc_type": "contract",
+  "prompt_version": "17e122e799e9",
+  "model": "claude-haiku-5-5",
+  "recorded_at": "2026-11-06T17:09:16.682Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgn3V4PvAS6CeFgZcgs6C",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 5325,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 1486,
+          "output_tokens_details": {
+            "thinking_tokens": 772
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "",
+            "signature": "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"
+          },
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"contract_number\",\"value\":\"CT-NW-NL-2026\",\"quote\":\"Contract number: CT-NW-NL-2026\",\"page\":1},{\"key\":\"clause_parties\",\"value\":\"Northwind Studio Ltd (Buyer) and Nordlicht Software GmbH (Supplier).\",\"quote\":\"1. Parties: Northwind Studio Ltd (Buyer) and Nordlicht Software GmbH (Supplier).\",\"page\":1},{\"key\":\"clause_effective_date\",\"value\":\"2026-03-01\",\"quote\":\"2. Effective date: 2026-03-01.\",\"page\":1},{\"key\":\"clause_scope\",\"value\":\"Software development and maintenance for the Northwind client portal.\",\"quote\":\"3. Scope: Software development and maintenance for the Northwind client portal.\",\"page\":1},{\"key\":\"clause_payment_terms\",\"value\":\"Buyer pays each invoice within 30 days of the invoice date.\",\"quote\":\"4. Payment: Buyer pays each invoice within 30 days of the invoice date.\",\"page\":2},{\"key\":\"clause_fee_cap\",\"value\":\"Total fees under this contract will not exceed EUR 36,000.00.\",\"quote\":\"5. Fees: Total fees under this contract will not exceed EUR 36,000.00.\",\"page\":2},{\"key\":\"clause_beneficiary_account\",\"value\":\"Supplier is paid only to IBAN DE22000000000000000002.\",\"quote\":\"6. Beneficiary account: Supplier is paid only to IBAN DE22000000000000000002.\",\"page\":2},{\"key\":\"clause_governing_law\",\"value\":\"The laws of the Netherlands apply.\",\"quote\":\"7. Governing law: The laws of the Netherlands apply.\",\"page\":2},{\"key\":\"clause_signatories\",\"value\":\"Finance (synthetic signature block)\",\"quote\":\"Signed for Northwind Studio Ltd: Finance (synthetic signature block)\",\"page\":2},{\"key\":\"clause_signatories\",\"value\":\"Authorised signatory (synthetic signature block)\",\"quote\":\"Signed for Nordlicht Software GmbH: Authorised signatory (synthetic signature block)\",\"page\":2}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgn3V42b45RhgkgDaPbP2",
+      "latency_ms": 5403
+    }
+  ]
+}
