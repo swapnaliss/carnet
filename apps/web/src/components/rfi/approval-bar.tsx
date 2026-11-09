@@ -27,6 +27,7 @@ const GATE_TEXT: Record<GateReason, (gate: Gate, view: HoldView) => string> = {
   NO_DRAFT: () => t.hold.approval.draftingWait,
   APPROVAL_PENDING: () => t.hold.approval.approvedWaiting,
   ANSWERED: () => t.hold.approval.submitted,
+  UNLINKED: () => t.hold.approval.unlinked,
 };
 
 function Step({ done, label, active }: { done: boolean; label: string; active?: boolean }) {
@@ -80,8 +81,6 @@ export function ApprovalBar({
     !finished &&
     ["EXPIRED", "REJECTED"].includes(view.approval.status);
 
-  if (expired) return null; // the page carries the expired alert; approve is removed
-
   return (
     <section
       aria-label={t.hold.approval.heading}
@@ -104,7 +103,11 @@ export function ApprovalBar({
               label={t.hold.steps.sent}
               active={state === "ANSWER_SUBMITTING"}
             />
-            <Step done={finished} label={t.hold.steps.confirming} active={sent && !finished} />
+            <Step
+              done={finished}
+              label={finished ? t.hold.steps.done : t.hold.steps.confirming}
+              active={sent && !finished}
+            />
           </ol>
           {attempt?.status === "REJECTED" && attempt.message ? (
             <p role="alert" className="text-sm text-status-danger-fg">

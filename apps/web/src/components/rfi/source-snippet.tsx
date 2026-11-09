@@ -55,7 +55,7 @@ export function SourceSnippet({
   describedBy?: string;
 }) {
   const [expanded, setExpanded] = useState(false);
-  const long = citation.quote.length > 140;
+  const long = citation.quote.length > 60;
   const doc = citation.document;
   return (
     <figure

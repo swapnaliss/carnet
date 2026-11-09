@@ -305,7 +305,8 @@ const en = {
       position: "Question {position} of {total}: {title}",
       answerTypeAttachment: "Attachment",
       answerTypeText: "Text",
-      statusReady: "Drafted",
+      statusReady: "Ready",
+      statusSent: "Sent",
       statusNeedsOwner: "Needs you",
       statusEdited: "Edited by you",
       statusYours: "Your statement",
@@ -342,7 +343,8 @@ const en = {
       noChip: "No source",
     },
     citation: {
-      name: "Source: {document}, page {page}, {state}",
+      name: "Source: {document} page {page}, {state}",
+      prefix: "Source:",
       verified: "Quote verified",
       ownerConfirmed: "Confirmed by you",
       notFound: "Source did not load",
@@ -417,6 +419,7 @@ const en = {
       killSwitch: "Execution is switched off, so nothing can be approved or sent right now.",
       staleDisabled: "Waiting for fresh data from Airwallex",
       viewer: "This login is read-only, so it cannot approve.",
+      unlinked: "Link this request to a payment first. Approval opens once it is linked.",
       tooClose: "This request expires too soon for an approval to last. Answer it in Airwallex.",
       notReady: "This request is {state}, so it cannot be approved.",
       editingLocked: "Editing is locked while an approval is waiting to be used.",
@@ -459,7 +462,7 @@ const en = {
       closed: "Airwallex has closed this request.",
     },
     expired: {
-      title: "Expired. Ask Airwallex.",
+      title: "This request expired. Ask Airwallex.",
       body: "Airwallex closed this request on {date} because the deadline passed. Carnet cannot answer it now.",
     },
     empty: {

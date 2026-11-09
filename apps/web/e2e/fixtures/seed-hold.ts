@@ -199,6 +199,17 @@ const SPECS: Spec[] = [
     hoursLeft: 30,
   },
   {
+    name: "needs-owner-view",
+    set: "rfi-set-lakeside",
+    counterparty: "Lakeside Freight Ltd",
+    reference: "LF-2026-0413",
+    amountMinor: 1850000n,
+    currency: "USD",
+    linked: true,
+    draft: "model",
+    hoursLeft: 30,
+  },
+  {
     name: "model-unavailable",
     set: "rfi-set-harbor",
     counterparty: "Harbor Print Co.",

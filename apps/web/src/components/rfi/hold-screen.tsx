@@ -1,10 +1,11 @@
 "use client";
 
 import { ArrowLeft, Info, OctagonX, PauseCircle, ShieldAlert, TriangleAlert } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { announce } from "@/components/payments/announce";
-import { describeStatus, formatWhen, formatWire } from "@/components/payments/format";
+import { describeStatus, formatWire } from "@/components/payments/format";
 import { LiveIndicator, StaleBanner } from "@/components/payments/live-status";
 import { StatusBadge } from "@/components/payments/status-badge";
 import { POLL_MS, useNow, usePoll } from "@/components/payments/use-poll";
@@ -13,10 +14,15 @@ import type { HoldView } from "@/server/hold";
 import type { PaymentDto } from "@/server/payments";
 import { fill, t } from "@/strings";
 import { ApprovalBar } from "./approval-bar";
-import { ApproveDialog, type ApproveSnapshot, makeSnapshot } from "./approve-dialog";
+import { type ApproveSnapshot, makeSnapshot } from "./approve-dialog";
 import { LinkPayment } from "./link-payment";
 import { QuestionCard, QuestionStatusChip } from "./question-card";
 import { approveGate, countQuestions, describeChange, questionStatus, shortId } from "./view";
+
+// The dialog loads when an approval starts, not with the first paint (INP and TBT budget).
+const ApproveDialog = dynamic(() => import("./approve-dialog").then((m) => m.ApproveDialog), {
+  ssr: false,
+});
 
 const TERMINAL = ["ANSWERED", "CLOSED", "EXPIRED"];
 const stateLabel = (state: string) => t.hold.states[state as keyof typeof t.hold.states] ?? state;
@@ -54,6 +60,9 @@ function Callout({
   );
 }
 
+const formatWhen = (v: string) =>
+  new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(v));
+
 function transferBadge(view: HoldView) {
   const p = view.payment;
   if (!p) return null;
@@ -74,6 +83,44 @@ function deadlineText(expiresAt: string | null, now: number) {
   return { when: fill(t.hold.header.deadline, { when: formatWhen(expiresAt) }), relative };
 }
 
+function TickingLive({
+  poll,
+}: {
+  poll: { lastSuccessAt: number; failures: number; paused: boolean };
+}) {
+  const now = useNow(1000);
+  return (
+    <LiveIndicator
+      lastSuccessAt={poll.lastSuccessAt}
+      failures={poll.failures}
+      paused={poll.paused}
+      now={now}
+    />
+  );
+}
+
+function TickingStale({
+  lastSuccessAt,
+  onCheckNow,
+}: {
+  lastSuccessAt: number;
+  onCheckNow: () => void;
+}) {
+  const now = useNow(1000);
+  return <StaleBanner lastSuccessAt={lastSuccessAt} now={now} onCheckNow={onCheckNow} />;
+}
+
+function Deadline({ expiresAt }: { expiresAt: string | null }) {
+  const now = useNow(30_000);
+  const d = deadlineText(expiresAt, now);
+  return (
+    <span data-testid="hold-deadline">
+      {d.when}
+      {d.relative ? ` (${fill(t.hold.header.deadlineRelative, { relative: d.relative })})` : ""}
+    </span>
+  );
+}
+
 export function HoldScreen({ initial }: { initial: HoldView }) {
   const rfiId = initial.rfi.id;
   const poll = usePoll<HoldView>(`/api/v1/rfis/${rfiId}/hold`, initial, POLL_MS, {
@@ -82,13 +129,21 @@ export function HoldScreen({ initial }: { initial: HoldView }) {
     backoff: true,
   });
   const view = poll.data;
-  const now = useNow(1000);
+  // Ticks every 5 s for the approve gate; the per-second clocks live in leaf components below, so the
+  // question cards are not re-rendered every second (INP and TBT).
+  const now = useNow(5_000);
   const settled = TERMINAL.includes(view.rfi.state);
   const [selected, setSelected] = useState(0);
   const [activeSnippet, setActiveSnippet] = useState<string | null>(null);
   const [snapshot, setSnapshot] = useState<ApproveSnapshot | null>(null);
   const [withdrawing, setWithdrawing] = useState(false);
   const previous = useRef(initial);
+  const trigger = useRef<HTMLElement | null>(null);
+  const closeDialog = useCallback(() => {
+    setSnapshot(null);
+    // The dialog is unmounted on close, so focus goes back to the control that opened it by hand.
+    requestAnimationFrame(() => trigger.current?.focus());
+  }, []);
 
   // Announce transitions only (never polls): the shell's one polite live region.
   useEffect(() => {
@@ -159,7 +214,6 @@ export function HoldScreen({ initial }: { initial: HoldView }) {
       ? t.hold.approval.editingLocked
       : null;
   const badge = transferBadge(view);
-  const deadline = deadlineText(view.rfi.expires_at, now);
   const expired = state === "EXPIRED" || view.rfi.expired;
   const answered = state === "ANSWERED" || state === "CLOSED";
   const polling = !settled;
@@ -193,14 +247,7 @@ export function HoldScreen({ initial }: { initial: HoldView }) {
           <ArrowLeft aria-hidden="true" className="size-4" />
           {t.hold.header.back}
         </Link>
-        {polling ? (
-          <LiveIndicator
-            lastSuccessAt={poll.lastSuccessAt}
-            failures={poll.failures}
-            paused={poll.paused}
-            now={now}
-          />
-        ) : null}
+        {polling ? <TickingLive poll={poll} /> : null}
       </div>
 
       <header className="flex flex-col gap-3">
@@ -243,12 +290,7 @@ export function HoldScreen({ initial }: { initial: HoldView }) {
             {fill(t.hold.header.rfiId, { id: shortId(view.rfi.airwallex_rfi_id) })}
           </span>
           <span>{fill(t.hold.header.round, { round: view.rfi.round })}</span>
-          <span data-testid="hold-deadline">
-            {deadline.when}
-            {deadline.relative
-              ? ` (${fill(t.hold.header.deadlineRelative, { relative: deadline.relative })})`
-              : ""}
-          </span>
+          {answered ? null : <Deadline expiresAt={view.rfi.expires_at} />}
         </p>
         <details className="text-sm">
           <summary className="min-h-11 cursor-pointer rounded-sm py-2 font-medium text-primary underline underline-offset-4 outline-none focus-visible:ring-2 focus-visible:ring-focus-ring md:min-h-6 md:py-0">
@@ -272,7 +314,7 @@ export function HoldScreen({ initial }: { initial: HoldView }) {
       </header>
 
       {polling ? (
-        <StaleBanner lastSuccessAt={poll.lastSuccessAt} now={now} onCheckNow={poll.checkNow} />
+        <TickingStale lastSuccessAt={poll.lastSuccessAt} onCheckNow={poll.checkNow} />
       ) : null}
 
       {expired ? (
@@ -371,23 +413,28 @@ export function HoldScreen({ initial }: { initial: HoldView }) {
         view={view}
         gate={gate}
         count={view.questions.length}
-        onApprove={() => setSnapshot(makeSnapshot(view))}
+        onApprove={() => {
+          trigger.current = document.activeElement as HTMLElement | null;
+          setSnapshot(makeSnapshot(view));
+        }}
         onGoto={(position) => goto(position - 1)}
         onWithdraw={() => void withdraw()}
         withdrawing={withdrawing}
       />
 
-      <ApproveDialog
-        snapshot={snapshot}
-        current={view}
-        onClose={() => setSnapshot(null)}
-        onApproved={() => {
-          // The server recorded the approval: close, then show what the server now reports.
-          setSnapshot(null);
-          poll.checkNow();
-        }}
-        onRefresh={poll.checkNow}
-      />
+      {snapshot ? (
+        <ApproveDialog
+          snapshot={snapshot}
+          current={view}
+          onClose={closeDialog}
+          onApproved={() => {
+            // The server recorded the approval: close, then show what the server now reports.
+            closeDialog();
+            poll.checkNow();
+          }}
+          onRefresh={poll.checkNow}
+        />
+      ) : null}
     </div>
   );
 }
@@ -415,7 +462,7 @@ function QuestionNav({
   return (
     <ul
       aria-label={t.hold.question.list}
-      className="flex flex-col gap-1"
+      className="flex flex-wrap gap-2"
       data-testid="question-nav"
     >
       {view.questions.map((q, i) => (
@@ -444,7 +491,7 @@ function QuestionNav({
                 move(view.questions.length - 1);
               }
             }}
-            className="flex min-h-11 w-full items-center justify-between gap-3 rounded-md border border-border bg-card px-3 py-2 text-left text-sm outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-focus-ring aria-[current=true]:border-primary md:min-h-9"
+            className="flex min-h-11 items-center justify-between gap-3 rounded-md border border-border bg-card px-3 py-2 text-left text-sm outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-focus-ring aria-[current=true]:border-primary md:min-h-9"
           >
             <span className="min-w-0 break-words">
               <span className="font-medium">
@@ -454,6 +501,7 @@ function QuestionNav({
             <QuestionStatusChip
               status={questionStatus(q, view.rfi.state)}
               edited={view.draft?.origin === "owner"}
+              sent={view.rfi.state === "ANSWERED" || view.rfi.state === "CLOSED"}
             />
           </button>
         </li>

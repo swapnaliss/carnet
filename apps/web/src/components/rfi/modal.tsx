@@ -48,7 +48,7 @@ export function Modal({
         if (open) onClose();
       }}
       className={cn(
-        "m-auto max-h-[90dvh] w-[min(40rem,calc(100vw-2rem))] overflow-y-auto rounded-lg border border-border bg-card p-0 text-card-foreground shadow-3 backdrop:bg-black/50",
+        "m-auto max-h-[90dvh] w-[min(40rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-border bg-card p-0 text-card-foreground shadow-3 backdrop:bg-black/50",
         className,
       )}
     >

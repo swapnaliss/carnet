@@ -4,7 +4,7 @@ import { Inbox } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { announce } from "@/components/payments/announce";
-import { formatWhen } from "@/components/payments/format";
+import { formatWhen, formatWire } from "@/components/payments/format";
 import { EmptyState } from "@/components/shell/empty-state";
 import { Button } from "@/components/ui/button";
 import { fill, t } from "@/strings";
@@ -19,6 +19,11 @@ interface RfiItem {
   expires_at: string | null;
   payment_id: string | null;
   orphan_reason: string | null;
+  payment: {
+    reference: string;
+    amount: { amount: string; currency: string };
+    counterparty: string | null;
+  } | null;
 }
 
 type Load = { kind: "loading" } | { kind: "error" } | { kind: "ready"; items: RfiItem[] };
@@ -32,6 +37,15 @@ function Row({ rfi, canLink, onLinked }: { rfi: RfiItem; canLink: boolean; onLin
       data-testid="rfi-row"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
+        {rfi.payment ? (
+          <span className="flex flex-col">
+            <span className="font-semibold">
+              {rfi.payment.counterparty ?? rfi.payment.reference}
+            </span>
+            <span className="text-sm text-muted-foreground">{rfi.payment.reference}</span>
+            <span className="tabular-nums">{formatWire(rfi.payment.amount)}</span>
+          </span>
+        ) : null}
         <span className="font-mono text-sm" title={rfi.airwallex_rfi_id}>
           {shortId(rfi.airwallex_rfi_id)}
         </span>

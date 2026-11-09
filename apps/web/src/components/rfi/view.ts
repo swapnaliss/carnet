@@ -156,7 +156,8 @@ export function snippetGroups(claims: readonly Claim[], answer: AnswerDto): Snip
 // ---------------------------------------------------------------------------------------------
 // The approval gate and the request body
 
-export const STALE_APPROVE_AFTER_MS = 60_000;
+// Same as the StaleBanner (15 s): while the screen says its data may be out of date, approve is off.
+export const STALE_APPROVE_AFTER_MS = 15_000;
 
 export type GateReason =
   | "VIEWER"
@@ -170,7 +171,8 @@ export type GateReason =
   | "SOURCE_FAILED"
   | "NO_DRAFT"
   | "APPROVAL_PENDING"
-  | "ANSWERED";
+  | "ANSWERED"
+  | "UNLINKED";
 
 export interface Gate {
   readonly enabled: boolean;
@@ -190,6 +192,7 @@ export function approveGate(view: HoldView, ctx: { now: number; lastSuccessAt: n
   if (state === "DRAFTING" || state === "ACTION_REQUIRED") return closed("DRAFTING");
   if (state !== "DRAFT_READY" && state !== "NEEDS_OWNER") return closed("NOT_READY");
   if (!view.draft) return closed("NO_DRAFT");
+  if (view.payment === null) return closed("UNLINKED");
   const blocking = view.questions
     .map((q, i) => ({ q, position: i + 1 }))
     .filter(({ q }) => questionStatus(q, state) === "needs_owner" || q.answer === null)

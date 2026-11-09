@@ -2,6 +2,8 @@
 // built over test guards, so the exact production specs are what the cross-tenant tests exercise.
 import {
   appendAudit,
+  getCounterparty,
+  getPayment,
   getRfi,
   linkRfiToPayment,
   listRfiQuestions,
@@ -10,7 +12,7 @@ import {
   unlinkRfi,
   withTransaction,
 } from "@carnet/db";
-import { PaymentIdSchema, RfiIdSchema } from "@carnet/domain";
+import { PaymentIdSchema, RfiIdSchema, toMoneyWire } from "@carnet/domain";
 import { z } from "zod";
 import type { AuthRule, RouteSpec } from "../lib/define-route";
 import { notFound } from "../lib/errors";
@@ -34,7 +36,27 @@ export const rfiListSpec = routeSpec({
       ...(query.orphan === undefined ? {} : { orphan: query.orphan === "true" }),
       limit: query.limit,
     });
-    return Response.json({ items: items.map(rfiJson) });
+    // The payment each held request belongs to (counterparty, reference, amount), so the list says
+    // which payment a row is without opening it (M2-08).
+    const withPayment = await Promise.all(
+      items.map(async (rfi) => {
+        const payment = rfi.paymentId ? await getPayment(repo, rfi.paymentId) : null;
+        const counterparty = payment?.counterpartyId
+          ? await getCounterparty(repo, payment.counterpartyId)
+          : null;
+        return {
+          ...rfiJson(rfi),
+          payment: payment
+            ? {
+                reference: payment.reference,
+                amount: toMoneyWire(payment.amount),
+                counterparty: counterparty?.name ?? null,
+              }
+            : null,
+        };
+      }),
+    );
+    return Response.json({ items: withPayment });
   },
 });
 

@@ -8,7 +8,7 @@ import {
   TriangleAlert,
   UserPen,
 } from "lucide-react";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { CitationDto, HoldView, QuestionDto } from "@/server/hold";
@@ -34,12 +34,15 @@ const STATUS_STYLE: Record<QuestionStatus, string> = {
 export function QuestionStatusChip({
   status,
   edited,
+  sent = false,
 }: {
   status: QuestionStatus;
   edited: boolean;
+  sent?: boolean;
 }) {
-  const label =
-    status === "ready"
+  const label = sent
+    ? t.hold.question.statusSent
+    : status === "ready"
       ? edited
         ? t.hold.question.statusEdited
         : t.hold.question.statusReady
@@ -88,23 +91,20 @@ function Chip({
     <button
       type="button"
       aria-controls={snippet}
-      aria-label={fill(t.hold.citation.name, {
-        document: citation.document.filename,
-        page: citation.page,
-        state,
-      })}
       onClick={onSelect}
       className="inline-flex min-h-11 items-center gap-1.5 rounded-sm border border-border bg-background px-2 text-xs font-medium outline-none hover:bg-accent focus-visible:ring-2 focus-visible:ring-focus-ring md:min-h-6"
     >
       <FileText aria-hidden="true" className="size-3.5 text-muted-foreground" />
+      <span className="sr-only">{t.hold.citation.prefix}</span>
       <span className="max-w-40 truncate">{citation.document.filename}</span>
       <span>{fill(t.hold.source.page, { page: citation.page })}</span>
+      <span className="sr-only">{state}</span>
       <CircleCheck aria-hidden="true" className="size-3.5 text-status-success-fg" />
     </button>
   );
 }
 
-export function QuestionCard({
+function QuestionCardImpl({
   view,
   question,
   position,
@@ -163,7 +163,11 @@ export function QuestionCard({
               title: question.title,
             })}
           </h3>
-          <QuestionStatusChip status={status} edited={ownerDraft && status === "ready"} />
+          <QuestionStatusChip
+            status={status}
+            edited={ownerDraft && status === "ready"}
+            sent={view.rfi.state === "ANSWERED" || view.rfi.state === "CLOSED"}
+          />
         </div>
         <p className="text-sm text-muted-foreground">
           {question.description}
@@ -304,7 +308,12 @@ export function QuestionCard({
                 {t.hold.edit.cta}
               </Button>
             ) : null}
-            {status === "needs_owner" && !attachment ? (
+            {status === "needs_owner" && !attachment && rejectedText ? (
+              <Button variant="outline" onClick={() => setMode("edit")}>
+                {t.hold.edit.cta}
+              </Button>
+            ) : null}
+            {status === "needs_owner" && !attachment && !rejectedText ? (
               <Button variant="secondary" onClick={() => setMode("write")}>
                 {t.hold.answer.write}
               </Button>
@@ -356,3 +365,5 @@ export function QuestionCard({
     </li>
   );
 }
+
+export const QuestionCard = memo(QuestionCardImpl);
