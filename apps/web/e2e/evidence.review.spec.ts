@@ -48,6 +48,21 @@ interface Seeded {
 async function seed(): Promise<Seeded> {
   return withDb(async (c) => {
     const biz = (await c.query<{ id: string }>("select id from businesses limit 1")).rows[0]?.id;
+    // Seeded once: later calls look the payments up by their references.
+    const byRef = async (ref: string) =>
+      (await c.query<{ id: string }>("select id from payments where reference = $1 limit 1", [ref]))
+        .rows[0]?.id as string;
+    if (await byRef("RD-2026-1233")) {
+      return {
+        held: await byRef("RD-2026-1233"),
+        weak: await byRef("INV-HP-0043"),
+        strong: await byRef("INV-HP-0042"),
+        waiting: await byRef("INV-HP-0044"),
+        sent: await byRef("INV-HP-0041"),
+        injection: await byRef("LF-2026-0455"),
+        failed: await byRef("RD-2026-1180"),
+      };
+    }
     const owner = (
       await c.query<{ id: string }>("select id from users where email = 'owner@carnet.example'")
     ).rows[0]?.id;
@@ -193,50 +208,48 @@ async function seed(): Promise<Seeded> {
 }
 
 const widths = [375, 768, 1440] as const;
-for (const scheme of ["light", "dark"] as const) {
-  for (const width of widths) {
-    test(`review ${scheme} ${width}`, async ({ page }, info) => {
-      info.setTimeout(240_000);
-      const dir = resolve(reviewDir ?? ".");
-      mkdirSync(dir, { recursive: true });
-      const tag = `${scheme}-${width}`;
-      await page.emulateMedia({ colorScheme: scheme });
-      await page.setViewportSize({ width, height: width === 375 ? 812 : 900 });
-      const capture = async (name: string) => {
-        // Viewport-height screenshots of the whole page, scrolled, so fixed bars appear once, where they are.
-        await page.screenshot({ path: resolve(dir, `${name}-${tag}.png`), fullPage: true });
-        const results = await new AxeBuilder({ page }).withTags(TAGS).analyze();
-        writeFileSync(resolve(dir, `axe-${name}-${tag}.json`), JSON.stringify(results, null, 2));
-        const blocking = results.violations.filter(
-          (v) => v.impact === "serious" || v.impact === "critical",
-        );
-        expect(blocking.map((v) => `${name} ${v.id}: ${v.help}`)).toEqual([]);
-      };
-      await signIn(page, "owner");
+const schemes = ["light", "dark"] as const;
 
-      // Queue, empty: only on a database with no payments (the first run of a fresh database).
+async function prepare(page: Page, scheme: (typeof schemes)[number], width: number) {
+  const dir = resolve(reviewDir ?? ".");
+  mkdirSync(dir, { recursive: true });
+  const tag = `${scheme}-${width}`;
+  await page.emulateMedia({ colorScheme: scheme });
+  await page.setViewportSize({ width, height: width === 375 ? 812 : 900 });
+  const capture = async (name: string) => {
+    await page.screenshot({ path: resolve(dir, `${name}-${tag}.png`), fullPage: true });
+    const results = await new AxeBuilder({ page }).withTags(TAGS).analyze();
+    writeFileSync(resolve(dir, `axe-${name}-${tag}.json`), JSON.stringify(results, null, 2));
+    const blocking = results.violations.filter(
+      (v) => v.impact === "serious" || v.impact === "critical",
+    );
+    expect(blocking.map((v) => `${name} ${v.id}: ${v.help}`)).toEqual([]);
+  };
+  return capture;
+}
+
+// The queue first, on clean data: empty (no payments yet), then the seeded set.
+test("review queue states", async ({ page }, info) => {
+  info.setTimeout(300_000);
+  await signIn(page, "owner");
+  for (const scheme of schemes) {
+    for (const width of widths) {
+      const capture = await prepare(page, scheme, width);
       await page.goto("/queue");
-      if (await page.getByRole("heading", { name: "No payments yet" }).isVisible()) {
-        await capture("queue-empty");
-      }
-
-      const ids = await seed();
-
-      // Loading and error states: the section's own loading.tsx and error.tsx, held on screen by the
-      // preview routes (a 404 unless the server runs with CARNET_ERROR_PREVIEW=1, as /error-preview).
+      await expect(page.getByRole("heading", { name: "No payments yet" })).toBeVisible();
+      await capture("queue-empty");
+    }
+  }
+  const ids = await seed();
+  for (const scheme of schemes) {
+    for (const width of widths) {
+      const capture = await prepare(page, scheme, width);
       await page.goto("/queue/preview-loading", { waitUntil: "commit" });
       await expect(page.getByText("Loading payments")).toBeVisible();
       await capture("queue-loading");
       await page.goto("/queue/preview-error");
       await expect(page.getByText(/could not load your payments/)).toBeVisible();
       await capture("queue-error");
-      await page.goto(`/payments/${ids.weak}/evidence/preview-loading`, { waitUntil: "commit" });
-      await expect(page.getByText("Loading evidence")).toBeVisible();
-      await capture("evidence-loading");
-      await page.goto(`/payments/${ids.weak}/evidence/preview-error`);
-      await expect(page.getByText(/could not load the checks/)).toBeVisible();
-      await capture("evidence-error");
-
       await page.goto("/queue");
       await expect(page.getByTestId("held-callout")).toBeVisible();
       await capture("queue");
@@ -245,9 +258,26 @@ for (const scheme of ["light", "dark"] as const) {
         page.getByRole("heading", { name: "No payments match these filters" }),
       ).toBeVisible();
       await capture("queue-filtered-empty");
+      await page.goto(`/payments/${ids.weak}/evidence/preview-loading`, { waitUntil: "commit" });
+      await expect(page.getByText("Loading evidence")).toBeVisible();
+      await capture("evidence-loading");
+      await page.goto(`/payments/${ids.weak}/evidence/preview-error`);
+      await expect(page.getByText(/could not load the checks/)).toBeVisible();
+      await capture("evidence-error");
+    }
+  }
+});
 
-      // Evidence view states.
+for (const scheme of schemes) {
+  for (const width of widths) {
+    test(`review evidence ${scheme} ${width}`, async ({ page }, info) => {
+      info.setTimeout(240_000);
+      const capture = await prepare(page, scheme, width);
+      await signIn(page, "owner");
+      const ids = await seed();
+
       await page.goto(`/payments/${ids.strong}/evidence`);
+      await expect(page.getByRole("heading", { level: 1 })).toContainText("Harbor");
       await expect(page.getByTestId("reasons")).toContainText("Every check passed");
       await capture("evidence-strong");
       await page.getByRole("button", { name: "Approve and send" }).click();
@@ -261,7 +291,6 @@ for (const scheme of ["light", "dark"] as const) {
       await page.getByRole("tab", { name: /Documents/ }).click();
       await capture("evidence-weak-documents");
       await page.getByRole("button", { name: "Approve and send" }).click();
-      await page.getByLabel(/I have read the reasons above/).check();
       await capture("evidence-approve-dialog-weak");
       await page.keyboard.press("Escape");
 
@@ -281,7 +310,6 @@ for (const scheme of ["light", "dark"] as const) {
       await expect(page.getByText("Airwallex created the transfer")).toBeVisible();
       await capture("evidence-sent");
 
-      // Empty, reading, needs-confirmation and confirmed: the upload flow on a fresh draft.
       const paymentId = await newDraft();
       await page.goto(`/payments/${paymentId}/evidence`);
       await capture("evidence-empty");
@@ -301,9 +329,10 @@ for (const scheme of ["light", "dark"] as const) {
       await page.getByRole("tab", { name: "Checks" }).click();
       await capture("evidence-checks-after-confirm");
 
-      // Stale: the evidence cannot be refreshed, so the banner appears after 15 s and the data stays.
+      // Stale: the evidence cannot be refreshed, so the banner shows after 15 s, the data stays and sending is paused.
       await page.route(/evidence-check/, (route) => route.abort());
       await expect(page.getByTestId("stale-banner")).toBeVisible({ timeout: 40_000 });
+      await expect(page.getByRole("button", { name: "Approve and send" })).toBeDisabled();
       await capture("evidence-stale");
     });
   }

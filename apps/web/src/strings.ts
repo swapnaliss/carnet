@@ -62,7 +62,8 @@ const en = {
       load: "Carnet could not load your payments. Nothing was sent or changed.",
     },
     summary: {
-      counts: "{total} payments · {strong} strong · {weak} weak · {missing} missing evidence",
+      counts:
+        "{total} payments \u00b7 {sent} sent \u00b7 {held} held \u00b7 {notSent} not sent \u00b7 evidence: {strong} strong, {weak} weak, {missing} missing",
     },
     filter: {
       label: "Filter payments",
@@ -114,6 +115,7 @@ const en = {
       deadline: "Answer by {date}.",
       noDeadline: "Airwallex has not given a deadline.",
       cta: "Review and answer",
+      badge: "Held for information",
     },
     updated: "Updated {time} \u00b7 Live",
     due: "Due",
@@ -526,6 +528,7 @@ const en = {
       valueDate: "Value date",
       valueDateValue: "Set by Airwallex when it creates the transfer",
       cancel: "Cancel",
+      stale: "Sending is paused until Carnet can refresh this page.",
       weakNotice:
         "Evidence is not strong. Your acknowledgement is recorded with the reasons shown.",
     },
@@ -622,7 +625,8 @@ const en = {
       textLayerNo: "Scanned image, no text layer",
       reading: "Reading document",
       readFailed: "Carnet could not read this document",
-      readFailedWhy: "Carnet could not read this document. Reason: {failure}.",
+      readFailedWhy:
+        "Carnet could not read this document, so none of its facts are used. Remove it and add a clearer copy.",
       noFacts: "No facts were extracted from this document.",
       open: "Open document",
       remove: "Remove from this payment",

@@ -96,6 +96,15 @@ function Chip({
   );
 }
 
+function HeldBadge() {
+  return (
+    <span className="inline-flex min-h-6 items-center gap-1.5 rounded-sm border border-border bg-status-held-bg px-2 text-xs font-medium whitespace-nowrap text-status-held-fg">
+      <CircleAlert aria-hidden="true" className="size-3.5" />
+      {t.queue.held.badge}
+    </span>
+  );
+}
+
 function nextStep(item: QueueItemDto): { label: string; href: string } {
   const p = item.payment;
   if (item.held) return { label: t.queue.held.cta, href: `/payments/${p.id}` };
@@ -138,6 +147,11 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
     strong: items.filter((i) => i.flag === "strong").length,
     weak: items.filter((i) => i.flag === "weak").length,
     missing: items.filter((i) => i.flag === "missing").length,
+    held: held.length,
+    sent: items.filter((i) => i.payment.attempt !== null || i.payment.transfer_status !== null)
+      .length,
+    notSent: items.filter((i) => i.payment.attempt === null && i.payment.transfer_status === null)
+      .length,
   };
 
   function setFilter(key: "flag" | "show" | "currency", value: string | null) {
@@ -298,7 +312,7 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
             />
           ) : (
             <>
-              <div className="hidden overflow-hidden rounded-md border border-border bg-card md:block">
+              <div className="hidden overflow-hidden rounded-md border border-border bg-card xl:block">
                 <table className="w-full text-sm" data-testid="queue-table">
                   <caption className="sr-only">{t.queue.table.caption}</caption>
                   <thead className="border-b border-border bg-muted text-left text-xs font-medium text-muted-foreground">
@@ -358,7 +372,10 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
                             <EvidenceStrength flag={item.flag} />
                           </td>
                           <td className="px-4 py-3">
-                            <StatusBadge status={describeStatus(item.payment)} />
+                            <span className="flex flex-wrap gap-1">
+                              <StatusBadge status={describeStatus(item.payment)} />
+                              {item.held ? <HeldBadge /> : null}
+                            </span>
                           </td>
                           <td className="px-4 py-3">
                             <Link
@@ -374,7 +391,7 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
                   </tbody>
                 </table>
               </div>
-              <ul className="flex flex-col gap-3 md:hidden" aria-label={t.queue.table.caption}>
+              <ul className="flex flex-col gap-3 xl:hidden" aria-label={t.queue.table.caption}>
                 {shown.map((item) => (
                   <li key={item.payment.id} className="rounded-md border border-border bg-card p-4">
                     <Link
@@ -390,15 +407,12 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
                         </span>
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {t.queue.due}: {t.queue.dueNotSet}
-                        {SEP}
-                        {t.queue.criticalityNotSet}
-                        {SEP}
                         {item.payment.reference}
                       </span>
                       <span className="flex flex-wrap gap-2">
                         <EvidenceStrength flag={item.flag} />
                         <StatusBadge status={describeStatus(item.payment)} />
+                        {item.held ? <HeldBadge /> : null}
                       </span>
                     </Link>
                   </li>

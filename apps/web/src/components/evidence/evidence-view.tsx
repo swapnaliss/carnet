@@ -19,7 +19,7 @@ import { announce } from "@/components/payments/announce";
 import { describeStatus, formatWire } from "@/components/payments/format";
 import { LiveIndicator, StaleBanner } from "@/components/payments/live-status";
 import { StatusBadge } from "@/components/payments/status-badge";
-import { useNow, usePoll } from "@/components/payments/use-poll";
+import { STALE_AFTER_MS, useNow, usePoll } from "@/components/payments/use-poll";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { EvidenceCheckDto, EvidenceDocumentDto, FactDto, RuleDto } from "@/server/evidence";
@@ -284,7 +284,7 @@ function FactRow({
     <li
       data-fact={fact.key}
       data-status={fact.status}
-      className="grid gap-2 border-b border-border px-4 py-3 last:border-b-0 md:grid-cols-[10rem_minmax(0,1fr)_minmax(0,1.4fr)_11rem] md:gap-4"
+      className="grid gap-2 border-b border-border px-4 py-3 last:border-b-0 xl:grid-cols-[10rem_minmax(0,1fr)_minmax(0,1.4fr)_11rem] xl:gap-4"
     >
       <div className="flex items-start gap-2 font-medium">
         {confirmable && fact.status === "needs_confirmation" ? (
@@ -428,9 +428,7 @@ function DocumentCard({
       ) : doc.extraction === "failed" ? (
         <p className="flex items-start gap-2 text-sm text-status-danger-fg">
           <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-          <span>
-            {fill(t.evidence.documents.readFailedWhy, { failure: doc.failure ?? "unknown" })}
-          </span>
+          <span>{t.evidence.documents.readFailedWhy}</span>
         </p>
       ) : doc.extraction === "none" ? (
         <p className="text-sm text-muted-foreground">{t.evidence.documents.unreadableKind}</p>
@@ -445,7 +443,7 @@ function DocumentCard({
             </div>
           ) : null}
           <div className="overflow-hidden rounded-md border border-border">
-            <div className="hidden grid-cols-[10rem_minmax(0,1fr)_minmax(0,1.4fr)_11rem] gap-4 border-b border-border bg-muted px-4 py-2 text-xs font-medium text-muted-foreground md:grid">
+            <div className="hidden grid-cols-[10rem_minmax(0,1fr)_minmax(0,1.4fr)_11rem] gap-4 border-b border-border bg-muted px-4 py-2 text-xs font-medium text-muted-foreground xl:grid">
               <span>{t.evidence.fact.field}</span>
               <span>{t.evidence.fact.value}</span>
               <span>{t.evidence.fact.source}</span>
@@ -939,6 +937,7 @@ export function EvidenceView({
     if (next) selectTab(next, true);
   }
 
+  const stale = now - poll.lastSuccessAt > STALE_AFTER_MS;
   const payee = data.payment.counterparty_name ?? t.queue.unnamedPayee;
   const summary =
     data.flag === "strong"
@@ -998,13 +997,20 @@ export function EvidenceView({
         {canEdit && !data.payment.sent ? (
           <div
             className={cn(
-              "fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-10 border-t border-border bg-card p-3",
-              "md:static md:z-auto md:border-0 md:bg-transparent md:p-0",
+              "fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-10 flex flex-col gap-1 border-t border-border bg-card p-3",
+              "md:static md:z-auto md:flex-row md:items-center md:gap-3 md:border-0 md:bg-transparent md:p-0",
             )}
           >
-            <Button className="w-full md:w-auto" onClick={() => setApproving(true)}>
+            <Button
+              className="w-full md:w-auto"
+              disabled={stale}
+              onClick={() => setApproving(true)}
+            >
               {t.evidence.approve.cta}
             </Button>
+            {stale ? (
+              <p className="text-sm text-muted-foreground">{t.evidence.approve.stale}</p>
+            ) : null}
           </div>
         ) : null}
         {!canEdit && !data.payment.sent ? (
