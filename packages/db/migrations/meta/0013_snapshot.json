@@ -1,5 +1,5 @@
 {
-  "id": "00a1a0cc-548b-4845-a7b2-c13a10e894d4",
+  "id": "f366f7eb-04b0-40c1-b5ff-3a44f739242e",
   "prevId": "7c04a600-9cd0-4a22-a5d1-7b66f9aa7b27",
   "version": "7",
   "dialect": "postgresql",
@@ -311,6 +311,198 @@
         "agent_steps_cost_check": {
           "name": "agent_steps_cost_check",
           "value": "\"cost_nano_usd\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.answer_memory": {
+      "name": "answer_memory",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "business_id": {
+          "name": "business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "counterparty_id": {
+          "name": "counterparty_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fingerprint": {
+          "name": "fingerprint",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "fp_version": {
+          "name": "fp_version",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "answer_type": {
+          "name": "answer_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "question_id": {
+          "name": "question_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "answer_text": {
+          "name": "answer_text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "citations": {
+          "name": "citations",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "attachments": {
+          "name": "attachments",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source_approval_id": {
+          "name": "source_approval_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "approved_at": {
+          "name": "approved_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "answer_memory_lookup_idx": {
+          "name": "answer_memory_lookup_idx",
+          "columns": [
+            {
+              "expression": "business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "counterparty_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "fingerprint",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "answer_memory_approval_question_key": {
+          "name": "answer_memory_approval_question_key",
+          "columns": [
+            {
+              "expression": "source_approval_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "question_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "answer_memory_business_id_businesses_id_fk": {
+          "name": "answer_memory_business_id_businesses_id_fk",
+          "tableFrom": "answer_memory",
+          "tableTo": "businesses",
+          "columnsFrom": ["business_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "answer_memory_source_approval_id_approvals_id_fk": {
+          "name": "answer_memory_source_approval_id_approvals_id_fk",
+          "tableFrom": "answer_memory",
+          "tableTo": "approvals",
+          "columnsFrom": ["source_approval_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "answer_memory_counterparty_same_business_fk": {
+          "name": "answer_memory_counterparty_same_business_fk",
+          "tableFrom": "answer_memory",
+          "tableTo": "counterparties",
+          "columnsFrom": ["counterparty_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "answer_memory_question_same_business_fk": {
+          "name": "answer_memory_question_same_business_fk",
+          "tableFrom": "answer_memory",
+          "tableTo": "rfi_questions",
+          "columnsFrom": ["question_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "answer_memory_fingerprint_check": {
+          "name": "answer_memory_fingerprint_check",
+          "value": "\"answer_memory\".\"fingerprint\" ~ '^[0-9a-f]{64}$'"
+        },
+        "answer_memory_fp_version_check": {
+          "name": "answer_memory_fp_version_check",
+          "value": "\"fp_version\" >= 1"
+        },
+        "answer_memory_json_check": {
+          "name": "answer_memory_json_check",
+          "value": "jsonb_typeof(\"citations\") = 'array' AND jsonb_typeof(\"attachments\") = 'array'"
         }
       },
       "isRLSEnabled": false
@@ -1017,13 +1209,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "evidence_policy": {
-          "name": "evidence_policy",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::jsonb"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -1524,284 +1709,6 @@
           "value": "\"documents\".\"sha256\" = encode(sha256(\"documents\".\"bytes\"), 'hex')"
         }
       },
-      "isRLSEnabled": false
-    },
-    "public.evidence_checks": {
-      "name": "evidence_checks",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "business_id": {
-          "name": "business_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "payment_id": {
-          "name": "payment_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "flag": {
-          "name": "flag",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "rules": {
-          "name": "rules",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "reasons": {
-          "name": "reasons",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "fact_version_ids": {
-          "name": "fact_version_ids",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "check_hash": {
-          "name": "check_hash",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cause": {
-          "name": "cause",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "evidence_checks_business_id_payment_id_idx": {
-          "name": "evidence_checks_business_id_payment_id_idx",
-          "columns": [
-            {
-              "expression": "business_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "payment_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "evidence_checks_business_id_businesses_id_fk": {
-          "name": "evidence_checks_business_id_businesses_id_fk",
-          "tableFrom": "evidence_checks",
-          "tableTo": "businesses",
-          "columnsFrom": ["business_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "evidence_checks_flag_check": {
-          "name": "evidence_checks_flag_check",
-          "value": "\"flag\" IN ('strong', 'weak', 'missing')"
-        },
-        "evidence_checks_cause_check": {
-          "name": "evidence_checks_cause_check",
-          "value": "\"cause\" IN ('link_added', 'link_removed', 'facts_confirmed', 'send')"
-        },
-        "evidence_checks_hash_check": {
-          "name": "evidence_checks_hash_check",
-          "value": "\"check_hash\" ~ '^[0-9a-f]{64}$'"
-        }
-      },
-      "isRLSEnabled": false
-    },
-    "public.evidence_links": {
-      "name": "evidence_links",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "business_id": {
-          "name": "business_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "payment_id": {
-          "name": "payment_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "document_id": {
-          "name": "document_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "fact_version_id": {
-          "name": "fact_version_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "evidence_links_payment_document_key": {
-          "name": "evidence_links_payment_document_key",
-          "columns": [
-            {
-              "expression": "payment_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "document_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "evidence_links_business_id_payment_id_idx": {
-          "name": "evidence_links_business_id_payment_id_idx",
-          "columns": [
-            {
-              "expression": "business_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "payment_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "evidence_links_business_id_businesses_id_fk": {
-          "name": "evidence_links_business_id_businesses_id_fk",
-          "tableFrom": "evidence_links",
-          "tableTo": "businesses",
-          "columnsFrom": ["business_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "evidence_links_payment_id_payments_id_fk": {
-          "name": "evidence_links_payment_id_payments_id_fk",
-          "tableFrom": "evidence_links",
-          "tableTo": "payments",
-          "columnsFrom": ["payment_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "evidence_links_fact_version_id_document_facts_id_fk": {
-          "name": "evidence_links_fact_version_id_document_facts_id_fk",
-          "tableFrom": "evidence_links",
-          "tableTo": "document_facts",
-          "columnsFrom": ["fact_version_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "evidence_links_created_by_users_id_fk": {
-          "name": "evidence_links_created_by_users_id_fk",
-          "tableFrom": "evidence_links",
-          "tableTo": "users",
-          "columnsFrom": ["created_by"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "evidence_links_document_same_business_fk": {
-          "name": "evidence_links_document_same_business_fk",
-          "tableFrom": "evidence_links",
-          "tableTo": "documents",
-          "columnsFrom": ["document_id", "business_id"],
-          "columnsTo": ["id", "business_id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "evidence_links_id_business_id_key": {
-          "name": "evidence_links_id_business_id_key",
-          "nullsNotDistinct": false,
-          "columns": ["id", "business_id"]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
       "isRLSEnabled": false
     },
     "public.draft_answers": {

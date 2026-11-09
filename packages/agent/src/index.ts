@@ -32,6 +32,14 @@ export {
   SYSTEM as DRAFT_SYSTEM,
   VERSION as DRAFT_PROMPT_VERSION,
 } from "./drafting/prompts/draft";
+export type { ReuseContext, ReuseResult } from "./drafting/reuse";
+export {
+  priorAnswersFor,
+  rebindCitation,
+  resolveReuse,
+  reuseAnswer,
+  reusedFrom,
+} from "./drafting/reuse";
 export type {
   ExtractableDocument,
   ExtractionResult,
