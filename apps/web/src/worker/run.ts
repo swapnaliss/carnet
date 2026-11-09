@@ -13,6 +13,12 @@ import { DOCUMENT_JOB_KIND } from "../server/documents/jobs";
 import { createLogger, type Logger } from "../server/log";
 import { DEFAULT_MAX_ATTEMPTS } from "./backoff";
 import { handleTransferCreate } from "./handlers/create-transfer";
+import {
+  DRAFT_EVENT_KIND,
+  handleDraftEvent,
+  handleRfiDraft,
+  RFI_DRAFT_JOB_KIND,
+} from "./handlers/draft";
 import { handleDocumentExtract, handleDocumentExtracted } from "./handlers/extract";
 import {
   type AirwallexReader,
@@ -36,6 +42,9 @@ export function defaultRegistry(planInputs?: PlanInputsLoader): HandlerRegistry 
   registerHandler(registry, JOB_KIND.transferSync, handleTransferSync);
   registerHandler(registry, JOB_KIND.rfiSync, handleRfiSync);
   registerHandler(registry, JOB_KIND.reconcile, handleReconcile);
+  registerHandler(registry, RFI_DRAFT_JOB_KIND, handleRfiDraft);
+  registerHandler(registry, DRAFT_EVENT_KIND.ready, handleDraftEvent);
+  registerHandler(registry, DRAFT_EVENT_KIND.needsOwner, handleDraftEvent);
   registerHandler(registry, DOCUMENT_JOB_KIND.extract, handleDocumentExtract);
   registerHandler(registry, DOCUMENT_JOB_KIND.extracted, handleDocumentExtracted);
   registerHandler(registry, JOB_KIND.transferCreate, handleTransferCreate, { mutating: true });

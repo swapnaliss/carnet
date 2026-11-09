@@ -44,7 +44,7 @@ import {
 } from "./index";
 import { parseAirwallexTime } from "./transfer";
 
-/** Enqueued in the transaction that enters DRAFTING; consumed by M2-05. */
+/** Enqueued in the transaction that enters DRAFTING; consumed by handlers/draft.ts (M2-05). */
 export const RFI_DRAFT_JOB_KIND = "rfi.draft";
 export interface RfiDraftJobPayload {
   businessId: BusinessId;
