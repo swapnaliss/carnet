@@ -14,6 +14,7 @@ import { runMigrations } from "../src/migrate";
 export const M1_TABLES = [
   "agent_runs",
   "agent_steps",
+  "answer_memory",
   "approvals",
   "audit_log",
   "auth_accounts",

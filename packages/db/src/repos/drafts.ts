@@ -13,6 +13,7 @@ import {
   type DraftCitation,
   type ExtractedFact,
   needsOwner,
+  type ReuseProvenance,
   type RfiId,
   rollupDraft,
   type SuppliedDocument,
@@ -59,6 +60,8 @@ export interface StoredDraftAnswer {
   readonly status: AnswerVerdict["status"];
   readonly reasonCode: string | null;
   readonly verifierResult: AnswerVerdict;
+  /** Set when the answer is the remembered, approved one (M2-06): "same as approved on <date>". */
+  readonly reused: ReuseProvenance | null;
   readonly createdAt: Date;
 }
 
@@ -68,6 +71,8 @@ export interface NewDraftAnswer {
   readonly citations: readonly DraftCitation[];
   readonly documentIds: readonly string[];
   readonly verdict: AnswerVerdict;
+  /** Provenance when this answer is a remembered one (stored inside `verifier_result`). */
+  readonly reused?: ReuseProvenance | null;
 }
 
 export interface NewDraft {
@@ -108,6 +113,11 @@ function toDraft(row: DraftRow): StoredDraft {
   };
 }
 
+function reuseOf(verifierResult: unknown): ReuseProvenance | null {
+  const r = (verifierResult as { reused?: ReuseProvenance } | null)?.reused;
+  return r?.reused === true ? r : null;
+}
+
 function toAnswer(row: AnswerRow): StoredDraftAnswer {
   return {
     id: row.id,
@@ -119,6 +129,7 @@ function toAnswer(row: AnswerRow): StoredDraftAnswer {
     status: row.status as StoredDraftAnswer["status"], // CHECK draft_answers_status_check
     reasonCode: row.reasonCode,
     verifierResult: row.verifierResult as AnswerVerdict,
+    reused: reuseOf(row.verifierResult),
     createdAt: row.createdAt,
   };
 }
@@ -165,7 +176,7 @@ export async function insertDraft(
           documentIds: [...a.documentIds],
           status: a.verdict.status,
           reasonCode: a.verdict.reason,
-          verifierResult: a.verdict,
+          verifierResult: a.reused ? { ...a.verdict, reused: a.reused } : a.verdict,
         })),
       );
     }

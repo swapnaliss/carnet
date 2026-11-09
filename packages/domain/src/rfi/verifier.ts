@@ -41,6 +41,7 @@ export const DRAFT_REASON_CODES = [
   "ATTACHMENT_DOCUMENT_UNKNOWN",
   "ATTACHMENT_NOT_VERIFIED",
   "MODEL_UNAVAILABLE",
+  "REUSE_STALE",
 ] as const;
 export type DraftReasonCode = (typeof DRAFT_REASON_CODES)[number];
 
@@ -67,6 +68,8 @@ export const DRAFT_REASON_EXPLANATIONS: Record<DraftReasonCode, string> = {
   ATTACHMENT_NOT_VERIFIED:
     "The chosen attachment has no verified or confirmed facts; confirm its facts first.",
   MODEL_UNAVAILABLE: "The drafting assistant was not available; write the answer yourself.",
+  REUSE_STALE:
+    "An earlier approved answer matches this question, but your documents have changed since; write or confirm the answer again.",
 };
 
 export const SUPPORTED_ANSWER_TYPES = ["TEXT", "ATTACHMENT"] as const;

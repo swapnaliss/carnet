@@ -9,6 +9,8 @@ import {
   type DraftInput,
   type DraftingStore,
   isModelId,
+  priorAnswersFor,
+  reusedFrom,
   runDrafting,
   runDraftTimeout,
   type Transport,
@@ -17,6 +19,7 @@ import {
   agentHarnessStore,
   appendAudit,
   enqueueJob,
+  findReusableForRound,
   getLatestDraft,
   getRfi,
   getRfiForUpdate,
@@ -61,6 +64,13 @@ export function draftingStoreFor(
       const questions = rows.filter((q) => q.needsDrafting);
       if (rows.length === 0) return null;
       const evidence = await loadDraftingEvidence(repo);
+      // Answer memory (M2-06): earlier approved answers to identical questions of this counterparty go to
+      // the model as untrusted context; every statement still needs a current citation.
+      const { matches } = await findReusableForRound(repo, rfi, round);
+      const prior = priorAnswersFor(
+        questions.map((q) => ({ id: q.id, title: q.title.en ?? q.title.zh ?? "" })),
+        matches,
+      );
       const input: DraftInput = {
         questions: questions.map((q) => ({
           id: q.id,
@@ -71,6 +81,7 @@ export function draftingStoreFor(
         })),
         facts: evidence.facts,
         documents: evidence.documents,
+        ...(prior.length > 0 ? { priorAnswers: prior } : {}),
       };
       const hasDraft = (await getLatestDraft(repo, rfi.id, round)) !== null;
       return {
@@ -83,6 +94,11 @@ export function draftingStoreFor(
         const rc = repoCtx(tx, businessId);
         const rfi = await getRfiForUpdate(rc, rfiId as RfiId);
         if (!rfi) throw new Error(`rfi ${rfiId} vanished`);
+        // A model answer word for word the remembered one is marked `reused` (it has still been verified).
+        const marks = reusedFrom(
+          result.results,
+          (await findReusableForRound(rc, rfi, round)).matches,
+        );
         const { draft, inserted } = await insertDraft(rc, {
           rfiId: rfi.id,
           round,
@@ -109,6 +125,7 @@ export function draftingStoreFor(
                   citations: r.answer.citations,
                   documentIds: r.answer.document_ids,
                   verdict: r.verdict,
+                  reused: marks.get(r.question_id) ?? null,
                 },
           ),
         });
