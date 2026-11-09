@@ -31,6 +31,7 @@ import {
 import {
   type Approval,
   appendAudit,
+  claimAttempt,
   consumeApproval,
   type ExecutionAttempt,
   endApproval,
@@ -44,6 +45,7 @@ import {
   listAttemptsForRefs,
   type RepoCtx,
   type Rfi,
+  releaseAttempt,
   repoCtx,
   sha256Hex,
   updateAttemptStatus,
@@ -73,6 +75,9 @@ import { parseAirwallexTime } from "./transfer";
 
 export const ANSWER_SUBMITTED_EVENT = "answer.submitted";
 
+/** How long an executor holds an attempt: beyond the respond timeout plus uploads. */
+const EXECUTOR_LEASE_MS = 120_000;
+
 const ACTOR = { actorType: "system", actorId: "worker" } as const;
 
 /** What `execution_attempts.response` holds for a respond attempt. */
@@ -88,6 +93,8 @@ export interface RespondAttemptRecord {
   readonly refusal?: { code: ApprovalRefusalCode | string; message: string };
   readonly error?: { kind: string; code?: string; message: string };
   readonly resolvedBy?: string;
+  /** One executor at a time: set by `claimAttempt`, cleared when the outcome is UNKNOWN or final. */
+  readonly leaseUntil?: string;
 }
 
 export function respondRecord(attempt: Pick<ExecutionAttempt, "response">): RespondAttemptRecord {
@@ -388,7 +395,7 @@ export async function executeRespondAttempt(
   now: () => Date = () => new Date(),
   mode: "first" | "retry" = "first",
 ): Promise<RespondOutcome> {
-  const writer = requireWriter(ctx);
+  requireWriter(ctx);
   const rc = repoCtx(ctx.db, businessId);
   const attempt = await getAttempt(rc, attemptId);
   if (attempt?.kind !== "respond") throw new Error("respond attempt not found");
@@ -397,6 +404,31 @@ export async function executeRespondAttempt(
     attempt.status === "SENT_TO_AIRWALLEX" ||
     (mode === "retry" && attempt.status === "UNKNOWN");
   if (!retryable) return { outcome: "skipped", reason: `attempt ${attempt.status}` };
+  // One executor at a time: a concurrent run of the same job loses the claim and does nothing.
+  const claimed = await claimAttempt(
+    rc,
+    attemptId,
+    mode === "retry" ? ["INTENT", "SENT_TO_AIRWALLEX", "UNKNOWN"] : ["INTENT", "SENT_TO_AIRWALLEX"],
+    EXECUTOR_LEASE_MS,
+  );
+  if (!claimed) return { outcome: "skipped", reason: "attempt held by another executor" };
+  try {
+    return await executeClaimed(ctx, rc, businessId, claimed, now);
+  } catch (error) {
+    // A throw means the job retries: hand the attempt back (a no-op once it reached a final status).
+    await releaseAttempt(rc, attemptId).catch(() => undefined);
+    throw error;
+  }
+}
+
+async function executeClaimed(
+  ctx: HandlerContext,
+  rc: RepoCtx,
+  businessId: BusinessId,
+  attempt: ExecutionAttempt,
+  now: () => Date,
+): Promise<RespondOutcome> {
+  const writer = requireWriter(ctx);
   const prior = respondRecord(attempt);
   const approval = await getApproval(rc, prior.approvalId as ApprovalId);
   const rfi = await getRfi(rc, attempt.refId as Rfi["id"]);
@@ -533,7 +565,11 @@ export async function executeRespondAttempt(
     if (isRejection(error)) return rejected(ctx, rc, attempt, rfi, approval, sending, error, now);
     // Timeout, network error, 5xx or an unreadable 2xx: the outcome is UNKNOWN. The attempt keeps its
     // request_id; the reconciler looks the RFI up (it never sends a second, different attempt).
-    await updateAttemptStatus(rc, attempt.id, "UNKNOWN", { ...sending, error: detail });
+    await updateAttemptStatus(rc, attempt.id, "UNKNOWN", {
+      ...sending,
+      leaseUntil: undefined,
+      error: detail,
+    });
     await audit(rc, rfi.id, "attempt.unknown", {
       attemptId: attempt.id,
       requestId: attempt.requestId,

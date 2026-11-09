@@ -1,5 +1,5 @@
 import { type AttemptId, type BusinessId, newAttemptId, type RequestId } from "@carnet/domain";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { DuplicateRequestIdError, pgErrorOf, translateDbError } from "../errors";
 import { type AttemptKind, type AttemptStatus, executionAttempts } from "../schema/index";
 import type { RepoCtx } from "./context";
@@ -125,4 +125,48 @@ export async function updateAttemptStatus(
     .where(and(eq(executionAttempts.businessId, ctx.businessId), eq(executionAttempts.id, id)))
     .returning();
   return row ? toAttempt(row) : null;
+}
+
+/**
+ * Takes the right to run an attempt: one executor at a time (M2-07). Compare-and-set on a lease kept in
+ * the attempt's `response` (`leaseUntil`): it succeeds only when no unexpired lease is held and the
+ * attempt is in one of `statuses`, and returns the attempt as claimed. `null` means another executor
+ * holds it (or the attempt moved on). A crashed executor's lease lapses; a resolved attempt needs none.
+ */
+export async function claimAttempt(
+  ctx: RepoCtx,
+  id: AttemptId,
+  statuses: readonly AttemptStatus[],
+  leaseMs: number,
+): Promise<ExecutionAttempt | null> {
+  const until = new Date(Date.now() + leaseMs).toISOString();
+  const [row] = await ctx.db
+    .update(executionAttempts)
+    .set({
+      response: sql`jsonb_set(coalesce(${executionAttempts.response}, '{}'::jsonb), '{leaseUntil}', to_jsonb(${until}::text))`,
+    })
+    .where(
+      and(
+        eq(executionAttempts.businessId, ctx.businessId),
+        eq(executionAttempts.id, id),
+        inArray(executionAttempts.status, [...statuses]),
+        sql`(${executionAttempts.response} ->> 'leaseUntil' is null or (${executionAttempts.response} ->> 'leaseUntil')::timestamptz <= now())`,
+      ),
+    )
+    .returning();
+  return row ? toAttempt(row) : null;
+}
+
+/** Gives a claimed attempt back (the executor failed before it could record an outcome). */
+export async function releaseAttempt(ctx: RepoCtx, id: AttemptId): Promise<void> {
+  await ctx.db
+    .update(executionAttempts)
+    .set({ response: sql`${executionAttempts.response} - 'leaseUntil'` })
+    .where(
+      and(
+        eq(executionAttempts.businessId, ctx.businessId),
+        eq(executionAttempts.id, id),
+        inArray(executionAttempts.status, ["INTENT", "SENT_TO_AIRWALLEX", "UNKNOWN"]),
+      ),
+    );
 }
