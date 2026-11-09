@@ -381,6 +381,13 @@ const cases: Record<string, () => Promise<void>> = {
   listWebhookEventsForPayment: async () => {
     expect(await repos.listWebhookEventsForPayment(ctxA(), B.paymentId)).toEqual([]);
   },
+  claimAttempt: async () => {
+    expect(await repos.claimAttempt(ctxA(), B.attemptId, ["INTENT", "UNKNOWN"], 1000)).toBeNull();
+  },
+  releaseAttempt: async () => {
+    await repos.releaseAttempt(ctxA(), B.attemptId);
+    expect((await repos.getAttempt(ctxB(), B.attemptId))?.id).toBe(B.attemptId);
+  },
   updateAttemptStatus: async () => {
     expect(await repos.updateAttemptStatus(ctxA(), B.attemptId, "REJECTED")).toBeNull();
   },
