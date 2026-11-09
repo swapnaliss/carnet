@@ -617,6 +617,13 @@ const cases: Record<string, () => Promise<void>> = {
     if (!stolen) throw new Error("no payment");
     expect(await repos.countPriorPayments(ctxA(), stolen)).toBe(0);
   },
+  recordChecksForDocument: async () => {
+    // A's context finds no link of B's document, so no snapshot is written for B's payment.
+    expect(await repos.recordChecksForDocument(ctxA(), B.documentId, "facts_confirmed")).toEqual(
+      [],
+    );
+    expect(await repos.listEvidenceChecks(ctxB(), B.paymentId)).toHaveLength(1);
+  },
   loadEvidenceContext: async () => {
     expect(await repos.loadEvidenceContext(ctxA(), B.paymentId)).toBeNull();
     expect((await repos.loadEvidenceContext(ctxA(), A.paymentId))?.documents).toHaveLength(1);

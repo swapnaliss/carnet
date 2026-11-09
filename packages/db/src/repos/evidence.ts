@@ -4,6 +4,7 @@
 // version), so an unverified or unconfirmed fact never reaches a rule.
 import {
   type CounterpartyId,
+  checkEvidence,
   type DocumentId,
   type EvidenceCheck,
   type EvidenceDocument,
@@ -294,4 +295,31 @@ export async function loadEvidenceContext(
       policy: parseEvidencePolicy(business?.evidencePolicy),
     },
   };
+}
+
+/**
+ * Re-runs the check of every payment the document is attached to and stores a snapshot of each (the
+ * owner confirmed or corrected the document's facts). Returns the payments it covered. Call it in the
+ * transaction that wrote the new fact version.
+ */
+export async function recordChecksForDocument(
+  ctx: RepoCtx,
+  documentId: DocumentId,
+  cause: StoredEvidenceCheck["cause"],
+): Promise<PaymentId[]> {
+  const rows = await ctx.db
+    .selectDistinct({ paymentId: evidenceLinks.paymentId })
+    .from(evidenceLinks)
+    .where(
+      and(eq(evidenceLinks.businessId, ctx.businessId), eq(evidenceLinks.documentId, documentId)),
+    )
+    .orderBy(asc(evidenceLinks.paymentId));
+  const covered: PaymentId[] = [];
+  for (const { paymentId } of rows) {
+    const context = await loadEvidenceContext(ctx, paymentId as PaymentId);
+    if (!context) continue;
+    await insertEvidenceCheck(ctx, paymentId as PaymentId, checkEvidence(context.input), cause);
+    covered.push(paymentId as PaymentId);
+  }
+  return covered;
 }

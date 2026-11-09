@@ -1,5 +1,5 @@
 {
-  "id": "9f01dca3-5a07-44e2-8461-e6eda5cdc869",
+  "id": "73b01d13-d1b5-41d2-a293-65f7e4db40bd",
   "prevId": "eda0ac68-3edd-41c2-bc6a-040d9de4d903",
   "version": "7",
   "dialect": "postgresql",
@@ -1395,15 +1395,6 @@
           "tableFrom": "evidence_checks",
           "tableTo": "businesses",
           "columnsFrom": ["business_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "evidence_checks_payment_id_payments_id_fk": {
-          "name": "evidence_checks_payment_id_payments_id_fk",
-          "tableFrom": "evidence_checks",
-          "tableTo": "payments",
-          "columnsFrom": ["payment_id"],
           "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"

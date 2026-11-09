@@ -19,6 +19,7 @@ import {
   listEvidenceChecks,
   listEvidenceLinks,
   loadEvidenceContext,
+  recordChecksForDocument,
   removeEvidenceLink,
 } from "../src/repos/evidence";
 import {
@@ -347,5 +348,18 @@ describe("loadEvidenceContext", () => {
     });
     expect(await countPriorPayments(ctx, second)).toBe(1);
     expect(await countPriorPayments(ctx, first)).toBe(0);
+  });
+
+  it("recordChecksForDocument snapshots every payment the document is attached to", async () => {
+    const ctx = repoCtx(db().app.db, biz);
+    const before = (await listEvidenceChecks(ctx, payment.id, 200)).length;
+    const covered = await recordChecksForDocument(ctx, invoice, "facts_confirmed");
+    expect(covered).toEqual([payment.id]);
+    const after = await listEvidenceChecks(ctx, payment.id, 200);
+    expect(after.length).toBe(before + 1);
+    expect(after[0]?.cause).toBe("facts_confirmed");
+    expect(
+      await recordChecksForDocument(repoCtx(db().app.db, other), invoice, "facts_confirmed"),
+    ).toEqual([]);
   });
 });

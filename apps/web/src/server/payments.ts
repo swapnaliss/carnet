@@ -12,7 +12,6 @@
 // Status is the projection of the stored transfer status (`project()`); it is never invented here.
 import { createHash } from "node:crypto";
 import {
-  createAttempt,
   createPayment,
   DuplicateIdempotencyKeyError,
   type ExecutionAttempt,
@@ -37,12 +36,13 @@ import {
   CreatePaymentBodySchema,
   formatMajor,
   IdempotencyKeySchema,
+  type Money,
   type MoneyWire,
-  newRequestId,
   type PaymentId,
   PaymentIdSchema,
   type PaymentView,
   project,
+  SendPaymentBodySchema,
   SimulateTransferBodySchema,
   toMoneyWire,
 } from "@carnet/domain";
@@ -52,6 +52,7 @@ import type { AuthRule, createRouteKit, RouteSpec } from "../lib/define-route";
 import { conflict, HttpProblem, notFound } from "../lib/errors";
 import { JOB_KIND } from "../worker/handlers/index";
 import type { BalanceReader } from "./airwallex";
+import { isSent, sendWithGuard } from "./evidence";
 
 export const CREATE_ENDPOINT = "POST /api/v1/payments";
 /** The UI polls every 3 s (ADR 0017); the list shows at most this many payments. */
@@ -230,6 +231,8 @@ export function requestHash(body: CreatePaymentBody): string {
     body.amount.currency,
     body.reference,
     body.counterparty_id ?? null,
+    // Appended only for a draft, so the hash of every earlier "create and send" request is unchanged.
+    ...(body.send === false ? ["draft"] : []),
   ]);
   return createHash("sha256").update(canonical).digest("hex");
 }
@@ -262,7 +265,7 @@ function replay(record: IdempotencyRecord, hash: string, requestId: string): Res
   });
 }
 
-async function checkBalance(body: CreatePaymentBody, balances: BalanceReader): Promise<void> {
+async function checkBalance(amount: Money, balances: BalanceReader): Promise<void> {
   let all: Awaited<ReturnType<BalanceReader>>;
   try {
     all = await balances();
@@ -272,18 +275,18 @@ async function checkBalance(body: CreatePaymentBody, balances: BalanceReader): P
       "Airwallex did not answer the balance check. Nothing was created. Try again in a moment.",
     );
   }
-  const balance = all.find((b) => b.currency === body.amount.currency);
+  const balance = all.find((b) => b.currency === amount.currency);
   const available = balance?.available.minor ?? 0n;
-  if (available < body.amount.minor) {
+  if (available < amount.minor) {
     const have = balance ? formatMajor(balance.available) : "0";
     throw new HttpProblem(
       "PRECONDITION_FAILED",
-      `Not enough ${body.amount.currency} in the sandbox wallet: ${have} available, ${formatMajor(body.amount)} needed. Nothing was created.`,
+      `Not enough ${amount.currency} in the sandbox wallet: ${have} available, ${formatMajor(amount)} needed. Nothing was created.`,
       {
         details: {
           reason: "insufficient_funds",
-          available: { amount: have, currency: body.amount.currency },
-          required: toMoneyWire(body.amount),
+          available: { amount: have, currency: amount.currency },
+          required: toMoneyWire(amount),
         },
       },
     );
@@ -294,9 +297,13 @@ export async function createPaymentWithAttempt(
   repo: RepoCtx,
   body: CreatePaymentBody,
   key: string,
-  deps: { balances: BalanceReader; requestId: string },
+  deps: { balances: BalanceReader; requestId: string; userId: string },
 ): Promise<Response> {
   const hash = requestHash(body);
+  // M2-03: `send: false` saves the payment without sending it; the owner adds documents, sees the
+  // evidence check and sends from the evidence view (`POST .../send`). Otherwise create and send, behind
+  // the same evidence guard.
+  const send = body.send !== false;
   const existing = await getIdempotencyRecord(repo, CREATE_ENDPOINT, key);
   if (existing) return replay(existing, hash, deps.requestId);
 
@@ -310,7 +317,7 @@ export async function createPaymentWithAttempt(
       "This business has no counterparty to pay yet. Nothing was created.",
     );
   }
-  await checkBalance(body, deps.balances);
+  if (send) await checkBalance(body.amount, deps.balances);
 
   try {
     const created = await withTransaction(repo.db, async (tx) => {
@@ -322,15 +329,9 @@ export async function createPaymentWithAttempt(
         method: "LOCAL",
         reference: body.reference,
       });
-      const attempt = await createAttempt(rc, {
-        kind: "transfer",
-        refId: payment.id,
-        requestId: newRequestId(),
-      });
-      await enqueueJob(tx, {
-        kind: JOB_KIND.transferCreate,
-        payload: { attemptId: attempt.id, businessId: repo.businessId, paymentId: payment.id },
-      });
+      const attempt = send
+        ? (await sendWithGuard(rc, payment.id, body.evidence_ack, { userId: deps.userId })).attempt
+        : null;
       const response = { payment: paymentDto(payment, attempt) };
       await saveIdempotencyRecord(rc, {
         endpoint: CREATE_ENDPOINT,
@@ -387,11 +388,48 @@ export function paymentRouteSpecs(deps: { balances: BalanceReader; now?: () => D
     auth: { roles: ["owner"] },
     body: CreatePaymentBodySchema,
     maxBodyBytes: 4 * 1024,
-    handler: async ({ req, repo, body, requestId }) =>
+    handler: async ({ req, ctx, repo, body, requestId }) =>
       createPaymentWithAttempt(repo, body, idempotencyKeyOf(req), {
         balances: deps.balances,
         requestId,
+        userId: ctx.userId,
       }),
+  });
+
+  // M2-03: sends a saved payment. The evidence check runs in the same transaction; a Weak or Missing
+  // payment needs the owner's acknowledgement (412 with the check otherwise). A payment that was
+  // already sent answers 200 with `already_sent` and writes nothing.
+  const send = spec({
+    method: "POST",
+    auth: { roles: ["owner"] },
+    params: IdParams,
+    body: SendPaymentBodySchema,
+    maxBodyBytes: 2 * 1024,
+    handler: async ({ ctx, repo, params, body, requestId }) => {
+      const payment = await getPayment(repo, params.id);
+      if (!payment) throw notFound();
+      if (!(await isSent(repo, payment))) await checkBalance(payment.amount, deps.balances);
+      const outcome = await withTransaction(repo.db, (tx) =>
+        sendWithGuard(repoCtx(tx, repo.businessId), params.id, body.evidence_ack, {
+          userId: ctx.userId,
+        }),
+      );
+      const fresh = (await getPayment(repo, params.id)) ?? payment;
+      return Response.json(
+        {
+          payment: paymentDto(fresh, outcome.attempt),
+          already_sent: outcome.alreadySent,
+          evidence: outcome.alreadySent
+            ? null
+            : {
+                flag: outcome.flag,
+                check_hash: outcome.checkHash,
+                overridden: outcome.overridden,
+              },
+        },
+        { headers: { ...noStore, "x-request-id": requestId } },
+      );
+    },
   });
 
   const detail = spec({
@@ -432,7 +470,7 @@ export function paymentRouteSpecs(deps: { balances: BalanceReader; now?: () => D
     },
   });
 
-  return { list, create, detail, simulate };
+  return { list, create, detail, simulate, send };
 }
 
 /** The specs bound to a route kit (tests). */
@@ -446,5 +484,6 @@ export function createPaymentRoutes(
     create: kit.defineRoute(s.create),
     detail: kit.defineRoute(s.detail),
     simulate: kit.defineRoute(s.simulate),
+    send: kit.defineRoute(s.send),
   };
 }

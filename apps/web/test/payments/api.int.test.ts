@@ -133,6 +133,9 @@ function get(route: RouteHandler, path: string, cookie: string, params?: Record<
 const body = (amount = "25.00", currency: Currency = "USD", reference = "Invoice 1180") => ({
   amount: { amount, currency },
   reference,
+  // M2-03: a payment with no documents is Missing evidence; these tests are about the payment API, so
+  // they acknowledge it (the evidence guard itself is tested in test/evidence/evidence-check.int.test.ts).
+  evidence_ack: { acknowledged: true as const },
 });
 
 const create = (cookie: string, key: string | null, b: unknown = body()) =>

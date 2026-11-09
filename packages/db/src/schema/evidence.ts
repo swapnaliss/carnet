@@ -69,9 +69,9 @@ export const evidenceChecks = pgTable(
     businessId: uuid("business_id")
       .notNull()
       .references(() => businesses.id),
-    paymentId: uuid("payment_id")
-      .notNull()
-      .references(() => payments.id),
+    // No foreign key: the snapshot history outlives the payment row it describes (as audit_log does).
+    // The repository checks that the payment belongs to the business before it inserts.
+    paymentId: uuid("payment_id").notNull(),
     flag: text("flag").notNull(),
     rules: jsonb("rules").$type<unknown[]>().notNull(),
     reasons: jsonb("reasons").$type<unknown[]>().notNull(),

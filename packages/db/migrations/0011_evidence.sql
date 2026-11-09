@@ -27,7 +27,6 @@ CREATE TABLE "evidence_links" (
 --> statement-breakpoint
 ALTER TABLE "businesses" ADD COLUMN "evidence_policy" jsonb DEFAULT '{}'::jsonb NOT NULL;--> statement-breakpoint
 ALTER TABLE "evidence_checks" ADD CONSTRAINT "evidence_checks_business_id_businesses_id_fk" FOREIGN KEY ("business_id") REFERENCES "public"."businesses"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "evidence_checks" ADD CONSTRAINT "evidence_checks_payment_id_payments_id_fk" FOREIGN KEY ("payment_id") REFERENCES "public"."payments"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "evidence_links" ADD CONSTRAINT "evidence_links_business_id_businesses_id_fk" FOREIGN KEY ("business_id") REFERENCES "public"."businesses"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "evidence_links" ADD CONSTRAINT "evidence_links_payment_id_payments_id_fk" FOREIGN KEY ("payment_id") REFERENCES "public"."payments"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "evidence_links" ADD CONSTRAINT "evidence_links_fact_version_id_document_facts_id_fk" FOREIGN KEY ("fact_version_id") REFERENCES "public"."document_facts"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -37,5 +36,6 @@ CREATE INDEX "evidence_checks_business_id_payment_id_idx" ON "evidence_checks" U
 CREATE UNIQUE INDEX "evidence_links_payment_document_key" ON "evidence_links" USING btree ("payment_id","document_id");--> statement-breakpoint
 CREATE INDEX "evidence_links_business_id_payment_id_idx" ON "evidence_links" USING btree ("business_id","payment_id");--> statement-breakpoint
 -- M2-03: a stored evidence check is a record of what the owner was shown; it is never changed or removed.
--- The app role may only INSERT and SELECT (as audit_log, plans and document_facts).
+-- The app role may only INSERT and SELECT (as audit_log, plans and document_facts). It has no foreign key
+-- to payments, so the history stays when a payment row is gone.
 REVOKE UPDATE, DELETE ON TABLE "evidence_checks" FROM carnet_app;
