@@ -206,9 +206,6 @@ async function seed(name: string): Promise<Fixture> {
     expiresAt: new Date(Date.now() + 3_600_000),
     shownSnapshot: { business: name },
   });
-  return {
-    approvalId: approval.id,
-    approvalHash,
   const link = await repos.createPayeeLink(ctx, {
     paymentId: payment.id,
     tokenHash: createHash("sha256").update(name).digest("hex"),
@@ -218,6 +215,8 @@ async function seed(name: string): Promise<Fixture> {
   });
   if (!link) throw new Error("seed link not created");
   return {
+    approvalId: approval.id,
+    approvalHash,
     linkId: link.id,
     agentRunId: agentRun.id,
     agentStepId: agentStep.id,
