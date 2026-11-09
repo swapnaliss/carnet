@@ -71,6 +71,8 @@ export const DOCUMENT_AUDIT_ACTIONS = {
   deduplicated: "document.deduplicated",
   rejected: "document.upload_rejected",
   downloaded: "document.downloaded",
+  /** M2-02: an owner confirmed (and possibly corrected) a document's extracted facts. */
+  factsConfirmed: "document.facts_confirmed",
 } as const;
 
 /** `GET /api/v1/documents/{id}/meta`, and the body of a successful upload (plus `deduplicated`). */

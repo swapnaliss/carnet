@@ -1,0 +1,43 @@
+{
+  "kind": "extraction",
+  "document_id": "inv-harbor-001",
+  "file": "inv-harbor-001.pdf",
+  "sha256": "73a5ecffe59e63f1f57f7c73a599dedf49bbc3d63c93eb44f6a911bcdbf881e9",
+  "doc_type": "invoice",
+  "prompt_version": "552c05e3154b",
+  "model": "claude-haiku-5-5",
+  "recorded_at": "2026-11-06T17:08:49.714Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgn3TKXT8JrvwyBhRvszq",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 3485,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 409,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"invoice_number\",\"value\":\"INV-HP-2026-0141\",\"quote\":\"Invoice number: INV-HP-2026-0141\",\"page\":1},{\"key\":\"invoice_date\",\"value\":\"2026-09-14\",\"quote\":\"Invoice date: 2026-09-14\",\"page\":1},{\"key\":\"due_date\",\"value\":\"2026-10-14\",\"quote\":\"Due date: 2026-10-14\",\"page\":1},{\"key\":\"supplier\",\"value\":\"Harbor Print Co.\",\"quote\":\"From: Harbor Print Co.\",\"page\":1},{\"key\":\"buyer\",\"value\":\"Northwind Studio Ltd\",\"quote\":\"Bill to: Northwind Studio Ltd\",\"page\":1},{\"key\":\"purchase_order\",\"value\":\"PO-NW-2026-031\",\"quote\":\"Purchase order: PO-NW-2026-031\",\"page\":1},{\"key\":\"total\",\"value\":\"USD 4,800.00\",\"quote\":\"Total due: USD 4,800.00\",\"page\":1},{\"key\":\"beneficiary\",\"value\":\"Harbor Print Co.\",\"quote\":\"Beneficiary: Harbor Print Co.\",\"page\":1},{\"key\":\"account_number\",\"value\":\"000123456781\",\"quote\":\"Account number: 000123456781\",\"page\":1}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgn3TKD6qeb5EQQzxNnpk",
+      "latency_ms": 2030
+    }
+  ]
+}

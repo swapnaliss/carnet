@@ -1,0 +1,48 @@
+{
+  "kind": "extraction",
+  "document_id": "contract-rhein",
+  "file": "contract-rhein.pdf",
+  "sha256": "1d43c530f75d74f8b1764c24bee9bb15ef8a6edcb1bb885bb3944e02aace487d",
+  "doc_type": "contract",
+  "prompt_version": "17e122e799e9",
+  "model": "claude-haiku-5-5",
+  "recorded_at": "2026-11-06T17:09:03.064Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgn3U13jbubZEAfqgUcEo",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 5329,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 1644,
+          "output_tokens_details": {
+            "thinking_tokens": 927
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "",
+            "signature": "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"
+          },
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"contract_number\",\"value\":\"CT-NW-RD-2026\",\"quote\":\"Contract number: CT-NW-RD-2026\",\"page\":1},{\"key\":\"clause_parties\",\"value\":\"Northwind Studio Ltd (Buyer) and Rheinblick Druck GmbH (Supplier).\",\"quote\":\"1. Parties: Northwind Studio Ltd (Buyer) and Rheinblick Druck GmbH (Supplier).\",\"page\":1},{\"key\":\"clause_effective_date\",\"value\":\"2026-02-01\",\"quote\":\"2. Effective date: 2026-02-01.\",\"page\":1},{\"key\":\"clause_scope\",\"value\":\"Offset printing of catalogues and packaging inserts.\",\"quote\":\"3. Scope: Offset printing of catalogues and packaging inserts.\",\"page\":1},{\"key\":\"clause_payment_terms\",\"value\":\"Buyer pays each invoice within 30 days of the invoice date.\",\"quote\":\"4. Payment: Buyer pays each invoice within 30 days of the invoice date.\",\"page\":2},{\"key\":\"clause_fee_cap\",\"value\":\"Total fees under this contract will not exceed EUR 50,000.00.\",\"quote\":\"5. Fees: Total fees under this contract will not exceed EUR 50,000.00.\",\"page\":2},{\"key\":\"clause_beneficiary_account\",\"value\":\"Supplier is paid only to IBAN DE11000000000000000001.\",\"quote\":\"6. Beneficiary account: Supplier is paid only to IBAN DE11000000000000000001.\",\"page\":2},{\"key\":\"clause_governing_law\",\"value\":\"The laws of the Netherlands apply.\",\"quote\":\"7. Governing law: The laws of the Netherlands apply.\",\"page\":2},{\"key\":\"clause_signatories\",\"value\":\"Finance (synthetic signature block)\",\"quote\":\"Signed for Northwind Studio Ltd: Finance (synthetic signature block)\",\"page\":2},{\"key\":\"clause_signatories\",\"value\":\"Authorised signatory (synthetic signature block)\",\"quote\":\"Signed for Rheinblick Druck GmbH: Authorised signatory (synthetic signature block)\",\"page\":2}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgn3TzMYuoY7GNym6ojLa",
+      "latency_ms": 6213
+    }
+  ]
+}

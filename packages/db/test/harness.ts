@@ -20,6 +20,7 @@ export const M1_TABLES = [
   "auth_verifications",
   "businesses",
   "counterparties",
+  "document_facts",
   "documents",
   "execution_attempts",
   "idempotency_keys",

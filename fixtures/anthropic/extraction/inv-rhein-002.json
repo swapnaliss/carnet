@@ -1,0 +1,43 @@
+{
+  "kind": "extraction",
+  "document_id": "inv-rhein-002",
+  "file": "inv-rhein-002.pdf",
+  "sha256": "546b266ef4b3f1f5c784ecd8f549716ade14803002fa3539903929612336dafc",
+  "doc_type": "invoice",
+  "prompt_version": "552c05e3154b",
+  "model": "claude-haiku-5-5",
+  "recorded_at": "2026-11-06T17:09:11.254Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgn3UtqhVfUFkbe3ndhCq",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 3487,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 492,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"invoice_number\",\"value\":\"RD-2026-1233\",\"quote\":\"Invoice number: RD-2026-1233\",\"page\":1},{\"key\":\"invoice_date\",\"value\":\"2026-10-08\",\"quote\":\"Invoice date: 2026-10-08\",\"page\":1},{\"key\":\"due_date\",\"value\":\"2026-11-07\",\"quote\":\"Due date: 2026-11-07\",\"page\":1},{\"key\":\"supplier\",\"value\":\"Rheinblick Druck GmbH\",\"quote\":\"From: Rheinblick Druck GmbH\",\"page\":1},{\"key\":\"buyer\",\"value\":\"Northwind Studio Ltd\",\"quote\":\"Bill to: Northwind Studio Ltd\",\"page\":1},{\"key\":\"purchase_order\",\"value\":\"PO-NW-2026-061\",\"quote\":\"Purchase order: PO-NW-2026-061\",\"page\":1},{\"key\":\"line_item_total\",\"value\":\"EUR 9,450.00\",\"quote\":\"Line 1: Packaging inserts, 10,000 units - EUR 9,450.00\",\"page\":1},{\"key\":\"total\",\"value\":\"EUR 9,450.00\",\"quote\":\"Total due: EUR 9,450.00\",\"page\":1},{\"key\":\"beneficiary\",\"value\":\"Rheinblick Druck GmbH\",\"quote\":\"Beneficiary: Rheinblick Druck GmbH\",\"page\":1},{\"key\":\"iban\",\"value\":\"DE44000000000000000099\",\"quote\":\"IBAN: DE44000000000000000099\",\"page\":1}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgn3UtYLmZbWgKLTWDznu",
+      "latency_ms": 2192
+    }
+  ]
+}

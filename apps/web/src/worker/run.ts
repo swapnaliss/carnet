@@ -9,9 +9,11 @@
 // that; M1-06's PROCESS_MODE switch can call `startWorker` the same way).
 import { configFromEnv, createAirwallexClient } from "@carnet/airwallex";
 import { createDbClientFromEnv } from "@carnet/db";
+import { DOCUMENT_JOB_KIND } from "../server/documents/jobs";
 import { createLogger, type Logger } from "../server/log";
 import { DEFAULT_MAX_ATTEMPTS } from "./backoff";
 import { handleTransferCreate } from "./handlers/create-transfer";
+import { handleDocumentExtract, handleDocumentExtracted } from "./handlers/extract";
 import {
   type AirwallexReader,
   type AirwallexWriter,
@@ -34,6 +36,8 @@ export function defaultRegistry(planInputs?: PlanInputsLoader): HandlerRegistry 
   registerHandler(registry, JOB_KIND.transferSync, handleTransferSync);
   registerHandler(registry, JOB_KIND.rfiSync, handleRfiSync);
   registerHandler(registry, JOB_KIND.reconcile, handleReconcile);
+  registerHandler(registry, DOCUMENT_JOB_KIND.extract, handleDocumentExtract);
+  registerHandler(registry, DOCUMENT_JOB_KIND.extracted, handleDocumentExtracted);
   registerHandler(registry, JOB_KIND.transferCreate, handleTransferCreate, { mutating: true });
   registerHandler(registry, JOB_KIND.transferSimulate, handleTransferSimulate, { mutating: true });
   return registry;

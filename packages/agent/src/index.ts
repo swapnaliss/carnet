@@ -4,6 +4,29 @@ export type { CapDecision, CapName } from "./caps";
 export { checkCaps, inputTokensUpperBound, utcDayStart } from "./caps";
 export type { ClientOptions, Transport } from "./client";
 export { MissingApiKeyError, SDK_MAX_RETRIES, SDK_TIMEOUT_MS } from "./client";
+export type {
+  ExtractableDocument,
+  ExtractionResult,
+  ExtractionUsage,
+  ExtractParams,
+} from "./extraction/extract";
+export {
+  buildBlocks,
+  EXTRACT_MODEL,
+  extractDocument,
+  FIRST_MAX_TOKENS,
+  RETRY_MAX_TOKENS,
+} from "./extraction/extract";
+export type { ExtractionPrompt } from "./extraction/prompts/index";
+export { EXTRACTION_PROMPTS } from "./extraction/prompts/index";
+export type { RawFact, TextLayer } from "./extraction/verify-quotes";
+export { MIN_TEXT_LAYER_CHARS, readTextLayer, verifyFacts } from "./extraction/verify-quotes";
+export type {
+  ExtractionStore,
+  RunExtractionParams,
+  RunExtractionResult,
+} from "./extraction/worker-handler";
+export { EXTRACTION_RUN_KIND, extractionStep, runExtraction } from "./extraction/worker-handler";
 export type { InjectionFlag, InjectionFlagKind } from "./guardrail";
 export { composeSystem, scanInjection, UNTRUSTED_DATA_RULE, wrapUntrusted } from "./guardrail";
 export type {
