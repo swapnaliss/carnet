@@ -7,6 +7,7 @@ import {
   type AttemptId,
   type BusinessId,
   type CounterpartyId,
+  checkEvidence,
   type DocumentId,
   money,
   newPaymentId,
@@ -71,6 +72,7 @@ interface Fixture {
   rfiId: RfiId;
   transferId: string;
   linkId: string;
+  evidenceLinkId: string;
 }
 
 /** An empty plan for a business: enough to give every tenant a stored revision. */
@@ -147,6 +149,20 @@ async function seed(name: string): Promise<Fixture> {
       },
     ],
   });
+  const attached = await repos.attachEvidenceLink(ctx, {
+    paymentId: payment.id,
+    documentId: doc.document.id,
+    createdBy: user.id,
+  });
+  if (attached.status === "not_found") throw new Error("seed: evidence link not created");
+  const evidenceContext = await repos.loadEvidenceContext(ctx, payment.id);
+  if (!evidenceContext) throw new Error("seed: no evidence context");
+  await repos.insertEvidenceCheck(
+    ctx,
+    payment.id,
+    checkEvidence(evidenceContext.input),
+    "link_added",
+  );
   const planInputs = emptyPlanInputs(businessId);
   await repos.insertPlanRevision(ctx, nextRevision(null, planInputs), { inputs: planInputs });
   const agentRun = await repos.createAgentRun(ctx, { kind: "draft", ref: "rfi-same-ref" });
@@ -199,6 +215,7 @@ async function seed(name: string): Promise<Fixture> {
   if (!link) throw new Error("seed link not created");
   return {
     linkId: link.id,
+    evidenceLinkId: attached.link.id,
     agentRunId: agentRun.id,
     agentStepId: agentStep.id,
     rfiId: rfi.id,
@@ -252,6 +269,8 @@ async function snapshotB(): Promise<unknown> {
     rfis: await repos.listRfis(b),
     questions: await repos.listRfiQuestions(b, B.rfiId),
     payeeLinks: await repos.listPayeeLinks(b, B.paymentId),
+    evidenceLinks: await repos.listEvidenceLinks(b, B.paymentId),
+    evidenceChecks: await repos.listEvidenceChecks(b, B.paymentId),
   };
 }
 
@@ -545,6 +564,62 @@ const cases: Record<string, () => Promise<void>> = {
   getUsableFacts: async () => {
     expect(await repos.getUsableFacts(ctxA(), B.documentId)).toBeNull();
     expect((await repos.getUsableFacts(ctxA(), A.documentId))?.document_id).toBe(A.documentId);
+  },
+  listEvidenceLinks: async () => {
+    expect(await repos.listEvidenceLinks(ctxA(), B.paymentId)).toEqual([]);
+    expect(await repos.listEvidenceLinks(ctxA(), A.paymentId)).toHaveLength(1);
+  },
+  attachEvidenceLink: async () => {
+    // A cannot attach B's document to A's payment, nor A's document to B's payment.
+    expect(
+      (
+        await repos.attachEvidenceLink(ctxA(), {
+          paymentId: A.paymentId,
+          documentId: B.documentId,
+          createdBy: A.userId,
+        })
+      ).status,
+    ).toBe("not_found");
+    expect(
+      (
+        await repos.attachEvidenceLink(ctxA(), {
+          paymentId: B.paymentId,
+          documentId: A.documentId,
+          createdBy: A.userId,
+        })
+      ).status,
+    ).toBe("not_found");
+  },
+  removeEvidenceLink: async () => {
+    expect(await repos.removeEvidenceLink(ctxA(), B.paymentId, B.evidenceLinkId)).toBe(false);
+  },
+  insertEvidenceCheck: async () => {
+    // B's payment cannot receive a snapshot through A's context (the payment is not A's).
+    const own = await repos.loadEvidenceContext(ctxA(), A.paymentId);
+    if (!own) throw new Error("no context");
+    await expect(
+      repos.insertEvidenceCheck(ctxA(), B.paymentId, checkEvidence(own.input), "send"),
+    ).rejects.toThrow(/not in this business/);
+    const stored = await repos.insertEvidenceCheck(
+      ctxA(),
+      A.paymentId,
+      checkEvidence(own.input),
+      "send",
+    );
+    expect(stored.paymentId).toBe(A.paymentId);
+  },
+  listEvidenceChecks: async () => {
+    expect(await repos.listEvidenceChecks(ctxA(), B.paymentId)).toEqual([]);
+    expect((await repos.listEvidenceChecks(ctxA(), A.paymentId)).length).toBeGreaterThan(0);
+  },
+  countPriorPayments: async () => {
+    const stolen = await repos.getPayment(ctxB(), B.paymentId);
+    if (!stolen) throw new Error("no payment");
+    expect(await repos.countPriorPayments(ctxA(), stolen)).toBe(0);
+  },
+  loadEvidenceContext: async () => {
+    expect(await repos.loadEvidenceContext(ctxA(), B.paymentId)).toBeNull();
+    expect((await repos.loadEvidenceContext(ctxA(), A.paymentId))?.documents).toHaveLength(1);
   },
   insertPlanRevision: async () => {
     const inputs = emptyPlanInputs(B.businessId);

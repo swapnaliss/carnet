@@ -151,13 +151,15 @@ const toStoredCheck = (r: CheckRow): StoredEvidenceCheck => ({
   createdAt: r.createdAt,
 });
 
-/** Stores the snapshot of a check (insert-only). */
+/** Stores the snapshot of a check (insert-only). Throws when the payment is not in this business. */
 export async function insertEvidenceCheck(
   ctx: RepoCtx,
   paymentId: PaymentId,
   check: EvidenceCheck,
   cause: StoredEvidenceCheck["cause"],
 ): Promise<StoredEvidenceCheck> {
+  // The payment foreign key is not tenant-scoped, so the payment is checked here.
+  if (!(await getPayment(ctx, paymentId))) throw new Error("payment is not in this business");
   try {
     const [row] = await ctx.db
       .insert(evidenceChecks)
