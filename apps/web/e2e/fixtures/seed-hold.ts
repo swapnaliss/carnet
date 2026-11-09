@@ -19,7 +19,6 @@ import {
   createDbClientFromEnv,
   createPayment,
   enqueueJob,
-  ensureDemoBusiness,
   findDocumentBySha256,
   getJob,
   getLatestFacts,
@@ -384,10 +383,10 @@ async function seedOne(spec: Spec) {
 
 async function main(): Promise<void> {
   const [cmd = "seed", arg] = process.argv.slice(2);
-  const base = await ensureDemoBusiness(db);
-  businessId = base.businessId;
   if (cmd === "seed") {
-    await seedDemoUsers(db, { env: process.env, businessId });
+    // The default seed business, the one `packages/db/src/seed/run.ts` and the other e2e specs use.
+    const seeded = await seedDemoUsers(db, { env: process.env });
+    businessId = seeded.businessId;
     await loadDocuments();
     const out: Record<string, unknown> = {};
     for (const spec of SPECS) out[spec.name] = await seedOne(spec);
@@ -395,12 +394,13 @@ async function main(): Promise<void> {
     return;
   }
   if (cmd === "advance" || cmd === "touch") {
-    const repo = repoCtx(db, businessId);
     const [row] = await db
       .select()
       .from(schema.rfis)
       .where(eq(schema.rfis.id, arg ?? ""));
     if (!row) throw new Error(`no RFI ${arg}`);
+    businessId = row.businessId as BusinessId;
+    const repo = repoCtx(db, businessId);
     if (cmd === "touch") {
       await updateRfi(repo, row.id as RfiId, { airwallexUpdatedAt: new Date() });
       return;
