@@ -51,7 +51,9 @@ describe("approve then respond (happy path)", () => {
       loadFixture("rfi-check2-upload-pdf").response.body as { file_id: string }
     ).file_id;
     const questions = (
-      respond?.json as { questions: { id: string; answer: Record<string, unknown> }[] }
+      (respond?.json ?? { questions: [] }) as {
+        questions: { id: string; answer: Record<string, unknown> }[];
+      }
     ).questions;
     expect(questions.map((q) => q.id).sort()).toEqual(
       a.questions.map((q) => q.airwallexQuestionId).sort(),
@@ -134,7 +136,7 @@ describe("every step writes an audit entry, and none carries answer text or a se
     );
     const upload = entries.find((e) => e.action === "attachment.uploaded");
     expect(upload?.data).toMatchObject({ documentId: a.documentId });
-    expect((upload?.data as { sha256: string }).sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(((upload?.data ?? {}) as { sha256: string }).sha256).toMatch(/^[0-9a-f]{64}$/);
 
     const dump = JSON.stringify(entries.map((e) => e.data));
     expect(dump).not.toContain("Payment for supplier invoice INV-1001"); // hash plus snapshot reference only

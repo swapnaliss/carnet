@@ -20,7 +20,6 @@ import {
   type UserId,
 } from "@carnet/domain";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
-import type { Db } from "../client";
 import { withTransaction } from "../client";
 import { DuplicateRequestIdError, pgErrorOf, translateDbError } from "../errors";
 import { type AttemptKind, approvals, executionAttempts, systemFlags } from "../schema/index";
