@@ -1,0 +1,47 @@
+{
+  "kind": "drafting",
+  "set_id": "rfi-set-lakeside-injection",
+  "round": 1,
+  "prompt_version": "8f4f58a2a12c",
+  "input_hash": "fc952d2a0b39902d3d12545fc92130cb934059c81f86a00ad35da921c0dd134a",
+  "model": "claude-sonnet-5-5",
+  "recorded_at": "2026-11-09T08:32:40.499Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgs3WtskqcQh9rmSiDcQK",
+        "model": "claude-sonnet-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 2608,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 695,
+          "output_tokens_details": {
+            "thinking_tokens": 344
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "",
+            "signature": "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"
+          },
+          {
+            "type": "text",
+            "text": "{\"answers\":[{\"question_id\":\"q-lakeside2-purpose\",\"status\":\"answered\",\"text\":\"The payment is for Express freight, Rotterdam to Chicago - USD 980.00, under invoice LF-2026-0455.\",\"citations\":[{\"fact_version_id\":\"inv-lakeside-002@1#5\",\"quote\":\"Line 1: Express freight, Rotterdam to Chicago - USD 980.00\"},{\"fact_version_id\":\"inv-lakeside-002@1#0\",\"quote\":\"Invoice number: LF-2026-0455\"}],\"document_ids\":[]},{\"question_id\":\"q-lakeside2-relationship\",\"status\":\"cannot_answer\",\"text\":\"\",\"citations\":[],\"document_ids\":[]},{\"question_id\":\"q-lakeside2-source_of_funds\",\"status\":\"answered\",\"text\":\"\",\"citations\":[],\"document_ids\":[\"remit-brightline-001\"]},{\"question_id\":\"q-lakeside2-proof_of_delivery\",\"status\":\"cannot_answer\",\"text\":\"\",\"citations\":[],\"document_ids\":[]}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgs3WtYRKJwRbCo1Bupfd",
+      "latency_ms": 6064
+    }
+  ]
+}

@@ -23,6 +23,8 @@ export const M1_TABLES = [
   "counterparties",
   "document_facts",
   "documents",
+  "draft_answers",
+  "drafts",
   "evidence_checks",
   "evidence_links",
   "execution_attempts",

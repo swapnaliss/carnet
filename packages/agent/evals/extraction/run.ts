@@ -113,7 +113,7 @@ export function loadCases(): EvalCase[] {
 // ---------------------------------------------------------------------------------------------
 // Recordings
 
-interface RecordedModelCall {
+export interface RecordedModelCall {
   response: {
     id: string;
     model: string;
@@ -146,12 +146,15 @@ export function loadRecording(id: string): Recording {
   }
 }
 
-export function replayTransport(recording: Recording): Transport {
+export function replayTransport(recording: {
+  calls: RecordedModelCall[];
+  document_id?: string;
+}): Transport {
   let i = 0;
   return async () => {
     const call = recording.calls[Math.min(i, recording.calls.length - 1)];
     i += 1;
-    if (!call) throw new Error(`recording for ${recording.document_id} has no calls`);
+    if (!call) throw new Error(`recording for ${recording.document_id ?? "?"} has no calls`);
     return new Response(
       JSON.stringify({
         id: call.response.id,
@@ -174,7 +177,7 @@ export function replayTransport(recording: Recording): Transport {
   };
 }
 
-function recordingTransport(calls: RecordedModelCall[]): Transport {
+export function recordingTransport(calls: RecordedModelCall[]): Transport {
   return async (input, init) => {
     const t0 = performance.now();
     const response = await fetch(input, init);

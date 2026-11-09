@@ -3,6 +3,7 @@
 import { createBusiness, type Db } from "@carnet/db";
 import type { BusinessId } from "@carnet/domain";
 import { memoryLogger } from "../src/server/log";
+import { RFI_DRAFT_JOB_KIND } from "../src/worker/handlers/draft";
 import { createWorker } from "../src/worker/loop";
 import { defaultRegistry } from "../src/worker/run";
 import { FetchStub, loadFixture, makeClient, query, recordedDeliveries } from "./support";
@@ -100,6 +101,16 @@ export async function newBusiness(db: Db): Promise<{ businessId: BusinessId; acc
   return { businessId, accountId };
 }
 
+/**
+ * The registry without the `rfi.draft` consumer (M2-05): the M2-04 ingest tests assert what ingest
+ * enqueues and the state it leaves, so the draft job must stay queued (drafting has its own tests).
+ */
+function ingestOnlyRegistry() {
+  const registry = defaultRegistry();
+  registry.delete(RFI_DRAFT_JOB_KIND);
+  return registry;
+}
+
 export async function resetRfiTables(appUrl: string): Promise<void> {
   await query(appUrl, "DELETE FROM outbox_jobs");
   await query(appUrl, "DELETE FROM webhook_events");
@@ -133,7 +144,7 @@ export function rfiHarness(db: Db, options: { workers?: number } = {}) {
   const logger = memoryLogger();
   const airwallex = makeClient(stub);
   const workers = Array.from({ length: options.workers ?? 1 }, () =>
-    createWorker({ db, registry: defaultRegistry(), airwallex, logger, reconcileEveryMs: null }),
+    createWorker({ db, registry: ingestOnlyRegistry(), airwallex, logger, reconcileEveryMs: null }),
   );
   const drainOne = async (w: (typeof workers)[number]) => {
     while (await w.tick()) {

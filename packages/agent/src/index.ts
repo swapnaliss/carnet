@@ -5,6 +5,34 @@ export { checkCaps, inputTokensUpperBound, utcDayStart } from "./caps";
 export type { ClientOptions, Transport } from "./client";
 export { MissingApiKeyError, SDK_MAX_RETRIES, SDK_TIMEOUT_MS } from "./client";
 export type {
+  DraftInput,
+  DraftParams,
+  DraftQuestion,
+  DraftResult,
+  DraftUsage,
+  PriorAnswer,
+  UnavailableCode,
+} from "./drafting/draft";
+export {
+  buildDraftBlocks,
+  DRAFT_FIRST_MAX_TOKENS,
+  DRAFT_MODEL,
+  DRAFT_RETRY_MAX_TOKENS,
+  DRAFT_RUN_KIND,
+  draftRfi,
+  renderFacts,
+  scanDraftInput,
+  timedOutDraft,
+} from "./drafting/draft";
+export type { DraftingStore, RunDraftingParams, RunDraftingResult } from "./drafting/handler";
+export { draftStep, runDrafting, runDraftTimeout } from "./drafting/handler";
+export {
+  AnswerSchema as DraftAnswerSchema,
+  Schema as DraftSchema,
+  SYSTEM as DRAFT_SYSTEM,
+  VERSION as DRAFT_PROMPT_VERSION,
+} from "./drafting/prompts/draft";
+export type {
   ExtractableDocument,
   ExtractionResult,
   ExtractionUsage,

@@ -1,5 +1,5 @@
 {
-  "id": "90dbd416-b09b-4f4d-a4ec-7268489536bf",
+  "id": "7c04a600-9cd0-4a22-a5d1-7b66f9aa7b27",
   "prevId": "3fae16ed-87ad-454d-ad3c-21e9fdb07c1c",
   "version": "7",
   "dialect": "postgresql",
@@ -1017,13 +1017,6 @@
           "primaryKey": false,
           "notNull": false
         },
-        "evidence_policy": {
-          "name": "evidence_policy",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'{}'::jsonb"
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -1526,8 +1519,8 @@
       },
       "isRLSEnabled": false
     },
-    "public.evidence_checks": {
-      "name": "evidence_checks",
+    "public.draft_answers": {
+      "name": "draft_answers",
       "schema": "",
       "columns": {
         "id": {
@@ -1543,45 +1536,51 @@
           "primaryKey": false,
           "notNull": true
         },
-        "payment_id": {
-          "name": "payment_id",
+        "draft_id": {
+          "name": "draft_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "flag": {
-          "name": "flag",
+        "question_id": {
+          "name": "question_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "text": {
+          "name": "text",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "rules": {
-          "name": "rules",
+        "citations": {
+          "name": "citations",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true
         },
-        "reasons": {
-          "name": "reasons",
+        "document_ids": {
+          "name": "document_ids",
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true
         },
-        "fact_version_ids": {
-          "name": "fact_version_ids",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "check_hash": {
-          "name": "check_hash",
+        "status": {
+          "name": "status",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "cause": {
-          "name": "cause",
+        "reason_code": {
+          "name": "reason_code",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verifier_result": {
+          "name": "verifier_result",
+          "type": "jsonb",
           "primaryKey": false,
           "notNull": true
         },
@@ -1594,8 +1593,8 @@
         }
       },
       "indexes": {
-        "evidence_checks_business_id_payment_id_idx": {
-          "name": "evidence_checks_business_id_payment_id_idx",
+        "draft_answers_draft_id_idx": {
+          "name": "draft_answers_draft_id_idx",
           "columns": [
             {
               "expression": "business_id",
@@ -1604,13 +1603,7 @@
               "nulls": "last"
             },
             {
-              "expression": "payment_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
+              "expression": "draft_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1623,37 +1616,61 @@
         }
       },
       "foreignKeys": {
-        "evidence_checks_business_id_businesses_id_fk": {
-          "name": "evidence_checks_business_id_businesses_id_fk",
-          "tableFrom": "evidence_checks",
+        "draft_answers_business_id_businesses_id_fk": {
+          "name": "draft_answers_business_id_businesses_id_fk",
+          "tableFrom": "draft_answers",
           "tableTo": "businesses",
           "columnsFrom": ["business_id"],
           "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
+        },
+        "draft_answers_draft_same_business_fk": {
+          "name": "draft_answers_draft_same_business_fk",
+          "tableFrom": "draft_answers",
+          "tableTo": "drafts",
+          "columnsFrom": ["draft_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "draft_answers_question_same_business_fk": {
+          "name": "draft_answers_question_same_business_fk",
+          "tableFrom": "draft_answers",
+          "tableTo": "rfi_questions",
+          "columnsFrom": ["question_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "draft_answers_draft_question_key": {
+          "name": "draft_answers_draft_question_key",
+          "nullsNotDistinct": false,
+          "columns": ["draft_id", "question_id"]
+        }
+      },
       "policies": {},
       "checkConstraints": {
-        "evidence_checks_flag_check": {
-          "name": "evidence_checks_flag_check",
-          "value": "\"flag\" IN ('strong', 'weak', 'missing')"
+        "draft_answers_status_check": {
+          "name": "draft_answers_status_check",
+          "value": "\"status\" IN ('VERIFIED', 'NEEDS_OWNER', 'OWNER_AUTHORED')"
         },
-        "evidence_checks_cause_check": {
-          "name": "evidence_checks_cause_check",
-          "value": "\"cause\" IN ('link_added', 'link_removed', 'facts_confirmed', 'send')"
+        "draft_answers_reason_check": {
+          "name": "draft_answers_reason_check",
+          "value": "(\"status\" = 'NEEDS_OWNER') = (\"reason_code\" IS NOT NULL)"
         },
-        "evidence_checks_hash_check": {
-          "name": "evidence_checks_hash_check",
-          "value": "\"check_hash\" ~ '^[0-9a-f]{64}$'"
+        "draft_answers_json_check": {
+          "name": "draft_answers_json_check",
+          "value": "jsonb_typeof(\"citations\") = 'array' AND jsonb_typeof(\"document_ids\") = 'array'"
         }
       },
       "isRLSEnabled": false
     },
-    "public.evidence_links": {
-      "name": "evidence_links",
+    "public.drafts": {
+      "name": "drafts",
       "schema": "",
       "columns": {
         "id": {
@@ -1669,29 +1686,85 @@
           "primaryKey": false,
           "notNull": true
         },
-        "payment_id": {
-          "name": "payment_id",
+        "rfi_id": {
+          "name": "rfi_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
-        "document_id": {
-          "name": "document_id",
-          "type": "uuid",
+        "round": {
+          "name": "round",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },
-        "fact_version_id": {
-          "name": "fact_version_id",
+        "parent_draft_id": {
+          "name": "parent_draft_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
+        },
+        "origin": {
+          "name": "origin",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "draft_key": {
+          "name": "draft_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "prompt_version": {
+          "name": "prompt_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "input_hash": {
+          "name": "input_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "injection_flags": {
+          "name": "injection_flags",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "agent_run_id": {
+          "name": "agent_run_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "blocking": {
+          "name": "blocking",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
         },
         "created_by": {
           "name": "created_by",
           "type": "uuid",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -1702,17 +1775,29 @@
         }
       },
       "indexes": {
-        "evidence_links_payment_document_key": {
-          "name": "evidence_links_payment_document_key",
+        "drafts_rfi_round_key_key": {
+          "name": "drafts_rfi_round_key_key",
           "columns": [
             {
-              "expression": "payment_id",
+              "expression": "business_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
             },
             {
-              "expression": "document_id",
+              "expression": "rfi_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "round",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "draft_key",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1723,8 +1808,8 @@
           "method": "btree",
           "with": {}
         },
-        "evidence_links_business_id_payment_id_idx": {
-          "name": "evidence_links_business_id_payment_id_idx",
+        "drafts_rfi_id_round_idx": {
+          "name": "drafts_rfi_id_round_idx",
           "columns": [
             {
               "expression": "business_id",
@@ -1733,7 +1818,13 @@
               "nulls": "last"
             },
             {
-              "expression": "payment_id",
+              "expression": "rfi_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "round",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -1746,47 +1837,38 @@
         }
       },
       "foreignKeys": {
-        "evidence_links_business_id_businesses_id_fk": {
-          "name": "evidence_links_business_id_businesses_id_fk",
-          "tableFrom": "evidence_links",
+        "drafts_business_id_businesses_id_fk": {
+          "name": "drafts_business_id_businesses_id_fk",
+          "tableFrom": "drafts",
           "tableTo": "businesses",
           "columnsFrom": ["business_id"],
           "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "evidence_links_payment_id_payments_id_fk": {
-          "name": "evidence_links_payment_id_payments_id_fk",
-          "tableFrom": "evidence_links",
-          "tableTo": "payments",
-          "columnsFrom": ["payment_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "evidence_links_fact_version_id_document_facts_id_fk": {
-          "name": "evidence_links_fact_version_id_document_facts_id_fk",
-          "tableFrom": "evidence_links",
-          "tableTo": "document_facts",
-          "columnsFrom": ["fact_version_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "evidence_links_created_by_users_id_fk": {
-          "name": "evidence_links_created_by_users_id_fk",
-          "tableFrom": "evidence_links",
+        "drafts_created_by_users_id_fk": {
+          "name": "drafts_created_by_users_id_fk",
+          "tableFrom": "drafts",
           "tableTo": "users",
           "columnsFrom": ["created_by"],
           "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "evidence_links_document_same_business_fk": {
-          "name": "evidence_links_document_same_business_fk",
-          "tableFrom": "evidence_links",
-          "tableTo": "documents",
-          "columnsFrom": ["document_id", "business_id"],
+        "drafts_rfi_same_business_fk": {
+          "name": "drafts_rfi_same_business_fk",
+          "tableFrom": "drafts",
+          "tableTo": "rfis",
+          "columnsFrom": ["rfi_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "drafts_parent_same_business_fk": {
+          "name": "drafts_parent_same_business_fk",
+          "tableFrom": "drafts",
+          "tableTo": "drafts",
+          "columnsFrom": ["parent_draft_id", "business_id"],
           "columnsTo": ["id", "business_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -1794,14 +1876,35 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "evidence_links_id_business_id_key": {
-          "name": "evidence_links_id_business_id_key",
+        "drafts_id_business_id_key": {
+          "name": "drafts_id_business_id_key",
           "nullsNotDistinct": false,
           "columns": ["id", "business_id"]
         }
       },
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "drafts_round_check": {
+          "name": "drafts_round_check",
+          "value": "\"round\" >= 1"
+        },
+        "drafts_origin_check": {
+          "name": "drafts_origin_check",
+          "value": "\"origin\" IN ('model', 'owner', 'system')"
+        },
+        "drafts_state_check": {
+          "name": "drafts_state_check",
+          "value": "\"state\" IN ('DRAFT_READY', 'NEEDS_OWNER')"
+        },
+        "drafts_owner_check": {
+          "name": "drafts_owner_check",
+          "value": "(\"origin\" = 'owner') = (\"created_by\" IS NOT NULL)"
+        },
+        "drafts_json_check": {
+          "name": "drafts_json_check",
+          "value": "jsonb_typeof(\"injection_flags\") = 'array' AND jsonb_typeof(\"blocking\") = 'array'"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.execution_attempts": {
@@ -2879,7 +2982,13 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "rfi_questions_id_business_id_key": {
+          "name": "rfi_questions_id_business_id_key",
+          "nullsNotDistinct": false,
+          "columns": ["id", "business_id"]
+        }
+      },
       "policies": {},
       "checkConstraints": {
         "rfi_questions_round_check": {
@@ -3138,7 +3247,13 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "rfis_id_business_id_key": {
+          "name": "rfis_id_business_id_key",
+          "nullsNotDistinct": false,
+          "columns": ["id", "business_id"]
+        }
+      },
       "policies": {},
       "checkConstraints": {
         "rfis_state_check": {

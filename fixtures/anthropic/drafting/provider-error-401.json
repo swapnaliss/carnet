@@ -1,0 +1,17 @@
+{
+  "kind": "provider_error",
+  "note": "Real API response to a request sent with a deliberately invalid key (no spend, no real credential); recorded 2026-11-09 for M2-05",
+  "status": 401,
+  "headers": {
+    "content-type": "application/json",
+    "request-id": "req_011Cgs3jEbzavqFqUtEMw45e"
+  },
+  "body": {
+    "type": "error",
+    "error": {
+      "type": "authentication_error",
+      "message": "invalid x-api-key"
+    },
+    "request_id": "req_011Cgs3jEbzavqFqUtEMw45e"
+  }
+}

@@ -105,19 +105,31 @@ const DATE_PATTERNS: readonly {
   },
 ];
 
-/** Every valid calendar date written in `text`, as ISO `YYYY-MM-DD` (document order, de-duplicated). */
-export function findDates(text: string): string[] {
-  const found: { at: number; iso: string }[] = [];
+export interface DateSpan {
+  readonly iso: string;
+  /** Offsets in `normalizeText(text)`. */
+  readonly start: number;
+  readonly end: number;
+}
+
+/** Every valid calendar date in `normalizeText(text)` with its offsets (M2-05 verifier). */
+export function scanDates(text: string): DateSpan[] {
+  const found: DateSpan[] = [];
   const t = normalizeText(text);
   for (const { re, pick } of DATE_PATTERNS) {
     for (const m of t.matchAll(re)) {
       const [y, mo, d] = pick(m as RegExpExecArray);
       const iso = isoDate(y, mo, d);
-      if (iso) found.push({ at: m.index ?? 0, iso });
+      const start = m.index ?? 0;
+      if (iso) found.push({ iso, start, end: start + m[0].length });
     }
   }
-  found.sort((a, b) => a.at - b.at);
-  return [...new Set(found.map((f) => f.iso))];
+  return found.sort((a, b) => a.start - b.start);
+}
+
+/** Every valid calendar date written in `text`, as ISO `YYYY-MM-DD` (document order, de-duplicated). */
+export function findDates(text: string): string[] {
+  return [...new Set(scanDates(text).map((f) => f.iso))];
 }
 
 /** The ISO date a whole value string spells, or null (the value must be only a date). */
@@ -187,9 +199,15 @@ function toAmount(token: string, currency: Currency): ParsedAmount | null {
   }
 }
 
-/** Amounts written in `text` with a currency code or symbol next to them, in document order. */
-export function findAmounts(text: string): ParsedAmount[] {
-  const out: ParsedAmount[] = [];
+export interface AmountSpan extends ParsedAmount {
+  /** Offsets in `normalizeText(text)`. */
+  readonly start: number;
+  readonly end: number;
+}
+
+/** Amounts in `normalizeText(text)` with a currency code or symbol next to them, with offsets. */
+export function scanAmounts(text: string): AmountSpan[] {
+  const out: AmountSpan[] = [];
   const t = normalizeText(text);
   for (const m of t.matchAll(AMOUNT_RE)) {
     const code = m[1] ?? m[4];
@@ -197,9 +215,15 @@ export function findAmounts(text: string): ParsedAmount[] {
     const currency = code ?? (symbol ? SYMBOLS[symbol] : undefined);
     if (!currency || !isCurrency(currency)) continue;
     const amount = toAmount(m[3] ?? "", currency);
-    if (amount) out.push(amount);
+    const start = m.index ?? 0;
+    if (amount) out.push({ ...amount, start, end: start + m[0].length });
   }
   return out;
+}
+
+/** Amounts written in `text` with a currency code or symbol next to them, in document order. */
+export function findAmounts(text: string): ParsedAmount[] {
+  return scanAmounts(text).map(({ minor, currency }) => ({ minor, currency }));
 }
 
 /** The amount a whole value string spells ("EUR 8,400.00"), or null (exactly one amount, with a currency). */
