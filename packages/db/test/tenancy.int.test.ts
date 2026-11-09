@@ -4,6 +4,7 @@
 // without a case, or without `ctx` first, fails this file.
 import { createHash } from "node:crypto";
 import {
+  type ApprovalId,
   type AttemptId,
   type BusinessId,
   type CounterpartyId,
@@ -21,6 +22,7 @@ import {
 import { beforeAll, describe, expect, it } from "vitest";
 import { ForeignKeyViolationError } from "../src/errors";
 import * as agentStore from "../src/repos/agent-store";
+import * as approvalSweeps from "../src/repos/approval-sweeps";
 import * as attempts from "../src/repos/attempts";
 import * as context from "../src/repos/context";
 import * as repos from "../src/repos/index";
@@ -43,6 +45,7 @@ type RepoFn = (...args: never[]) => unknown;
 // proven per business in agent-runs.int.test.ts).
 const helperNames = new Set([
   ...Object.keys(agentStore),
+  ...Object.keys(approvalSweeps),
   ...Object.keys(context),
   ...Object.keys(system),
   ...Object.keys(outbox),
@@ -52,6 +55,8 @@ const helperNames = new Set([
   ...Object.keys(webhookEvents),
   ...Object.keys(workerHeartbeats),
   ...Object.keys(attempts),
+  "effectiveApprovalStatus", // repos/approvals: a pure reader of a row already loaded
+  "toAttempt", // repos/execution-attempts: row mapper used by consumeApproval
   "sha256Hex", // repos/documents: a pure hash helper, no table access
 ]);
 const tenantRepoFns: [string, RepoFn][] = Object.entries(repos as Record<string, unknown>).filter(
@@ -70,6 +75,8 @@ interface Fixture {
   agentStepId: string;
   rfiId: RfiId;
   transferId: string;
+  approvalId: ApprovalId;
+  approvalHash: string;
   linkId: string;
 }
 
@@ -189,6 +196,16 @@ async function seed(name: string): Promise<Fixture> {
     conflict: false,
   });
   await repos.insertRfiQuestions(ctx, rfi.id, [question(`q-${name}`)]);
+  const approvalHash = "b".repeat(64);
+  const approval = await repos.createApproval(ctx, {
+    kind: "rfi_answer",
+    subjectRef: rfi.id,
+    hash: approvalHash,
+    nonce: `nonce-${name}`,
+    approverId: user.id,
+    expiresAt: new Date(Date.now() + 3_600_000),
+    shownSnapshot: { business: name },
+  });
   const link = await repos.createPayeeLink(ctx, {
     paymentId: payment.id,
     tokenHash: createHash("sha256").update(name).digest("hex"),
@@ -198,6 +215,8 @@ async function seed(name: string): Promise<Fixture> {
   });
   if (!link) throw new Error("seed link not created");
   return {
+    approvalId: approval.id,
+    approvalHash,
     linkId: link.id,
     agentRunId: agentRun.id,
     agentStepId: agentStep.id,
@@ -251,6 +270,7 @@ async function snapshotB(): Promise<unknown> {
     agentSteps: await repos.listAgentSteps(b, B.agentRunId),
     rfis: await repos.listRfis(b),
     questions: await repos.listRfiQuestions(b, B.rfiId),
+    approval: await repos.getApproval(b, B.approvalId),
     payeeLinks: await repos.listPayeeLinks(b, B.paymentId),
   };
 }
@@ -361,6 +381,13 @@ const cases: Record<string, () => Promise<void>> = {
   listWebhookEventsForPayment: async () => {
     expect(await repos.listWebhookEventsForPayment(ctxA(), B.paymentId)).toEqual([]);
   },
+  claimAttempt: async () => {
+    expect(await repos.claimAttempt(ctxA(), B.attemptId, ["INTENT", "UNKNOWN"], 1000)).toBeNull();
+  },
+  releaseAttempt: async () => {
+    await repos.releaseAttempt(ctxA(), B.attemptId);
+    expect((await repos.getAttempt(ctxB(), B.attemptId))?.id).toBe(B.attemptId);
+  },
   updateAttemptStatus: async () => {
     expect(await repos.updateAttemptStatus(ctxA(), B.attemptId, "REJECTED")).toBeNull();
   },
@@ -405,6 +432,41 @@ const cases: Record<string, () => Promise<void>> = {
   appendAudit: async () => {
     const e = await repos.appendAudit(ctxA(), { actorType: "user", action: "x", subject: "y" });
     expect(e.businessId).toBe(A.businessId);
+  },
+  createApproval: async () => {
+    const a = await repos.createApproval(ctxA(), {
+      kind: "rfi_answer",
+      subjectRef: A.rfiId,
+      hash: "c".repeat(64),
+      nonce: "nonce-a-second",
+      approverId: A.userId,
+      expiresAt: new Date(Date.now() + 3_600_000),
+      shownSnapshot: {},
+    });
+    expect(a.businessId).toBe(A.businessId);
+    // It superseded A's earlier live approval only; B's is untouched.
+    expect((await repos.getApproval(ctxB(), B.approvalId))?.status).toBe("APPROVED");
+  },
+  listApprovalsForSubject: async () => {
+    expect(await repos.listApprovalsForSubject(ctxA(), "rfi_answer", B.rfiId)).toEqual([]);
+  },
+  getApproval: async () => {
+    expect(await repos.getApproval(ctxA(), B.approvalId)).toBeNull();
+  },
+  getLiveApprovalForSubject: async () => {
+    expect(await repos.getLiveApprovalForSubject(ctxA(), "rfi_answer", B.rfiId)).toBeNull();
+  },
+  endApproval: async () => {
+    expect(
+      await repos.endApproval(ctxA(), B.approvalId, "REJECTED", "REJECTED_BY_USER"),
+    ).toBeNull();
+  },
+  consumeApproval: async () => {
+    const r = await repos.consumeApproval(ctxA(), {
+      approvalId: B.approvalId,
+      expectedHash: B.approvalHash,
+    });
+    expect(r).toEqual({ outcome: "refused", reason: "NOT_FOUND" });
   },
   getRfi: async () => {
     expect(await repos.getRfi(ctxA(), B.rfiId)).toBeNull();

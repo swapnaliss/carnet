@@ -61,7 +61,9 @@ export const RFI_EVENTS = [
   "draft.ready",
   "draft.needs_owner",
   "approval.granted",
+  "approval.revoked",
   "answer.submitting",
+  "answer.rejected",
   "airwallex.rfi.answered",
   "airwallex.rfi.answered_externally",
   "airwallex.rfi.closed",
@@ -107,7 +109,13 @@ export const RFI_TRANSITIONS: readonly RfiTransitionRule[] = [
   rule("DRAFT_READY", "APPROVED", "approval.granted", "owner"),
   rule("NEEDS_OWNER", "APPROVED", "approval.granted", "owner"),
   rule("APPROVED", "ANSWER_SUBMITTING", "answer.submitting", "executor"),
+  // M2-07: an approval that ended without being consumed (rejected, expired, kill switch) hands the
+  // RFI back to the owner with its draft.
+  rule("APPROVED", "DRAFT_READY", "approval.revoked", "owner"),
   rule("ANSWER_SUBMITTING", "ANSWERED", "airwallex.rfi.answered", "executor"),
+  // M2-07: the executor refused (the RFI changed after approval) or Airwallex rejected the respond
+  // with a 4xx: nothing was submitted, the owner re-drafts and approves again.
+  rule("ANSWER_SUBMITTING", "NEEDS_OWNER", "answer.rejected", "executor"),
   rule("ANSWERED", "CLOSED", "airwallex.rfi.closed", "ingest"),
   rule("ANSWERED", "REOPENED", "airwallex.rfi.reopened", "ingest"),
   rule("REOPENED", "DRAFTING", "rfi.drafting_started", "ingest", {

@@ -71,6 +71,13 @@
       "when": 1794067719940,
       "tag": "0010_document_facts",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794211950574,
+      "tag": "0011_approvals",
+      "breakpoints": true
     }
   ]
 }
