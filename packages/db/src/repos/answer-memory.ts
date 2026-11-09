@@ -73,7 +73,7 @@ export async function rfiCounterpartyId(ctx: RepoCtx, rfi: Rfi): Promise<Counter
 }
 
 /** The text a question is fingerprinted on: the English title and description, else Chinese. */
-export const questionTextOf = (q: Pick<RfiQuestionRow, "title" | "description">): string =>
+const questionTextOf = (q: Pick<RfiQuestionRow, "title" | "description">): string =>
   approvalQuestionText(q.title, q.description);
 
 /**

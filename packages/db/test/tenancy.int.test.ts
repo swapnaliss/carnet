@@ -697,6 +697,32 @@ const cases: Record<string, () => Promise<void>> = {
     expect(none).toBeNull();
     expect(await repos.listDrafts(ctxB(), B.rfiId)).toHaveLength(1);
   },
+  findReusable: async () => {
+    expect(await repos.findReusable(ctxA(), B.counterpartyId, "any question", "TEXT")).toBeNull();
+  },
+  findReusableForRound: async () => {
+    const rfiB = await repos.getRfi(ctxB(), B.rfiId);
+    if (!rfiB) throw new Error("no B rfi");
+    const found = await repos.findReusableForRound(ctxA(), rfiB, 1);
+    expect(found.questions).toEqual([]);
+    expect(found.counterpartyId).toBeNull();
+    expect(found.matches.size).toBe(0);
+  },
+  listAnswerMemory: async () => {
+    expect(await repos.listAnswerMemory(ctxA())).toEqual([]);
+  },
+  rfiCounterpartyId: async () => {
+    const rfiB = await repos.getRfi(ctxB(), B.rfiId);
+    if (!rfiB) throw new Error("no B rfi");
+    expect(await repos.rfiCounterpartyId(ctxA(), rfiB)).toBeNull();
+  },
+  recordApprovedAnswers: async () => {
+    const out = await repos.recordApprovedAnswers(ctxA(), {
+      rfiId: B.rfiId,
+      approvalId: crypto.randomUUID() as never,
+    });
+    expect(out).toMatchObject({ recorded: 0, skipped: "APPROVAL_NOT_FOUND" });
+  },
   insertPlanRevision: async () => {
     const inputs = emptyPlanInputs(B.businessId);
     // B's plan cannot be written through A's context.
