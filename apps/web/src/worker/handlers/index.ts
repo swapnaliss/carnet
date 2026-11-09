@@ -11,6 +11,10 @@ export const JOB_KIND = {
   transferSync: "transfer.sync",
   /** `rfi.*` webhook: fetch the RFI and ingest it (M2-04, handlers/rfi.ts). */
   rfiSync: "rfi.sync",
+  /** M2-07: consume the approval, then send the approved answers to Airwallex (rfi-respond.ts). */
+  rfiRespond: "rfi.respond",
+  /** M2-07 event after a CONFIRMED respond; M2-06 registers its consumer (answer memory). */
+  answerSubmitted: "answer.submitted",
   /** Every 60 s, enqueued by the loop itself, one at a time. */
   reconcile: "reconcile",
   /** M1-08: create the Airwallex transfer for a payment's INTENT attempt (mutating). */
@@ -27,7 +31,10 @@ export type AirwallexReader = Pick<
 >;
 
 /** The mutating adapter calls (M1-08). Only handlers registered with `mutating: true` use them. */
-export type AirwallexWriter = Pick<AirwallexClient, "createTransfer" | "createBeneficiary"> & {
+export type AirwallexWriter = Pick<
+  AirwallexClient,
+  "createTransfer" | "createBeneficiary" | "respondRfi" | "uploadFile"
+> & {
   readonly simulator: Pick<AirwallexClient["simulator"], "transitionTransfer">;
 };
 

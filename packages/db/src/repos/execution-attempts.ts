@@ -18,7 +18,7 @@ export interface ExecutionAttempt {
 }
 
 type Row = typeof executionAttempts.$inferSelect;
-const toAttempt = (r: Row): ExecutionAttempt => ({
+export const toAttempt = (r: Row): ExecutionAttempt => ({
   id: r.id as AttemptId,
   businessId: r.businessId as BusinessId,
   kind: r.kind,

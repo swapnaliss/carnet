@@ -25,6 +25,10 @@ export const CROSS_TENANT_CASES: Record<string, string> = {
   // M2-04: test/security/rfi-ingest-routes.int.test.ts (404 cross-tenant, viewer 403, audited link).
   "v1/rfis/[id]": "rfi-ingest-routes.int.test.ts",
   "v1/rfis/[id]/link": "rfi-ingest-routes.int.test.ts",
+  // M2-07: test/security/approval-routes.int.test.ts (404 cross-tenant for the RFI and the approval id,
+  // viewer 403, role matrix, idempotent replay).
+  "v1/rfis/[id]/approvals": "approval-routes.int.test.ts",
+  "v1/rfis/[id]/approvals/[approvalId]/reject": "approval-routes.int.test.ts",
   "v1/documents/[id]":
     "test/documents/documents.int.test.ts: another business's session gets 404 for the bytes",
   "v1/documents/[id]/meta":
