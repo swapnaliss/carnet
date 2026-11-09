@@ -106,7 +106,8 @@ describe("tamper after approval", () => {
       await c.query(
         "UPDATE documents SET bytes = set_byte(bytes, 12, get_byte(bytes, 12) # 1) WHERE id = $1",
         [a.documentId],
-      );    });
+      );
+    });
     const { result, record } = await refusal(a, ap);
     expect(result).toMatchObject({ outcome: "refused", code: "ATTACHMENT_CHANGED" });
     expect(record.refusal?.code).toBe("ATTACHMENT_CHANGED");
