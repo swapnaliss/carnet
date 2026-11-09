@@ -477,6 +477,7 @@ const en = {
   evidence: {
     title: "Evidence for {payee}",
     pageTitle: "Payment evidence",
+    openLink: "Evidence for this payment",
     back: "All payments",
     backToQueue: "Back to the queue",
     loading: { status: "Loading evidence" },
@@ -581,14 +582,15 @@ const en = {
       noQuote: "Entered by you, no quote",
       confirmGroup: "Confirm facts from the scan",
       confirmHint:
-        "This document is an image, so Carnet cannot check its quotes. Compare each value with the document, tick the ones that are right, then confirm. Nothing is used until you confirm.",
+        "This document is an image, so Carnet cannot check its quotes. Compare each value with the document and tick it when it is right. You can confirm once every value is ticked. Nothing is used until you confirm.",
       confirmLabel: "Confirm {field}: {value}",
       confirmCta: "Confirm {count} facts",
       confirmCtaOne: "Confirm 1 fact",
       confirmCtaPending: "Confirming",
       confirmDone: "Facts confirmed. Carnet checked the payment again.",
       confirmError: "The facts could not be confirmed. Nothing was changed. Try again.",
-      none: "Tick at least one fact to confirm.",
+      none: "Tick every value to confirm.",
+      allTicked: "{ticked} of {count} values ticked",
     },
     add: {
       title: "Add a document",
