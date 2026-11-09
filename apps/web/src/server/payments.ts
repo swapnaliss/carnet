@@ -16,6 +16,7 @@ import {
   DuplicateIdempotencyKeyError,
   type ExecutionAttempt,
   enqueueJob,
+  getBusiness,
   getCounterparty,
   getIdempotencyRecord,
   getPayment,
@@ -41,6 +42,7 @@ import {
   type PaymentId,
   PaymentIdSchema,
   type PaymentView,
+  parseEvidencePolicy,
   project,
   SendPaymentBodySchema,
   SimulateTransferBodySchema,
@@ -52,7 +54,13 @@ import type { AuthRule, createRouteKit, RouteSpec } from "../lib/define-route";
 import { conflict, HttpProblem, notFound } from "../lib/errors";
 import { JOB_KIND } from "../worker/handlers/index";
 import type { BalanceReader } from "./airwallex";
-import { isSent, sendWithGuard } from "./evidence";
+import {
+  ackProblem,
+  createSendProblem,
+  isSent,
+  loadEvidenceCheck,
+  sendWithGuard,
+} from "./evidence";
 
 export const CREATE_ENDPOINT = "POST /api/v1/payments";
 /** The UI polls every 3 s (ADR 0017); the list shows at most this many payments. */
@@ -317,7 +325,13 @@ export async function createPaymentWithAttempt(
       "This business has no counterparty to pay yet. Nothing was created.",
     );
   }
-  if (send) await checkBalance(body.amount, deps.balances);
+  if (send) {
+    // The evidence guard answers before the balance is read: a payment with no documents is Missing.
+    const policy = parseEvidencePolicy((await getBusiness(repo))?.evidencePolicy);
+    const problem = createSendProblem(body.amount, counterparty.name, body.evidence_ack, policy);
+    if (problem) throw problem;
+    await checkBalance(body.amount, deps.balances);
+  }
 
   try {
     const created = await withTransaction(repo.db, async (tx) => {
@@ -408,7 +422,14 @@ export function paymentRouteSpecs(deps: { balances: BalanceReader; now?: () => D
     handler: async ({ ctx, repo, params, body, requestId }) => {
       const payment = await getPayment(repo, params.id);
       if (!payment) throw notFound();
-      if (!(await isSent(repo, payment))) await checkBalance(payment.amount, deps.balances);
+      if (!(await isSent(repo, payment))) {
+        // Evidence first, then money: a refused payment never reads the Airwallex balance.
+        const loaded = await loadEvidenceCheck(repo, params.id);
+        if (!loaded) throw notFound();
+        const problem = ackProblem(loaded.check, loaded.dto, body.evidence_ack);
+        if (problem) throw problem;
+        await checkBalance(payment.amount, deps.balances);
+      }
       const outcome = await withTransaction(repo.db, (tx) =>
         sendWithGuard(repoCtx(tx, repo.businessId), params.id, body.evidence_ack, {
           userId: ctx.userId,

@@ -565,7 +565,7 @@ const en = {
       noFacts: "No facts were extracted from this document.",
       open: "Open document",
       remove: "Remove from this payment",
-      removeLabel: "Remove {name} from this payment",
+      removeLabel: "Remove from this payment: {name}",
       removed: "{name} was removed.",
       unreadableKind: "Carnet does not read this kind of document, so it adds no facts.",
     },
@@ -580,6 +580,8 @@ const en = {
       confirmedByYou: "Confirmed by you",
       unverified: "Not verified, not used",
       noQuote: "Entered by you, no quote",
+      scanNoQuote:
+        "The scan has no text layer, so there is no quote to check. Compare with the document.",
       confirmGroup: "Confirm facts from the scan",
       confirmHint:
         "This document is an image, so Carnet cannot check its quotes. Compare each value with the document and tick it when it is right. You can confirm once every value is ticked. Nothing is used until you confirm.",

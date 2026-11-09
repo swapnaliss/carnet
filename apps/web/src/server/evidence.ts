@@ -38,11 +38,14 @@ import {
   EVIDENCE_AUDIT_ACTIONS,
   type EvidenceAck,
   type EvidenceCheck,
+  type EvidencePolicy,
   type EvidenceReason,
+  type Money,
   type MoneyWire,
   newRequestId,
   type PaymentId,
   PaymentIdSchema,
+  parseEvidencePolicy,
   toMoneyWire,
 } from "@carnet/domain";
 import { z } from "zod";
@@ -234,6 +237,56 @@ function changed(dto: EvidenceCheckDto): HttpProblem {
   );
 }
 
+/** The refusal a check calls for given the acknowledgement (none when it is Strong or properly acknowledged). */
+export function ackProblem(
+  check: EvidenceCheck,
+  dto: EvidenceCheckDto,
+  ack: EvidenceAck | undefined,
+): HttpProblem | null {
+  if (check.flag === "strong") return null;
+  if (!ack) return refusal(dto);
+  if (ack.check_hash !== undefined && ack.check_hash !== check.check_hash) return changed(dto);
+  return null;
+}
+
+/**
+ * Create-and-send has no documents yet, so its evidence is always Missing: without an acknowledgement
+ * it is refused before anything else (the balance included) is looked at.
+ */
+export function createSendProblem(
+  amount: Money,
+  payeeName: string,
+  ack: EvidenceAck | undefined,
+  policy: EvidencePolicy = parseEvidencePolicy({}),
+): HttpProblem | null {
+  if (ack) return null;
+  const check = checkEvidence({
+    payment: { amountMinor: amount.minor, currency: amount.currency, payeeName, reference: "" },
+    documents: [],
+    priorPayments: 0,
+    policy,
+  });
+  const threshold = contractThreshold(policy, amount.currency);
+  return refusal({
+    payment: {
+      id: "",
+      reference: "",
+      amount: toMoneyWire(amount),
+      counterparty_name: payeeName,
+      sent: false,
+    },
+    flag: check.flag,
+    reasons: check.reasons.map(reasonDto),
+    rules: [],
+    check_hash: check.check_hash,
+    fact_version_ids: [],
+    contract_required: check.reasons.some((r) => r.key === "contractMissing"),
+    contract_threshold: toMoneyWire({ minor: threshold, currency: amount.currency }),
+    documents: [],
+    server_time: new Date().toISOString(),
+  });
+}
+
 export interface SendOutcome {
   readonly attempt: ExecutionAttempt;
   /** The payment already had its transfer attempt: nothing was written and no acknowledgement needed. */
@@ -263,11 +316,9 @@ export async function sendWithGuard(
   const loaded = await loadEvidenceCheck(rc, paymentId);
   if (!loaded) throw notFound();
   const { check, dto } = loaded;
+  const problem = ackProblem(check, dto, ack);
+  if (problem) throw problem;
   const override = check.flag !== "strong";
-  if (override) {
-    if (!ack) throw refusal(dto);
-    if (ack.check_hash !== undefined && ack.check_hash !== check.check_hash) throw changed(dto);
-  }
   await insertEvidenceCheck(rc, paymentId, check, "send");
   if (override) {
     await appendAudit(rc, {

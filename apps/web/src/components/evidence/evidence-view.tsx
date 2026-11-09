@@ -189,7 +189,9 @@ function FactRow({
   ticked,
   onTick,
   confirmable,
+  textLayer,
 }: {
+  textLayer: boolean | null;
   fact: FactDto;
   ticked: boolean;
   onTick: (key: string, on: boolean) => void;
@@ -227,7 +229,7 @@ function FactRow({
             </span>
           </blockquote>
         ) : (
-          <span>{t.evidence.fact.noQuote}</span>
+          <span>{textLayer === false ? t.evidence.fact.scanNoQuote : t.evidence.fact.noQuote}</span>
         )}
       </div>
       <div className={cn("flex items-start gap-1.5 text-sm font-medium", status.tone)}>
@@ -375,6 +377,7 @@ function DocumentCard({
                   key={rowKey}
                   fact={f}
                   confirmable={confirmable}
+                  textLayer={doc.text_layer}
                   ticked={ticked.has(f.key)}
                   onTick={(key, on) =>
                     setTicked((prev) => {
