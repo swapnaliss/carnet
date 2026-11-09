@@ -715,6 +715,7 @@ const cases: Record<string, () => Promise<void>> = {
   loadEvidenceContext: async () => {
     expect(await repos.loadEvidenceContext(ctxA(), B.paymentId)).toBeNull();
     expect((await repos.loadEvidenceContext(ctxA(), A.paymentId))?.documents).toHaveLength(1);
+  },
   insertDraft: async () => {
     // A cannot attach a draft to B's RFI: the foreign key refuses it, and B's drafts are unchanged.
     await expect(

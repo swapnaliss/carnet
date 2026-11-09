@@ -6,7 +6,7 @@ import { expect, test } from "@playwright/test";
 const pages = [
   { name: "login", path: "/login" },
   { name: "shell home", path: "/" },
-  { name: "queue (empty state)", path: "/queue" },
+  // /queue needs a session since M2-03 (it lists the business's payments); its axe run is in evidence.spec.ts.
   { name: "plan (empty state)", path: "/plan" },
   { name: "not found", path: "/does-not-exist" },
   { name: "page error", path: "/error-preview" },
