@@ -172,6 +172,18 @@ export async function getFactsVersion(
   return row ? toStored(row) : null;
 }
 
+/** One facts version by its row id (the part of a citation's `fact_version_id` before `#`). */
+export async function getFactsVersionById(
+  ctx: RepoCtx,
+  id: string,
+): Promise<StoredFactsVersion | null> {
+  const [row] = await ctx.db
+    .select()
+    .from(documentFacts)
+    .where(and(eq(documentFacts.businessId, ctx.businessId), eq(documentFacts.id, id)));
+  return row ? toStored(row) : null;
+}
+
 export async function getLatestFacts(
   ctx: RepoCtx,
   documentId: DocumentId,
