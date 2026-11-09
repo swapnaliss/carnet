@@ -3,13 +3,16 @@
 // through, the request carries no tools and no secret, and the model is called at most twice per question.
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { rollupDraft } from "@carnet/domain";
 import { describe, expect, it } from "vitest";
 import { loadDraftingCases, runDraftingEval } from "../../evals/drafting/run";
 import {
   buildDraftBlocks,
   createHarness,
+  DRAFT_PROMPT_VERSION,
   DRAFT_SYSTEM,
   type DraftInput,
+  type DraftResult,
   DraftSchema,
   draftRfi,
   type Harness,
@@ -17,13 +20,17 @@ import {
   schemaSubsetViolations,
   type Transport,
 } from "../../src/index";
-import { DRAFT_PROMPT_VERSION } from "../../src/index";
 import { memoryStore, USD } from "../memory-store";
 import {
+  recordingTransport as cannedTransport,
   constructedResponse,
   recordedMaxTokens,
-  recordingTransport as cannedTransport,
 } from "../recorded";
+
+type KeptCase =
+  Awaited<ReturnType<typeof loadDraftingCases>> extends (infer C)[]
+    ? { case: C; result: DraftResult }
+    : never;
 
 process.env.ANTHROPIC_API_KEY ||= "test-not-a-key";
 const SECRET_SENTINEL = "sk-ant-sentinel-secret-value";
@@ -108,28 +115,27 @@ describe("AC1/AC3: the dataset RFI sets on recorded replies", () => {
         ["q-nordlicht-purpose", "q-nordlicht-proof_of_delivery"],
       ],
     ] as const) {
-      const keep = new Map();
+      const keep = new Map<string, KeptCase>();
       await runDraftingEval({ mode: "replay", only: id, keep });
-      const { result } = keep.get(id);
-      const { rollupDraft } = await import("@carnet/domain");
+      const result = keep.get(id)?.result;
+      if (!result) throw new Error(`no result for ${id}`);
       const roll = rollupDraft(result.results);
       expect(roll.state, id).toBe(state);
       expect(
         roll.blocking.map((b: { question_id: string }) => b.question_id),
         id,
       ).toEqual([...blocking]);
-      for (const b of roll.blocking as { explanation: string }[])
-        expect(b.explanation.length).toBeGreaterThan(10);
+      for (const b of roll.blocking) expect(b.explanation.length).toBeGreaterThan(10);
     }
   });
 
   it("a payment whose invoice disagrees with its purchase order is NEEDS_OWNER (conflict)", async () => {
-    const keep = new Map();
+    const keep = new Map<string, KeptCase>();
     await runDraftingEval({ mode: "replay", only: "rfi-set-rhein-contradict-r1", keep });
     const r = keep
       .get("rfi-set-rhein-contradict-r1")
-      .result.results.find((x: { question_id: string }) => x.question_id === "q-rhein2-purpose");
-    expect(r.verdict.reason).toBe("CONFLICTING_FACTS");
+      ?.result.results.find((x) => x.question_id === "q-rhein2-purpose");
+    expect(r?.verdict.reason).toBe("CONFLICTING_FACTS");
   });
 });
 

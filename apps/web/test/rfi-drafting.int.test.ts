@@ -25,8 +25,8 @@ import {
 import type { BusinessId, RfiId } from "@carnet/domain";
 import { eq } from "drizzle-orm";
 import { beforeAll, describe, expect, it } from "vitest";
-import { loadDraftingCases, loadDraftRecording } from "../../../packages/agent/evals/drafting/run";
 import { runExtractionForEval } from "../../../packages/agent/evals/drafting/facts";
+import { loadDraftingCases, loadDraftRecording } from "../../../packages/agent/evals/drafting/run";
 import { memoryLogger } from "../src/server/log";
 import {
   createRfiDraftHandler,

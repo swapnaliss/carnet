@@ -19,7 +19,7 @@ import {
   type SuppliedFact,
   usableFacts,
 } from "@carnet/domain";
-import { type DraftQuestion, draftRfi, type DraftResult } from "../../src/drafting/draft";
+import { type DraftQuestion, type DraftResult, draftRfi } from "../../src/drafting/draft";
 import { DEFAULT_LIMITS } from "../../src/harness";
 import { createHarness, type Transport } from "../../src/index";
 import { memoryStore, USD } from "../../test/memory-store";

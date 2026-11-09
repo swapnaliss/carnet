@@ -3,8 +3,8 @@
 import { createBusiness, type Db } from "@carnet/db";
 import type { BusinessId } from "@carnet/domain";
 import { memoryLogger } from "../src/server/log";
-import { createWorker } from "../src/worker/loop";
 import { RFI_DRAFT_JOB_KIND } from "../src/worker/handlers/draft";
+import { createWorker } from "../src/worker/loop";
 import { defaultRegistry } from "../src/worker/run";
 import { FetchStub, loadFixture, makeClient, query, recordedDeliveries } from "./support";
 

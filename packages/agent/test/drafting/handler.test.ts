@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { loadDraftingCases, loadDraftRecording } from "../../evals/drafting/run";
 import { replayTransport } from "../../evals/extraction/run";
-import { createHarness, type DraftingStore, runDraftTimeout, runDrafting } from "../../src/index";
+import { createHarness, type DraftingStore, runDrafting, runDraftTimeout } from "../../src/index";
 import { memoryStore } from "../memory-store";
 
 process.env.ANTHROPIC_API_KEY ||= "test-not-a-key";

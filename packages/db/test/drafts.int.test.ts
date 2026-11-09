@@ -3,16 +3,18 @@
 // evidence view offers only usable facts, and the stuck-DRAFTING lookup finds RFIs without a draft.
 import { readFileSync } from "node:fs";
 import {
+  ANSWER_STATUSES,
   type BusinessId,
+  type DocumentId,
   DRAFT_ORIGINS,
   DRAFT_STATES,
-  type DocumentId,
   type ExtractedFact,
   needsOwner,
   type RfiId,
 } from "@carnet/domain";
-import { ANSWER_STATUSES } from "@carnet/domain";
 import { beforeAll, describe, expect, it } from "vitest";
+import { insertFactsVersion } from "../src/repos/document-facts";
+import { listStuckDraftingRfis } from "../src/repos/draft-sweep";
 import * as draftsRepo from "../src/repos/drafts";
 import {
   createOwnerDraft,
@@ -23,10 +25,8 @@ import {
   listDrafts,
   loadDraftingEvidence,
 } from "../src/repos/drafts";
-import { listStuckDraftingRfis } from "../src/repos/draft-sweep";
-import { insertFactsVersion } from "../src/repos/document-facts";
-import { insertRfi, insertRfiQuestions, listRfiQuestions, updateRfi } from "../src/repos/rfis";
 import { repoCtx, storeDocument } from "../src/repos/index";
+import { insertRfi, insertRfiQuestions, listRfiQuestions, updateRfi } from "../src/repos/rfis";
 import { createBusiness } from "../src/repos/system";
 import { createUser } from "../src/repos/users";
 import {

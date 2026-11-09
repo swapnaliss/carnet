@@ -15,8 +15,8 @@ import {
   updateAttemptStatus,
 } from "@carnet/db";
 import { type AttemptId, type PaymentId, RFI_EXPIRING_SOON_MS } from "@carnet/domain";
-import { type HandlerContext, JOB_KIND, type JobHandler } from "./handlers/index";
 import { sweepStuckDrafting } from "./handlers/draft";
+import { type HandlerContext, JOB_KIND, type JobHandler } from "./handlers/index";
 import { ingestRfi } from "./handlers/rfi";
 import { applyFetchedTransfer, syncTransfer } from "./handlers/transfer";
 

@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
-  type DraftAnswerInput,
-  type DraftReasonCode,
   DRAFT_REASON_CODES,
   DRAFT_REASON_EXPLANATIONS,
+  type DraftAnswerInput,
+  type DraftReasonCode,
   findDisputedDocuments,
   rollupDraft,
   type SuppliedFact,

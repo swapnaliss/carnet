@@ -5,8 +5,8 @@
 // sent to it.
 import {
   type DraftAnswerInput,
-  extractionTypeOf,
   type DraftVerification,
+  extractionTypeOf,
   isSupportedAnswerType,
   needsOwner,
   type SuppliedDocument,
@@ -18,7 +18,7 @@ import type { CallOutcome, Harness, RunHandle } from "../harness";
 import type { ModelId } from "../pricing";
 import { inputHash } from "../replay";
 import type { ModelBlock } from "../structured";
-import { SYSTEM, Schema, VERSION } from "./prompts/draft";
+import { Schema, SYSTEM, VERSION } from "./prompts/draft";
 
 export const DRAFT_MODEL: ModelId = "claude-sonnet-5-5";
 export const DRAFT_FIRST_MAX_TOKENS = 3_000;

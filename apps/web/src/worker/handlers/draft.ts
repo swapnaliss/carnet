@@ -6,14 +6,15 @@
 import {
   createHarness,
   DEFAULT_LIMITS,
-  type DraftingStore,
   type DraftInput,
+  type DraftingStore,
   isModelId,
-  runDraftTimeout,
   runDrafting,
+  runDraftTimeout,
   type Transport,
 } from "@carnet/agent";
 import {
+  agentHarnessStore,
   appendAudit,
   enqueueJob,
   getLatestDraft,
@@ -23,7 +24,6 @@ import {
   listRfiQuestions,
   listStuckDraftingRfis,
   loadDraftingEvidence,
-  agentHarnessStore,
   repoCtx,
   updateRfi,
   withTransaction,

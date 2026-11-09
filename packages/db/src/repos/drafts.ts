@@ -24,8 +24,8 @@ import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { translateDbError, UniqueViolationError } from "../errors";
 import { draftAnswers, drafts } from "../schema/index";
 import type { RepoCtx } from "./context";
-import { listDocuments } from "./documents";
 import { getLatestFacts } from "./document-facts";
+import { listDocuments } from "./documents";
 import { listRfiQuestions } from "./rfis";
 
 export type DraftOrigin = "model" | "owner" | "system";
