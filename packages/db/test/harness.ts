@@ -22,6 +22,8 @@ export const M1_TABLES = [
   "counterparties",
   "document_facts",
   "documents",
+  "draft_answers",
+  "drafts",
   "execution_attempts",
   "idempotency_keys",
   "outbox_jobs",

@@ -6,6 +6,7 @@ export * from "./auth";
 export * from "./businesses";
 export * from "./counterparties";
 export * from "./document-facts";
+export * from "./drafts";
 export * from "./documents";
 export * from "./execution-attempts";
 export * from "./idempotency-keys";

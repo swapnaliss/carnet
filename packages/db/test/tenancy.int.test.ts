@@ -9,6 +9,7 @@ import {
   type CounterpartyId,
   type DocumentId,
   money,
+  needsOwner,
   newPaymentId,
   newRequestId,
   nextRevision,
@@ -23,6 +24,7 @@ import { ForeignKeyViolationError } from "../src/errors";
 import * as agentStore from "../src/repos/agent-store";
 import * as attempts from "../src/repos/attempts";
 import * as context from "../src/repos/context";
+import * as draftSweep from "../src/repos/draft-sweep";
 import * as repos from "../src/repos/index";
 import * as outbox from "../src/repos/outbox";
 import * as payeeLinkLookup from "../src/repos/payee-link-lookup";
@@ -44,6 +46,7 @@ type RepoFn = (...args: never[]) => unknown;
 const helperNames = new Set([
   ...Object.keys(agentStore),
   ...Object.keys(context),
+  ...Object.keys(draftSweep),
   ...Object.keys(system),
   ...Object.keys(outbox),
   ...Object.keys(payeeLinkLookup),
@@ -69,6 +72,8 @@ interface Fixture {
   agentRunId: string;
   agentStepId: string;
   rfiId: RfiId;
+  draftId: string;
+  questionRowId: string;
   transferId: string;
   linkId: string;
 }
@@ -189,6 +194,23 @@ async function seed(name: string): Promise<Fixture> {
     conflict: false,
   });
   await repos.insertRfiQuestions(ctx, rfi.id, [question(`q-${name}`)]);
+  const [questionRow] = await repos.listRfiQuestions(ctx, rfi.id, 1);
+  if (!questionRow) throw new Error("seed: question not stored");
+  const { draft } = await repos.insertDraft(ctx, {
+    rfiId: rfi.id,
+    round: 1,
+    origin: "model",
+    draftKey: "same-draft-key",
+    answers: [
+      {
+        questionId: questionRow.id,
+        text: "",
+        citations: [],
+        documentIds: [],
+        verdict: needsOwner("CANNOT_ANSWER"),
+      },
+    ],
+  });
   const link = await repos.createPayeeLink(ctx, {
     paymentId: payment.id,
     tokenHash: createHash("sha256").update(name).digest("hex"),
@@ -202,6 +224,8 @@ async function seed(name: string): Promise<Fixture> {
     agentRunId: agentRun.id,
     agentStepId: agentStep.id,
     rfiId: rfi.id,
+    draftId: draft.id,
+    questionRowId: questionRow.id,
     transferId,
     businessId,
     userId: user.id,
@@ -251,6 +275,8 @@ async function snapshotB(): Promise<unknown> {
     agentSteps: await repos.listAgentSteps(b, B.agentRunId),
     rfis: await repos.listRfis(b),
     questions: await repos.listRfiQuestions(b, B.rfiId),
+    drafts: await repos.listDrafts(b, B.rfiId),
+    draftAnswers: await repos.listDraftAnswers(b, B.draftId),
     payeeLinks: await repos.listPayeeLinks(b, B.paymentId),
   };
 }
@@ -545,6 +571,69 @@ const cases: Record<string, () => Promise<void>> = {
   getUsableFacts: async () => {
     expect(await repos.getUsableFacts(ctxA(), B.documentId)).toBeNull();
     expect((await repos.getUsableFacts(ctxA(), A.documentId))?.document_id).toBe(A.documentId);
+  },
+  insertDraft: async () => {
+    // A cannot attach a draft to B's RFI: the foreign key refuses it, and B's drafts are unchanged.
+    await expect(
+      repos.insertDraft(ctxA(), {
+        rfiId: B.rfiId,
+        round: 1,
+        origin: "model",
+        draftKey: "k",
+        answers: [],
+      }),
+    ).rejects.toThrow();
+    expect(await repos.listDrafts(ctxB(), B.rfiId)).toHaveLength(1);
+    // The same key in two businesses is two drafts, each in its own business.
+    const own = await repos.insertDraft(ctxA(), {
+      rfiId: A.rfiId,
+      round: 1,
+      origin: "model",
+      draftKey: "same-draft-key",
+      answers: [],
+    });
+    expect(own.inserted).toBe(false);
+    expect(own.draft.id).toBe(A.draftId);
+  },
+  getDraft: async () => {
+    expect(await repos.getDraft(ctxA(), B.draftId)).toBeNull();
+    expect((await repos.getDraft(ctxA(), A.draftId))?.id).toBe(A.draftId);
+  },
+  listDrafts: async () => {
+    expect(await repos.listDrafts(ctxA(), B.rfiId)).toEqual([]);
+    expect(await repos.listDrafts(ctxA(), A.rfiId)).toHaveLength(1);
+  },
+  getLatestDraft: async () => {
+    expect(await repos.getLatestDraft(ctxA(), B.rfiId, 1)).toBeNull();
+    expect((await repos.getLatestDraft(ctxA(), A.rfiId, 1))?.id).toBe(A.draftId);
+  },
+  listDraftAnswers: async () => {
+    expect(await repos.listDraftAnswers(ctxA(), B.draftId)).toEqual([]);
+    expect(await repos.listDraftAnswers(ctxA(), A.draftId)).toHaveLength(1);
+  },
+  listAnswersForDrafts: async () => {
+    const m = await repos.listAnswersForDrafts(ctxA(), [A.draftId, B.draftId]);
+    expect([...m.keys()]).toEqual([A.draftId]);
+  },
+  loadDraftingEvidence: async () => {
+    const ev = await repos.loadDraftingEvidence(ctxA());
+    const ids = ev.documents.map((d) => d.id);
+    expect(ids).toContain(A.documentId);
+    expect(ids).not.toContain(B.documentId);
+    expect(ev.facts.some((f) => f.documentId === B.documentId)).toBe(false);
+  },
+  createOwnerDraft: async () => {
+    // B's RFI has no questions in A's scope: nothing is created and B's drafts are unchanged.
+    const none = await repos.createOwnerDraft(ctxA(), {
+      rfiId: B.rfiId,
+      round: 1,
+      parentDraftId: null,
+      draftKey: "k",
+      userId: A.userId,
+      answers: [{ questionId: B.questionRowId, text: "x", ownerAuthored: true }],
+    });
+    expect(none).toBeNull();
+    expect(await repos.listDrafts(ctxB(), B.rfiId)).toHaveLength(1);
   },
   insertPlanRevision: async () => {
     const inputs = emptyPlanInputs(B.businessId);
