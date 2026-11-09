@@ -19,6 +19,7 @@ import { fill, t } from "@/strings";
 // not_sent`) so a view can be shared and the back button works. The server re-renders the list on a soft
 // refresh (60 s, or 3 s while a payment waits for Airwallex); nothing here is optimistic.
 
+const SEP = " \u00b7 ";
 const FLAGS: readonly Flag[] = ["strong", "weak", "missing"];
 const STATUS_FILTERS = ["not_sent", "in_flight", "paid"] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
@@ -155,11 +156,17 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
     <div className="flex flex-col gap-6">
       <p className="text-muted-foreground" data-testid="queue-summary">
         {fill(t.queue.summary.counts, counts)}
+        {SEP}
+        {shown.length === 1
+          ? t.queue.filter.resultCountOne
+          : fill(t.queue.filter.resultCount, { count: shown.length })}
       </p>
 
       <section aria-label={t.queue.filter.label} className="flex flex-col gap-3">
         <fieldset className="m-0 flex min-w-0 flex-wrap gap-2 border-0 p-0">
-          <legend className="sr-only">{t.queue.filter.evidenceGroup}</legend>
+          <legend className="mr-2 flex min-h-9 items-center text-sm font-medium text-muted-foreground">
+            {t.queue.filter.evidenceGroup}
+          </legend>
           <Chip pressed={flag === null} onClick={() => setFilter("flag", null)}>
             {t.queue.filter.all}
           </Chip>
@@ -170,7 +177,9 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
           ))}
         </fieldset>
         <fieldset className="m-0 flex min-w-0 flex-wrap gap-2 border-0 p-0">
-          <legend className="sr-only">{t.queue.filter.statusGroup}</legend>
+          <legend className="mr-2 flex min-h-9 items-center text-sm font-medium text-muted-foreground">
+            {t.queue.filter.statusGroup}
+          </legend>
           <Chip pressed={status === null} onClick={() => setFilter("status", null)}>
             {t.queue.filter.all}
           </Chip>
@@ -245,7 +254,7 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
                         </Link>
                         <span className="block text-xs text-muted-foreground">
                           {item.payment.reference}
-                          {" · "}
+                          {SEP}
                           <time dateTime={item.payment.created_at}>
                             {formatWhen(item.payment.created_at)}
                           </time>

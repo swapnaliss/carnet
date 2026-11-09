@@ -348,7 +348,6 @@ function DocumentCard({
         <p className="flex items-start gap-2 text-sm text-status-danger-fg">
           <CircleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
           <span>
-            {t.evidence.documents.readFailed}.{" "}
             {fill(t.evidence.documents.readFailedWhy, { failure: doc.failure ?? "unknown" })}
           </span>
         </p>
@@ -718,6 +717,7 @@ export function EvidenceView({
       if (!check.ok) throw new Error(String(check.status));
       const next = (await check.json()) as EvidenceCheckDto;
       setData(next);
+      if (!next.documents.some((d) => d.extraction === "pending")) setNotice(null);
       if (detail.ok) setPayment(((await detail.json()) as PaymentDetailResponse).payment);
       setError(null);
     } catch {
@@ -811,7 +811,7 @@ export function EvidenceView({
       {error ? (
         <p role="alert" className="flex items-center gap-1.5 text-sm text-destructive">
           <CircleAlert aria-hidden="true" className="size-4" />
-          {error}{" "}
+          {error}
           <Button variant="ghost" size="sm" onClick={() => void refresh()}>
             {t.common.state.retry}
           </Button>

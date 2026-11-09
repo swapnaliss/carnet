@@ -561,7 +561,7 @@ const en = {
       textLayerNo: "Scanned image, no text layer",
       reading: "Reading document",
       readFailed: "Carnet could not read this document",
-      readFailedWhy: "Reason: {failure}.",
+      readFailedWhy: "Carnet could not read this document. Reason: {failure}.",
       noFacts: "No facts were extracted from this document.",
       open: "Open document",
       remove: "Remove from this payment",
