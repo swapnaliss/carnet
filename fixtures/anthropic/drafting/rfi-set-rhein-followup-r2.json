@@ -1,0 +1,42 @@
+{
+  "kind": "drafting",
+  "set_id": "rfi-set-rhein-followup",
+  "round": 2,
+  "prompt_version": "8f4f58a2a12c",
+  "input_hash": "f93dfd11794bb99dceebde60ee5e4c2ca97d94f2e1285e0a4371fb0c4081bab7",
+  "model": "claude-sonnet-5-5",
+  "recorded_at": "2026-11-09T08:33:06.916Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgs3ZBiLnucmn8JKL65kH",
+        "model": "claude-sonnet-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 3939,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 58,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"answers\":[{\"question_id\":\"q-rhein-r2-end_use\",\"status\":\"cannot_answer\",\"text\":\"\",\"citations\":[],\"document_ids\":[]}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgs3ZBMFWZcS3DraKkP3d",
+      "latency_ms": 1400
+    }
+  ]
+}

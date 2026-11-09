@@ -19,6 +19,7 @@ import {
 } from "@carnet/db";
 import { type AttemptId, type PaymentId, RFI_EXPIRING_SOON_MS } from "@carnet/domain";
 import { sweepApprovals } from "./approval-sweep";
+import { sweepStuckDrafting } from "./handlers/draft";
 import { type HandlerContext, JOB_KIND, type JobHandler } from "./handlers/index";
 import { ingestRfi } from "./handlers/rfi";
 import { resolveRespondAttempt } from "./handlers/rfi-respond";
@@ -30,6 +31,8 @@ const POLLED_RFI_STATUSES = ["ACTION_REQUIRED", "ANSWERED", "CLOSED"] as const;
 
 export interface ReconcileSummary {
   rfis: number;
+  /** RFIs moved from DRAFTING to NEEDS_OWNER by the timeout sweeper (M2-05). */
+  draftsTimedOut: number;
   transfers: number;
   transfersApplied: number;
   attemptsConfirmed: number;
@@ -45,6 +48,7 @@ function message(error: unknown): string {
 export async function runReconcile(ctx: HandlerContext): Promise<ReconcileSummary> {
   const summary: ReconcileSummary = {
     rfis: 0,
+    draftsTimedOut: 0,
     transfers: 0,
     transfersApplied: 0,
     attemptsConfirmed: 0,
@@ -77,6 +81,16 @@ export async function runReconcile(ctx: HandlerContext): Promise<ReconcileSummar
   } catch (error) {
     summary.errors += 1;
     ctx.logger.warn({ step: "rfis", error: message(error) }, "reconcile: RFI poll failed");
+  }
+
+  try {
+    summary.draftsTimedOut = await sweepStuckDrafting(ctx);
+  } catch (error) {
+    summary.errors += 1;
+    ctx.logger.warn(
+      { step: "drafting", error: message(error) },
+      "reconcile: drafting sweep failed",
+    );
   }
 
   for (const ref of await listOpenTransfers(ctx.db)) {

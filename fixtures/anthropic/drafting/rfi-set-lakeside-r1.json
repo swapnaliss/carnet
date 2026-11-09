@@ -1,0 +1,47 @@
+{
+  "kind": "drafting",
+  "set_id": "rfi-set-lakeside",
+  "round": 1,
+  "prompt_version": "8f4f58a2a12c",
+  "input_hash": "462289c3c5473b5d95165a89dac1cfe0ba57c20e9ff7d7cb4d47ab68ce805875",
+  "model": "claude-sonnet-5-5",
+  "recorded_at": "2026-11-09T08:32:34.419Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgs3WPbNdaemhwP6Xodzf",
+        "model": "claude-sonnet-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 2610,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 917,
+          "output_tokens_details": {
+            "thinking_tokens": 501
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "",
+            "signature": "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"
+          },
+          {
+            "type": "text",
+            "text": "{\"answers\":[{\"question_id\":\"q-lakeside-purpose\",\"status\":\"answered\",\"text\":\"The payment is for Line 1: Pallet freight, Rotterdam to Chicago - USD 1,320.50, under invoice LF-2026-0412 from Lakeside Freight LLC.\",\"citations\":[{\"fact_version_id\":\"inv-lakeside-001@1#5\",\"quote\":\"Line 1: Pallet freight, Rotterdam to Chicago - USD 1,320.50\"},{\"fact_version_id\":\"inv-lakeside-001@1#0\",\"quote\":\"Invoice number: LF-2026-0412\"},{\"fact_version_id\":\"inv-lakeside-001@1#3\",\"quote\":\"From: Lakeside Freight LLC\"}],\"document_ids\":[]},{\"question_id\":\"q-lakeside-relationship\",\"status\":\"cannot_answer\",\"text\":\"\",\"citations\":[],\"document_ids\":[]},{\"question_id\":\"q-lakeside-source_of_funds\",\"status\":\"answered\",\"text\":\"\",\"citations\":[],\"document_ids\":[\"remit-brightline-001\"]},{\"question_id\":\"q-lakeside-proof_of_delivery\",\"status\":\"cannot_answer\",\"text\":\"\",\"citations\":[],\"document_ids\":[]}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgs3WP8MC2QCQ3X8TyRkV",
+      "latency_ms": 6859
+    }
+  ]
+}

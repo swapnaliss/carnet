@@ -7,6 +7,7 @@ import {
   jsonb,
   pgTable,
   text,
+  unique,
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
@@ -69,6 +70,8 @@ export const rfis = pgTable(
     updatedAt: tstz("updated_at").notNull().defaultNow(),
   },
   (t) => [
+    // Target of the same-business foreign keys from drafts (M2-05).
+    unique("rfis_id_business_id_key").on(t.id, t.businessId),
     uniqueIndex("rfis_business_id_airwallex_rfi_id_key").on(t.businessId, t.airwallexRfiId),
     index("rfis_airwallex_rfi_id_idx").on(t.airwallexRfiId),
     index("rfis_business_id_state_idx").on(t.businessId, t.state),
@@ -118,6 +121,7 @@ export const rfiQuestions = pgTable(
     createdAt: createdAt(),
   },
   (t) => [
+    unique("rfi_questions_id_business_id_key").on(t.id, t.businessId),
     uniqueIndex("rfi_questions_rfi_round_question_key").on(t.rfiId, t.round, t.airwallexQuestionId),
     index("rfi_questions_business_id_rfi_id_idx").on(t.businessId, t.rfiId),
     check("rfi_questions_round_check", sql.raw(`"round" >= 1`)),

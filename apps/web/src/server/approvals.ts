@@ -98,9 +98,9 @@ export interface ApprovalDeps {
   /** `APPROVAL_TTL_MINUTES` (default 30). */
   readonly ttlMinutes?: number;
   /**
-   * True when `draftId` is the latest draft of this RFI round. The drafts table arrives with M2-05, which
-   * registers the real lookup here; until then no draft store exists, so any draft id the approver
-   * presents is bound as given (BL-01).
+   * True when `draftId` is the latest draft of this RFI round. The process specs
+   * (`server/approval-routes.ts`) register the real lookup over the M2-05 drafts table; without one
+   * (tests that build their own specs) any draft id the approver presents is bound as given.
    */
   readonly isLatestDraft?: (rc: RepoCtx, rfi: Rfi, draftId: string) => Promise<boolean>;
   /** The kill switch; defaults to `system_flags.execution_enabled` (a read error counts as off). */
