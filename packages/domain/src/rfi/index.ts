@@ -2,3 +2,4 @@
 export * from "./ingest";
 export * from "./matching";
 export * from "./state-machine";
+export * from "./verifier";
