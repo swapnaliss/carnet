@@ -11,6 +11,8 @@
 //   webhook   RATE_LIMIT_WEBHOOK_PER_MIN (default 600) per minute per source IP
 //   upload    UPLOAD_SESSION_MAX_FILES (default 10) files and UPLOAD_SESSION_MAX_BYTES (default 25 MiB)
 //             per session per hour (M2-01, src/server/documents/limits.ts)
+//   payee_status  PAYEE_STATUS_RATE_LIMIT_PER_MIN (default 30) per minute per IP, and per live link
+//             (token-hash prefix); counted directly in server/payee-status.ts (M3-06)
 // Expired windows are deleted by the worker (src/worker/prune.ts).
 import { createHash } from "node:crypto";
 import { type Db, hitRateLimit, type RateLimitRule, type RateLimitState } from "@carnet/db";
@@ -52,7 +54,7 @@ export type RouteRateLimitName = keyof typeof ROUTE_RATE_LIMITS;
 /** Windows older than this are pruned; longer than the longest window (15 minutes). */
 export const RATE_LIMIT_RETENTION_MS = 60 * MINUTE;
 
-export type SubjectKind = "user" | "email" | "ip" | "session";
+export type SubjectKind = "user" | "email" | "ip" | "session" | "token";
 
 export function rateLimitKey(route: string, kind: SubjectKind, subject: string): string {
   return `${route}:${kind}:${subject}`;
