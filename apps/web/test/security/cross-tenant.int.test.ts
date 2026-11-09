@@ -29,6 +29,8 @@ export const CROSS_TENANT_CASES: Record<string, string> = {
   // viewer 403, role matrix, idempotent replay).
   "v1/rfis/[id]/approvals": "approval-routes.int.test.ts",
   "v1/rfis/[id]/approvals/[approvalId]/reject": "approval-routes.int.test.ts",
+  // M2-06: test/answer-memory.int.test.ts (404 cross-tenant with nothing written, viewer 403).
+  "v1/rfis/[id]/reuse": "answer-memory.int.test.ts",
   "v1/documents/[id]":
     "test/documents/documents.int.test.ts: another business's session gets 404 for the bytes",
   "v1/documents/[id]/meta":

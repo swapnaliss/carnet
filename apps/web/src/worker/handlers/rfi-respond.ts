@@ -156,14 +156,6 @@ async function settleRfi(
   return true;
 }
 
-/** The event has no consumer until M2-06; it is delivered and logged so the job never goes DEAD. */
-export const handleAnswerSubmitted: JobHandler = async (payload, ctx) => {
-  ctx.logger.info(
-    { rfiId: payloadString(payload, "rfiId"), event: ANSWER_SUBMITTED_EVENT },
-    "answer submitted",
-  );
-};
-
 // --- consume, then execute -------------------------------------------------------------------------
 
 /** Payload: `{ businessId, approvalId, hash }`, written by the approve endpoint. */
@@ -616,7 +608,7 @@ async function confirm(
     const moved = await settleRfi(t, rfi.id, ["ANSWER_SUBMITTING"], "ANSWERED", "executor", {
       attemptId: attempt.id,
     });
-    // The event M2-06 consumes; the audit row is its record, the job its delivery (outbox).
+    // The event M2-06 consumes (handlers/answer-memory.ts); the audit row is its record, the job its delivery (outbox).
     await audit(t, rfi.id, ANSWER_SUBMITTED_EVENT, {
       approvalId: approval.id,
       attemptId: attempt.id,
