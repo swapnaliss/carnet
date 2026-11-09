@@ -1,0 +1,47 @@
+{
+  "kind": "drafting",
+  "set_id": "rfi-set-harbor",
+  "round": 1,
+  "prompt_version": "8f4f58a2a12c",
+  "input_hash": "52fb7481b6707205839606fe5eb9fa26dd38dd32464f276c99c1369374cf5549",
+  "model": "claude-sonnet-5-5",
+  "recorded_at": "2026-11-09T08:32:27.545Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011Cgs3Vg25BoPHH7N73E283",
+        "model": "claude-sonnet-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 3583,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 1426,
+          "output_tokens_details": {
+            "thinking_tokens": 648
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "thinking",
+            "thinking": "",
+            "signature": "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"
+          },
+          {
+            "type": "text",
+            "text": "{\"answers\":[{\"question_id\":\"q-harbor-purpose\",\"status\":\"answered\",\"text\":\"Invoice INV-HP-2026-0141 from Harbor Print Co. to Northwind Studio Ltd, with total due USD 4,800.00, under purchase order PO-NW-2026-031.\",\"citations\":[{\"fact_version_id\":\"inv-harbor-001@1#0\",\"quote\":\"Invoice number: INV-HP-2026-0141\"},{\"fact_version_id\":\"inv-harbor-001@1#3\",\"quote\":\"From: Harbor Print Co.\"},{\"fact_version_id\":\"inv-harbor-001@1#4\",\"quote\":\"Bill to: Northwind Studio Ltd\"},{\"fact_version_id\":\"inv-harbor-001@1#5\",\"quote\":\"Purchase order: PO-NW-2026-031\"},{\"fact_version_id\":\"inv-harbor-001@1#6\",\"quote\":\"Total due: USD 4,800.00\"}],\"document_ids\":[]},{\"question_id\":\"q-harbor-relationship\",\"status\":\"answered\",\"text\":\"Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier) are parties to contract CT-NW-HP-2026, effective 2026-01-15. Scope: Printing of marketing brochures and posters for Northwind Studio clients.\",\"citations\":[{\"fact_version_id\":\"contract-harbor@1#0\",\"quote\":\"Contract number: CT-NW-HP-2026\"},{\"fact_version_id\":\"contract-harbor@1#1\",\"quote\":\"1. Parties: Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier).\"},{\"fact_version_id\":\"contract-harbor@1#2\",\"quote\":\"2. Effective date: 2026-01-15.\"},{\"fact_version_id\":\"contract-harbor@1#3\",\"quote\":\"3. Scope: Printing of marketing brochures and posters for Northwind Studio clients.\"}],\"document_ids\":[]},{\"question_id\":\"q-harbor-source_of_funds\",\"status\":\"answered\",\"text\":\"\",\"citations\":[],\"document_ids\":[\"remit-brightline-001\"]},{\"question_id\":\"q-harbor-proof_of_delivery\",\"status\":\"answered\",\"text\":\"\",\"citations\":[],\"document_ids\":[\"dn-harbor-001\"]}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgs3VfhU77XLrwXppjspR",
+      "latency_ms": 9822
+    }
+  ]
+}

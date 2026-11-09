@@ -68,3 +68,31 @@ export type {
   StoredStep,
 } from "./store";
 export type { ModelBlock } from "./structured";
+export type {
+  DraftInput,
+  DraftParams,
+  DraftQuestion,
+  DraftResult,
+  DraftUsage,
+  PriorAnswer,
+  UnavailableCode,
+} from "./drafting/draft";
+export {
+  buildDraftBlocks,
+  DRAFT_FIRST_MAX_TOKENS,
+  DRAFT_MODEL,
+  DRAFT_RETRY_MAX_TOKENS,
+  DRAFT_RUN_KIND,
+  draftRfi,
+  renderFacts,
+  scanDraftInput,
+  timedOutDraft,
+} from "./drafting/draft";
+export type { DraftingStore, RunDraftingParams, RunDraftingResult } from "./drafting/handler";
+export { draftStep, runDraftTimeout, runDrafting } from "./drafting/handler";
+export {
+  AnswerSchema as DraftAnswerSchema,
+  SYSTEM as DRAFT_SYSTEM,
+  VERSION as DRAFT_PROMPT_VERSION,
+  Schema as DraftSchema,
+} from "./drafting/prompts/draft";
