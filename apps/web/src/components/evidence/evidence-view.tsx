@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   CircleAlert,
   CircleCheck,
+  CircleDashed,
   CircleHelp,
   FileText,
   LoaderCircle,
@@ -16,12 +17,13 @@ import Link from "next/link";
 import { type KeyboardEvent, useCallback, useEffect, useId, useRef, useState } from "react";
 import { announce } from "@/components/payments/announce";
 import { describeStatus, formatWire } from "@/components/payments/format";
+import { LiveIndicator, StaleBanner } from "@/components/payments/live-status";
 import { StatusBadge } from "@/components/payments/status-badge";
-import { usePoll } from "@/components/payments/use-poll";
+import { useNow, usePoll } from "@/components/payments/use-poll";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { EvidenceCheckDto, EvidenceDocumentDto, FactDto, RuleDto } from "@/server/evidence";
-import type { PaymentDetailResponse } from "@/server/payments";
+import type { PaymentDetailResponse, PaymentDto } from "@/server/payments";
 import { fill, t } from "@/strings";
 import { EvidenceStrength } from "./evidence-strength";
 
@@ -98,61 +100,140 @@ function Outcome({ outcome }: { outcome: RuleDto["outcome"] }) {
   );
 }
 
-function ChecksPanel({ data }: { data: EvidenceCheckDto }) {
+interface CheckRow {
+  readonly id: string;
+  readonly label: string;
+  readonly outcome: RuleDto["outcome"] | "not_run";
+  readonly reasons: readonly {
+    key: string;
+    text: string;
+    params: Readonly<Record<string, string>>;
+  }[];
+}
+
+const TOTALS = new Set(["totalsAgree", "totalsDiffer"]);
+const ACCOUNTS = new Set(["accountsAgree", "accountsDiffer"]);
+
+/** The rule results as the design's check list; R-CONSISTENT is shown as its two comparisons. */
+function checkRows(rules: readonly RuleDto[]): CheckRow[] {
+  const rows: CheckRow[] = [];
+  for (const rule of rules) {
+    if (rule.rule !== "R-CONSISTENT") {
+      rows.push({
+        id: rule.rule,
+        label: RULE_LABEL[rule.rule] ?? rule.rule,
+        outcome: rule.outcome,
+        reasons: rule.reasons,
+      });
+      continue;
+    }
+    for (const [id, label, keys, bad] of [
+      ["R-CONSISTENT-PO", t.evidence.rule.invoiceMatchesPo, TOTALS, "totalsDiffer"],
+      [
+        "R-CONSISTENT-ACCOUNT",
+        t.evidence.rule.beneficiaryMatchesContract,
+        ACCOUNTS,
+        "accountsDiffer",
+      ],
+    ] as const) {
+      const reasons = rule.reasons.filter((r) => keys.has(r.key));
+      if (reasons.length === 0) continue;
+      rows.push({
+        id,
+        label,
+        outcome: reasons.some((r) => r.key === bad) ? "fail" : "pass",
+        reasons,
+      });
+    }
+  }
+  for (const label of [t.evidence.ruleExtra.contractInForce, t.evidence.ruleExtra.fundsEvidence]) {
+    rows.push({
+      id: label,
+      label,
+      outcome: "not_run",
+      reasons: [{ key: "notRun", text: t.evidence.notRun, params: {} }],
+    });
+  }
+  return rows;
+}
+
+function ChecksPanel({
+  data,
+  onCite,
+}: {
+  data: EvidenceCheckDto;
+  onCite: (filename: string) => void;
+}) {
   const threshold = formatWire(data.contract_threshold);
+  const rows = checkRows(data.rules);
   return (
     <div className="flex flex-col gap-4" data-testid="checks-panel">
       {data.rules.length === 0 ? (
         <p className="text-muted-foreground">{t.evidence.check.none}</p>
-      ) : (
-        <div className="overflow-hidden rounded-md border border-border bg-card">
-          <table className="w-full text-sm">
-            <caption className="sr-only">{t.evidence.check.caption}</caption>
-            <thead className="hidden border-b border-border bg-muted text-left text-xs font-medium text-muted-foreground md:table-header-group">
-              <tr>
-                <th scope="col" className="px-4 py-3">
-                  {t.evidence.check.check}
-                </th>
-                <th scope="col" className="px-4 py-3">
-                  {t.evidence.check.result}
-                </th>
-                <th scope="col" className="px-4 py-3">
-                  {t.evidence.check.detail}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.rules.map((rule) => (
-                <tr
-                  key={rule.rule}
-                  data-rule={rule.rule}
-                  data-outcome={rule.outcome}
-                  className="block border-b border-border last:border-b-0 md:table-row"
+      ) : null}
+      <div className="overflow-hidden rounded-md border border-border bg-card">
+        <table className="w-full text-sm">
+          <caption className="sr-only">{t.evidence.check.caption}</caption>
+          <thead className="hidden border-b border-border bg-muted text-left text-xs font-medium text-muted-foreground md:table-header-group">
+            <tr>
+              <th scope="col" className="px-4 py-3">
+                {t.evidence.check.check}
+              </th>
+              <th scope="col" className="px-4 py-3">
+                {t.evidence.check.result}
+              </th>
+              <th scope="col" className="px-4 py-3">
+                {t.evidence.check.detail}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr
+                key={row.id}
+                data-rule={row.id}
+                data-outcome={row.outcome}
+                className="block border-b border-border last:border-b-0 md:table-row"
+              >
+                <th
+                  scope="row"
+                  className="block px-4 pt-3 text-left font-medium md:table-cell md:py-3"
                 >
-                  <th
-                    scope="row"
-                    className="block px-4 pt-3 text-left font-medium md:table-cell md:py-3"
-                  >
-                    {RULE_LABEL[rule.rule] ?? rule.rule}
-                  </th>
-                  <td className="block px-4 pt-1 md:table-cell md:py-3">
-                    <Outcome outcome={rule.outcome} />
-                  </td>
-                  <td className="block px-4 pt-1 pb-3 md:table-cell md:py-3">
-                    <ul className="flex flex-col gap-1">
-                      {rule.reasons.map((r) => (
-                        <li key={`${r.key}-${r.text}`} className="max-w-[70ch]">
-                          {r.text}
-                        </li>
-                      ))}
-                    </ul>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                  {row.label}
+                </th>
+                <td className="block px-4 pt-1 md:table-cell md:py-3">
+                  <Outcome outcome={row.outcome === "not_run" ? "missing" : row.outcome} />
+                </td>
+                <td className="block px-4 pt-1 pb-3 md:table-cell md:py-3">
+                  <ul className="flex flex-col gap-1">
+                    {row.reasons.map((r) => (
+                      <li key={`${r.key}-${r.text}`} className="max-w-[70ch]">
+                        {r.text}
+                        {r.params.document ? (
+                          <>
+                            {" "}
+                            <button
+                              type="button"
+                              onClick={() => onCite(r.params.document ?? "")}
+                              className="inline-flex min-h-6 items-center gap-1 rounded-sm border border-border bg-muted px-1.5 text-xs outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+                            >
+                              <FileText aria-hidden="true" className="size-3" />
+                              {r.params.document}
+                              {r.params.page
+                                ? ` \u00b7 ${fill(t.evidence.citation.page, { page: r.params.page })}`
+                                : ""}
+                            </button>
+                          </>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {data.contract_required ? (
         <p className="text-sm text-muted-foreground">
           {fill(t.evidence.check.contractNote, { threshold })}
@@ -533,25 +614,83 @@ function AddDocument({
 }
 
 // ---------------------------------------------------------------------------------------------
-// Send
+// Approve and send
 
-function SendPanel({
+const STEP_ICON = { done: CircleCheck, todo: CircleDashed } as const;
+
+/** What happened to a sent payment, from the stored attempt and transfer (never inferred). */
+function SentPanel({ data, payment }: { data: EvidenceCheckDto; payment: PaymentDto }) {
+  const ids = useId();
+  const a = payment.attempt;
+  const confirmed = a?.status === "CONFIRMED" || payment.transfer_id !== null;
+  const steps = [
+    { label: t.evidence.steps.approved, done: true },
+    { label: t.evidence.steps.sent, done: Boolean(a?.sent_at) || confirmed },
+    {
+      label: confirmed ? t.evidence.steps.confirmed : t.evidence.steps.confirming,
+      done: confirmed,
+    },
+  ];
+  return (
+    <section aria-labelledby={`${ids}-title`} className={card} data-testid="send-panel">
+      <h2 id={`${ids}-title`} className="text-lg leading-tight font-semibold">
+        {t.evidence.send.sentTitle}
+      </h2>
+      <ol className="flex flex-col gap-2" aria-label={t.evidence.steps.title}>
+        {steps.map((step) => {
+          const Icon = STEP_ICON[step.done ? "done" : "todo"];
+          return (
+            <li key={step.label} className="flex items-center gap-2">
+              <Icon
+                aria-hidden="true"
+                className={cn(
+                  "size-5",
+                  step.done ? "text-status-success-fg" : "text-muted-foreground",
+                )}
+              />
+              {step.label}
+            </li>
+          );
+        })}
+      </ol>
+      <p className="text-muted-foreground">{t.evidence.send.sentBody}</p>
+      <div>
+        <Button asChild variant="outline">
+          <Link href={`/payments/${data.payment.id}`}>{t.evidence.send.sentLink}</Link>
+        </Button>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * The payout approval (docs/design/screens/evidence-view.md): a modal that shows what Carnet will send,
+ * and, when the evidence is not strong, the acknowledgement the server requires. Values Airwallex
+ * decides later (fee, value date) say so instead of showing a made-up figure.
+ */
+function ApproveDialog({
   data,
-  canEdit,
+  onClose,
   onSent,
   onStale,
 }: {
   data: EvidenceCheckDto;
-  canEdit: boolean;
+  onClose: () => void;
   onSent: () => Promise<void>;
-  onStale: (check: EvidenceCheckDto, message: string) => void;
+  onStale: (check: EvidenceCheckDto) => void;
 }) {
   const ids = useId();
+  const ref = useRef<HTMLDialogElement>(null);
   const [ack, setAck] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const strong = data.flag === "strong";
 
+  useEffect(() => {
+    const dialog = ref.current;
+    if (dialog && !dialog.open) dialog.showModal();
+    return () => dialog?.close();
+  }, []);
   // A new check (documents changed) clears the acknowledgement: it was for the reasons that were shown.
   // biome-ignore lint/correctness/useExhaustiveDependencies: the hash is the trigger
   useEffect(() => setAck(false), [data.check_hash]);
@@ -575,12 +714,12 @@ function SendPanel({
       if (res.ok) {
         announce(t.evidence.send.done);
         await onSent();
-        setPending(false);
+        onClose();
         return;
       }
       const problem = await problemOf(res);
       if (problem.details?.check) {
-        onStale(problem.details.check, t.evidence.send.errorChanged);
+        onStale(problem.details.check);
         setError(t.evidence.send.errorChanged);
       } else if (problem.code === "PRECONDITION_FAILED" && problem.message) {
         setError(fill(t.evidence.send.errorFunds, { message: problem.message }));
@@ -593,36 +732,53 @@ function SendPanel({
     setPending(false);
   }
 
-  if (data.payment.sent) {
-    return (
-      <section aria-labelledby={`${ids}-title`} className={card} data-testid="send-panel">
-        <h2 id={`${ids}-title`} className="text-lg leading-tight font-semibold">
-          {t.evidence.send.sentTitle}
-        </h2>
-        <p className="text-muted-foreground">{t.evidence.send.sentBody}</p>
-        <div>
-          <Button asChild variant="outline">
-            <Link href={`/payments/${data.payment.id}`}>{t.evidence.send.sentLink}</Link>
-          </Button>
-        </div>
-      </section>
-    );
-  }
+  const rows: [string, string][] = [
+    [
+      t.evidence.approve.payTo,
+      `${data.payment.counterparty_name ?? t.queue.unnamedPayee} (${data.payment.method})`,
+    ],
+    [
+      t.evidence.approve.account,
+      data.payment.account_fingerprint ?? t.evidence.summary.accountNone,
+    ],
+    [t.evidence.approve.amount, formatWire(data.payment.amount)],
+    [
+      t.evidence.approve.source,
+      fill(t.evidence.approve.sourceValue, { currency: data.payment.amount.currency }),
+    ],
+    [t.evidence.approve.fee, t.evidence.approve.feeValue],
+    [t.evidence.approve.valueDate, t.evidence.approve.valueDateValue],
+    [t.evidence.approve.reference, data.payment.reference],
+  ];
   return (
-    <section aria-labelledby={`${ids}-title`} className={card} data-testid="send-panel" id="send">
-      <h2 id={`${ids}-title`} className="text-lg leading-tight font-semibold">
-        {t.evidence.send.title}
-      </h2>
-      <p className="max-w-[65ch] text-muted-foreground">
-        {strong
-          ? t.evidence.send.strongBody
-          : data.flag === "weak"
-            ? t.evidence.send.weakBody
-            : t.evidence.send.missingBody}
-      </p>
-      {canEdit ? (
-        <>
-          {strong ? null : (
+    <dialog
+      ref={ref}
+      aria-labelledby={`${ids}-title`}
+      onClose={onClose}
+      className="m-auto w-[min(36rem,calc(100vw-2rem))] rounded-md border border-border bg-card p-0 text-foreground shadow-3 backdrop:bg-black/50"
+      data-testid="approve-dialog"
+    >
+      <div className="flex flex-col gap-4 p-4 md:p-6">
+        <h2 id={`${ids}-title`} className="text-lg leading-tight font-semibold">
+          {t.evidence.approve.title}
+        </h2>
+        <p className="text-sm text-muted-foreground">{t.evidence.approve.body}</p>
+        <dl className="grid gap-x-4 gap-y-2 text-sm sm:grid-cols-[10rem_1fr]">
+          {rows.map(([k, v]) => (
+            <div key={k} className="contents">
+              <dt className="text-muted-foreground">{k}</dt>
+              <dd className="min-w-0 break-words font-medium">{v}</dd>
+            </div>
+          ))}
+        </dl>
+        <EvidenceStrength flag={data.flag} size="md" className="w-fit" />
+        {strong ? null : (
+          <>
+            <ul className="flex list-disc flex-col gap-1 pl-5 text-sm">
+              {data.reasons.map((r) => (
+                <li key={`${r.key}-${r.text}`}>{r.text}</li>
+              ))}
+            </ul>
             <div className="flex items-start gap-3">
               <input
                 id={`${ids}-ack`}
@@ -638,27 +794,28 @@ function SendPanel({
                 {t.evidence.send.ackLabel}
               </label>
             </div>
-          )}
-          <div className="flex flex-wrap items-center gap-3">
-            <Button onClick={() => void send()} disabled={pending}>
-              {pending
-                ? t.evidence.send.ctaPending
-                : strong
-                  ? t.evidence.send.cta
-                  : t.evidence.send.ctaAcknowledge}
-            </Button>
-          </div>
-          {error ? (
-            <p role="alert" className="flex items-center gap-1.5 text-sm text-destructive">
-              <CircleAlert aria-hidden="true" className="size-4" />
-              {error}
-            </p>
-          ) : null}
-        </>
-      ) : (
-        <p className="text-sm text-muted-foreground">{t.evidence.send.viewerOnly}</p>
-      )}
-    </section>
+          </>
+        )}
+        {error ? (
+          <p role="alert" className="flex items-center gap-1.5 text-sm text-destructive">
+            <CircleAlert aria-hidden="true" className="size-4" />
+            {error}
+          </p>
+        ) : null}
+        <div className="flex flex-wrap justify-end gap-3">
+          <Button variant="outline" onClick={onClose}>
+            {t.evidence.approve.cancel}
+          </Button>
+          <Button onClick={() => void send()} disabled={pending}>
+            {pending
+              ? t.evidence.send.ctaPending
+              : strong
+                ? t.evidence.send.cta
+                : t.evidence.send.ctaAcknowledge}
+          </Button>
+        </div>
+      </div>
+    </dialog>
   );
 }
 
@@ -680,6 +837,8 @@ export function EvidenceView({
   const [tab, setTab] = useState<Tab>(initial.documents.length === 0 ? "documents" : "checks");
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [approving, setApproving] = useState(false);
+  const now = useNow();
   const tabRefs = useRef<Record<Tab, HTMLButtonElement | null>>({ checks: null, documents: null });
   const pending = data.documents.some((d) => d.extraction === "pending");
   const poll = usePoll<EvidenceCheckDto>(
@@ -746,6 +905,19 @@ export function EvidenceView({
     }
   }
 
+  /** A citation chip jumps to the document it names, in the Documents tab. */
+  function cite(filename: string) {
+    selectTab("documents");
+    const doc = data.documents.find((d) => d.filename === filename);
+    setTimeout(() => {
+      const el = doc
+        ? document.querySelector<HTMLElement>(`[data-document="${doc.document_id}"] h3`)
+        : null;
+      el?.setAttribute("tabindex", "-1");
+      el?.focus();
+    }, 0);
+  }
+
   function selectTab(next: Tab, focus = false) {
     setTab(next);
     window.history.replaceState(null, "", `#${next}`);
@@ -792,11 +964,52 @@ export function EvidenceView({
           </h1>
           <p className="text-lg font-semibold tabular-nums">{formatWire(data.payment.amount)}</p>
         </div>
-        <p className="text-sm text-muted-foreground">{data.payment.reference}</p>
+        <dl
+          className="grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2 lg:grid-cols-4"
+          data-testid="payment-summary"
+        >
+          {(
+            [
+              [t.payments.list.reference, data.payment.reference],
+              [t.evidence.summary.method, data.payment.method],
+              [
+                t.evidence.summary.account,
+                data.payment.account_fingerprint ?? t.evidence.summary.accountNone,
+              ],
+              [t.evidence.summary.due, t.evidence.summary.dueNone],
+            ] as const
+          ).map(([k, v]) => (
+            <div key={k} className="flex flex-col">
+              <dt className="text-muted-foreground">{k}</dt>
+              <dd className="min-w-0 font-medium break-words">{v}</dd>
+            </div>
+          ))}
+        </dl>
         <div className="flex flex-wrap items-center gap-2">
           <EvidenceStrength flag={data.flag} size="md" />
           <StatusBadge status={describeStatus(payment)} size="md" />
+          <LiveIndicator
+            lastSuccessAt={poll.lastSuccessAt}
+            failures={poll.failures}
+            paused={poll.paused}
+            now={now}
+          />
         </div>
+        {canEdit && !data.payment.sent ? (
+          <div
+            className={cn(
+              "fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-10 border-t border-border bg-card p-3",
+              "md:static md:z-auto md:border-0 md:bg-transparent md:p-0",
+            )}
+          >
+            <Button className="w-full md:w-auto" onClick={() => setApproving(true)}>
+              {t.evidence.approve.cta}
+            </Button>
+          </div>
+        ) : null}
+        {!canEdit && !data.payment.sent ? (
+          <p className="text-sm text-muted-foreground">{t.evidence.send.viewerOnly}</p>
+        ) : null}
         <div className="flex flex-col gap-2" data-testid="reasons">
           <p className="font-medium">{summary}</p>
           <h2 className="sr-only">{t.evidence.reasonsTitle}</h2>
@@ -808,6 +1021,7 @@ export function EvidenceView({
         </div>
       </header>
 
+      <StaleBanner lastSuccessAt={poll.lastSuccessAt} now={now} onCheckNow={poll.checkNow} />
       {error ? (
         <p role="alert" className="flex items-center gap-1.5 text-sm text-destructive">
           <CircleAlert aria-hidden="true" className="size-4" />
@@ -861,7 +1075,7 @@ export function EvidenceView({
           aria-labelledby="tab-checks"
           hidden={tab !== "checks"}
         >
-          {tab === "checks" ? <ChecksPanel data={data} /> : null}
+          {tab === "checks" ? <ChecksPanel data={data} onCite={cite} /> : null}
         </div>
         <div
           role="tabpanel"
@@ -897,12 +1111,15 @@ export function EvidenceView({
         </div>
       </div>
 
-      <SendPanel
-        data={data}
-        canEdit={canEdit}
-        onSent={refresh}
-        onStale={(check) => setData(check)}
-      />
+      {data.payment.sent ? <SentPanel data={data} payment={payment} /> : null}
+      {approving ? (
+        <ApproveDialog
+          data={data}
+          onClose={() => setApproving(false)}
+          onSent={refresh}
+          onStale={(check) => setData(check)}
+        />
+      ) : null}
     </div>
   );
 }

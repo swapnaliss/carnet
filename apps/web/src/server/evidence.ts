@@ -108,6 +108,9 @@ export interface EvidenceCheckDto {
     readonly reference: string;
     readonly amount: MoneyWire;
     readonly counterparty_name: string | null;
+    readonly method: string;
+    /** The stored beneficiary account fingerprint (opaque); null until a beneficiary exists. */
+    readonly account_fingerprint: string | null;
     /** An attempt or a transfer exists: the payment has been sent. */
     readonly sent: boolean;
   };
@@ -179,6 +182,8 @@ export function checkDto(
       reference: payment.reference,
       amount: toMoneyWire(payment.amount),
       counterparty_name: context.counterparty?.name ?? null,
+      method: payment.method,
+      account_fingerprint: context.counterparty?.accountFingerprint ?? null,
       sent,
     },
     flag: check.flag,
@@ -273,6 +278,8 @@ export function createSendProblem(
       reference: "",
       amount: toMoneyWire(amount),
       counterparty_name: payeeName,
+      method: "LOCAL",
+      account_fingerprint: null,
       sent: false,
     },
     flag: check.flag,
