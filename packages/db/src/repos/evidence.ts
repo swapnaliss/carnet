@@ -16,7 +16,7 @@ import {
   usableFacts,
 } from "@carnet/domain";
 import { and, asc, desc, eq, isNotNull, lt, ne, or, sql } from "drizzle-orm";
-import { translateDbError, UniqueViolationError } from "../errors";
+import { translateDbError } from "../errors";
 import { evidenceChecks, evidenceLinks, payments } from "../schema/index";
 import { getBusiness } from "./businesses";
 import type { RepoCtx } from "./context";
@@ -77,6 +77,7 @@ export async function attachEvidenceLink(
   if (!payment || !document) return { status: "not_found" };
   const latest = await getLatestFacts(ctx, input.documentId);
   try {
+    // ON CONFLICT, not a caught unique violation: inside a transaction a failed statement would abort it.
     const [row] = await ctx.db
       .insert(evidenceLinks)
       .values({
@@ -86,25 +87,23 @@ export async function attachEvidenceLink(
         factVersionId: latest?.id ?? null,
         createdBy: input.createdBy,
       })
+      .onConflictDoNothing({ target: [evidenceLinks.paymentId, evidenceLinks.documentId] })
       .returning();
-    if (!row) throw new Error("insert returned no row");
-    return { status: "created", link: toLink(row) };
+    if (row) return { status: "created", link: toLink(row) };
+    const [existing] = await ctx.db
+      .select()
+      .from(evidenceLinks)
+      .where(
+        and(
+          eq(evidenceLinks.businessId, ctx.businessId),
+          eq(evidenceLinks.paymentId, input.paymentId),
+          eq(evidenceLinks.documentId, input.documentId),
+        ),
+      );
+    if (!existing) throw new Error("evidence link vanished while attaching");
+    return { status: "exists", link: toLink(existing) };
   } catch (error) {
-    const translated = translateDbError(error);
-    if (translated instanceof UniqueViolationError) {
-      const [existing] = await ctx.db
-        .select()
-        .from(evidenceLinks)
-        .where(
-          and(
-            eq(evidenceLinks.businessId, ctx.businessId),
-            eq(evidenceLinks.paymentId, input.paymentId),
-            eq(evidenceLinks.documentId, input.documentId),
-          ),
-        );
-      if (existing) return { status: "exists", link: toLink(existing) };
-    }
-    throw translated;
+    throw translateDbError(error);
   }
 }
 
