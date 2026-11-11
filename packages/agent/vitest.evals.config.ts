@@ -7,6 +7,7 @@ export default defineConfig({
     name: "agent-evals",
     include: ["packages/agent/evals/**/*.eval.test.ts"],
     testTimeout: 60_000,
-    reporters: ["default"],
+    // Names every case, also when output is piped: the gate greps the log for the injection cases.
+    reporters: ["verbose"],
   },
 });

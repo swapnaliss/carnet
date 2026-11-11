@@ -1,0 +1,42 @@
+{
+  "kind": "criticality",
+  "document_id": "ct-suspend-terminate",
+  "file": "fixtures/criticality/ct-suspend-terminate.pdf",
+  "sha256": "27a2ec76aea7d215dd12105f1b90306e1ffa72cfd9fefb898cce424571832525",
+  "prompt_version": "7dd35b1df2dd",
+  "model": "claude-sonnet-5-5",
+  "recorded_at": "2026-11-11T15:10:41.886Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011CgwMVN7f6UvoJF8BM8PcQ",
+        "model": "claude-sonnet-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 1727,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 160,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"criticality\":\"1\",\"rationale\":\"If an undisputed invoice stays unpaid 15 days past its due date, the Supplier may suspend all services immediately and may terminate the agreement by written notice. That is a suspension and termination right triggered by late payment.\",\"quote\":\"If an undisputed invoice is still unpaid 15 days after its due date, Supplier may\\nsuspend all services immediately and may terminate this agreement by written notice.\",\"page\":2,\"injection_suspected\":false}"
+          }
+        ]
+      },
+      "request_id": "req_011CgwMVMDaebQ9cwHJxzn4o",
+      "latency_ms": 2997
+    }
+  ]
+}

@@ -244,6 +244,11 @@ export async function runCase(c: CriticalityCase, mode: "replay" | "live"): Prom
   let transport: Transport;
   if (c.scripted) {
     transport = replayTransport({ calls: [scriptedCall(c.scripted)], document_id: c.id });
+  } else if (c.kind === "image-only") {
+    // No text layer: the pipeline makes no model call, so there is nothing to record or replay.
+    transport = async () => {
+      throw new Error("an image-only contract must not reach the model");
+    };
   } else if (mode === "replay") {
     const rec = loadCriticalityRecording(c.id);
     if (rec.prompt_version !== CRITICALITY_PROMPT_VERSION) {
