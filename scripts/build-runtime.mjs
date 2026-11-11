@@ -4,6 +4,7 @@
 //   entry.mjs    PROCESS_MODE switch: web (Next standalone server) | worker
 //   release.mjs  preDeploy step: migrations as the migration role
 //   setup.mjs    idempotent roles / migrate / seed
+//   demo-seed.mjs  adds the dataset payees to the demo business (M2-09)
 //   migrations/  copy of packages/db/migrations;  roles.sql  copy of packages/db/sql/roles.sql
 import { cpSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
@@ -18,6 +19,7 @@ await build({
     entry: "apps/web/src/worker/entry.ts",
     release: "scripts/release.ts",
     setup: "scripts/setup.ts",
+    "demo-seed": "scripts/demo-seed.ts",
   },
   outdir: out,
   outExtension: { ".js": ".mjs" },

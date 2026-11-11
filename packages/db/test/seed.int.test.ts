@@ -14,7 +14,7 @@ import {
   SeedConfigError,
   seedDemoUsers,
 } from "../src/index";
-import { authAccounts, businesses, users } from "../src/schema/index";
+import { authAccounts, businesses, counterparties, users } from "../src/schema/index";
 import { useTestDatabase } from "./harness";
 
 const db = useTestDatabase();
@@ -117,5 +117,22 @@ describe("seed/run.ts", () => {
         expect(res.stdout + res.stderr).not.toContain(env[key]);
       }
     }
+  });
+});
+
+describe("ensureDemoDataset (M2-09)", () => {
+  it("adds the six dataset payees once, never changes anything on a re-run", async () => {
+    const { ensureDemoBusiness, ensureDemoDataset, DEMO_DATASET_COUNTERPARTIES } = await import(
+      "../src/index"
+    );
+    await ensureDemoBusiness(db().app.db);
+    const before = await db().app.db.$count(counterparties);
+    const first = await ensureDemoDataset(db().app.db);
+    const second = await ensureDemoDataset(db().app.db);
+    expect(first.inserted).toBe(DEMO_DATASET_COUNTERPARTIES.length);
+    expect(second.inserted).toBe(0);
+    expect(await db().app.db.$count(counterparties)).toBe(
+      before + DEMO_DATASET_COUNTERPARTIES.length,
+    );
   });
 });
