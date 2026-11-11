@@ -9,6 +9,8 @@ export interface Business {
   readonly timezone: string;
   readonly policyVersion: number;
   readonly airwallexAccountId: string | null;
+  /** `businesses.evidence_policy`; read it with `parseEvidencePolicy` (M2-03). */
+  readonly evidencePolicy: unknown;
   readonly createdAt: Date;
 }
 
@@ -19,6 +21,7 @@ const toBusiness = (r: Row): Business => ({
   timezone: r.timezone,
   policyVersion: r.policyVersion,
   airwallexAccountId: r.airwallexAccountId,
+  evidencePolicy: r.evidencePolicy,
   createdAt: r.createdAt,
 });
 

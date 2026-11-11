@@ -10,6 +10,7 @@ export * from "./counterparties";
 export * from "./document-facts";
 export * from "./documents";
 export * from "./drafts";
+export * from "./evidence";
 export * from "./execution-attempts";
 export * from "./idempotency-keys";
 export * from "./outbox-jobs";

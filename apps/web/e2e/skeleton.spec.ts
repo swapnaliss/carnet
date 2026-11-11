@@ -43,8 +43,18 @@ test("the owner creates a payment and the UI shows each new status within 6 s, a
   const reference = `E2E skeleton ${Date.now()}`;
   await page.getByLabel("Reference").fill(reference);
   await page.getByRole("button", { name: "Create payment" }).click();
-  await expect(page).toHaveURL(/\/payments\/[0-9a-f-]{36}$/, { timeout: 30_000 });
-  const id = page.url().split("/").pop() ?? "";
+  // M2-03: the payment is saved, not sent. With no documents its evidence is missing, so the owner
+  // acknowledges the reasons and sends from the evidence view; then the payment page shows the transfer.
+  await expect(page).toHaveURL(/\/payments\/[0-9a-f-]{36}\/evidence$/, { timeout: 30_000 });
+  const id = page.url().split("/").slice(-2)[0] ?? "";
+  await page.getByLabel(/I have read the reasons above/).check();
+  await page.getByRole("button", { name: "Acknowledge and send" }).click();
+  await expect(
+    page.getByRole("heading", {
+      name: /Approved by you, sending to Airwallex|Airwallex created the transfer/,
+    }),
+  ).toBeVisible({ timeout: 30_000 });
+  await page.goto(`/payments/${id}`);
   await expect(page.getByRole("heading", { level: 1, name: reference })).toBeVisible();
 
   // The worker creates the real sandbox transfer; the page polls every 3 s and the transfer id appears.

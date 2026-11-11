@@ -47,6 +47,14 @@ export const CROSS_TENANT_CASES: Record<string, string> = {
     "test/payments/api.int.test.ts 'cross-tenant': another business's id is 404 with no data, both ways",
   "v1/payments/[id]/simulate":
     "test/payments/api.int.test.ts 'cross-tenant': foreign id 404 and no job queued; viewer 403",
+  "v1/payments/[id]/send":
+    "test/evidence/evidence-check.int.test.ts 'cross-tenant': another business's payment is 404, nothing sent; viewer 403",
+  "v1/payments/[id]/evidence-check":
+    "test/evidence/evidence-check.int.test.ts 'cross-tenant': another business's payment evidence is 404 with no data",
+  "v1/payments/[id]/evidence-links":
+    "test/evidence/evidence-check.int.test.ts 'cross-tenant': 404 on attach for another business's payment or document, nothing written; viewer 403",
+  "v1/payments/[id]/evidence-links/[linkId]":
+    "test/evidence/evidence-check.int.test.ts 'cross-tenant': another business's session gets 404 on detach and the link stays; viewer 403",
   "v1/payments/[id]/payee-links":
     "test/payee/payee-links-api.int.test.ts: another business's payment id answers 404 on list and create, nothing written; viewer 403 on create",
   "v1/payments/[id]/payee-links/[linkId]":

@@ -46,11 +46,89 @@ const en = {
     },
   },
   queue: {
-    title: "Payment queue",
+    title: "Payments",
     empty: {
       title: "No payments yet",
       body: "When you add the payments for a goal, Carnet checks each one's evidence here before anything moves. Nothing has been sent.",
+      cta: "Add a payment",
     },
+    emptyFiltered: {
+      title: "No payments match these filters",
+      body: "Change or clear the filters to see the other payments.",
+    },
+    intro:
+      "Each payment shows whether its documents would hold up in a review, and what Airwallex last reported for its transfer. Nothing moves until you send it.",
+    loading: { status: "Loading payments" },
+    error: {
+      load: "Carnet could not load your payments. Nothing was sent or changed.",
+    },
+    summary: {
+      counts:
+        "{total} payments \u00b7 {sent} reported by Airwallex \u00b7 {waiting} waiting for Airwallex \u00b7 {notSent} not sent \u00b7 {held} of them held \u00b7 evidence: {strong} strong, {weak} weak, {missing} missing",
+    },
+    filter: {
+      label: "Filter payments",
+      evidenceGroup: "Evidence strength",
+      statusGroup: "Show",
+      currencyGroup: "Currency",
+      needsEvidence: "Needs evidence",
+      held: "Held",
+      all: "All",
+      strong: "Strong",
+      weak: "Weak",
+      missing: "Missing",
+      notSent: "Not sent",
+      inFlight: "In flight",
+      paid: "Paid",
+      clear: "Clear filters",
+      resultCount: "{count} payments shown",
+      resultCountOne: "1 payment shown",
+    },
+    table: {
+      caption:
+        "Payments, newest first, with the strength of their evidence and their transfer status",
+      counterparty: "Payee",
+      reference: "Reference",
+      amount: "Amount",
+      evidence: "Evidence",
+      status: "Transfer",
+      nextStep: "Next step",
+      created: "Created",
+    },
+    next: {
+      review: "Review evidence",
+      send: "Send",
+      acknowledge: "Acknowledge and send",
+      view: "View payment",
+      waiting: "Waiting for Airwallex",
+    },
+    unnamedPayee: "No payee set",
+    stale: {
+      title: "Transfer statuses may be out of date",
+      body: "Transfer statuses were last checked with Airwallex {minutes} min ago. Carnet is retrying. What you see is the last status it stored.",
+      never:
+        "Carnet has not checked transfer statuses with Airwallex yet. What you see is the last status it stored.",
+    },
+    goal: {
+      label: "Goal",
+      emptyTitle: "No goal set yet",
+      emptyBody:
+        "When you add what must be paid and by when, the goal and its deadline appear here. Until then Carnet shows each payment on its own.",
+      planLink: "See the plan",
+    },
+    held: {
+      title: "Held for information",
+      body: "{payee} \u00b7 {amount} is held for information by Airwallex.",
+      deadline: "Answer by {date}.",
+      noDeadline: "Airwallex has not given a deadline.",
+      cta: "Review and answer",
+      badge: "Held for information",
+    },
+    updated: "Updated {time} \u00b7 Live",
+    updatedStale: "Updated {time}",
+    due: "Due",
+    dueNotSet: "Not set",
+    criticalityNotSet: "Criticality not set",
   },
   plan: {
     title: "Plan",
@@ -645,13 +723,15 @@ const en = {
     readOnly: "You can look at payments. Only the owner can create one.",
     create: {
       title: "Create a sandbox payment",
-      body: "Carnet checks the sandbox wallet, then sends a real transfer in the Airwallex sandbox to the demo supplier. No real money moves.",
+      body: "Save a payment to the demo supplier, add its documents, and send it once you have seen the evidence check. The transfer goes to the Airwallex sandbox; no real money moves.",
       amount: "Amount (USD)",
       amountHint: "Up to 2 decimals, for example 25.00.",
       reference: "Reference",
       referenceHint: "Shown to the supplier, for example an invoice number.",
       submit: "Create payment",
       submitPending: "Creating payment",
+      draftHint:
+        "Nothing is sent yet. You add the invoice and contract next, see how strong the evidence is, then send.",
       errorAmount: "Enter an amount greater than 0 with at most 2 decimals.",
       errorReference: "Enter a reference.",
       errorGeneric: "The payment could not be created. Nothing was sent. Try again.",
@@ -708,13 +788,232 @@ const en = {
       noneAvailable: "No sandbox step is available for this payment in its current state.",
     },
   },
+  evidence: {
+    title: "Evidence for {payee}",
+    pageTitle: "Payment evidence",
+    summary: {
+      method: "Method",
+      account: "Beneficiary account",
+      accountNone: "Not recorded yet",
+      due: "Due date",
+      dueNone: "Not set",
+    },
+    citation: { label: "Show {document} in the documents", page: "p{page}" },
+    notRun: "Carnet does not run this check yet, so it is not counted.",
+    ruleExtra: {
+      contractInForce: "Contract in force on the invoice date",
+      fundsEvidence: "Funds evidence present",
+    },
+    approve: {
+      cta: "Approve and send",
+      title: "Approve and send this payment",
+      body: "Check the details Carnet will send. Nothing is sent until you confirm below.",
+      payTo: "Pay to",
+      account: "Beneficiary account",
+      amount: "Amount",
+      reference: "Reference",
+      source: "Paid from",
+      sourceValue: "{currency} wallet in the Airwallex sandbox",
+      fee: "Fee",
+      feeValue: "Shown by Airwallex once the transfer exists",
+      valueDate: "Value date",
+      valueDateValue: "Set by Airwallex when it creates the transfer",
+      cancel: "Cancel",
+      stale: "Sending is paused until Carnet can refresh this page.",
+      weakNotice:
+        "Evidence is not strong. Your acknowledgement is recorded with the reasons shown.",
+    },
+    steps: {
+      title: "Where this payment is",
+      approved: "Approved by you",
+      sent: "Sent to Airwallex",
+      confirming: "Waiting for Airwallex to confirm",
+      confirmed: "Airwallex created the transfer",
+    },
+    openLink: "Evidence for this payment",
+    back: "All payments",
+    backToQueue: "Back to the queue",
+    loading: { status: "Loading evidence" },
+    strength: {
+      label: "Evidence",
+      strong: "Strong evidence",
+      weak: "Weak evidence",
+      missing: "Evidence missing",
+      checksRun: "{run} of {total} checks run",
+      summaryStrong: "The checks Carnet runs on these documents passed.",
+      summaryWeak: "Some documents do not support this payment, or Carnet could not verify them.",
+      summaryMissing: "Carnet cannot check this payment until the missing documents are added.",
+    },
+    reasonsTitle: "Why",
+    tabs: { label: "Evidence sections", checks: "Checks", documents: "Documents" },
+    rule: {
+      amount: "Amount matches the invoice",
+      payee: "Payee matches the invoice supplier",
+      contract: "A contract names the payee",
+      verified: "Facts are verified",
+      consistent: "Documents agree with each other",
+      invoiceMatchesPo: "Invoice and purchase order agree",
+      beneficiaryMatchesContract: "Beneficiary account matches the contract",
+    },
+    check: {
+      caption: "Checks Carnet ran on this payment's documents",
+      check: "Check",
+      result: "Result",
+      detail: "What Carnet found",
+      passed: "Passed",
+      failed: "Failed",
+      notChecked: "Not checked",
+      none: "No documents are linked yet, so no check could run.",
+      contractNote: "A contract is required for a first payment above {threshold}.",
+    },
+    reason: {
+      noInvoice: "No invoice is linked to this payment.",
+      amountMatch: "The invoice total {amount} matches the payment ({document}).",
+      amountMismatch:
+        "The invoice total {invoice} does not match the payment amount {payment} ({document}, page {page}).",
+      amountCurrencyMismatch:
+        "The invoice is in a different currency: {invoice}, but the payment is {payment} ({document}, page {page}).",
+      amountNoFact:
+        "Carnet has no verified invoice total to compare with the payment of {payment}.",
+      payeeMatch: "The invoice supplier matches the payee {payee} ({document}).",
+      payeeMismatch:
+        "The invoice names {invoice}, but the payee is {payee} ({document}, page {page}). A near match is not accepted.",
+      payeeNoFact:
+        "Carnet has no verified supplier name on an invoice to compare with the payee {payee}.",
+      contractNamesPayee: "The contract names {payee} ({document}).",
+      contractNamesOther:
+        "The contract names \u201c{contract}\u201d, not {payee} ({document}, page {page}).",
+      contractNoFact:
+        "A contract is linked, but Carnet has no verified party names to compare with {payee}.",
+      contractMissing:
+        "This is the first payment to {payee} above the contract threshold, and no contract is linked.",
+      verifiedAll: "Every fact Carnet used is quoted from a document or confirmed by you.",
+      unverifiedFact: "{document}: the {fact} fact is not verified, so Carnet did not use it.",
+      extractionFailed: "Carnet could not read {document}, so none of its facts were used.",
+      extractionPending: "Carnet is still reading {document}.",
+      totalsAgree: "The invoice and the purchase order agree on {total}.",
+      totalsDiffer:
+        "The invoice total {invoice} ({invoiceDocument}) differs from the purchase order total {purchaseOrder} ({purchaseOrderDocument}).",
+      accountsAgree: "The invoice account {account} is the account the contract names.",
+      accountsDiffer:
+        "The invoice account {invoice} ({invoiceDocument}) is not the account the contract names ({contractDocument}).",
+      allPassed:
+        "Every check Carnet runs passed, and every fact is quoted from a document or confirmed by you. Contract in force and funds evidence are not checked yet.",
+    },
+    documents: {
+      title: "Documents",
+      list: "Documents linked to this payment",
+      empty: {
+        title: "No documents are linked to this payment",
+        body: "Carnet cannot check it until you add the invoice and, if there is one, the contract.",
+      },
+      kind: {
+        invoice: "Invoice",
+        contract: "Contract",
+        purchase_order: "Purchase order",
+        statement: "Bank statement",
+        other: "Other document",
+      },
+      meta: "{kind} · {size} · SHA-256 {hash}",
+      textLayerNo: "Scanned image, no text layer",
+      reading: "Reading document",
+      readFailed: "Carnet could not read this document",
+      readFailedWhy:
+        "Carnet could not read this document, so none of its facts are used. Remove it and add a clearer copy.",
+      noFacts: "No facts were extracted from this document.",
+      open: "Open document",
+      remove: "Remove from this payment",
+      removeLabel: "Remove from this payment: {name}",
+      removed: "{name} was removed.",
+      unreadableKind: "Carnet does not read this kind of document, so it adds no facts.",
+    },
+    fact: {
+      field: "Fact",
+      value: "Value",
+      source: "Quoted from the document",
+      status: "Status",
+      page: "Page {page}",
+      verified: "Verified in the document",
+      needsConfirmation: "Needs your confirmation",
+      confirmedByYou: "Confirmed by you",
+      unverified: "Not verified, not used",
+      noQuote: "Entered by you, no quote",
+      scanNoQuote:
+        "The scan has no text layer, so there is no quote to check. Compare with the document.",
+      confirmGroup: "Confirm facts from the scan",
+      confirmHint:
+        "This document is an image, so Carnet cannot check its quotes. Compare each value with the document and tick it when it is right. You can confirm once every value is ticked. Nothing is used until you confirm.",
+      confirmLabel: "Confirm {field}: {value}",
+      confirmCta: "Confirm {count} facts",
+      confirmCtaOne: "Confirm 1 fact",
+      confirmCtaPending: "Confirming",
+      confirmDone: "Facts confirmed. Carnet checked the payment again.",
+      confirmError: "The facts could not be confirmed. Nothing was changed. Try again.",
+      none: "Tick every value to confirm.",
+      allTicked: "{ticked} of {count} values ticked",
+    },
+    add: {
+      title: "Add a document",
+      body: "Upload a PDF, JPEG or PNG. Carnet reads it, quotes each fact from the page, and checks the payment again.",
+      file: "File",
+      kind: "Kind of document",
+      submit: "Upload and add",
+      submitPending: "Uploading",
+      another: "Add another document",
+      done: "{name} was added. Carnet is reading it.",
+      doneKnown: "{name} was already uploaded. It is linked to this payment now.",
+      errorGeneric: "The document could not be added. Nothing was changed. Try again.",
+      errorChoose: "Choose a file first.",
+      viewerOnly: "Only the owner can add or remove documents.",
+    },
+    injection: {
+      title: "This document contains text that looks like instructions to an AI",
+      body: "Carnet treated it as data and did not follow it. Flagged text: {match}",
+    },
+    send: {
+      title: "Send this payment",
+      sentTitle: "Approved by you, sending to Airwallex",
+      sentTitleConfirmed: "Airwallex created the transfer",
+      sentBody: "Its transfer status is on the payment page.",
+      sentLink: "Open the payment",
+      strongBody: "The evidence is strong. Sending creates the transfer in the Airwallex sandbox.",
+      weakBody:
+        "The evidence is weak. You can still send this payment, but Carnet records that you saw the reasons above.",
+      missingBody:
+        "Evidence is missing. You can still send this payment, but Carnet records that you saw the reasons above.",
+      ackLabel: "I have read the reasons above and want to send this payment anyway.",
+      cta: "Send payment",
+      ctaAcknowledge: "Acknowledge and send",
+      ctaPending: "Sending",
+      done: "Sent. Airwallex has not confirmed the transfer yet.",
+      errorGeneric: "The payment was not sent. Nothing was changed. Try again.",
+      errorChanged:
+        "The evidence changed while you were looking. Read the new reasons and try again.",
+      errorFunds: "{message}",
+      viewerOnly: "Only the owner can send a payment.",
+      needsAck: "Tick the box to confirm you have read the reasons.",
+      stale: "The evidence is out of date. Reload before sending.",
+    },
+    error: {
+      checks: "Carnet could not load the checks. Nothing was changed.",
+      documents: "Carnet could not load the documents. Nothing was changed.",
+    },
+    live: {
+      updated: "Evidence updated: {flag}.",
+    },
+  },
 } as const;
 
 /** Fills `{name}` placeholders in a string from `strings.ts`. */
 export function fill(template: string, values: Record<string, string | number>): string {
-  return template.replace(/\{(\w+)\}/g, (match, key: string) =>
-    key in values ? String(values[key]) : match,
-  );
+  return template.replace(/\{(\w+)\}/g, (match, key: string) => {
+    if (key in values) return String(values[key]);
+    // A placeholder nobody filled is a bug: fail in tests and development, show the text in production.
+    if (process.env.NODE_ENV !== "production") {
+      throw new Error(`fill: no value for {${key}} in "${template}"`);
+    }
+    return match;
+  });
 }
 
 export const strings = { en } as const;

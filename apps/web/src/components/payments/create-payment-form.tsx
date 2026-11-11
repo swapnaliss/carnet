@@ -46,7 +46,8 @@ export function CreatePaymentForm() {
       const res = await fetch("/api/v1/payments", {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": key },
-        body: JSON.stringify({ amount: { amount, currency: "USD" }, reference }),
+        // Saved, not sent: the owner adds documents and sends from the evidence view (M2-03).
+        body: JSON.stringify({ amount: { amount, currency: "USD" }, reference, send: false }),
       });
       const body = (await res.json().catch(() => null)) as {
         payment?: { id: string };
@@ -54,7 +55,7 @@ export function CreatePaymentForm() {
       } | null;
       if (res.status === 201 && body?.payment) {
         setKey(newKey());
-        router.push(`/payments/${body.payment.id}`);
+        router.push(`/payments/${body.payment.id}/evidence`);
         return;
       }
       // Funding, upstream and key-reuse errors carry a message written for the owner (server copy).
@@ -85,6 +86,7 @@ export function CreatePaymentForm() {
           {t.payments.create.title}
         </h2>
         <p className="max-w-[65ch] text-sm text-muted-foreground">{t.payments.create.body}</p>
+        <p className="max-w-[65ch] text-sm text-muted-foreground">{t.payments.create.draftHint}</p>
       </div>
       <form
         onSubmit={onSubmit}

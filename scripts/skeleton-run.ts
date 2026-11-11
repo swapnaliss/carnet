@@ -140,7 +140,12 @@ async function main() {
 
   const key = crypto.randomUUID();
   const reference = `M1-08 skeleton ${new Date().toISOString().slice(0, 19)}Z`;
-  const payload = { amount: { amount, currency: "USD" }, reference };
+  // M2-03: a payment with no documents is Missing evidence; the run acknowledges it (the guard is on the server).
+  const payload = {
+    amount: { amount, currency: "USD" },
+    reference,
+    evidence_ack: { acknowledged: true },
+  };
   const created = await api<{ payment: Payment }>(owner, "POST", "/api/v1/payments", payload, {
     "idempotency-key": key,
   });

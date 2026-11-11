@@ -13,6 +13,7 @@ export * from "./document-facts";
 export * from "./documents";
 export * from "./draft-sweep";
 export * from "./drafts";
+export * from "./evidence";
 export * from "./execution-attempts";
 export * from "./idempotency-keys";
 export * from "./outbox";

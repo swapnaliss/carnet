@@ -26,6 +26,8 @@ export const M1_TABLES = [
   "documents",
   "draft_answers",
   "drafts",
+  "evidence_checks",
+  "evidence_links",
   "execution_attempts",
   "idempotency_keys",
   "outbox_jobs",

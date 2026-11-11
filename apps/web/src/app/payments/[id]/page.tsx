@@ -1,5 +1,6 @@
 import { PaymentIdSchema } from "@carnet/domain";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PayeeLinksPanel } from "@/components/payee/payee-links-panel";
 import { PaymentDetail } from "@/components/payments/payment-detail";
@@ -20,6 +21,14 @@ export default async function PaymentPage({ params }: { params: Promise<{ id: st
   if (!initial) notFound();
   return (
     <>
+      <p className="mb-4">
+        <Link
+          href={`/payments/${parsed.data}/evidence`}
+          className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:no-underline md:min-h-6"
+        >
+          {t.evidence.openLink}
+        </Link>
+      </p>
       <PaymentDetail initial={initial} canSimulate={ctx.role === "owner"} />
       {/* Payee status links (M3-06): the owner copies the link; Carnet sends nothing. */}
       <div className="mt-10">

@@ -118,3 +118,13 @@ payment detail; the row does not show a transfer status that Airwallex has not r
   `status.transfer.failed.label`, `status.transfer.cancelled.label`, `status.transfer.overdue.label`
 - `common.state.stale.title`, `common.state.stale.body`, `common.state.retry`,
   `common.state.waitingAirwallex`, `common.time.updatedAt`, `common.time.checkedAgo`
+
+## Built by M2-03: differences from this spec (owner informed, 2026-11-11)
+
+- Goal, due date and criticality come from obligations (M3). Until they exist the goal card shows its
+  empty wording, the Due column shows a muted dash, and criticality is not shown. Nothing is invented.
+- Below 1280px the list is stacked cards (not a table at 768) because the 768px rail leaves too little
+  width for the columns; Next step is a link on each card.
+- Filters are three labelled chip groups (Show, Evidence strength, Currency) in the URL, not one scrolling row.
+- The held callout shows the payee, amount and the RFI deadline from the open RFI; draft progress is on the hold screen.
+- Counts: reported by Airwallex, waiting for Airwallex, not sent, and how many are held.

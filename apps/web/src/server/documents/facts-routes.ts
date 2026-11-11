@@ -15,6 +15,7 @@ import {
   getUsableFacts,
   insertFactsVersion,
   listFactVersions,
+  recordChecksForDocument,
   repoCtx,
   type StoredFactsVersion,
   withTransaction,
@@ -175,6 +176,8 @@ export function factsRouteSpecs(): FactsRouteSpecs {
               corrections: corrections.length,
             },
           });
+          // M2-03: every payment this document is evidence for gets a fresh check snapshot.
+          await recordChecksForDocument(txRepo, id, "facts_confirmed");
           await publishDocumentExtracted(tx, {
             businessId: repo.businessId,
             documentId: id,

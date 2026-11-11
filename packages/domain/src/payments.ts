@@ -2,6 +2,7 @@
 // sandbox simulation action, plus the Idempotency-Key header rule (ADR 0004). Money on the wire is
 // a major-unit decimal string plus a currency; it is parsed into minor units here.
 import { z } from "zod";
+import { EvidenceAckSchema } from "./evidence/evidence-api";
 import { CounterpartyIdSchema, MoneySchema } from "./schemas";
 
 /** `Idempotency-Key`: 8 to 128 visible ASCII characters (a UUID from the client is typical). */
@@ -19,6 +20,13 @@ export const CreatePaymentBodySchema = z.strictObject({
   reference: z.string().trim().min(1).max(PAYMENT_REFERENCE_MAX),
   /** Defaults to the business's demo counterparty. */
   counterparty_id: CounterpartyIdSchema.optional(),
+  /**
+   * Default true: create and send (M1-08). `false` saves the payment without sending, so the owner can
+   * attach documents and send from the evidence view (M2-03).
+   */
+  send: z.boolean().optional(),
+  /** Needed to send a payment whose evidence is Weak or Missing. */
+  evidence_ack: EvidenceAckSchema.optional(),
 });
 
 export type CreatePaymentBody = z.output<typeof CreatePaymentBodySchema>;
