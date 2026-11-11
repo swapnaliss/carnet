@@ -110,3 +110,10 @@ fetched.
 - `evidence.error.checks`, `evidence.error.documents`, `evidence.loading.status`
 - `common.state.stale.title`, `common.state.stale.body`, `common.state.stale.actionsDisabled`,
   `common.state.waiting.approved`, `common.state.waiting.sent`, `common.state.waiting.confirming`
+
+## Built by M2-03: differences from this spec (owner informed, 2026-11-11)
+
+- An extraction that failed shows a plain-language reason and tells the owner to remove the document and
+  add a clearer copy; there is no "Try again" control because no retry job exists yet.
+- The h1 is "Evidence for {counterparty}"; the amount sits beside it. The payment summary is a compact definition list.
+- Check results show the sentence with both values and a citation chip per document, not a two-value comparison cell.

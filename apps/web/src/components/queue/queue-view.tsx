@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { EvidenceStrength, type Flag } from "@/components/evidence/evidence-strength";
 import { announce } from "@/components/payments/announce";
-import { describeStatus, formatWhen, formatWire } from "@/components/payments/format";
+import { describeStatus, formatWire } from "@/components/payments/format";
 import { StatusBadge } from "@/components/payments/status-badge";
 import { EmptyState } from "@/components/shell/empty-state";
 import { Button } from "@/components/ui/button";
@@ -364,15 +364,10 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
                             </Link>
                             <span className="block text-xs text-muted-foreground">
                               {item.payment.reference}
-                              {SEP}
-                              <time dateTime={item.payment.created_at}>
-                                {formatWhen(item.payment.created_at)}
-                              </time>
                             </span>
                           </th>
                           <td className="px-4 py-3 text-muted-foreground">
-                            {t.queue.dueNotSet}
-                            <span className="block text-xs">{t.queue.criticalityNotSet}</span>
+                            <span title={t.queue.dueNotSet}>{"\u2014"}</span>
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap tabular-nums">
                             {formatWire(item.payment.amount)}

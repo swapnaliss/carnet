@@ -64,7 +64,7 @@ const en = {
     },
     summary: {
       counts:
-        "{total} payments \u00b7 {sent} sent \u00b7 {held} held \u00b7 {notSent} not sent \u00b7 evidence: {strong} strong, {weak} weak, {missing} missing",
+        "{total} payments \u00b7 {sent} reported by Airwallex \u00b7 {waiting} waiting for Airwallex \u00b7 {notSent} not sent \u00b7 {held} of them held \u00b7 evidence: {strong} strong, {weak} weak, {missing} missing",
     },
     filter: {
       label: "Filter payments",

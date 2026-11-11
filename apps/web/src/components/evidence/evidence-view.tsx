@@ -937,6 +937,11 @@ export function EvidenceView({
     if (next) selectTab(next, true);
   }
 
+  // "Carnet is reading it" is only true while a document is being read.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `pending` is the trigger
+  useEffect(() => {
+    if (!pending) setNotice(null);
+  }, [pending]);
   const stale = now - poll.lastSuccessAt > STALE_AFTER_MS;
   const payee = data.payment.counterparty_name ?? t.queue.unnamedPayee;
   const summary =

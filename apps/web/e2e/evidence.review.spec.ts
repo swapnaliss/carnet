@@ -219,8 +219,15 @@ async function prepare(page: Page, scheme: (typeof schemes)[number], width: numb
   const capture = async (name: string) => {
     // The viewport is made as tall as the page, so fixed bars (skip link, tab bar, approve bar) appear
     // once, where they are, instead of being pasted mid-page as in a full-page capture.
+    if (!name.endsWith("loading")) {
+      await expect(page.getByText(/^Loading (evidence|payments)$/)).toHaveCount(0);
+    }
     const height = await page.evaluate(() => document.documentElement.scrollHeight);
     await page.setViewportSize({ width, height: Math.max(height, 600) });
+    if (!name.endsWith("loading")) {
+      await expect(page.getByText(/^Loading (evidence|payments)$/)).toHaveCount(0);
+      await page.waitForTimeout(300);
+    }
     await page.screenshot({ path: resolve(dir, `${name}-${tag}.png`) });
     await page.setViewportSize({ width, height: width === 375 ? 812 : 900 });
     const results = await new AxeBuilder({ page }).withTags(TAGS).analyze();
