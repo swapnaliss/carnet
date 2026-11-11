@@ -31,6 +31,13 @@ import {
   rateWithinBounds,
 } from "@carnet/domain";
 import { withTransaction } from "../client";
+import {
+  getStoredAction,
+  isActionCurrent,
+  noteAction,
+  type StoredAction,
+  transitionAction,
+} from "../repos/action-states";
 import { type Approval, consumeApproval, endApproval, getApproval } from "../repos/approvals";
 import { appendAudit } from "../repos/audit-log";
 import { repoCtx } from "../repos/context";
@@ -41,13 +48,6 @@ import {
   releaseAttempt,
   updateAttemptStatus,
 } from "../repos/execution-attempts";
-import {
-  getStoredAction,
-  isActionCurrent,
-  noteAction,
-  type StoredAction,
-  transitionAction,
-} from "../repos/action-states";
 import {
   autoApprovedTotalToday,
   claimQuote,
@@ -62,8 +62,8 @@ import {
   executionEnabled,
   loggerOf,
   nowOf,
-  recordOf,
   Rollback,
+  recordOf,
   withoutLease,
 } from "./common";
 import { classifyFailure, type GatewayConversion, type GatewayQuote } from "./gateway";
@@ -254,7 +254,11 @@ export async function executeAutoConversion(
     }
   }
   await noteAction(rc, actionId, "QUOTE_REUSED");
-  return { outcome: "denied", reason: "QUOTE_REUSED", detail: "Airwallex returned a used quote twice" };
+  return {
+    outcome: "denied",
+    reason: "QUOTE_REUSED",
+    detail: "Airwallex returned a used quote twice",
+  };
 }
 
 async function deny(
@@ -286,10 +290,12 @@ export async function executeApprovedConversion(
   if (!(await executionEnabled(deps.db))) return { outcome: "skipped", reason: "KILL_SWITCH" };
 
   const approval = await getApproval(rc, input.approvalId);
-  if (!approval || approval.kind !== "conversion") return { outcome: "refused", reason: "NOT_FOUND" };
+  if (!approval || approval.kind !== "conversion")
+    return { outcome: "refused", reason: "NOT_FOUND" };
   const actionId = approval.subjectRef;
   const stored = await getStoredAction(rc, actionId);
-  if (!stored || stored.action.kind !== "convert") return { outcome: "refused", reason: "NO_ACTION" };
+  if (!stored || stored.action.kind !== "convert")
+    return { outcome: "refused", reason: "NO_ACTION" };
   // An approval bound to content that no longer matches the current revision cannot be consumed.
   if (stored.state === "SUPERSEDED" || !(await isActionCurrent(rc, stored))) {
     await endApproval(rc, approval.id, "REJECTED", "SUPERSEDED");
@@ -300,20 +306,21 @@ export async function executeApprovedConversion(
     approvalId: input.approvalId,
     expectedHash: input.expectedHash,
     inTransaction: async (tx, a, attempt) => {
-      const moved = await transitionAction(
-        tx,
-        actionId,
-        ["PROPOSED", "APPROVED"],
-        "EXECUTING",
-        { attemptId: attempt.id },
-      );
+      const moved = await transitionAction(tx, actionId, ["PROPOSED", "APPROVED"], "EXECUTING", {
+        attemptId: attempt.id,
+      });
       if (!moved) throw new Rollback("ACTION_NOT_EXECUTABLE");
       await appendAudit(tx, {
         actorType: "system",
         actorId: a.approverId,
         action: "conversion.approval_consumed",
         subject: actionId,
-        data: { approvalId: a.id, hash: a.hash, attemptId: attempt.id, requestId: attempt.requestId },
+        data: {
+          approvalId: a.id,
+          hash: a.hash,
+          attemptId: attempt.id,
+          requestId: attempt.requestId,
+        },
       });
     },
   }).catch((error: unknown) => {
@@ -336,7 +343,10 @@ export async function executeApprovedConversion(
       subject: actionId,
       data: { attemptId: attempt.id, reason },
     });
-    log.warn({ actionId, attemptId: attempt.id, reason }, "approved conversion refused; nothing sent");
+    log.warn(
+      { actionId, attemptId: attempt.id, reason },
+      "approved conversion refused; nothing sent",
+    );
     return { outcome: "refused", reason, attemptId: attempt.id };
   };
 
@@ -488,7 +498,12 @@ export async function sendConversion(
         data: { attemptId, requestId: attempt.requestId, error: failure.detail },
       });
       log.error(
-        { attemptId, requestId: attempt.requestId, error: failure.detail, alert: "attempt_unknown" },
+        {
+          attemptId,
+          requestId: attempt.requestId,
+          error: failure.detail,
+          alert: "attempt_unknown",
+        },
         "conversion outcome unknown; the reconciler will look it up by request_id",
       );
       return { outcome: "unknown", attemptId, error: failure.detail.message };
@@ -555,12 +570,21 @@ export async function resolveConversionAttempt(
   if (attempt.status !== "UNKNOWN") return { resolution: "skipped", reason: attempt.status };
   const found = await deps.gateway.findConversionByRequestId(attempt.requestId);
   if (found) {
-    await confirm(rc, attempt.refId, attempt.id, withoutLease(recordOf(attempt)), found, "reconcile_lookup");
+    await confirm(
+      rc,
+      attempt.refId,
+      attempt.id,
+      withoutLease(recordOf(attempt)),
+      found,
+      "reconcile_lookup",
+    );
     return { resolution: "confirmed", conversion: found };
   }
   const sentAt = recordOf(attempt).sentAt;
-  const waited = sentAt === undefined ? Number.POSITIVE_INFINITY : nowOf(deps).getTime() - Date.parse(sentAt);
-  if (waited < (input.retryAfterMs ?? DEFAULT_UNKNOWN_RETRY_AFTER_MS)) return { resolution: "unresolved" };
+  const waited =
+    sentAt === undefined ? Number.POSITIVE_INFINITY : nowOf(deps).getTime() - Date.parse(sentAt);
+  if (waited < (input.retryAfterMs ?? DEFAULT_UNKNOWN_RETRY_AFTER_MS))
+    return { resolution: "unresolved" };
   if (!(await executionEnabled(deps.db))) return { resolution: "unresolved" };
   const stored = await getStoredAction(rc, attempt.refId);
   if (!stored) return { resolution: "skipped", reason: "NO_ACTION" };

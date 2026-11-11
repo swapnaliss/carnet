@@ -134,7 +134,8 @@ export function evaluateAutoApproval(
 
   const limit = minorOf(policy.perActionLimit, action.sellCurrency);
   if (limit === null) return deny("NO_LIMIT", `no per-action limit for ${action.sellCurrency}`);
-  if (action.sellMinor > limit) return deny("PER_ACTION_LIMIT", "amount above the per-action limit");
+  if (action.sellMinor > limit)
+    return deny("PER_ACTION_LIMIT", "amount above the per-action limit");
 
   const cap = minorOf(policy.dailyCap, action.sellCurrency);
   if (cap === null) return deny("NO_DAILY_CAP", `no daily cap for ${action.sellCurrency}`);

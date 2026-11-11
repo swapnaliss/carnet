@@ -46,9 +46,9 @@ describe("policy hash", () => {
     expect(policy.hash).toMatch(/^[0-9a-f]{64}$/);
     expect(makePolicy(2, content).hash).toBe(policy.hash);
     expect(policyHash({ ...content, slippageBps: 101 })).not.toBe(policy.hash);
-    expect(
-      policyHash({ ...content, dailyCap: [{ currency: "USD", minor: "9991" }] }),
-    ).not.toBe(policy.hash);
+    expect(policyHash({ ...content, dailyCap: [{ currency: "USD", minor: "9991" }] })).not.toBe(
+      policy.hash,
+    );
   });
   it("ignores row order", () => {
     const two = {
@@ -105,7 +105,9 @@ describe("evaluateAutoApproval", () => {
       if (r.decision === "ALLOW") total = r.dailyTotalAfterMinor;
     }
     expect(total).toBe(9990n);
-    expect(evaluateAutoApproval(action(), state({ autoApprovedTodayMinor: total }), policy)).toMatchObject({
+    expect(
+      evaluateAutoApproval(action(), state({ autoApprovedTodayMinor: total }), policy),
+    ).toMatchObject({
       decision: "DENY",
       reason: "DAILY_CAP",
     });
@@ -114,7 +116,9 @@ describe("evaluateAutoApproval", () => {
     const noLimit = makePolicy(1, { ...content, perActionLimit: [] });
     expect(evaluateAutoApproval(action(), state(), noLimit)).toMatchObject({ reason: "NO_LIMIT" });
     const noCap = makePolicy(1, { ...content, dailyCap: [] });
-    expect(evaluateAutoApproval(action(), state(), noCap)).toMatchObject({ reason: "NO_DAILY_CAP" });
+    expect(evaluateAutoApproval(action(), state(), noCap)).toMatchObject({
+      reason: "NO_DAILY_CAP",
+    });
   });
   it("denies a fee larger than the configured SWIFT fee allows", () => {
     const a = action({ swiftFeeIncludedMinor: 1342n, buyMinor: 5000n });
@@ -133,7 +137,9 @@ describe("evaluateAutoApproval", () => {
   });
   it("checks the fresh quote: within slippage allows, beyond denies, stale denies", () => {
     // approved 0.8840 -> 999 USD ~ 883.12 EUR (88312 minor... here 883 minor units of a 2-dp pair)
-    expect(evaluateAutoApproval(action(), state({ quote: quote() }), policy).decision).toBe("ALLOW");
+    expect(evaluateAutoApproval(action(), state({ quote: quote() }), policy).decision).toBe(
+      "ALLOW",
+    );
     expect(
       evaluateAutoApproval(action(), state({ quote: quote({ buyMinor: 860n }) }), policy),
     ).toMatchObject({ reason: "SLIPPAGE" });

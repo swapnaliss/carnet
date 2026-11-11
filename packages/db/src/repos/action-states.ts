@@ -3,7 +3,7 @@
 // `plan_action_states`, moved only by compare-and-set. No row means PROPOSED.
 import { type PlanAction, parsePlan } from "@carnet/domain";
 import { and, asc, desc, eq, inArray, lt, sql } from "drizzle-orm";
-import { type ActionState, approvals, planActions, planActionStates, plans } from "../schema/index";
+import { type ActionState, approvals, planActionStates, planActions, plans } from "../schema/index";
 import type { RepoCtx } from "./context";
 
 export interface StoredAction {
@@ -67,7 +67,10 @@ const selectJoined = (ctx: RepoCtx) =>
     .leftJoin(planActionStates, eq(planActionStates.actionId, planActions.id));
 
 /** One stored action with its state, or null when it is another business's or does not exist. */
-export async function getStoredAction(ctx: RepoCtx, actionId: string): Promise<StoredAction | null> {
+export async function getStoredAction(
+  ctx: RepoCtx,
+  actionId: string,
+): Promise<StoredAction | null> {
   const [row] = await selectJoined(ctx).where(
     and(eq(planActions.id, actionId), eq(planActions.businessId, ctx.businessId)),
   );
@@ -168,10 +171,7 @@ export async function noteAction(ctx: RepoCtx, actionId: string, reason: string)
  * (PROPOSED, or AUTO_APPROVED with nothing sent) are SUPERSEDED, and any live conversion approval
  * bound to them is ended (REJECTED, SUPERSEDED), so it can no longer be consumed. Returns the ids.
  */
-export async function supersedeStaleActions(
-  ctx: RepoCtx,
-  newPlanId: string,
-): Promise<string[]> {
+export async function supersedeStaleActions(ctx: RepoCtx, newPlanId: string): Promise<string[]> {
   const [fresh] = await ctx.db
     .select({ revision: plans.revision })
     .from(plans)

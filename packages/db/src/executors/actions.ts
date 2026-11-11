@@ -59,7 +59,10 @@ export async function runConversionActions(
     if (["DONE", "FAILED", "SUPERSEDED"].includes(stored.state)) continue;
 
     let result: string;
-    if (stored.attemptId !== null && (stored.state === "EXECUTING" || stored.state === "AUTO_APPROVED")) {
+    if (
+      stored.attemptId !== null &&
+      (stored.state === "EXECUTING" || stored.state === "AUTO_APPROVED")
+    ) {
       const r = await resume(deps, businessId, stored, options);
       result = r;
       if (r === "UNRESOLVED") {
@@ -79,12 +82,21 @@ export async function runConversionActions(
   return { results, blocked: false };
 }
 
-async function runOne(deps: ExecutorDeps, businessId: BusinessId, stored: StoredAction): Promise<string> {
+async function runOne(
+  deps: ExecutorDeps,
+  businessId: BusinessId,
+  stored: StoredAction,
+): Promise<string> {
   const rc = repoCtx(deps.db, businessId);
   // An owner-approved conversion goes through the same executor after the approval is consumed.
   const live = await getLiveApprovalForSubject(rc, "conversion", stored.id);
   if (live !== null && live.status === "APPROVED") {
-    return label(await executeApprovedConversion(deps, businessId, { approvalId: live.id, expectedHash: live.hash }));
+    return label(
+      await executeApprovedConversion(deps, businessId, {
+        approvalId: live.id,
+        expectedHash: live.hash,
+      }),
+    );
   }
   return label(await executeAutoConversion(deps, businessId, stored.id));
 }

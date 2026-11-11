@@ -51,9 +51,7 @@ export async function createPolicyVersion(
   ctx: RepoCtx,
   content: PolicyContentInput,
 ): Promise<Policy> {
-  await ctx.db.execute(
-    sql`SELECT pg_advisory_xact_lock(hashtext(${`policy:${ctx.businessId}`}))`,
-  );
+  await ctx.db.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`policy:${ctx.businessId}`}))`);
   const latest = await getLatestPolicy(ctx);
   const policy = makePolicy((latest?.version ?? 0) + 1, content);
   try {

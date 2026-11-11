@@ -22,7 +22,6 @@ import {
   type UserId,
 } from "@carnet/domain";
 import { and, eq } from "drizzle-orm";
-import { businesses, payments } from "../schema/index";
 import { getStoredAction, isActionCurrent, transitionAction } from "../repos/action-states";
 import { type Approval, consumeApproval, endApproval, getApproval } from "../repos/approvals";
 import { appendAudit } from "../repos/audit-log";
@@ -34,6 +33,7 @@ import {
   releaseAttempt,
   updateAttemptStatus,
 } from "../repos/execution-attempts";
+import { businesses, payments } from "../schema/index";
 import {
   type AttemptRecord,
   EXECUTOR_LEASE_MS,
@@ -41,8 +41,8 @@ import {
   executionEnabled,
   loggerOf,
   nowOf,
-  recordOf,
   Rollback,
+  recordOf,
   withoutLease,
 } from "./common";
 import { classifyFailure, type ExecutionGateway, type GatewayTransfer } from "./gateway";
@@ -174,7 +174,12 @@ export async function executePayout<T extends GatewayTransfer>(
         actorId: a.approverId,
         action: "payout.approval_consumed",
         subject: paymentId,
-        data: { approvalId: a.id, hash: a.hash, attemptId: attempt.id, requestId: attempt.requestId },
+        data: {
+          approvalId: a.id,
+          hash: a.hash,
+          attemptId: attempt.id,
+          requestId: attempt.requestId,
+        },
       });
     },
   }).catch((error: unknown) => {
@@ -243,7 +248,12 @@ async function sendTransfer<T extends GatewayTransfer>(
   const { attemptId, live } = args;
   const attempt = await getAttempt(rc, attemptId);
   if (attempt?.kind !== "transfer") throw new Error("transfer attempt not found");
-  const claimed = await claimAttempt(rc, attemptId, ["INTENT", "SENT_TO_AIRWALLEX"], EXECUTOR_LEASE_MS);
+  const claimed = await claimAttempt(
+    rc,
+    attemptId,
+    ["INTENT", "SENT_TO_AIRWALLEX"],
+    EXECUTOR_LEASE_MS,
+  );
   if (!claimed) return { outcome: "skipped", reason: "HELD_BY_ANOTHER_EXECUTOR" };
   try {
     const prior = recordOf(claimed);
@@ -296,7 +306,12 @@ async function sendTransfer<T extends GatewayTransfer>(
       });
       if (failure.kind === "unknown") {
         log.error(
-          { attemptId, requestId: attempt.requestId, error: failure.detail, alert: "attempt_unknown" },
+          {
+            attemptId,
+            requestId: attempt.requestId,
+            error: failure.detail,
+            alert: "attempt_unknown",
+          },
           "payout outcome unknown; the reconciler will look it up by request_id",
         );
         return { outcome: "unknown", attemptId, error: failure.detail.message };
