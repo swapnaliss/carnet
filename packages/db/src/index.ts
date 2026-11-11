@@ -23,4 +23,5 @@ export {
   USER_ROLES,
 } from "./schema/index";
 export * from "./seed/demo-business";
+export * from "./seed/demo-dataset";
 export * from "./seed/demo-users";
