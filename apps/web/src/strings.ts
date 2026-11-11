@@ -125,6 +125,7 @@ const en = {
       badge: "Held for information",
     },
     updated: "Updated {time} \u00b7 Live",
+    updatedStale: "Updated {time}",
     due: "Due",
     dueNotSet: "Not set",
     criticalityNotSet: "Criticality not set",
@@ -1005,9 +1006,14 @@ const en = {
 
 /** Fills `{name}` placeholders in a string from `strings.ts`. */
 export function fill(template: string, values: Record<string, string | number>): string {
-  return template.replace(/\{(\w+)\}/g, (match, key: string) =>
-    key in values ? String(values[key]) : match,
-  );
+  return template.replace(/\{(\w+)\}/g, (match, key: string) => {
+    if (key in values) return String(values[key]);
+    // A placeholder nobody filled is a bug: fail in tests and development, show the text in production.
+    if (process.env.NODE_ENV !== "production") {
+      throw new Error(`fill: no value for {${key}} in "${template}"`);
+    }
+    return match;
+  });
 }
 
 export const strings = { en } as const;

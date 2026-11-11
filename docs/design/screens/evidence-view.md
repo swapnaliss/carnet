@@ -117,3 +117,4 @@ fetched.
   add a clearer copy; there is no "Try again" control because no retry job exists yet.
 - The h1 is "Evidence for {counterparty}"; the amount sits beside it. The payment summary is a compact definition list.
 - Check results show the sentence with both values and a citation chip per document, not a two-value comparison cell.
+- Weak and Missing reasons are a plain bulleted list under the strength badge, not the warning Alert; the badge, its tone and the list carry the state.

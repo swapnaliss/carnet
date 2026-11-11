@@ -43,7 +43,7 @@ export async function newDraft(): Promise<string> {
       await c.query<{ id: string }>(
         `insert into payments (business_id, counterparty_id, amount_minor, currency, source_currency, method, reference)
          values ($1, $2, 310000, 'EUR', 'EUR', 'SWIFT', $3) returning id`,
-        [biz, cp, `NL-2026-0341 ${randomUUID().slice(0, 8)}`],
+        [biz, cp, "NL-2026-0341"],
       )
     ).rows[0]?.id as string;
   });

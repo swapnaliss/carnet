@@ -21,6 +21,7 @@ import { LiveIndicator, StaleBanner } from "@/components/payments/live-status";
 import { StatusBadge } from "@/components/payments/status-badge";
 import { STALE_AFTER_MS, useNow, usePoll } from "@/components/payments/use-poll";
 import { Button } from "@/components/ui/button";
+import { fieldClass } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 import type { EvidenceCheckDto, EvidenceDocumentDto, FactDto, RuleDto } from "@/server/evidence";
 import type { PaymentDetailResponse, PaymentDto } from "@/server/payments";
@@ -33,8 +34,7 @@ import { EvidenceStrength } from "./evidence-strength";
 // shows it. Every number on screen is a server response: nothing is optimistic.
 
 const card = "flex flex-col gap-4 rounded-md border border-border bg-card p-4 md:p-6";
-const field =
-  "min-h-11 w-full rounded-md border border-border bg-background px-3 text-base text-foreground outline-none focus-visible:ring-2 focus-visible:ring-focus-ring md:min-h-10";
+const field = fieldClass;
 const TABS = ["checks", "documents"] as const;
 type Tab = (typeof TABS)[number];
 
@@ -970,7 +970,10 @@ export function EvidenceView({
         : t.evidence.strength.summaryMissing;
 
   return (
-    <div className="flex flex-col gap-6" data-flag={data.flag}>
+    <div
+      className={cn("flex flex-col gap-6", canEdit && !data.payment.sent && "pb-24 md:pb-0")}
+      data-flag={data.flag}
+    >
       <Link
         href="/queue"
         className="inline-flex min-h-11 w-fit items-center gap-1.5 text-sm font-medium text-primary underline underline-offset-4 hover:no-underline md:min-h-6"

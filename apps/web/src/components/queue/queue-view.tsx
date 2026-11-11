@@ -14,6 +14,7 @@ import { formatDate } from "@/lib/intl";
 import { cn } from "@/lib/utils";
 import type { QueueItemDto, QueueResponse } from "@/server/queue";
 import { fill, locale, t } from "@/strings";
+import { queueCounts } from "./counts";
 
 // The payment queue (M2-03, docs/design/screens/payment-queue.md): the goal, what is held, and every
 // payment with the strength of its evidence and the transfer status Airwallex last reported. Filters
@@ -148,17 +149,7 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
     [items, flag, show, currency],
   );
   const held = items.filter((i) => i.held);
-  const counts = {
-    total: items.length,
-    strong: items.filter((i) => i.flag === "strong").length,
-    weak: items.filter((i) => i.flag === "weak").length,
-    missing: items.filter((i) => i.flag === "missing").length,
-    held: held.length,
-    sent: items.filter((i) => i.payment.attempt !== null || i.payment.transfer_status !== null)
-      .length,
-    notSent: items.filter((i) => i.payment.attempt === null && i.payment.transfer_status === null)
-      .length,
-  };
+  const counts = queueCounts(items);
 
   function setFilter(key: "flag" | "show" | "currency", value: string | null) {
     const next = new URLSearchParams(params.toString());
@@ -179,12 +170,15 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
     );
   }
 
+  const stale =
+    items.length > 0 &&
+    (initial.reconcile.age_ms === null || initial.reconcile.age_ms > initial.reconcile.max_age_ms);
   const updated = formatDate(initial.server_time, locale, { timeStyle: "short" });
 
   return (
     <div className="flex flex-col gap-6">
       <p className="text-sm text-muted-foreground tabular-nums" data-testid="queue-updated">
-        {fill(t.queue.updated, { time: updated })}
+        {fill(stale ? t.queue.updatedStale : t.queue.updated, { time: updated })}
       </p>
 
       {initial.reconcile.age_ms === null ||
@@ -224,7 +218,7 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
         <p className="text-lg font-semibold">{t.queue.goal.emptyTitle}</p>
         <p className="max-w-[65ch] text-muted-foreground">{t.queue.goal.emptyBody}</p>
         <p className="text-sm text-muted-foreground" data-testid="queue-summary">
-          {fill(t.queue.summary.counts, counts)}
+          {fill(t.queue.summary.counts, { ...counts })}
         </p>
         <p>
           <Link
