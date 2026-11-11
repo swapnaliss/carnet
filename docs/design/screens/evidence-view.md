@@ -15,9 +15,9 @@ and sends a payment with strong evidence.
 
 | Data | Source | Notes |
 |---|---|---|
-| Payment summary | `payments`, `counterparties`, `obligations` | Counterparty, amount, due date, method (LOCAL / SWIFT), beneficiary fingerprint (masked IBAN `DE11 …0001`), StatusBadge pair |
+| Payment summary | `payments`, `counterparties`, `obligations` | Counterparty, amount, due date ("Not set" until obligations exist, M3), method (LOCAL / SWIFT), beneficiary account fingerprint as stored ("Not recorded yet" until a beneficiary exists), StatusBadge pair |
 | Evidence strength + reason | evidence rules | "Evidence weak: invoice total does not match the purchase order" |
-| Checks | evidence rules results | Amount matches invoice · Beneficiary matches contract · Invoice and PO agree · Contract in force on invoice date · Funds evidence present; each pass / fail / not applicable with the two facts compared |
+| Checks | evidence rules results (M2-03, `packages/domain/src/evidence`) | Amount matches invoice (R-AMT) · Payee matches the invoice supplier (R-PAYEE) · A contract names the payee, first payment above the threshold (R-CONTRACT) · Facts are verified (R-VERIFIED) · Invoice and purchase order agree and Beneficiary account matches the contract (R-CONSISTENT, a rule beyond the ticket's four, owner decision 2026-11-11) · Contract in force on the invoice date and Funds evidence present, shown as "Not checked" because no rule runs them yet. Each row: pass / fail / not checked, the sentence with the two values, and a citation chip per document |
 | Documents | `documents`, `evidence_links` | Title, kind, filename, pages, uploaded at, SHA-256 short, text layer yes/no, injection flag |
 | Facts per document | `document_facts` (current version) | Field, value, verbatim quote, page, verified / needs confirmation / confirmed by you, fact version |
 | Injection flag | pre-scan | "This document contains text that looks like instructions to an AI. Carnet treated it as data and did not follow it." with the flagged line in a quote |
@@ -29,8 +29,7 @@ and sends a payment with strong evidence.
   Checks tab: a Table: Check | Result (icon + label) | Compared (two values each with a CitationChip) |
   Action. Documents tab: two columns: document list (left, 360px) and the selected document's facts
   (right): each fact row = field label, value (mono for identifiers, MoneyDisplay for amounts), and its
-  SourceSnippet inline. Primary action at the header right: "Approve and send" (only when evidence is
-  strong and no transfer exists), opening the bound payout approval dialog.
+  SourceSnippet inline. Primary action at the header right: "Approve and send" (offered whatever the strength while no transfer exists: owner decision 2026-11-11, issue M2-03: a Weak or Missing payment is sent only after an explicit acknowledgement in the approval dialog, audited as `evidence_override`), opening the payout approval dialog. Beyond the spec: the dialog lists what Carnet knows (payee, account, amount, reference) and says "Set by Airwallex" for the fee and value date, which are not known before the transfer exists.
 - **768:** same, document list collapses into a select above the facts.
 - **375:** one column; Checks as stacked cards (result first); Documents as an accordion per document;
   the primary action in a bottom bar above the tab bar (44px+).
@@ -52,7 +51,7 @@ Header skeleton, tab bar, 5 check-row skeletons. Status text "Loading evidence".
 
 No documents linked: "No documents are linked to this payment. Carnet cannot check it until you add
 the invoice and, if there is one, the contract." CTA "Add a document" (M2-01). Evidence strength shows
-`missing`. Approve and send is not offered.
+`missing`. "Approve and send" is still offered (owner decision 2026-11-11, following the issue M2-03): it opens the payout approval, which asks for an acknowledgement of the reasons shown; the server refuses the send without it and records an `evidence_override` audit entry holding those reasons.
 
 ### Error
 

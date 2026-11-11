@@ -832,7 +832,7 @@ const en = {
       strong: "Strong evidence",
       weak: "Weak evidence",
       missing: "Evidence missing",
-      summaryStrong: "The documents on file support this payment.",
+      summaryStrong: "The checks Carnet runs on these documents passed.",
       summaryWeak: "Some documents do not support this payment, or Carnet could not verify them.",
       summaryMissing: "Carnet cannot check this payment until the missing documents are added.",
     },
@@ -889,7 +889,8 @@ const en = {
       accountsAgree: "The invoice account {account} is the account the contract names.",
       accountsDiffer:
         "The invoice account {invoice} ({invoiceDocument}) is not the account the contract names ({contractDocument}).",
-      allPassed: "Every check passed and every fact is quoted from a document or confirmed by you.",
+      allPassed:
+        "Every check Carnet runs passed, and every fact is quoted from a document or confirmed by you. Contract in force and funds evidence are not checked yet.",
     },
     documents: {
       title: "Documents",
@@ -962,7 +963,8 @@ const en = {
     },
     send: {
       title: "Send this payment",
-      sentTitle: "This payment has been sent",
+      sentTitle: "Approved by you, sending to Airwallex",
+      sentTitleConfirmed: "Airwallex created the transfer",
       sentBody: "Its transfer status is on the payment page.",
       sentLink: "Open the payment",
       strongBody: "The evidence is strong. Sending creates the transfer in the Airwallex sandbox.",

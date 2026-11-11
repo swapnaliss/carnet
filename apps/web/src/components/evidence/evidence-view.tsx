@@ -632,7 +632,7 @@ function SentPanel({ data, payment }: { data: EvidenceCheckDto; payment: Payment
   return (
     <section aria-labelledby={`${ids}-title`} className={card} data-testid="send-panel">
       <h2 id={`${ids}-title`} className="text-lg leading-tight font-semibold">
-        {t.evidence.send.sentTitle}
+        {confirmed ? t.evidence.send.sentTitleConfirmed : t.evidence.send.sentTitle}
       </h2>
       <ol className="flex flex-col gap-2" aria-label={t.evidence.steps.title}>
         {steps.map((step) => {

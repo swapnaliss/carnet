@@ -217,7 +217,12 @@ async function prepare(page: Page, scheme: (typeof schemes)[number], width: numb
   await page.emulateMedia({ colorScheme: scheme });
   await page.setViewportSize({ width, height: width === 375 ? 812 : 900 });
   const capture = async (name: string) => {
-    await page.screenshot({ path: resolve(dir, `${name}-${tag}.png`), fullPage: true });
+    // The viewport is made as tall as the page, so fixed bars (skip link, tab bar, approve bar) appear
+    // once, where they are, instead of being pasted mid-page as in a full-page capture.
+    const height = await page.evaluate(() => document.documentElement.scrollHeight);
+    await page.setViewportSize({ width, height: Math.max(height, 600) });
+    await page.screenshot({ path: resolve(dir, `${name}-${tag}.png`) });
+    await page.setViewportSize({ width, height: width === 375 ? 812 : 900 });
     const results = await new AxeBuilder({ page }).withTags(TAGS).analyze();
     writeFileSync(resolve(dir, `axe-${name}-${tag}.json`), JSON.stringify(results, null, 2));
     const blocking = results.violations.filter(
@@ -278,7 +283,7 @@ for (const scheme of schemes) {
 
       await page.goto(`/payments/${ids.strong}/evidence`);
       await expect(page.getByRole("heading", { level: 1 })).toContainText("Harbor");
-      await expect(page.getByTestId("reasons")).toContainText("Every check passed");
+      await expect(page.getByTestId("reasons")).toContainText("Every check Carnet runs passed");
       await capture("evidence-strong");
       await page.getByRole("button", { name: "Approve and send" }).click();
       await expect(page.getByTestId("approve-dialog")).toBeVisible();
@@ -307,7 +312,9 @@ for (const scheme of schemes) {
       await capture("evidence-waiting-for-airwallex");
 
       await page.goto(`/payments/${ids.sent}/evidence`);
-      await expect(page.getByText("Airwallex created the transfer")).toBeVisible();
+      await expect(
+        page.getByRole("heading", { name: "Airwallex created the transfer" }),
+      ).toBeVisible();
       await capture("evidence-sent");
 
       const paymentId = await newDraft();

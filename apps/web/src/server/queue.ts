@@ -19,6 +19,8 @@ export interface QueueItemDto {
   readonly held: boolean;
   /** When Airwallex's information request expires, while the payment is held. */
   readonly rfi_expires_at: string | null;
+  /** The holding RFI: the hold screen is `/rfis/{rfi_id}`. */
+  readonly rfi_id: string | null;
 }
 
 export interface QueueResponse {
@@ -49,6 +51,7 @@ export async function loadQueue(repo: RepoCtx, now = new Date()): Promise<QueueR
       documents: loaded.dto.documents.length,
       held: payment.held,
       rfi_expires_at: payment.held ? (rfi?.expiresAt?.toISOString() ?? null) : null,
+      rfi_id: payment.held ? (rfi?.id ?? null) : null,
     });
   }
   const rank = (i: QueueItemDto) =>

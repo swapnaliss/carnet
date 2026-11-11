@@ -49,7 +49,11 @@ test("the owner creates a payment and the UI shows each new status within 6 s, a
   const id = page.url().split("/").slice(-2)[0] ?? "";
   await page.getByLabel(/I have read the reasons above/).check();
   await page.getByRole("button", { name: "Acknowledge and send" }).click();
-  await expect(page.getByText("This payment has been sent")).toBeVisible({ timeout: 30_000 });
+  await expect(
+    page.getByRole("heading", {
+      name: /Approved by you, sending to Airwallex|Airwallex created the transfer/,
+    }),
+  ).toBeVisible({ timeout: 30_000 });
   await page.goto(`/payments/${id}`);
   await expect(page.getByRole("heading", { level: 1, name: reference })).toBeVisible();
 

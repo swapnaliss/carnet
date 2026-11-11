@@ -107,7 +107,12 @@ function HeldBadge() {
 
 function nextStep(item: QueueItemDto): { label: string; href: string } {
   const p = item.payment;
-  if (item.held) return { label: t.queue.held.cta, href: `/payments/${p.id}` };
+  if (item.held) {
+    return {
+      label: t.queue.held.cta,
+      href: item.rfi_id ? `/rfis/${item.rfi_id}` : `/payments/${p.id}`,
+    };
+  }
   if (p.attempt === null && p.transfer_status === null) {
     return { label: t.queue.next.review, href: `/payments/${p.id}/evidence` };
   }
@@ -236,7 +241,11 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
             </div>
           </div>
           <Button asChild className="w-full md:w-auto">
-            <Link href={`/payments/${held[0].payment.id}`}>{t.queue.held.cta}</Link>
+            <Link
+              href={held[0].rfi_id ? `/rfis/${held[0].rfi_id}` : `/payments/${held[0].payment.id}`}
+            >
+              {t.queue.held.cta}
+            </Link>
           </Button>
         </section>
       ) : null}
