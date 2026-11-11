@@ -5,6 +5,12 @@
 import type { Harness } from "../harness";
 import type { ModelId } from "../pricing";
 import {
+  combineFollowUp,
+  type FollowUpReuse,
+  planFollowUp,
+  reuseOnlyResult,
+} from "../reuse/follow-up";
+import {
   DRAFT_RUN_KIND,
   type DraftInput,
   type DraftResult,
@@ -16,12 +22,13 @@ export interface DraftingStore {
   /**
    * The questions to draft for the RFI's `round` (those marked `needs_drafting`), the evidence the
    * business has, and whether the RFI is still waiting for a draft. Null when this business has no
-   * such RFI or round.
+   * such RFI or round. `reuse` is set for a follow-up round (M3-05): the approved answers matching its
+   * questions, which are decided without the model.
    */
   loadInput(
     rfiId: string,
     round: number,
-  ): Promise<{ input: DraftInput; awaitingDraft: boolean } | null>;
+  ): Promise<{ input: DraftInput; awaitingDraft: boolean; reuse?: FollowUpReuse } | null>;
   /**
    * Inserts the draft and its answers, moves the RFI DRAFTING -> DRAFT_READY | NEEDS_OWNER (through the
    * state machine, audited) and publishes `draft.ready` | `draft.needs_owner`, all in one transaction.
@@ -62,6 +69,20 @@ export async function runDrafting(params: RunDraftingParams): Promise<RunDraftin
   if (!loaded) throw new Error(`rfi ${rfiId} round ${round} not found`);
   if (!loaded.awaitingDraft) return { outcome: "skipped", draftId: null, state: null, kind: null };
 
+  // Follow-up round (M3-05): questions with an approved answer never reach the model.
+  const plan = loaded.reuse ? planFollowUp(loaded.input.questions, loaded.reuse) : null;
+  if (plan && plan.toModel.length === 0) {
+    const saved = await store.saveDraft({
+      rfiId,
+      round,
+      draftKey,
+      runId: null,
+      origin: "system",
+      result: reuseOnlyResult(plan),
+    });
+    return { outcome: "drafted", ...saved, kind: "reuse" };
+  }
+
   const run = await harness.startRun({ kind: DRAFT_RUN_KIND, ref: rfiId });
   let result: DraftResult;
   try {
@@ -69,7 +90,7 @@ export async function runDrafting(params: RunDraftingParams): Promise<RunDraftin
       harness,
       run,
       step: draftStep(round, draftKey),
-      input: loaded.input,
+      input: plan ? { ...loaded.input, questions: plan.toModel } : loaded.input,
       ...(params.model ? { model: params.model } : {}),
     });
   } catch (error) {
@@ -77,6 +98,7 @@ export async function runDrafting(params: RunDraftingParams): Promise<RunDraftin
     throw error;
   }
   await harness.finishRun(run, result.kind === "model" ? "DONE" : "FAILED");
+  if (plan) result = combineFollowUp(loaded.input.questions, plan, result);
   const saved = await store.saveDraft({
     rfiId,
     round,

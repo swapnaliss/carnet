@@ -93,6 +93,13 @@ export {
   schemaSubsetViolations,
 } from "./prompt-version";
 export { inputHash, lookupReplay } from "./replay";
+export type { FollowUpPlan, FollowUpReuse } from "./reuse/follow-up";
+export {
+  combineFollowUp,
+  planFollowUp,
+  REUSE_PROMPT_VERSION,
+  reuseOnlyResult,
+} from "./reuse/follow-up";
 export type {
   AgentFlags,
   HarnessStore,

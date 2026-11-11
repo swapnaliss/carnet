@@ -412,6 +412,29 @@ const en = {
       staleReuse: "An earlier approved answer no longer matches the documents.",
       reason: "Reason",
     },
+    followUp: {
+      heading: "Follow-up questions",
+      summary: "Round {round}: {reused} reused, {fresh} new draft, {needs} need you.",
+      badgeReused: "Reused",
+      badgeNew: "New draft",
+      badgeNeeds: "Needs you",
+      sameAs: "Same as approved on {date}",
+      sameAsHint:
+        "The answer you approved before, checked again against your current documents. Applying it creates a new approval.",
+      changedTitle: "Airwallex changed this question",
+      earlier: "Earlier wording:",
+      now: "Now:",
+      applyAll: "Apply all reused answers",
+      applying: "Applying the answers",
+      readyReused:
+        "Not applied yet. Every answer is one you approved before, checked again against your documents. Applying creates a new approval for exactly what is shown; the earlier approval is not reused.",
+      applyError: "Carnet could not apply the answers. Nothing was approved. {message}",
+      applyChanged: "The request changed while you were looking. Reload the answers and try again.",
+      blockedTitle: "The whole request is blocked",
+      blockedBody:
+        "Airwallex needs every question answered in one response. These questions need you:",
+      blockedItem: "Question {position}: {title}",
+    },
     claim: {
       label: "Claim {n}",
       list: "Claims in this answer",

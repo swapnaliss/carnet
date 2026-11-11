@@ -9,6 +9,7 @@ import {
   extractionTypeOf,
   isSupportedAnswerType,
   needsOwner,
+  type ReuseProvenance,
   type SuppliedDocument,
   type SuppliedFact,
   verifyDraft,
@@ -63,8 +64,11 @@ export type UnavailableCode =
   | "MODEL_ERROR";
 
 export interface DraftResult {
-  /** `model`: the model replied; `unavailable`: no usable reply (every answer is NEEDS_OWNER). */
-  readonly kind: "model" | "unavailable";
+  /**
+   * `model`: the model replied; `unavailable`: no usable reply (every answer is NEEDS_OWNER); `reuse`
+   * (M3-05): a follow-up round decided entirely from approved answers, no model call.
+   */
+  readonly kind: "model" | "unavailable" | "reuse";
   readonly promptVersion: string;
   readonly model: string;
   readonly inputHash: string;
@@ -73,6 +77,8 @@ export interface DraftResult {
   readonly unavailable: { code: UnavailableCode; detail: string } | null;
   /** One entry per question, in the questions' order. */
   readonly results: readonly DraftVerification[];
+  /** Follow-up rounds (M3-05): the questions answered from memory, by question id. */
+  readonly reuseProvenance?: Readonly<Record<string, ReuseProvenance>>;
 }
 
 const NO_USAGE: DraftUsage = { inputTokens: 0, outputTokens: 0, costNanoUsd: 0, calls: 0 };
