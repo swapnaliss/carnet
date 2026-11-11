@@ -622,6 +622,14 @@ const cases: Record<string, () => Promise<void>> = {
     expect(await repos.getFactsVersion(ctxA(), B.documentId, 1)).toBeNull();
     expect((await repos.getFactsVersion(ctxA(), A.documentId, 1))?.documentId).toBe(A.documentId);
   },
+  getFactsVersionById: async () => {
+    const own = await repos.getLatestFacts(ctxA(), A.documentId);
+    const foreign = await repos.getLatestFacts(ctxB(), B.documentId);
+    expect(own).not.toBeNull();
+    expect(foreign).not.toBeNull();
+    expect(await repos.getFactsVersionById(ctxA(), foreign?.id ?? "")).toBeNull();
+    expect((await repos.getFactsVersionById(ctxA(), own?.id ?? ""))?.documentId).toBe(A.documentId);
+  },
   getLatestFacts: async () => {
     expect(await repos.getLatestFacts(ctxA(), B.documentId)).toBeNull();
     expect((await repos.getLatestFacts(ctxA(), A.documentId))?.documentId).toBe(A.documentId);

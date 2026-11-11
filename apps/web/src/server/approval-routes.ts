@@ -2,7 +2,7 @@
 // kill switch from system_flags, and the real draft lookup from M2-05). The route files under
 // app/api/v1/rfis/[id]/approvals pass them to the process `defineRoute`; tests build the same specs
 // with their own clock and draft lookup.
-import { getLatestDraft } from "@carnet/db";
+import { getDraft, getLatestDraft } from "@carnet/db";
 import { approvalRouteSpecs } from "./approvals";
 
 export const approvalSpecs = approvalRouteSpecs({
@@ -10,4 +10,6 @@ export const approvalSpecs = approvalRouteSpecs({
   // re-draft) is a 409 for the older one.
   isLatestDraft: async (rc, rfi, draftId) =>
     (await getLatestDraft(rc, rfi.id, rfi.round))?.id === draftId,
+  // An owner who completed every answer after NEEDS_OWNER (M2-08) approves the new, DRAFT_READY draft.
+  draftIsReady: async (rc, _rfi, draftId) => (await getDraft(rc, draftId))?.state === "DRAFT_READY",
 });
