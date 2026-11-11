@@ -103,6 +103,12 @@ const en = {
       waiting: "Waiting for Airwallex",
     },
     unnamedPayee: "No payee set",
+    stale: {
+      title: "Transfer statuses may be out of date",
+      body: "Transfer statuses were last checked with Airwallex {minutes} min ago. Carnet is retrying. What you see is the last status it stored.",
+      never:
+        "Carnet has not checked transfer statuses with Airwallex yet. What you see is the last status it stored.",
+    },
     goal: {
       label: "Goal",
       emptyTitle: "No goal set yet",
@@ -832,6 +838,7 @@ const en = {
       strong: "Strong evidence",
       weak: "Weak evidence",
       missing: "Evidence missing",
+      checksRun: "{run} of {total} checks run",
       summaryStrong: "The checks Carnet runs on these documents passed.",
       summaryWeak: "Some documents do not support this payment, or Carnet could not verify them.",
       summaryMissing: "Carnet cannot check this payment until the missing documents are added.",
@@ -951,6 +958,7 @@ const en = {
       kind: "Kind of document",
       submit: "Upload and add",
       submitPending: "Uploading",
+      another: "Add another document",
       done: "{name} was added. Carnet is reading it.",
       doneKnown: "{name} was already uploaded. It is linked to this payment now.",
       errorGeneric: "The document could not be added. Nothing was changed. Try again.",

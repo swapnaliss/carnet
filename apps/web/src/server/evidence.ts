@@ -127,7 +127,11 @@ export interface EvidenceCheckDto {
 
 export function reasonDto(reason: EvidenceReason): ReasonDto {
   const template = (t.evidence.reason as Record<string, string>)[reason.key] ?? reason.key;
-  return { key: reason.key, params: reason.params, text: fill(template, { ...reason.params }) };
+  // A fact key (`invoice_number`) is shown as words ("invoice number").
+  const params = reason.params.fact
+    ? { ...reason.params, fact: reason.params.fact.replaceAll("_", " ") }
+    : reason.params;
+  return { key: reason.key, params, text: fill(template, { ...params }) };
 }
 
 function factStatus(v: StoredFactsVersion, fact: StoredFactsVersion["facts"][number]): FactStatus {

@@ -3,7 +3,7 @@
 // (src/server/evidence.ts); the status is the projection of the stored transfer and of the open RFI
 // (`project`), never invented here. Sorted as docs/design/screens/payment-queue.md says: held first, then
 // failures and OVERDUE, then newest (no due dates exist before obligations, M3).
-import { listRfis, type RepoCtx } from "@carnet/db";
+import { getSloSummary, listRfis, type RepoCtx } from "@carnet/db";
 import { type PaymentId, project, RFI_HOLDING_STATES } from "@carnet/domain";
 import { type EvidenceCheckDto, loadEvidenceCheck } from "./evidence";
 import { loadPaymentList, type PaymentDto } from "./payments";
@@ -25,6 +25,8 @@ export interface QueueItemDto {
 
 export interface QueueResponse {
   readonly items: QueueItemDto[];
+  /** When Carnet last checked transfer statuses with Airwallex (the reconcile job), and how old that may be. */
+  readonly reconcile: { readonly age_ms: number | null; readonly max_age_ms: number };
   readonly server_time: string;
 }
 
@@ -57,5 +59,10 @@ export async function loadQueue(repo: RepoCtx, now = new Date()): Promise<QueueR
   const rank = (i: QueueItemDto) =>
     i.held ? 0 : i.payment.transfer_status && FAILED.has(i.payment.transfer_status) ? 1 : 2;
   items.sort((a, b) => rank(a) - rank(b));
-  return { items, server_time: list.server_time };
+  const slo = await getSloSummary(repo.db, { businessId: repo.businessId, now });
+  return {
+    items,
+    reconcile: { age_ms: slo.reconcile.ageMs, max_age_ms: slo.reconcile.maxAgeMs },
+    server_time: list.server_time,
+  };
 }

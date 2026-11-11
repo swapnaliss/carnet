@@ -207,6 +207,23 @@ async function seed(): Promise<Seeded> {
   });
 }
 
+/** A finished `reconcile` job `ageMs` ago, which is what the queue's freshness reads (one row, moved). */
+async function setReconcileAge(ageMs: number): Promise<void> {
+  await withDb(async (c) => {
+    const at = new Date(Date.now() - ageMs);
+    const updated = await c.query(
+      "update outbox_jobs set finished_at = $1 where kind = 'reconcile' and status = 'DONE'",
+      [at],
+    );
+    if (updated.rowCount === 0) {
+      await c.query(
+        "insert into outbox_jobs (kind, payload, status, attempts, finished_at) values ('reconcile', '{}'::jsonb, 'DONE', 1, $1)",
+        [at],
+      );
+    }
+  });
+}
+
 const widths = [375, 768, 1440] as const;
 const schemes = ["light", "dark"] as const;
 
@@ -262,9 +279,16 @@ test("review queue states", async ({ page }, info) => {
       await page.goto("/queue/preview-error");
       await expect(page.getByText(/could not load your payments/)).toBeVisible();
       await capture("queue-error");
+      await setReconcileAge(0);
       await page.goto("/queue");
       await expect(page.getByTestId("held-callout")).toBeVisible();
+      await expect(page.getByTestId("queue-stale")).toHaveCount(0);
       await capture("queue");
+      await setReconcileAge(10 * 60_000);
+      await page.goto("/queue");
+      await expect(page.getByTestId("queue-stale")).toBeVisible();
+      await capture("queue-stale");
+      await setReconcileAge(0);
       await page.goto("/queue?show=paid&flag=missing");
       await expect(
         page.getByRole("heading", { name: "No payments match these filters" }),
@@ -285,13 +309,20 @@ for (const scheme of schemes) {
     test(`review evidence ${scheme} ${width}`, async ({ page }, info) => {
       info.setTimeout(240_000);
       const capture = await prepare(page, scheme, width);
+      // Both tabs of a state: Checks, then Documents.
+      const both = async (name: string) => {
+        await page.getByRole("tab", { name: "Checks" }).click();
+        await capture(`${name}-checks`);
+        await page.getByRole("tab", { name: /Documents/ }).click();
+        await capture(`${name}-documents`);
+      };
       await signIn(page, "owner");
       const ids = await seed();
 
       await page.goto(`/payments/${ids.strong}/evidence`);
       await expect(page.getByRole("heading", { level: 1 })).toContainText("Harbor");
       await expect(page.getByTestId("reasons")).toContainText("Every check Carnet runs passed");
-      await capture("evidence-strong");
+      await both("evidence-strong");
       await page.getByRole("button", { name: "Approve and send" }).click();
       await expect(page.getByTestId("approve-dialog")).toBeVisible();
       await capture("evidence-approve-dialog-strong");
@@ -299,39 +330,49 @@ for (const scheme of schemes) {
 
       await page.goto(`/payments/${ids.weak}/evidence`);
       await expect(page.getByTestId("reasons")).toContainText("does not match");
-      await capture("evidence-weak-checks");
-      await page.getByRole("tab", { name: /Documents/ }).click();
-      await capture("evidence-weak-documents");
+      await both("evidence-weak");
       await page.getByRole("button", { name: "Approve and send" }).click();
       await capture("evidence-approve-dialog-weak");
       await page.keyboard.press("Escape");
 
       await page.goto(`/payments/${ids.injection}/evidence#documents`);
       await expect(page.getByText("looks like instructions to an AI")).toBeVisible();
-      await capture("evidence-injection");
+      await capture("evidence-injection-documents");
 
       await page.goto(`/payments/${ids.failed}/evidence#documents`);
       await expect(page.getByText(/could not read this document/)).toBeVisible();
-      await capture("evidence-extraction-failed");
+      await capture("evidence-extraction-failed-documents");
+      // A failed action inside the tab: the removal is refused by the server, the page says so and keeps its data.
+      await page.route(/evidence-links\//, (route) => route.fulfill({ status: 500, body: "{}" }));
+      await page.getByRole("button", { name: /Remove from this payment/ }).click();
+      await expect(
+        page.getByText("Carnet could not load the documents. Nothing was changed."),
+      ).toBeVisible();
+      await capture("evidence-tab-error-documents");
+      await page.unroute(/evidence-links\//);
 
       await page.goto(`/payments/${ids.waiting}/evidence`);
       await expect(page.getByText("Waiting for Airwallex to confirm")).toBeVisible();
-      await capture("evidence-waiting-for-airwallex");
+      await both("evidence-waiting-for-airwallex");
 
       await page.goto(`/payments/${ids.sent}/evidence`);
       await expect(
         page.getByRole("heading", { name: "Airwallex created the transfer" }),
       ).toBeVisible();
-      await capture("evidence-sent");
+      await both("evidence-sent");
 
       const paymentId = await newDraft();
       await page.goto(`/payments/${paymentId}/evidence`);
-      await capture("evidence-empty");
+      await both("evidence-missing");
+      await page.getByRole("button", { name: "Approve and send" }).click();
+      await capture("evidence-approve-dialog-missing");
+      await page.keyboard.press("Escape");
+      await page.getByRole("tab", { name: /Documents/ }).click();
       const documentId = await uploadScan(page);
-      await capture("evidence-reading");
+      await both("evidence-reading");
       await storeScanFacts(documentId);
       await expect(page.locator("[data-fact]")).toHaveCount(3, { timeout: 15_000 });
-      await capture("evidence-needs-confirmation");
+      await both("evidence-needs-confirmation");
       for (const box of await page.getByRole("checkbox", { name: /^Confirm / }).all())
         await box.check();
       await page.getByRole("button", { name: /^Confirm 3 facts$/ }).click();
@@ -339,9 +380,7 @@ for (const scheme of schemes) {
         timeout: 15_000,
       });
       await expect(page.getByTestId("reasons")).not.toContainText("not verified");
-      await capture("evidence-confirmed");
-      await page.getByRole("tab", { name: "Checks" }).click();
-      await capture("evidence-checks-after-confirm");
+      await both("evidence-confirmed");
 
       // Stale: the evidence cannot be refreshed, so the banner shows after 15 s, the data stays and sending is paused.
       await page.route(/evidence-check/, (route) => route.abort());

@@ -210,8 +210,7 @@ function ChecksPanel({
                       <li key={`${r.key}-${r.text}`} className="max-w-[70ch]">
                         {r.text}
                         {r.params.document ? (
-                          <>
-                            {" "}
+                          <span className="mt-1 block">
                             <button
                               type="button"
                               onClick={() => onCite(r.params.document ?? "")}
@@ -223,7 +222,7 @@ function ChecksPanel({
                                 ? ` \u00b7 ${fill(t.evidence.citation.page, { page: r.params.page })}`
                                 : ""}
                             </button>
-                          </>
+                          </span>
                         ) : null}
                       </li>
                     ))}
@@ -505,11 +504,15 @@ const KINDS = ["invoice", "contract", "purchase_order", "statement", "other"] as
 function AddDocument({
   paymentId,
   onAdded,
+  secondary,
 }: {
   paymentId: string;
   onAdded: (m: string) => Promise<void>;
+  /** Documents are already linked: the form waits behind a button. */
+  secondary: boolean;
 }) {
   const ids = useId();
+  const [open, setOpen] = useState(!secondary);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -559,6 +562,15 @@ function AddDocument({
     setPending(false);
   }
 
+  if (!open) {
+    return (
+      <div>
+        <Button variant="outline" onClick={() => setOpen(true)}>
+          {t.evidence.add.another}
+        </Button>
+      </div>
+    );
+  }
   return (
     <section aria-labelledby={`${ids}-title`} className={card}>
       <div className="flex flex-col gap-1">
@@ -582,7 +594,7 @@ function AddDocument({
             type="file"
             name="file"
             accept="application/pdf,image/png,image/jpeg"
-            className={`${field} py-2`}
+            className={`${field} py-2 file:mr-3 file:rounded-md file:border-0 file:bg-secondary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-secondary-foreground`}
           />
         </div>
         <div className="flex flex-col gap-1.5">
@@ -890,15 +902,16 @@ export function EvidenceView({
   }
 
   async function remove(doc: EvidenceDocumentDto) {
-    const res = await fetch(`/api/v1/payments/${id}/evidence-links/${doc.link_id}`, {
-      method: "DELETE",
-    });
-    if (res.ok) {
+    try {
+      const res = await fetch(`/api/v1/payments/${id}/evidence-links/${doc.link_id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error(String(res.status));
       const message = fill(t.evidence.documents.removed, { name: doc.filename });
       setNotice(message);
       announce(message);
       setData((await res.json()) as EvidenceCheckDto);
-    } else {
+    } catch {
       setError(t.evidence.error.documents);
     }
   }
@@ -942,6 +955,11 @@ export function EvidenceView({
   useEffect(() => {
     if (!pending) setNotice(null);
   }, [pending]);
+  const rows = checkRows(data.rules);
+  const checkSummary = {
+    total: rows.length,
+    notRun: rows.filter((r) => r.outcome === "not_run").length,
+  };
   const stale = now - poll.lastSuccessAt > STALE_AFTER_MS;
   const payee = data.payment.counterparty_name ?? t.queue.unnamedPayee;
   const summary =
@@ -991,6 +1009,14 @@ export function EvidenceView({
         </dl>
         <div className="flex flex-wrap items-center gap-2">
           <EvidenceStrength flag={data.flag} size="md" />
+          {checkSummary.notRun > 0 ? (
+            <span className="text-sm text-muted-foreground" data-testid="checks-run">
+              {fill(t.evidence.strength.checksRun, {
+                run: checkSummary.total - checkSummary.notRun,
+                total: checkSummary.total,
+              })}
+            </span>
+          ) : null}
           <StatusBadge status={describeStatus(payment)} size="md" />
           <LiveIndicator
             lastSuccessAt={poll.lastSuccessAt}
@@ -1007,15 +1033,13 @@ export function EvidenceView({
             )}
           >
             <Button
-              className="w-full md:w-auto"
+              className="w-full md:w-auto disabled:border disabled:border-border disabled:bg-muted disabled:text-muted-foreground disabled:opacity-100"
               disabled={stale}
               onClick={() => setApproving(true)}
             >
               {t.evidence.approve.cta}
             </Button>
-            {stale ? (
-              <p className="text-sm text-muted-foreground">{t.evidence.approve.stale}</p>
-            ) : null}
+            {stale ? <p className="text-base text-foreground">{t.evidence.approve.stale}</p> : null}
           </div>
         ) : null}
         {!canEdit && !data.payment.sent ? (
@@ -1115,7 +1139,7 @@ export function EvidenceView({
                 ))
               )}
               {canEdit && !data.payment.sent ? (
-                <AddDocument paymentId={id} onAdded={added} />
+                <AddDocument paymentId={id} onAdded={added} secondary={data.documents.length > 0} />
               ) : null}
             </div>
           ) : null}

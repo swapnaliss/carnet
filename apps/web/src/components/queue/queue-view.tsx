@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, CircleAlert, ListChecks, Target } from "lucide-react";
+import { Check, CircleAlert, ClockAlert, ListChecks, Target } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
@@ -186,6 +186,29 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
       <p className="text-sm text-muted-foreground tabular-nums" data-testid="queue-updated">
         {fill(t.queue.updated, { time: updated })}
       </p>
+
+      {initial.reconcile.age_ms === null ||
+      initial.reconcile.age_ms > initial.reconcile.max_age_ms ? (
+        <section
+          aria-labelledby="queue-stale-title"
+          data-testid="queue-stale"
+          className="flex items-start gap-3 rounded-md border border-border bg-status-warning-bg p-4 text-status-warning-fg"
+        >
+          <ClockAlert aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
+          <div className="flex flex-col gap-1">
+            <h2 id="queue-stale-title" className="font-semibold">
+              {t.queue.stale.title}
+            </h2>
+            <p className="text-sm">
+              {initial.reconcile.age_ms === null
+                ? t.queue.stale.never
+                : fill(t.queue.stale.body, {
+                    minutes: Math.round(initial.reconcile.age_ms / 60_000),
+                  })}
+            </p>
+          </div>
+        </section>
+      ) : null}
 
       <section
         aria-labelledby="goal-title"
