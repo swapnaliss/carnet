@@ -43,6 +43,12 @@ export const CROSS_TENANT_CASES: Record<string, string> = {
     "test/documents/facts.int.test.ts: another business's session gets 404 for the facts",
   "v1/documents/[id]/facts/[version]/confirm":
     "test/documents/facts.int.test.ts: another business's owner gets 404 and no version is written; viewer 403",
+  // M3-01: test/obligations/obligations.int.test.ts (404 cross-tenant on get and confirm, scoped list,
+  // another business's counterparty is 404, viewer 403, anonymous 401).
+  "v1/obligations": "test/obligations/obligations.int.test.ts",
+  "v1/obligations/[id]": "test/obligations/obligations.int.test.ts",
+  "v1/obligations/[id]/criticality/propose": "test/obligations/obligations.int.test.ts",
+  "v1/obligations/[id]/criticality/confirm": "test/obligations/obligations.int.test.ts",
   "v1/payments/[id]":
     "test/payments/api.int.test.ts 'cross-tenant': another business's id is 404 with no data, both ways",
   "v1/payments/[id]/simulate":
