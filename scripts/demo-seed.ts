@@ -10,6 +10,18 @@ function log(message: string, extra: Record<string, unknown> = {}): void {
   console.log(JSON.stringify({ level: "info", process: "demo-seed", message, ...extra }));
 }
 
+function pgCause(cause: unknown): Record<string, unknown> | null {
+  if (!cause || typeof cause !== "object") return null;
+  const e = cause as Record<string, unknown>;
+  return {
+    message: e.message,
+    code: e.code,
+    constraint: e.constraint,
+    table: e.table,
+    detail: e.detail,
+  };
+}
+
 async function main(): Promise<void> {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not set");
@@ -32,7 +44,9 @@ main().catch((error: unknown) => {
       level: "error",
       process: "demo-seed",
       message: "demo seed failed",
-      error: error instanceof Error ? error.message : String(error),
+      error: (error instanceof Error ? error.message : String(error)).split("\nparams:")[0],
+      // drizzle wraps the driver error: the Postgres code, constraint and detail are on `cause`.
+      cause: pgCause((error as { cause?: unknown } | null)?.cause),
     }),
   );
   process.exit(1);
