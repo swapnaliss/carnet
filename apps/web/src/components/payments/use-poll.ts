@@ -21,7 +21,21 @@ export interface PollState<T> {
   readonly checkNow: () => void;
 }
 
-export function usePoll<T>(url: string, initial: T, intervalMs = POLL_MS): PollState<T> {
+export interface PollOptions {
+  /** False stops the timer (an RFI that reached a final state); `checkNow` still fetches. Default true. */
+  readonly enabled?: boolean;
+  /** Lengthen the wait after consecutive failures (jittered, at most 6x). Default false. */
+  readonly backoff?: boolean;
+}
+
+export function usePoll<T>(
+  url: string,
+  initial: T,
+  intervalMs = POLL_MS,
+  options: PollOptions = {},
+): PollState<T> {
+  const { enabled = true, backoff = false } = options;
+  const failuresRef = useRef(0);
   const [data, setData] = useState(initial);
   const [lastSuccessAt, setLastSuccessAt] = useState(() => Date.now());
   const [failures, setFailures] = useState(0);
@@ -35,7 +49,10 @@ export function usePoll<T>(url: string, initial: T, intervalMs = POLL_MS): PollS
 
     const schedule = () => {
       clearTimeout(timer);
-      if (!stopped) timer = setTimeout(run, intervalMs);
+      if (stopped || !enabled) return;
+      const factor = backoff ? Math.min(6, 2 ** failuresRef.current) : 1;
+      const jitter = backoff && failuresRef.current > 0 ? 0.8 + Math.random() * 0.4 : 1;
+      timer = setTimeout(run, intervalMs * factor * jitter);
     };
     async function run() {
       if (stopped) return;
@@ -57,8 +74,10 @@ export function usePoll<T>(url: string, initial: T, intervalMs = POLL_MS): PollS
         setData(next);
         setLastSuccessAt(Date.now());
         setFailures(0);
+        failuresRef.current = 0;
       } catch {
         if (stopped || controller.signal.aborted) return;
+        failuresRef.current += 1;
         setFailures((n) => n + 1);
       }
       schedule();
@@ -82,7 +101,7 @@ export function usePoll<T>(url: string, initial: T, intervalMs = POLL_MS): PollS
       controller?.abort();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [url, intervalMs]);
+  }, [url, intervalMs, enabled, backoff]);
 
   const checkNow = useCallback(() => trigger.current(), []);
   return { data, lastSuccessAt, failures, paused, checkNow };

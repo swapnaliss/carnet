@@ -103,6 +103,8 @@ export interface ApprovalDeps {
    * (tests that build their own specs) any draft id the approver presents is bound as given.
    */
   readonly isLatestDraft?: (rc: RepoCtx, rfi: Rfi, draftId: string) => Promise<boolean>;
+  /** True when `draftId` is a DRAFT_READY draft (every answer grounded or owner-authored). */
+  readonly draftIsReady?: (rc: RepoCtx, rfi: Rfi, draftId: string) => Promise<boolean>;
   /** The kill switch; defaults to `system_flags.execution_enabled` (a read error counts as off). */
   readonly executionEnabled?: (rc: RepoCtx) => Promise<boolean>;
 }
@@ -350,7 +352,14 @@ export async function approveRfiAnswer(
       const rc = repoCtx(tx, repo.businessId);
       const rfi = await getRfiForUpdate(rc, rfiId);
       if (!rfi) throw notFound();
-      if (rfi.state !== "DRAFT_READY") {
+      // NEEDS_OWNER is approvable once the owner has completed every answer in a newer draft that is
+      // itself DRAFT_READY (M2-08): the state machine has no edge back to DRAFT_READY, so the latest
+      // draft's roll-up decides, never the RFI row alone.
+      const ownerCompleted =
+        rfi.state === "NEEDS_OWNER" &&
+        deps.draftIsReady !== undefined &&
+        (await deps.draftIsReady(rc, rfi, body.draft_id));
+      if (rfi.state !== "DRAFT_READY" && !ownerCompleted) {
         throw conflict(
           `This RFI is ${rfi.state}, not ready to approve. Reload and check its draft.`,
         );
