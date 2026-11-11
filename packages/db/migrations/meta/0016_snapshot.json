@@ -1,5 +1,5 @@
 {
-  "id": "054cd14c-b2c1-4f3e-b37f-5cf68283888e",
+  "id": "31cfd77a-9daa-45b5-9ee9-117300e9c751",
   "prevId": "3d550b8a-0ced-41ca-a695-98344ceafb88",
   "version": "7",
   "dialect": "postgresql",
@@ -3148,6 +3148,11 @@
           "name": "plan_actions_plan_id_seq_key",
           "nullsNotDistinct": false,
           "columns": ["plan_id", "seq"]
+        },
+        "plan_actions_id_business_id_key": {
+          "name": "plan_actions_id_business_id_key",
+          "nullsNotDistinct": false,
+          "columns": ["id", "business_id"]
         }
       },
       "policies": {},
@@ -3376,12 +3381,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "auto_approvals_action_id_plan_actions_id_fk": {
-          "name": "auto_approvals_action_id_plan_actions_id_fk",
+        "auto_approvals_action_same_business_fk": {
+          "name": "auto_approvals_action_same_business_fk",
           "tableFrom": "auto_approvals",
           "tableTo": "plan_actions",
-          "columnsFrom": ["action_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": ["action_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -3479,12 +3484,12 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "fx_quote_uses_action_id_plan_actions_id_fk": {
-          "name": "fx_quote_uses_action_id_plan_actions_id_fk",
+        "fx_quote_uses_action_same_business_fk": {
+          "name": "fx_quote_uses_action_same_business_fk",
           "tableFrom": "fx_quote_uses",
           "tableTo": "plan_actions",
-          "columnsFrom": ["action_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": ["action_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -3562,21 +3567,21 @@
         }
       },
       "foreignKeys": {
-        "plan_action_states_action_id_plan_actions_id_fk": {
-          "name": "plan_action_states_action_id_plan_actions_id_fk",
-          "tableFrom": "plan_action_states",
-          "tableTo": "plan_actions",
-          "columnsFrom": ["action_id"],
-          "columnsTo": ["id"],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "plan_action_states_business_id_businesses_id_fk": {
           "name": "plan_action_states_business_id_businesses_id_fk",
           "tableFrom": "plan_action_states",
           "tableTo": "businesses",
           "columnsFrom": ["business_id"],
           "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "plan_action_states_action_same_business_fk": {
+          "name": "plan_action_states_action_same_business_fk",
+          "tableFrom": "plan_action_states",
+          "tableTo": "plan_actions",
+          "columnsFrom": ["action_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

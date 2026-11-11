@@ -15,11 +15,13 @@ import {
   listOpenTransfers,
   refreshRfiExpiringSoon,
   repoCtx,
+  resolveConversionAttempt,
   updateAttemptStatus,
 } from "@carnet/db";
 import { type AttemptId, type PaymentId, RFI_EXPIRING_SOON_MS } from "@carnet/domain";
 import { sweepApprovals } from "./approval-sweep";
 import { sweepStuckDrafting } from "./handlers/draft";
+import { executorDeps } from "./handlers/execute";
 import { type HandlerContext, JOB_KIND, type JobHandler } from "./handlers/index";
 import { ingestRfi } from "./handlers/rfi";
 import { resolveRespondAttempt } from "./handlers/rfi-respond";
@@ -125,11 +127,29 @@ export async function runReconcile(ctx: HandlerContext): Promise<ReconcileSummar
       }
       continue;
     }
+    if (attempt.kind === "conversion") {
+      // Lookup by request_id; a conversion lookup cannot find is re-sent only with the SAME request_id
+      // after a wait (resolveConversionAttempt), never with a new one.
+      try {
+        const r = await resolveConversionAttempt(executorDeps(ctx), {
+          businessId: attempt.businessId,
+          attemptId: attempt.id as AttemptId,
+        });
+        if (r.resolution === "confirmed") summary.attemptsConfirmed += 1;
+        else if (r.resolution === "unresolved") summary.attemptsUnresolved += 1;
+      } catch (error) {
+        summary.errors += 1;
+        ctx.logger.warn(
+          { step: "attempts", attemptId: attempt.id, error: message(error) },
+          "reconcile: conversion attempt lookup failed",
+        );
+      }
+      continue;
+    }
     if (attempt.kind !== "transfer") {
-      // Conversions (M3-03) register their own resolver.
       ctx.logger.warn(
         { attemptId: attempt.id, kind: attempt.kind, alert: "attempt_unresolved" },
-        "reconcile: no resolver for this attempt kind yet; left UNKNOWN",
+        "reconcile: no resolver for this attempt kind; left UNKNOWN",
       );
       summary.attemptsUnresolved += 1;
       continue;

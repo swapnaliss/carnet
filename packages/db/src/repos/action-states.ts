@@ -214,6 +214,8 @@ export async function supersedeStaleActions(ctx: RepoCtx, newPlanId: string): Pr
  * revision holds an action of the same kind with identical parameters (the replan kept it).
  */
 export async function isActionCurrent(ctx: RepoCtx, stored: StoredAction): Promise<boolean> {
+  // Another business's action is never current for this one, whatever its content.
+  if ((await getStoredAction(ctx, stored.id)) === null) return false;
   const latest = await latestPlanId(ctx);
   if (latest === null) return false;
   if (latest === stored.planId) return true;

@@ -59,9 +59,7 @@ export const autoApprovals = pgTable(
     businessId: uuid("business_id")
       .notNull()
       .references(() => businesses.id),
-    actionId: uuid("action_id")
-      .notNull()
-      .references(() => planActions.id),
+    actionId: uuid("action_id").notNull(),
     policyVersion: integer("policy_version").notNull(),
     policyHash: text("policy_hash").notNull(),
     /** The sell amount, minor units of `currency`. */
@@ -78,6 +76,11 @@ export const autoApprovals = pgTable(
       t.createdAt,
     ),
     foreignKey({
+      name: "auto_approvals_action_same_business_fk",
+      columns: [t.actionId, t.businessId],
+      foreignColumns: [planActions.id, planActions.businessId],
+    }),
+    foreignKey({
       name: "auto_approvals_policy_fk",
       columns: [t.businessId, t.policyVersion, t.policyHash],
       foreignColumns: [policies.businessId, policies.version, policies.hash],
@@ -92,9 +95,7 @@ export const autoApprovals = pgTable(
 export const planActionStates = pgTable(
   "plan_action_states",
   {
-    actionId: uuid("action_id")
-      .primaryKey()
-      .references(() => planActions.id),
+    actionId: uuid("action_id").primaryKey(),
     businessId: uuid("business_id")
       .notNull()
       .references(() => businesses.id),
@@ -106,6 +107,11 @@ export const planActionStates = pgTable(
   },
   (t) => [
     index("plan_action_states_business_id_status_idx").on(t.businessId, t.status),
+    foreignKey({
+      name: "plan_action_states_action_same_business_fk",
+      columns: [t.actionId, t.businessId],
+      foreignColumns: [planActions.id, planActions.businessId],
+    }),
     check("plan_action_states_status_check", oneOf("status", ACTION_STATE_VALUES)),
   ],
 );
@@ -119,11 +125,16 @@ export const fxQuoteUses = pgTable(
     businessId: uuid("business_id")
       .notNull()
       .references(() => businesses.id),
-    actionId: uuid("action_id")
-      .notNull()
-      .references(() => planActions.id),
+    actionId: uuid("action_id").notNull(),
     attemptId: uuid("attempt_id").notNull(),
     createdAt: createdAt(),
   },
-  (t) => [index("fx_quote_uses_business_id_idx").on(t.businessId)],
+  (t) => [
+    index("fx_quote_uses_business_id_idx").on(t.businessId),
+    foreignKey({
+      name: "fx_quote_uses_action_same_business_fk",
+      columns: [t.actionId, t.businessId],
+      foreignColumns: [planActions.id, planActions.businessId],
+    }),
+  ],
 );

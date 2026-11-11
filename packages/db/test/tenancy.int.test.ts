@@ -16,12 +16,15 @@ import {
   newRequestId,
   nextRevision,
   type PaymentId,
+  type Plan,
   type PlanInputsInput,
   type RequestId,
   type RfiId,
+  sha256Hex,
   type UserId,
 } from "@carnet/domain";
 import { beforeAll, describe, expect, it } from "vitest";
+import { withTransaction } from "../src/client";
 import { ForeignKeyViolationError } from "../src/errors";
 import * as agentStore from "../src/repos/agent-store";
 import * as approvalSweeps from "../src/repos/approval-sweeps";
@@ -85,7 +88,55 @@ interface Fixture {
   approvalHash: string;
   linkId: string;
   evidenceLinkId: string;
+  /** M3-03: a stored convert action, the business's policy hash and an auto-approval for it. */
+  planId: string;
+  actionId: string;
+  policyHash: string;
 }
+
+/** Revision 2: one conversion, so every tenant owns a stored plan action (M3-03). */
+function convertPlan(businessId: string): Plan {
+  return {
+    schema_version: 1,
+    business_id: businessId,
+    revision: 2,
+    inputs_hash: sha256Hex(`inputs-${businessId}`),
+    content_hash: sha256Hex(`content-${businessId}`),
+    now: "2026-11-04T09:00:00.000Z",
+    policy: { version: 1, hash: sha256Hex("policy") },
+    held_funds_visible_in_balances: true,
+    actions: [
+      {
+        seq: 1,
+        kind: "convert",
+        reason_code: "CONVERT_SHORTFALL",
+        reason_facts: {},
+        needs_approval: false,
+        params: {
+          sell_currency: "USD",
+          buy_currency: "EUR",
+          sell_minor: "100",
+          buy_minor: "88",
+          swift_fee_included_minor: "0",
+          rate: "0.88",
+          rate_low: "0.87",
+          rate_high: "0.89",
+          rate_as_of: "2026-11-04T09:00:00.000Z",
+          auto_eligible: true,
+          obligation_ids: [],
+        },
+      },
+    ],
+  };
+}
+
+const POLICY_BASE = {
+  reserveFloor: [],
+  perActionLimit: [{ currency: "USD" as const, minor: "1000" }],
+  dailyCap: [{ currency: "USD" as const, minor: "5000" }],
+  slippageBps: 100,
+  quoteFreshnessSeconds: 300,
+};
 
 /** An empty plan for a business: enough to give every tenant a stored revision. */
 function emptyPlanInputs(businessId: string): PlanInputsInput {
@@ -177,6 +228,23 @@ async function seed(name: string): Promise<Fixture> {
   );
   const planInputs = emptyPlanInputs(businessId);
   await repos.insertPlanRevision(ctx, nextRevision(null, planInputs), { inputs: planInputs });
+  const policy = await repos.createPolicyVersion(ctx, {
+    ...POLICY_BASE,
+    slippageBps: name === "a-co" ? 100 : 200,
+  });
+  const convertRevision = await repos.insertPlanRevision(ctx, convertPlan(businessId), {
+    inputs: { name },
+  });
+  const [storedAction] = await repos.listStoredActions(ctx, convertRevision.stored.id);
+  if (!storedAction) throw new Error("seed: plan action not stored");
+  await repos.insertAutoApproval(ctx, {
+    actionId: storedAction.id,
+    policyVersion: policy.version,
+    policyHash: policy.hash,
+    amountMinor: name === "a-co" ? 111n : 222n,
+    currency: "USD",
+    dailyTotalAfterMinor: name === "a-co" ? 111n : 222n,
+  });
   const agentRun = await repos.createAgentRun(ctx, { kind: "draft", ref: "rfi-same-ref" });
   const agentStep = await repos.recordAgentStep(ctx, {
     runId: agentRun.id,
@@ -253,6 +321,9 @@ async function seed(name: string): Promise<Fixture> {
   });
   if (!link) throw new Error("seed link not created");
   return {
+    planId: convertRevision.stored.id,
+    actionId: storedAction.id,
+    policyHash: policy.hash,
     approvalId: approval.id,
     approvalHash,
     linkId: link.id,
@@ -317,6 +388,10 @@ async function snapshotB(): Promise<unknown> {
     payeeLinks: await repos.listPayeeLinks(b, B.paymentId),
     evidenceLinks: await repos.listEvidenceLinks(b, B.paymentId),
     evidenceChecks: await repos.listEvidenceChecks(b, B.paymentId),
+    policy: await repos.getLatestPolicy(b),
+    storedAction: await repos.getStoredAction(b, B.actionId),
+    autoApproval: await repos.getAutoApprovalForAction(b, B.actionId),
+    autoTotal: await repos.autoApprovedTotalToday(b, "USD", new Date("2026-11-30T00:00:00Z")),
   };
 }
 
@@ -819,6 +894,92 @@ const cases: Record<string, () => Promise<void>> = {
     await expect(
       repos.insertPlanRevision(ctxA(), nextRevision(null, inputs), { inputs }),
     ).rejects.toThrow(/another business/);
+  },
+  getLatestPolicy: async () => {
+    const latest = await repos.getLatestPolicy(ctxA());
+    expect(latest).not.toBeNull();
+    expect(latest?.hash).not.toBe(B.policyHash);
+  },
+  getPolicyVersion: async () => {
+    expect((await repos.getPolicyVersion(ctxA(), 1))?.hash).toBe(A.policyHash);
+    expect(await repos.getPolicyVersion(ctxA(), 9)).toBeNull();
+  },
+  createPolicyVersion: async () => {
+    const before = await repos.getLatestPolicy(ctxB());
+    const created = await repos.createPolicyVersion(ctxA(), { ...POLICY_BASE, slippageBps: 300 });
+    expect(created.version).toBeGreaterThan(1);
+    expect((await repos.getLatestPolicy(ctxB()))?.hash).toBe(before?.hash);
+  },
+  insertAutoApproval: async () => {
+    // An auto-approval of A cannot point at B's action (composite foreign key).
+    await expect(
+      repos.insertAutoApproval(ctxA(), {
+        actionId: B.actionId,
+        policyVersion: 1,
+        policyHash: A.policyHash,
+        amountMinor: 1n,
+        currency: "USD",
+        dailyTotalAfterMinor: 1n,
+      }),
+    ).rejects.toThrow(); // B's action already has one; the composite foreign key refuses it too
+  },
+  getAutoApprovalForAction: async () => {
+    expect(await repos.getAutoApprovalForAction(ctxA(), B.actionId)).toBeNull();
+    expect((await repos.getAutoApprovalForAction(ctxA(), A.actionId))?.amountMinor).toBe(111n);
+  },
+  autoApprovedTotalToday: async () => {
+    // Only A's own 111 counts, not B's 222.
+    expect(await repos.autoApprovedTotalToday(ctxA(), "USD", new Date())).toBe(111n);
+  },
+  lockAutoApprovals: async () => {
+    await withTransaction(db().app.db, (tx) =>
+      repos.lockAutoApprovals(repos.repoCtx(tx, A.businessId), "USD"),
+    );
+  },
+  claimQuote: async () => {
+    await expect(
+      repos.claimQuote(ctxA(), {
+        quoteId: "tenancy-quote",
+        actionId: B.actionId,
+        attemptId: crypto.randomUUID(),
+      }),
+    ).rejects.toThrow();
+    expect(
+      await repos.claimQuote(ctxA(), {
+        quoteId: "tenancy-quote",
+        actionId: A.actionId,
+        attemptId: crypto.randomUUID(),
+      }),
+    ).toBe(true);
+  },
+  getStoredAction: async () => {
+    expect(await repos.getStoredAction(ctxA(), B.actionId)).toBeNull();
+    expect((await repos.getStoredAction(ctxA(), A.actionId))?.state).toBe("PROPOSED");
+  },
+  listStoredActions: async () => {
+    expect(await repos.listStoredActions(ctxA(), B.planId)).toEqual([]);
+    expect(await repos.listStoredActions(ctxA(), A.planId)).toHaveLength(1);
+  },
+  latestPlanId: async () => {
+    expect(await repos.latestPlanId(ctxA())).toBe(A.planId);
+  },
+  transitionAction: async () => {
+    // A cannot create or move a state row for B's action (composite foreign key).
+    await expect(
+      repos.transitionAction(ctxA(), B.actionId, ["PROPOSED"], "APPROVED"),
+    ).rejects.toThrow();
+    expect(await repos.transitionAction(ctxA(), B.actionId, ["APPROVED"], "DONE")).toBe(false);
+  },
+  noteAction: async () => {
+    await expect(repos.noteAction(ctxA(), B.actionId, "stolen")).rejects.toThrow();
+  },
+  supersedeStaleActions: async () => {
+    expect(await repos.supersedeStaleActions(ctxA(), B.planId)).toEqual([]);
+  },
+  isActionCurrent: async () => {
+    const theirs = await repos.getStoredAction(ctxB(), B.actionId);
+    if (!theirs) throw new Error("no stored action for B");
+    expect(await repos.isActionCurrent(ctxA(), theirs)).toBe(false);
   },
   getLatestPlan: async () => {
     expect((await repos.getLatestPlan(ctxA()))?.plan.business_id).toBe(A.businessId);

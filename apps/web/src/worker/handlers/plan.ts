@@ -10,10 +10,12 @@
 import {
   type Db,
   getLatestPlan,
+  getPlanByRevision,
   insertPlanRevision,
   type OutboxJob,
   repoCtx,
   schema,
+  supersedeStaleActions,
   withTransaction,
 } from "@carnet/db";
 import {
@@ -108,9 +110,29 @@ export function createPlanRerunHandler(load: PlanInputsLoader): JobHandler {
   };
 }
 
-/** Acknowledges `plan.revised` until M3-03 / M3-04 register their consumers. */
+/**
+ * `plan.revised` (M3-03): actions of earlier revisions that are not yet APPROVED or EXECUTING are
+ * superseded (and the conversion approvals bound to them end), then a revision that holds a conversion is
+ * queued for execution (`plan.execute`), in the same transaction. M3-04 adds its own consumer for the screen.
+ */
 export const handlePlanRevised: JobHandler = async (payload, ctx) => {
-  ctx.logger.info({ plan: payload }, "plan revised");
+  const businessId = payloadString(payload, "businessId") as BusinessId;
+  const revision = (payload as { revision?: unknown }).revision;
+  if (typeof revision !== "number") throw new Error("job payload is missing revision");
+  await withTransaction(ctx.db, async (tx) => {
+    const rc = repoCtx(tx, businessId);
+    const stored = await getPlanByRevision(rc, revision);
+    if (!stored) throw new Error(`plan revision ${revision} not found`);
+    const superseded = await supersedeStaleActions(rc, stored.id);
+    // Only a plan with a conversion has anything for the executors to do.
+    if (stored.plan.actions.some((a) => a.kind === "convert")) {
+      await tx.insert(schema.outboxJobs).values({
+        kind: "plan.execute",
+        payload: { businessId, planId: stored.id },
+      });
+    }
+    ctx.logger.info({ businessId, revision, superseded: superseded.length }, "plan revised");
+  });
 };
 
 export function registerPlanHandlers(

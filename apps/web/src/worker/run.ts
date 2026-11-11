@@ -20,6 +20,7 @@ import {
   handleRfiDraft,
   RFI_DRAFT_JOB_KIND,
 } from "./handlers/draft";
+import { registerExecuteHandlers } from "./handlers/execute";
 import { handleDocumentExtract, handleDocumentExtracted } from "./handlers/extract";
 import {
   type AirwallexReader,
@@ -41,6 +42,7 @@ import { handleReconcile } from "./reconcile";
 export function defaultRegistry(planInputs?: PlanInputsLoader): HandlerRegistry {
   const registry = createRegistry();
   registerPlanHandlers(registry, planInputs);
+  registerExecuteHandlers(registry);
   registerHandler(registry, JOB_KIND.transferSync, handleTransferSync);
   registerHandler(registry, JOB_KIND.rfiSync, handleRfiSync);
   registerHandler(registry, JOB_KIND.reconcile, handleReconcile);

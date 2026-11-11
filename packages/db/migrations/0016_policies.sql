@@ -47,13 +47,14 @@ CREATE TABLE "policies" (
 ALTER TABLE "approvals" DROP CONSTRAINT "approvals_kind_check";--> statement-breakpoint
 ALTER TABLE "payments" ADD COLUMN "fee_option" text DEFAULT 'DEFAULT' NOT NULL;--> statement-breakpoint
 ALTER TABLE "payments" ADD COLUMN "value_date" date;--> statement-breakpoint
+ALTER TABLE "plan_actions" ADD CONSTRAINT "plan_actions_id_business_id_key" UNIQUE("id","business_id");--> statement-breakpoint
 ALTER TABLE "auto_approvals" ADD CONSTRAINT "auto_approvals_business_id_businesses_id_fk" FOREIGN KEY ("business_id") REFERENCES "public"."businesses"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "auto_approvals" ADD CONSTRAINT "auto_approvals_action_id_plan_actions_id_fk" FOREIGN KEY ("action_id") REFERENCES "public"."plan_actions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "auto_approvals" ADD CONSTRAINT "auto_approvals_action_same_business_fk" FOREIGN KEY ("action_id","business_id") REFERENCES "public"."plan_actions"("id","business_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "auto_approvals" ADD CONSTRAINT "auto_approvals_policy_fk" FOREIGN KEY ("business_id","policy_version","policy_hash") REFERENCES "public"."policies"("business_id","version","hash") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "fx_quote_uses" ADD CONSTRAINT "fx_quote_uses_business_id_businesses_id_fk" FOREIGN KEY ("business_id") REFERENCES "public"."businesses"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "fx_quote_uses" ADD CONSTRAINT "fx_quote_uses_action_id_plan_actions_id_fk" FOREIGN KEY ("action_id") REFERENCES "public"."plan_actions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "plan_action_states" ADD CONSTRAINT "plan_action_states_action_id_plan_actions_id_fk" FOREIGN KEY ("action_id") REFERENCES "public"."plan_actions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "fx_quote_uses" ADD CONSTRAINT "fx_quote_uses_action_same_business_fk" FOREIGN KEY ("action_id","business_id") REFERENCES "public"."plan_actions"("id","business_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "plan_action_states" ADD CONSTRAINT "plan_action_states_business_id_businesses_id_fk" FOREIGN KEY ("business_id") REFERENCES "public"."businesses"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "plan_action_states" ADD CONSTRAINT "plan_action_states_action_same_business_fk" FOREIGN KEY ("action_id","business_id") REFERENCES "public"."plan_actions"("id","business_id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "policies" ADD CONSTRAINT "policies_business_id_businesses_id_fk" FOREIGN KEY ("business_id") REFERENCES "public"."businesses"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "auto_approvals_business_id_currency_created_at_idx" ON "auto_approvals" USING btree ("business_id","currency","created_at");--> statement-breakpoint
 CREATE INDEX "fx_quote_uses_business_id_idx" ON "fx_quote_uses" USING btree ("business_id");--> statement-breakpoint
