@@ -207,7 +207,10 @@ async function seed(): Promise<Seeded> {
   });
 }
 
-/** A finished `reconcile` job `ageMs` ago, which is what the queue's freshness reads (one row, moved). */
+/**
+ * Capture note: the queue's staleness is FORCED here. `queue-stale` is made by moving the age of a
+ * finished `reconcile` job to 10 minutes; no real outage happened. (Before the move, `queue` is captured
+ * with a fresh job.) A finished `reconcile` job `ageMs` ago, which is what the queue's freshness reads (one row, moved). */
 async function setReconcileAge(ageMs: number): Promise<void> {
   await withDb(async (c) => {
     const at = new Date(Date.now() - ageMs);
