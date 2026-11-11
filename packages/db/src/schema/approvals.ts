@@ -6,7 +6,7 @@ import { users } from "./users";
 
 // Mirror APPROVAL_KINDS, APPROVAL_STATUSES and APPROVAL_END_REASONS in @carnet/domain (a unit test
 // keeps them equal). The schema does not import the domain so drizzle-kit can load it on its own.
-export const APPROVAL_KIND_VALUES = ["rfi_answer"] as const;
+export const APPROVAL_KIND_VALUES = ["rfi_answer", "conversion", "payout"] as const;
 export const APPROVAL_STATUS_VALUES = [
   "PENDING",
   "APPROVED",

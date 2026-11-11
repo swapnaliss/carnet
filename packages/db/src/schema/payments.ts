@@ -1,4 +1,13 @@
-import { check, foreignKey, index, pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import {
+  check,
+  date,
+  foreignKey,
+  index,
+  pgTable,
+  text,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { businesses } from "./businesses";
 import { createdAt, currency, isoCurrency, minor, oneOf, positive, tstz } from "./columns";
 import { counterparties } from "./counterparties";
@@ -39,6 +48,10 @@ export const payments = pgTable(
     transferStatus: text("transfer_status"),
     transferUpdatedAt: tstz("transfer_updated_at"),
     failureType: text("failure_type"),
+    /** M3-03: what a payout approval is bound to besides the amount (DEFAULT, PAYER or BENEFICIARY). */
+    feeOption: text("fee_option").notNull().default("DEFAULT"),
+    /** M3-03: the transfer's value date, when it has one. */
+    valueDate: date("value_date", { mode: "string" }),
     createdAt: createdAt(),
     updatedAt: tstz("updated_at").notNull().defaultNow(),
   },
@@ -55,5 +68,6 @@ export const payments = pgTable(
     check("payments_currency_check", isoCurrency("currency")),
     check("payments_source_currency_check", isoCurrency("source_currency")),
     check("payments_transfer_status_check", oneOf("transfer_status", TRANSFER_STATUS_VALUES)),
+    check("payments_fee_option_check", oneOf("fee_option", ["DEFAULT", "PAYER", "BENEFICIARY"])),
   ],
 );
