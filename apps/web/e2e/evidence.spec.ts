@@ -163,7 +163,7 @@ test.describe("payment queue", () => {
     await signIn(page, "owner");
     await page.goto("/queue");
     await expect(page.getByRole("heading", { level: 1, name: "Payments" })).toBeVisible();
-    const row = page.locator("[data-payment-id]").first();
+    const row = page.locator("[data-payment-id]").filter({ hasText: "Not sent" }).first();
     await expect(row).toBeVisible();
     await expect(row.locator("[data-flag]")).toContainText(
       /Evidence missing|Weak evidence|Strong evidence/,

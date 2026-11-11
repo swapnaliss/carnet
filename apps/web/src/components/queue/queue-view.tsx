@@ -22,6 +22,7 @@ import { fill, locale, t } from "@/strings";
 // Due dates, criticality and the goal come from obligations (a later ticket): until they exist the
 // screen says "Not set" instead of inventing them.
 
+const DASH = "\u2014";
 const SEP = " \u00b7 ";
 const FLAGS: readonly Flag[] = ["strong", "weak", "missing"];
 const SHOWS = ["held", "needs_evidence", "not_sent", "in_flight", "paid"] as const;
@@ -367,7 +368,7 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
                             </span>
                           </th>
                           <td className="px-4 py-3 text-muted-foreground">
-                            <span title={t.queue.dueNotSet}>{"\u2014"}</span>
+                            <span title={t.queue.dueNotSet}>{DASH}</span>
                           </td>
                           <td className="px-4 py-3 text-right whitespace-nowrap tabular-nums">
                             {formatWire(item.payment.amount)}
