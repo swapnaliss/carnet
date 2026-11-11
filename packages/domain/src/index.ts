@@ -9,6 +9,7 @@ export * from "./money";
 export * from "./payee-status";
 export * from "./payments";
 export * from "./planner/index";
+export * from "./policy/index";
 export * from "./rfi/index";
 export * from "./schemas";
 export * from "./status";
