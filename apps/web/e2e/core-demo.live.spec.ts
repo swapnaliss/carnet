@@ -104,6 +104,22 @@ const payments: Record<string, { id: string; transferId: string | null }> = {};
 let rfiAirwallexId = "";
 let rfiId = "";
 
+// E2E_RESUME=1 continues a run whose steps 2-5 already passed (state.json in the evidence dir), so a
+// retry after an environment problem does not create more real transfers or spend more model tokens.
+const STATE = join(OUT, "state.json");
+const resume = process.env.E2E_RESUME === "1";
+const saveState = () => writeFileSync(STATE, JSON.stringify({ docs, payments }, null, 2));
+if (resume) {
+  const saved = JSON.parse(readFileSync(STATE, "utf8")) as {
+    docs: Record<string, string>;
+    payments: typeof payments;
+  };
+  Object.assign(docs, saved.docs);
+  Object.assign(payments, saved.payments);
+  // Keep the earlier steps in the run record: this run only adds steps 6-8 to it.
+  Object.assign(record, JSON.parse(readFileSync(join(OUT, "run.json"), "utf8")));
+}
+
 test.beforeAll(async ({ browser }) => {
   page = await browser.newPage({ baseURL: process.env.E2E_BASE_URL ?? "http://localhost:3000" });
 });
@@ -122,6 +138,7 @@ test("1. sign in as the seeded owner on the deployed app", async () => {
 });
 
 test("2. upload the dataset documents; extraction completes; the scan needs confirmation", async () => {
+  test.skip(resume, "resuming: this step already passed in the earlier run (state.json)");
   test.setTimeout(240_000);
   const files = [
     "inv-harbor-001",
@@ -187,9 +204,11 @@ test("2. upload the dataset documents; extraction completes; the scan needs conf
     injection_document_mentions_flag: /injection|instruction/i.test(inj),
   });
   record.ids.documents = JSON.stringify(docs);
+  saveState();
 });
 
 test("3. confirm the scan's facts as the owner (image-only needs a person)", async () => {
+  test.skip(resume, "resuming: this step already passed in the earlier run (state.json)");
   const f = await api<{ version?: number; latest_version?: number }>(
     page,
     "GET",
@@ -207,6 +226,7 @@ test("3. confirm the scan's facts as the owner (image-only needs a person)", asy
 });
 
 test("4. create two payments, attach evidence, see Strong and a not-Strong flag", async () => {
+  test.skip(resume, "resuming: this step already passed in the earlier run (state.json)");
   test.setTimeout(120_000);
   const create = async (counterparty: string, amount: string, ref: string) => {
     const res = await api<{ payment: { id: string } }>(
@@ -273,6 +293,7 @@ test("4. create two payments, attach evidence, see Strong and a not-Strong flag"
 });
 
 test("5. send both: the Weak one only after the acknowledgement; real sandbox transfers", async () => {
+  test.skip(resume, "resuming: this step already passed in the earlier run (state.json)");
   test.setTimeout(180_000);
   // Without the acknowledgement the server refuses (412) and sends nothing.
   const refused = await api(page, "POST", `/api/v1/payments/${payments.weak?.id}/send`, {});
@@ -298,6 +319,7 @@ test("5. send both: the Weak one only after the acknowledgement; real sandbox tr
     );
     p.transferId = d.transfer_id;
   }
+  saveState();
   note(5, "payments sent (real sandbox transfers)", {
     weak_send_without_ack_status: refused.status,
     transfers: { strong: payments.strong?.transferId, weak: payments.weak?.transferId },
