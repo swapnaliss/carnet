@@ -134,15 +134,23 @@ test("2. upload the dataset documents; extraction completes; the scan needs conf
   for (const f of files) {
     // The kind decides whether extraction is queued (only for a NEW document of an extractable kind), so
     // it is sent, as the upload screen does. A re-upload of identical bytes is deduplicated and queues
-    // nothing, and no API changes a stored kind (BL-01), so each run appends one PDF comment line after
-    // %%EOF: the hash is new, the text layer is unchanged. The run record states this.
+    // nothing, and no API changes a stored kind (BL-01), so each run inserts one PDF comment line just
+    // before `startxref`: the hash is new, the xref offsets and the text layer are unchanged (checked with
+    // unpdf: same page count, identical text). Bytes after %%EOF are rejected as corrupt. The run record
+    // states this.
     const kind = f.startsWith("inv-")
       ? "invoice"
       : f.startsWith("po-")
         ? "purchase_order"
         : "contract";
     const original = readFileSync(new URL(`${f}.pdf`, DATASET));
-    const buf = Buffer.concat([original, Buffer.from(`\n% carnet live run ${RUN}\n`)]);
+    const at = original.lastIndexOf("startxref");
+    if (at < 0) throw new Error(`${f}: no startxref`);
+    const buf = Buffer.concat([
+      original.subarray(0, at),
+      Buffer.from(`% carnet live run ${RUN}\n`),
+      original.subarray(at),
+    ]);
     const res = await page.request.post("/api/v1/documents", {
       multipart: {
         kind,
