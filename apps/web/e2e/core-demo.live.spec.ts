@@ -111,9 +111,9 @@ test.afterAll(async () => {
 test("1. sign in as the seeded owner on the deployed app", async () => {
   const res = await page.request.post("/api/auth/sign-in/email", {
     data: { email: ownerEmail, password: ownerPassword },
-    headers: { origin: process.env.E2E_BASE_URL ?? "" },
   });
-  expect(res.status()).toBe(200);
+  // The body names the reason (never the password); a wrong password is 401, 400 means a bad request.
+  expect(res.status(), `sign-in ${ownerEmail}: ${await res.text()}`).toBe(200);
   const health = await (await page.request.get("/healthz")).json();
   note(1, "owner signed in", { deployed_version: health.version });
 });
