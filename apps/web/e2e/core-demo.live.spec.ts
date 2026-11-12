@@ -19,7 +19,7 @@ import { expect, type Page, test } from "@playwright/test";
 // The run record (docs/evidence/m2-run.md) is written from run.json and the database export
 // (scripts/demo-export.sh); this spec records only what a client can observe.
 const ownerPassword = process.env.E2E_OWNER_PASSWORD;
-const ownerEmail = process.env.E2E_OWNER_EMAIL ?? "owner@carnet.example";
+const ownerEmail = process.env.E2E_OWNER_EMAIL || "owner@carnet.example";
 const live = process.env.E2E_MODE !== "replay" && Boolean(process.env.E2E_BASE_URL);
 test.skip(
   !live || !ownerPassword,
@@ -28,7 +28,7 @@ test.skip(
 test.describe.configure({ mode: "serial" });
 
 const DATASET = new URL("../../../fixtures/dataset/", import.meta.url);
-const OUT = process.env.E2E_EVIDENCE_DIR ?? join(process.env.TMPDIR ?? "/tmp", "m2-run");
+const OUT = process.env.E2E_EVIDENCE_DIR || join(process.env.TMPDIR ?? "/tmp", "m2-run");
 mkdirSync(OUT, { recursive: true });
 const RUN = `M2RUN-${new Date().toISOString().slice(2, 16).replace(/[-:T]/g, "")}`;
 
@@ -61,6 +61,7 @@ const note = (step: number, name: string, extra: Record<string, unknown> = {}) =
 };
 const shot = (page: Page, name: string) =>
   page.screenshot({ path: join(OUT, `${name}.png`), fullPage: false });
+let lastSeen = "(no API call yet)";
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function api<T = Record<string, unknown>>(
@@ -76,7 +77,9 @@ async function api<T = Record<string, unknown>>(
     ...(body === undefined ? {} : { data: body }),
     timeout: 30_000,
   });
-  return { status: res.status(), body: (await res.json().catch(() => ({}))) as T };
+  const parsed = (await res.json().catch(() => ({}))) as T;
+  lastSeen = `${method} ${path} -> ${res.status()} ${JSON.stringify(parsed).slice(0, 600)}`;
+  return { status: res.status(), body: parsed };
 }
 
 async function poll<T>(
@@ -90,7 +93,7 @@ async function poll<T>(
     const v = await fn();
     if (v) return v;
     if (Date.now() - start > timeoutMs)
-      throw new Error(`timed out after ${timeoutMs} ms: ${label}`);
+      throw new Error(`timed out after ${timeoutMs} ms: ${label}. Last API answer: ${lastSeen}`);
     await sleep(everyMs);
   }
 }
