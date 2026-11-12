@@ -137,6 +137,30 @@ test("1. sign in as the seeded owner on the deployed app", async () => {
   note(1, "owner signed in", { deployed_version: health.version });
 });
 
+/**
+ * Uploads one dataset PDF. The kind decides whether extraction is queued (only for a NEW document of an
+ * extractable kind), so it is sent, as the upload screen does. A re-upload of identical bytes is
+ * deduplicated and queues nothing, and no API changes a stored kind (BL-01), so each run inserts one PDF
+ * comment line just before `startxref`: the hash is new, the xref offsets and the text layer are
+ * unchanged (checked with unpdf: same page count, identical text). Bytes after %%EOF are rejected as
+ * corrupt. The run record states this.
+ */
+async function uploadDataset(name: string, kind: string): Promise<string> {
+  const original = readFileSync(new URL(`${name}.pdf`, DATASET));
+  const at = original.lastIndexOf("startxref");
+  if (at < 0) throw new Error(`${name}: no startxref`);
+  const buf = Buffer.concat([
+    original.subarray(0, at),
+    Buffer.from(`% carnet live run ${RUN}\n`),
+    original.subarray(at),
+  ]);
+  const res = await page.request.post("/api/v1/documents", {
+    multipart: { kind, file: { name: `${name}.pdf`, mimeType: "application/pdf", buffer: buf } },
+  });
+  expect([200, 201], await res.text()).toContain(res.status());
+  return ((await res.json()) as { id: string }).id;
+}
+
 test("2. upload the dataset documents; extraction completes; the scan needs confirmation", async () => {
   test.skip(resume, "resuming: this step already passed in the earlier run (state.json)");
   test.setTimeout(240_000);
@@ -149,33 +173,12 @@ test("2. upload the dataset documents; extraction completes; the scan needs conf
     "inv-nordlicht-scan-001",
   ];
   for (const f of files) {
-    // The kind decides whether extraction is queued (only for a NEW document of an extractable kind), so
-    // it is sent, as the upload screen does. A re-upload of identical bytes is deduplicated and queues
-    // nothing, and no API changes a stored kind (BL-01), so each run inserts one PDF comment line just
-    // before `startxref`: the hash is new, the xref offsets and the text layer are unchanged (checked with
-    // unpdf: same page count, identical text). Bytes after %%EOF are rejected as corrupt. The run record
-    // states this.
     const kind = f.startsWith("inv-")
       ? "invoice"
       : f.startsWith("po-")
         ? "purchase_order"
         : "contract";
-    const original = readFileSync(new URL(`${f}.pdf`, DATASET));
-    const at = original.lastIndexOf("startxref");
-    if (at < 0) throw new Error(`${f}: no startxref`);
-    const buf = Buffer.concat([
-      original.subarray(0, at),
-      Buffer.from(`% carnet live run ${RUN}\n`),
-      original.subarray(at),
-    ]);
-    const res = await page.request.post("/api/v1/documents", {
-      multipart: {
-        kind,
-        file: { name: `${f}.pdf`, mimeType: "application/pdf", buffer: buf },
-      },
-    });
-    expect([200, 201], await res.text()).toContain(res.status());
-    docs[f] = ((await res.json()) as { id: string }).id;
+    docs[f] = await uploadDataset(f, kind);
   }
   // Facts: wait until every text-layer document has a verified version (the worker reads them).
   const facts: Record<string, unknown> = {};
@@ -326,6 +329,20 @@ test("5. send both: the Weak one only after the acknowledgement; real sandbox tr
   });
 });
 
+test("5b. upload the delivery note and the remittance advice the RFI's attachment questions need", async () => {
+  // pay-001's RFI asks for proof of delivery and source of funds (fixtures/dataset/rfi-sets/rfi-set-harbor.json);
+  // without these two documents on file those questions are NEEDS_OWNER by design (first live attempt).
+  // Neither has an extraction schema: kind `other`, as in the recorded M2-08 seed.
+  for (const f of ["dn-harbor-001", "remit-brightline-001"]) {
+    if (!docs[f]) docs[f] = await uploadDataset(f, "other");
+  }
+  saveState();
+  note(5, "supporting documents uploaded for the RFI's attachment questions", {
+    delivery_note: docs["dn-harbor-001"],
+    remittance_advice: docs["remit-brightline-001"],
+  });
+});
+
 let simulator: ReturnType<typeof createAirwallexClient>["simulator"];
 
 test("6. a real simulated TRANSACTION RFI on the strong payment's transfer; the webhook reaches Carnet", async () => {
@@ -334,8 +351,28 @@ test("6. a real simulated TRANSACTION RFI on the strong payment's transfer; the 
   simulator = client.simulator;
   const transferId = payments.strong?.transferId;
   if (!transferId) throw new Error("no transfer");
-  // A TRANSFER source must already be PROCESSING (M0-04); the simulator moves it there.
-  await simulator.transitionTransfer(transferId, "PROCESSING");
+  // An earlier attempt's RFI (first live run: the supporting documents were missing, so its questions
+  // were NEEDS_OWNER by design) is closed first: one open RFI per type and source. It stays in the record.
+  const previous = record.ids.rfi_airwallex;
+  if (previous) {
+    try {
+      await simulator.closeRfi(previous);
+      note(6, "previous attempt's RFI closed", { rfi_airwallex_id: previous });
+    } catch (error) {
+      note(6, "previous RFI could not be closed (already closed?)", {
+        rfi_airwallex_id: previous,
+        error: error instanceof Error ? error.message.slice(0, 200) : String(error),
+      });
+    }
+  }
+  // A TRANSFER source must already be PROCESSING (M0-04); the simulator moves it there. A repeat on a
+  // transfer that is already PROCESSING is tolerated.
+  try {
+    await simulator.transitionTransfer(transferId, "PROCESSING");
+  } catch (error) {
+    const now = await client.getTransfer(transferId);
+    if (String(now.status) !== "PROCESSING") throw error;
+  }
   const set = JSON.parse(
     readFileSync(new URL("rfi-sets/rfi-set-harbor.json", DATASET), "utf8"),
   ) as {
@@ -379,11 +416,18 @@ test("7. real-model drafts with verified citations; the owner approves; the resp
   const ready = await poll(
     "DRAFT_READY",
     async () => {
-      const r = await api<{ draft: { state: string } | null }>(
-        page,
-        "GET",
-        `/api/v1/rfis/${rfiId}/hold`,
-      );
+      const r = await api<{
+        rfi?: { state: string };
+        draft: { state: string } | null;
+        questions?: unknown[];
+      }>(page, "GET", `/api/v1/rfis/${rfiId}/hold`);
+      writeFileSync(join(OUT, "hold-last.json"), JSON.stringify(r.body, null, 2));
+      if (r.body.rfi?.state === "NEEDS_OWNER") {
+        throw new Error(
+          "the RFI is NEEDS_OWNER: the model could not ground at least one question in the documents on file. " +
+            "Full hold view in hold-last.json (question statuses and reasons).",
+        );
+      }
       return r.body.draft?.state === "DRAFT_READY" ? r.body : null;
     },
     300_000,
