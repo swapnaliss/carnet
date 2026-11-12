@@ -132,9 +132,22 @@ test("2. upload the dataset documents; extraction completes; the scan needs conf
     "inv-nordlicht-scan-001",
   ];
   for (const f of files) {
-    const buf = readFileSync(new URL(`${f}.pdf`, DATASET));
+    // The kind decides whether extraction is queued (only for a NEW document of an extractable kind), so
+    // it is sent, as the upload screen does. A re-upload of identical bytes is deduplicated and queues
+    // nothing, and no API changes a stored kind (BL-01), so each run appends one PDF comment line after
+    // %%EOF: the hash is new, the text layer is unchanged. The run record states this.
+    const kind = f.startsWith("inv-")
+      ? "invoice"
+      : f.startsWith("po-")
+        ? "purchase_order"
+        : "contract";
+    const original = readFileSync(new URL(`${f}.pdf`, DATASET));
+    const buf = Buffer.concat([original, Buffer.from(`\n% carnet live run ${RUN}\n`)]);
     const res = await page.request.post("/api/v1/documents", {
-      multipart: { file: { name: `${f}.pdf`, mimeType: "application/pdf", buffer: buf } },
+      multipart: {
+        kind,
+        file: { name: `${f}.pdf`, mimeType: "application/pdf", buffer: buf },
+      },
     });
     expect([200, 201], await res.text()).toContain(res.status());
     docs[f] = ((await res.json()) as { id: string }).id;
