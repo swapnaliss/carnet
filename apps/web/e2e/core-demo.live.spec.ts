@@ -475,7 +475,11 @@ test("7. real-model drafts with verified citations; the owner approves; the resp
     });
     // The owner's own statement, through the endpoint the hold screen's "Edit answer" uses: a new draft,
     // same verifier, no model call. Only the purpose question is expected to need it.
+    // Which question the live model declines varies between runs (first run: purpose, CANNOT_ANSWER; second
+    // run: relationship, UNSUPPORTED_TOKEN, rejected by the verifier), so each is covered.
     const OWNER_TEXT: Record<string, string> = {
+      "Relationship with the counterparty":
+        "Harbor Print Co. is our regular printing supplier. We buy brochures and posters from them under a written supply agreement, and this payment settles one of their invoices.",
       "Purpose of payment":
         "This payment is for the printing of marketing brochures and posters that Harbor Print Co. produced for our clients, under our supply agreement with them.",
     };
