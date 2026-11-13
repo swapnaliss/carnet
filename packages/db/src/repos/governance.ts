@@ -2,10 +2,10 @@
 // the two booleans of system_flags; `getSystemFlags` (system.ts) is the one reader and every decision
 // point calls it fresh, with no cache. A flag that cannot be read counts as off (fail closed).
 import { desc, eq, gte, sql } from "drizzle-orm";
+import { appendAudit } from "../audit/append";
 import { withTransaction } from "../client";
 import { SystemFlagsMissingError, translateDbError } from "../errors";
 import { agentRuns, auditLog, systemFlags } from "../schema/index";
-import { appendAudit } from "./audit-log";
 import type { RepoCtx } from "./context";
 import { agentSpendSince, utcDayStartOf } from "./system";
 
@@ -58,7 +58,7 @@ export async function setSwitch(ctx: RepoCtx, input: SetSwitchInput): Promise<Se
   }
 }
 
-// The only audit call site of this module (M4-01 moves appendAudit; keep the call in one place).
+// The only audit call site of this module; it runs inside the toggle transaction.
 async function auditSwitchChange(
   rc: RepoCtx,
   input: SetSwitchInput,

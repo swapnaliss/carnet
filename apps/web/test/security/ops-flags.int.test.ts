@@ -1,7 +1,7 @@
 // M4-02: POST /api/ops/flags (the production spec on a route kit over real sessions). Only the owner
 // may flip a switch; a refused call changes nothing and writes no audit entry; an owner call writes
 // exactly one entry (actor, old and new value, reason) and the change is visible at once.
-import { getSystemFlags, listAudit, repoCtx } from "@carnet/db";
+import { getSystemFlags, listAudit, repoCtx, verifyAuditChain } from "@carnet/db";
 import type { BusinessId } from "@carnet/domain";
 import { beforeAll, describe, expect, it } from "vitest";
 import { createRouteKit, type RouteHandler } from "../../src/lib/define-route";
@@ -88,6 +88,11 @@ describe("POST /api/ops/flags", () => {
       actorType: "user",
       data: { old: true, new: false, reason: "model outage" },
     });
+    // The owner's entry is part of a chain that verifies (M4-01, AC 7).
+    const chain = await verifyAuditChain(env().db);
+    expect(chain.ok).toBe(true);
+    expect(chain.checked).toBeGreaterThan(0);
+    expect(entries[0]?.hash).toMatch(/^[0-9a-f]{64}$/);
     // Back on (also proves resume works and audits again).
     const back = await call(cookies.owner, { flag: "agents_enabled", enabled: true });
     expect(await back.json()).toMatchObject({ enabled: true, changed: true });
