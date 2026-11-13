@@ -69,7 +69,7 @@ test("the owner pauses and resumes both switches with the keyboard", async ({ pa
   await exec.focus();
   await expect(exec).toBeFocused();
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("heading", { name: "Pause now? Execution" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pause execution?" })).toBeVisible();
   await page.screenshot({ path: join(SHOTS, "ops-confirm.png") });
   await page.getByRole("button", { name: "Yes, pause" }).focus();
   await page.keyboard.press("Enter");

@@ -220,11 +220,11 @@ const en = {
       pauseExecution: "Pause execution",
       resumeExecution: "Resume execution",
       pending: "Saving",
-      confirmTitle: "Pause now?",
+      confirmTitle: "Pause {name}?",
       confirmAgents:
         "No new model call will start. Drafts that are not yet written go to the owner.",
       confirmExecution:
-        "No new payout, conversion or answer will be created and pending approvals end. Requests already sent to Airwallex finish.",
+        "No new payout, conversion or answer will be created and pending approvals are invalidated. Requests already sent to Airwallex finish.",
       confirmCta: "Yes, pause",
       cancel: "Cancel",
       reasonLabel: "Reason (optional)",
@@ -249,7 +249,8 @@ const en = {
       spendTotal: "Spent in total",
       spendTotalDefinition: "Cost of every model call Carnet has made, all businesses, all time.",
       spendAllTime: "All time",
-      pausedBanner: "Paused: {what}. Nothing new starts until the owner resumes it.",
+      pausedBanner:
+        "Paused: {what}. Nothing new starts until the owner resumes it, and pending approvals end.",
       pausedAgents: "agents",
       pausedExecution: "execution",
       spendRuns: "runs today",
@@ -261,6 +262,8 @@ const en = {
       breakerHalfOpen: "Half open: testing one call",
       breakerDefinition:
         "Opens after repeated failures in the last few minutes, read from the database. New calls wait; requests already sent still resolve.",
+      breakerNoCalls: "No calls in the window yet",
+      breakerSamples: "calls",
       breakerFailures: "failures in the window",
       breakerRetryAt: "Next try",
     },

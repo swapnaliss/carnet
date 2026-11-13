@@ -27,6 +27,13 @@ describe("deriveBreaker (pure)", () => {
     expect(deriveBreaker("airwallex", [fail(10), fail(20)], CONFIG, NOW).state).toBe("CLOSED");
   });
 
+  it("reports zero samples as no data, not health", () => {
+    expect(deriveBreaker("model", [], CONFIG, NOW)).toMatchObject({
+      state: "CLOSED",
+      samplesInWindow: 0,
+    });
+  });
+
   it("opens at N failures inside the window, with the retry time", () => {
     const v = deriveBreaker("airwallex", [fail(10), fail(20), fail(30)], CONFIG, NOW);
     expect(v).toMatchObject({ state: "OPEN", failuresInWindow: 3 });

@@ -52,6 +52,8 @@ export interface BreakerView {
   readonly dependency: Dependency;
   readonly state: BreakerState;
   readonly failuresInWindow: number;
+  /** Outcomes seen in the window; 0 means no data, not health. */
+  readonly samplesInWindow: number;
   readonly lastFailureAt: Date | null;
   /** While OPEN: when the cool-down ends and a probe is allowed. */
   readonly retryAt: Date | null;
@@ -78,6 +80,7 @@ export function deriveBreaker(
     dependency,
     state,
     failuresInWindow: failures.length,
+    samplesInWindow: recent.length,
     lastFailureAt: lastFailure,
     retryAt,
   });

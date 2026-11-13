@@ -44,7 +44,7 @@ export function Governance({ view, canChange }: { view: GovernanceView; canChang
         <div
           role="alert"
           data-testid="paused-banner"
-          className="flex max-w-2xl items-start gap-3 rounded-md border border-border bg-status-danger-bg p-4 text-status-danger-fg"
+          className="flex items-start gap-3 rounded-md border border-border bg-status-danger-bg p-4 text-status-danger-fg"
         >
           <CirclePause aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
           <p>{fill(g.pausedBanner, { what: paused.join(" and ") })}</p>
@@ -124,9 +124,13 @@ export function Governance({ view, canChange }: { view: GovernanceView; canChang
               key={b.dependency}
               id={`breaker-${b.dependency}`}
               title={b.dependency === "airwallex" ? g.breakerAirwallex : g.breakerModel}
-              value={BREAKER_LABEL[b.state]()}
+              value={
+                b.state === "CLOSED" && b.samplesInWindow === 0
+                  ? g.breakerNoCalls
+                  : BREAKER_LABEL[b.state]()
+              }
               detail={
-                `${b.failuresInWindow} ${g.breakerFailures}` +
+                `${b.failuresInWindow} ${g.breakerFailures} (${b.samplesInWindow} ${g.breakerSamples})` +
                 (b.retryAt
                   ? `. ${g.breakerRetryAt} ${formatDate(b.retryAt, locale, { timeStyle: "medium" })} ${t.ops.utc}`
                   : "")

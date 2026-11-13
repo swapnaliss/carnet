@@ -125,7 +125,7 @@ export function SwitchControl({
               }}
             >
               <h4 id={`${flag}-confirm-title`} className="text-lg font-semibold">
-                {t.ops.governance.confirmTitle} {copy.name()}
+                {fill(t.ops.governance.confirmTitle, { name: copy.name().toLowerCase() })}
               </h4>
               <p className="text-sm text-pretty">{copy.confirm()}</p>
               <label htmlFor={reasonId} className="text-sm font-medium">
