@@ -64,7 +64,7 @@ listed below run in the `db` and `web-db` projects of the root `vitest.config.ts
 ## Not yet covered by a named test (tracked on the M4-04 issue and BL-01)
 - A hostile stub model over text inside a document (only RFI question text is covered here; document-text
   injection is covered by the extraction guardrail tests, not by a hostile-model run).
-- The kill-switch and spend-cap row (M4-02, PR #102); not a row of the STRIDE table.
+- The kill-switch and spend-cap controls (M4-02, merged as #102) have their own tests; they are not a row of the STRIDE table, so they are not mapped here.
 - A hostile model driving the plan/policy executors (M3-03): the model has no path to them (see
   `packages/agent/test/boundaries.test.ts`), but no test runs a hostile model against them.
 These are not claimed by this map.
