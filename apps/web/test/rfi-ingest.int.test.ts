@@ -64,7 +64,9 @@ const rfiRows = (appUrl = db().appUrl) =>
 const draftJobs = () =>
   query<{ payload: { rfiId: string; round: number; businessId: string } }>(
     db().appUrl,
-    "SELECT payload FROM outbox_jobs WHERE kind = 'rfi.draft'",
+    // Explicit order: without one Postgres returns heap order, which changes when a job row is updated
+    // (claimed or finished) while the test reads, so AC6 saw rounds [2, 1] intermittently.
+    "SELECT payload FROM outbox_jobs WHERE kind = 'rfi.draft' ORDER BY (payload->>'round')::int, created_at, id",
   );
 
 describe("AC1: recorded RFI webhooks create the RFI, its questions and DRAFTING, with one rfi.draft job", () => {
