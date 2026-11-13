@@ -133,7 +133,7 @@ export function Explanation({ plan }: { plan: PlanBlockDto }) {
           <ul className="flex list-disc flex-col gap-1 pl-5 text-sm">
             {plan.actions.map((a) => (
               <li key={a.id}>
-                <code className="font-mono text-xs">{a.reason_code}</code>
+                <span className="font-medium">{actionTitle(a)}</span>
                 {`: ${reasonText(a)}`}
               </li>
             ))}
@@ -424,16 +424,18 @@ export function ActionCard({
   a,
   canAct,
   airwallexUnreachable,
+  stale,
   onApprove,
 }: {
   a: ActionDto;
+  stale: boolean;
   canAct: boolean;
   airwallexUnreachable: boolean;
   onApprove: (a: ActionDto) => void;
 }) {
   const status = actionStatus(a);
   const auto = a.auto;
-  const readOnly = !canAct;
+  const readOnly = !canAct || stale;
   const blocked = a.approvable && a.bound === null;
   return (
     <li
@@ -467,6 +469,14 @@ export function ActionCard({
             : ""}
         </p>
       ) : null}
+      {a.state === "EXECUTING" || a.state === "APPROVED" ? (
+        <p className="text-sm" data-testid="action-waiting">
+          {a.state === "EXECUTING" ? t.plan.action.waitingExecuting : t.plan.action.waitingApproved}
+        </p>
+      ) : null}
+      {a.state === "FAILED" ? (
+        <p className="text-sm text-muted-foreground">{t.plan.action.failedNoRetry}</p>
+      ) : null}
       {a.state === "FAILED" && a.state_reason ? (
         <p role="status" className="text-sm text-status-danger-fg">
           {fill(t.plan.action.failedBecause, { reason: a.state_reason })}
@@ -491,7 +501,7 @@ export function ActionCard({
           </Button>
           {readOnly ? (
             <p id={`approve-note-${a.id}`} className="text-sm text-muted-foreground">
-              {t.plan.action.viewerNote}
+              {stale && canAct ? t.plan.action.staleNote : t.plan.action.viewerNote}
             </p>
           ) : blocked ? (
             <p id={`approve-note-${a.id}`} className="text-sm text-muted-foreground">
@@ -513,7 +523,9 @@ export function ActionLists({
   canAct,
   onApprove,
   airwallexUnreachable,
+  stale,
 }: {
+  stale: boolean;
   plan: PlanBlockDto;
   canAct: boolean;
   onApprove: (a: ActionDto) => void;
@@ -530,6 +542,7 @@ export function ActionLists({
           a={a}
           canAct={canAct}
           airwallexUnreachable={airwallexUnreachable}
+          stale={stale}
           onApprove={onApprove}
         />
       ))}

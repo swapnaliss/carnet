@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { announce } from "@/components/payments/announce";
 import { LiveIndicator, StaleBanner } from "@/components/payments/live-status";
-import { POLL_MS, useNow, usePoll } from "@/components/payments/use-poll";
+import { POLL_MS, STALE_AFTER_MS, useNow, usePoll } from "@/components/payments/use-poll";
 import { EmptyState } from "@/components/shell/empty-state";
 import { Button } from "@/components/ui/button";
 import type { ActionDto, PlanView } from "@/server/plans";
@@ -95,14 +95,17 @@ function Body({
   onShow,
   notice,
   staticPreview,
+  previewStale,
 }: {
   staticPreview: boolean;
+  previewStale: boolean;
   target: number;
   initial: PlanView;
   onShow: (revision: number | "latest", notice: "none" | "changed") => void;
   notice: "none" | "changed";
 }) {
   usePrefetchDialog();
+  const clock = useNow(5000);
   const poll = usePoll<PlanView>(
     `/api/v1/plans/${target > 0 ? target : "current"}`,
     initial,
@@ -187,6 +190,7 @@ function Body({
             plan={plan}
             canAct={view.can_act && plan.is_latest}
             airwallexUnreachable={view.airwallex_unreachable}
+            stale={(!staticPreview || previewStale) && clock - poll.lastSuccessAt > STALE_AFTER_MS}
             onApprove={onApprove}
           />
           <WhatChanged plan={plan} />
@@ -219,7 +223,10 @@ function Body({
 export function PlanScreen({
   initial,
   staticPreview = false,
+  previewStale = false,
 }: {
+  /** Preview only: let the stale rule pause approvals even though nothing polls. */
+  previewStale?: boolean;
   initial: PlanView;
   /** Design-review preview only: nothing is polled, so the fabricated view stays on screen. */
   staticPreview?: boolean;
@@ -282,6 +289,7 @@ export function PlanScreen({
         initial={shown.view}
         notice={shown.notice}
         staticPreview={staticPreview}
+        previewStale={previewStale}
         onShow={(r, notice) => void show(r, notice)}
       />
     </>

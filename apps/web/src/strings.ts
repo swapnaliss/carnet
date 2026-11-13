@@ -156,7 +156,7 @@ const en = {
       heldTriggerUnknown: "Re-planned because a payment is held for information.",
       changedTrigger: "Re-planned because the balances, payments or obligations changed.",
       planned: "Planned {when}",
-      inputs: "Inputs {hash}",
+      inputs: "Plan fingerprint {hash}",
       policy: "Policy v{version}, hash {hash}",
       waiting: "{count} waiting for your approval",
     },
@@ -172,7 +172,7 @@ const en = {
     },
     section: {
       needsApproval: "Needs your approval",
-      auto: "Done automatically",
+      auto: "Approved and automatic actions",
       actions: "Other actions",
       changed: "What changed since revision {revision}",
     },
@@ -229,6 +229,12 @@ const en = {
       approveConvert: "Approve conversion of {amount} to {buy}",
       approvePayout: "Approve payout of {amount} to {payee}",
       viewerNote: "Only an owner or approver can approve.",
+      staleNote:
+        "This page could not refresh, so approvals are paused. Use Check now, then approve.",
+      waitingExecuting:
+        "Carnet is converting with Airwallex and is waiting for its confirmation. This page updates by itself.",
+      waitingApproved: "Approved. Waiting for Carnet to start carrying it out.",
+      failedNoRetry: "Carnet does not retry this on its own. Review it before approving again.",
       detailsUnavailable:
         "The payment details this approval covers cannot be shown right now, so it cannot be approved.",
       detailsUnreachable:

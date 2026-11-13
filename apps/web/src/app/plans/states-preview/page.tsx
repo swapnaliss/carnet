@@ -53,10 +53,11 @@ const convert = (id: string, seq: number, over: Partial<ActionDto>): ActionDto =
 export default async function PlanStatesPreview({
   searchParams,
 }: {
-  searchParams: Promise<{ unreachable?: string }>;
+  searchParams: Promise<{ unreachable?: string; stale?: string }>;
 }) {
   if (process.env.CARNET_ERROR_PREVIEW !== "1") notFound();
-  const unreachable = (await searchParams).unreachable === "1";
+  const query = await searchParams;
+  const unreachable = query.unreachable === "1";
   const payout = {
     ...base,
     id: "a-payout",
@@ -189,7 +190,7 @@ export default async function PlanStatesPreview({
   return (
     <>
       <PageTitle>{t.plan.title}</PageTitle>
-      <PlanScreen initial={view} staticPreview />
+      <PlanScreen initial={view} staticPreview previewStale={query.stale === "1"} />
     </>
   );
 }

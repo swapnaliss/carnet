@@ -77,7 +77,7 @@ test("the payroll-Friday pair: held funds unavailable, before and after, convert
   await expect(page.getByTestId("plan-trigger")).toContainText(
     "payment to Nordlicht Print GmbH is held for information",
   );
-  await expect(page.getByTestId("plan-inputs-hash")).toContainText(/Inputs [0-9a-f]{8}/);
+  await expect(page.getByTestId("plan-inputs-hash")).toContainText(/Plan fingerprint [0-9a-f]{8}/);
   const eur = page.getByTestId("balances-EUR");
   await expect(eur.locator('[data-row="held"]')).toContainText("Held, unavailable");
   await expect(eur.locator('[data-row="held"]')).toContainText("2,500.00");
@@ -286,6 +286,24 @@ test("remaining states: automatic conversion, executing, failed, bound payout di
     page.locator('[data-testid="action-card"][data-kind="payout"]').getByTestId("approve-button"),
   ).toBeDisabled();
   await shot(page, "unreachable-375");
+});
+
+test("stale page: the banner shows and money-moving approvals pause until Check now", async ({
+  page,
+}) => {
+  test.setTimeout(60_000);
+  await signIn(page);
+  await page.goto("/plans/states-preview?stale=1");
+  await expect(page.getByTestId("stale-banner")).toBeVisible({ timeout: 30_000 });
+  await expect(
+    page.locator('[data-testid="action-card"][data-kind="payout"]').getByTestId("approve-button"),
+  ).toBeDisabled();
+  await expect(
+    page.getByTestId("plan-executing-note").or(page.getByTestId("action-waiting")).first(),
+  ).toBeVisible();
+  await page.setViewportSize({ width: 375, height: 812 });
+  await shot(page, "stale-375", false);
+  await axe(page, "stale");
 });
 
 test("web vitals on the plan page (CI profile): LCP and CLS recorded", async ({ browser }) => {
