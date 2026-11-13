@@ -10,11 +10,13 @@
 //   deadJobs        jobs DEAD now (total) and those that became DEAD in the window
 //   workerHeartbeat newest worker_heartbeats.beat_at and its age
 //   reconcile       newest finished_at of a DONE `reconcile` job and its age
-//   incidents       audit_log `incident.paid_then_failed` entries in the window
+//   incidents       audit-log `incident.paid_then_failed` entries in the window
 //   unknownAttempts execution_attempts in UNKNOWN now
 // Percentiles are Postgres `percentile_cont` (linear interpolation). An empty sample is `null`
 // ("no data"), never 0.
+
 import { sql } from "drizzle-orm";
+import { auditActionCountSql } from "../audit/queries";
 import type { Db } from "../client";
 
 export const SLO_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -66,7 +68,7 @@ export interface SloSummary {
 export interface SloOptions {
   now?: Date;
   windowMs?: number;
-  /** Scopes the tenant tables (audit_log, execution_attempts) to one business. */
+  /** Scopes the tenant tables (the audit log, execution_attempts) to one business. */
   businessId?: string;
 }
 
@@ -138,8 +140,7 @@ export async function getSloSummary(db: Db, options: SloOptions = {}): Promise<S
         (SELECT max(beat_at) FROM worker_heartbeats WHERE beat_at <= ${now}) AS beat_at,
         (SELECT max(finished_at) FROM outbox_jobs WHERE kind = ${RECONCILE_KIND}
             AND status = 'DONE' AND finished_at <= ${now}) AS reconcile_at,
-        (SELECT count(*) FROM audit_log WHERE action = ${INCIDENT_ACTION}
-            AND at >= ${start} AND at <= ${now} ${scope}) AS incidents,
+        ${auditActionCountSql(INCIDENT_ACTION, start, now, scope)} AS incidents,
         (SELECT count(*) FROM execution_attempts WHERE status = 'UNKNOWN' ${scope}) AS unknown`),
   ]);
   const c = counts.rows[0];

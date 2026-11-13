@@ -16,6 +16,7 @@ import {
   getSystemFlags,
   type OutboxJob,
   recordWorkerHeartbeat,
+  verifyAndStoreAuditChain,
 } from "@carnet/db";
 import { type CorrelationFields, runWithContext } from "../lib/request-context";
 import type { Logger } from "../server/log";
@@ -28,6 +29,8 @@ import type {
 } from "./handlers/index";
 import { PRUNE_INTERVAL_MS, pruneExpiredRateLimits } from "./prune";
 import { RECONCILE_INTERVAL_MS, RECONCILE_JOB_KIND } from "./reconcile";
+
+export const AUDIT_VERIFY_INTERVAL_MS = 5 * 60_000;
 
 export const DEFAULT_POLL_MS = 1_000;
 export const HEARTBEAT_MS = 30_000;
@@ -51,6 +54,8 @@ export interface WorkerOptions {
   heartbeatMs?: number;
   /** How often expired rate-limit windows are deleted; null disables it (tests). */
   pruneEveryMs?: number | null;
+  /** How often the audit chain is verified and the result stored for /ops (M4-01); null disables it. */
+  auditVerifyEveryMs?: number | null;
   killSwitchDeferMs?: number;
   now?: () => number;
   /** Heartbeat row key (default `host:pid`). */
@@ -102,6 +107,10 @@ export function createWorker(options: WorkerOptions): Worker {
   const heartbeatMs = options.heartbeatMs ?? HEARTBEAT_MS;
   const pruneEveryMs =
     options.pruneEveryMs === undefined ? PRUNE_INTERVAL_MS : options.pruneEveryMs;
+  const auditVerifyEveryMs =
+    options.auditVerifyEveryMs === undefined
+      ? AUDIT_VERIFY_INTERVAL_MS
+      : options.auditVerifyEveryMs;
   const deferMs = options.killSwitchDeferMs ?? KILL_SWITCH_DEFER_MS;
   const now = options.now ?? Date.now;
   const workerId = options.workerId ?? `${hostname()}:${process.pid}`;
@@ -117,6 +126,7 @@ export function createWorker(options: WorkerOptions): Worker {
   let wake: (() => void) | null = null;
   let nextReconcileAt = 0;
   let nextPruneAt = 0;
+  let nextAuditVerifyAt = 0;
   let nextHeartbeatAt = 0;
 
   const sleep = (ms: number) =>
@@ -217,6 +227,20 @@ export function createWorker(options: WorkerOptions): Worker {
       nextReconcileAt = t + reconcileEveryMs;
       const id = await enqueueSingletonJob(db, { kind: RECONCILE_JOB_KIND, payload: {} });
       if (id) logger.debug({ jobId: id }, "reconcile job enqueued");
+    }
+    if (auditVerifyEveryMs !== null && t >= nextAuditVerifyAt) {
+      nextAuditVerifyAt = t + auditVerifyEveryMs;
+      try {
+        const r = await verifyAndStoreAuditChain(db);
+        if (r.ok) logger.debug({ checked: r.checked }, "audit chain verified");
+        else
+          logger.error(
+            { event: "audit.chain.broken", reason: r.reason, firstBadId: String(r.firstBadId) },
+            "audit chain verification FAILED",
+          );
+      } catch (error) {
+        logger.warn({ error: errorText(error) }, "audit chain verification did not run");
+      }
     }
     if (pruneEveryMs !== null && t >= nextPruneAt) {
       nextPruneAt = t + pruneEveryMs;

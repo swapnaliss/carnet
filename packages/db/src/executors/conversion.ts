@@ -30,6 +30,7 @@ import {
   type QuoteFacts,
   rateWithinBounds,
 } from "@carnet/domain";
+import { appendAudit } from "../audit/append";
 import { withTransaction } from "../client";
 import {
   getStoredAction,
@@ -39,7 +40,6 @@ import {
   transitionAction,
 } from "../repos/action-states";
 import { type Approval, consumeApproval, endApproval, getApproval } from "../repos/approvals";
-import { appendAudit } from "../repos/audit-log";
 import { repoCtx } from "../repos/context";
 import {
   claimAttempt,
