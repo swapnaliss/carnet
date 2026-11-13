@@ -149,6 +149,8 @@ const en = {
         deferred: "{count} deferred",
         escalated: "{count} need your decision",
       },
+      allFunded: "Every obligation is funded",
+      notFunded: "{count} not funded by their due date",
       firstTrigger: "This is the first plan for this business.",
       heldTrigger: "Re-planned because the payment to {payee} is held for information.",
       heldTriggerUnknown: "Re-planned because a payment is held for information.",
@@ -159,6 +161,8 @@ const en = {
       waiting: "{count} waiting for your approval",
     },
     noneNeedsApproval: "Nothing needs your approval in this revision.",
+    changedNothing: "No obligation changed its outcome.",
+    changedLine: "{payee}: {from}, now {to}.",
     noOtherActions: "No other actions in this revision.",
     executingNote: "Carnet is carrying out approved actions. This page updates by itself.",
     explanation: {
@@ -168,7 +172,9 @@ const en = {
     },
     section: {
       needsApproval: "Needs your approval",
-      actions: "Plan actions",
+      auto: "Done automatically",
+      actions: "Other actions",
+      changed: "What changed since revision {revision}",
     },
     balances: {
       title: "Balances",
@@ -177,7 +183,8 @@ const en = {
         "Held funds are shown as unavailable: a held transfer has already left the available balance.",
       none: "No balances were recorded for this revision.",
       measure: "Measure",
-      tableLabel: "{currency} balances, scrollable",
+      was: "Revision {revision}: {amount}",
+      is: "Revision {revision}: {amount}",
       revision: "Revision {revision}",
       change: "Change",
       unchanged: "No change",

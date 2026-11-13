@@ -45,8 +45,8 @@ async function signIn(page: Page, role: "owner" | "viewer" = "owner"): Promise<v
   });
   expect(res.status(), await res.text()).toBe(200);
 }
-const shot = (page: Page, name: string) =>
-  page.screenshot({ path: join(SHOTS, `${name}.png`), fullPage: true });
+const shot = (page: Page, name: string, fullPage = true) =>
+  page.screenshot({ path: join(SHOTS, `${name}.png`), fullPage });
 async function axe(page: Page, name: string) {
   const results = await new AxeBuilder({ page }).withTags(TAGS).analyze();
   const bad = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
@@ -81,7 +81,7 @@ test("the payroll-Friday pair: held funds unavailable, before and after, convert
   const eur = page.getByTestId("balances-EUR");
   await expect(eur.locator('[data-row="held"]')).toContainText("Held, unavailable");
   await expect(eur.locator('[data-row="held"]')).toContainText("2,500.00");
-  await expect(eur.getByRole("columnheader", { name: "Revision 1" })).toBeVisible();
+  await expect(eur.locator('[data-row="held"]')).toContainText("Revision 1: EUR");
   await expect(eur.getByTestId("delta-held")).toContainText("2,500.00");
   const kinds = await page
     .getByTestId("action-card")
@@ -173,7 +173,7 @@ test("the page says 'plan changed' when the revision moves while the dialog is o
   seed("next");
   await page.getByTestId("plan-approve-confirm").click();
   await expect(page.getByTestId("plan-changed")).toBeVisible();
-  await shot(page, "plan-changed-dialog");
+  await shot(page, "plan-changed-dialog", false);
   await page.getByTestId("plan-review-new").click();
   await expect(page.getByTestId("plan-changed-banner")).toBeVisible();
   await expect(page.getByTestId("plan-screen")).not.toHaveAttribute("data-revision", String(rev));
@@ -188,13 +188,14 @@ test("keyboard: tab to approve, Enter opens the dialog, Escape closes it and ret
     .getByTestId("approve-button");
   await button.focus();
   await expect(button).toBeFocused();
+  await shot(page, "focus-approve-button", false);
   await page.keyboard.press("Enter");
   await expect(page.getByTestId("plan-approve-dialog")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Approve this conversion" })).toBeFocused();
   await expect(
     page.getByTestId("plan-approve-dialog").locator("[data-field]").first(),
   ).toBeVisible();
-  await shot(page, "dialog-1440");
+  await shot(page, "dialog-1440", false);
   await axe(page, "dialog");
   await page.keyboard.press("Tab");
   await page.keyboard.press("Escape");
@@ -211,12 +212,14 @@ test("criticality: unconfirmed first, a viewer sees it disabled, the owner confi
   await expect(row.getByTestId("criticality-status")).toHaveText(
     "Unconfirmed, treated as most protective",
   );
+  await row.getByText("Confirm criticality").first().click();
   await expect(row.getByRole("radio", { checked: true })).toHaveCount(0);
   await expect(row.getByTestId("criticality-confirm")).toBeDisabled();
 
   const viewer = await browser.newPage();
   await open(viewer, "viewer");
   const vrow = viewer.getByTestId("obligation-row").filter({ hasText: "Payroll (team)" });
+  await vrow.getByText("Confirm criticality").first().click();
   await expect(vrow.getByRole("radio").first()).toBeDisabled();
   await expect(vrow.getByTestId("criticality-confirm")).toBeDisabled();
   await expect(vrow).toContainText("Only an owner or approver can confirm criticality.");
@@ -239,6 +242,50 @@ test("approving the conversion records an approval and the card says so", async 
   await expect(card).toHaveAttribute("data-state", "APPROVED", { timeout: 15_000 });
   await expect(card).toContainText("Approved");
   await shot(page, "approved-1440");
+});
+
+test("remaining states: automatic conversion, executing, failed, bound payout dialog, paused approval", async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto("/plans/states-preview");
+  await expect(page.getByTestId("plan-auto")).toContainText("within policy v3");
+  await expect(page.getByTestId("plan-auto")).toContainText("left today");
+  await expect(page.getByTestId("plan-auto")).toContainText("In progress");
+  await expect(page.getByTestId("plan-auto")).toContainText("Failed");
+  await expect(page.getByTestId("plan-what-changed")).toContainText(
+    "What changed since revision 3",
+  );
+  await expect(page.getByTestId("plan-funded")).toContainText("not funded by their due date");
+  await axe(page, "states-preview");
+  await shot(page, "states-1440");
+  const payout = page.locator('[data-testid="action-card"][data-kind="payout"]');
+  await payout.getByTestId("approve-button").click();
+  const dialog = page.getByTestId("plan-approve-dialog");
+  for (const field of [
+    "source_account",
+    "beneficiary_fingerprint",
+    "amount_minor",
+    "fee_option",
+    "value_date",
+    "reference",
+  ]) {
+    await expect(dialog.locator(`[data-field="${field}"]`)).toBeVisible();
+  }
+  await shot(page, "payout-dialog-1440", false);
+  await axe(page, "payout-dialog");
+  await page.keyboard.press("Escape");
+  await page.setViewportSize({ width: 375, height: 812 });
+  await shot(page, "states-375");
+  await payout.getByTestId("approve-button").click();
+  await shot(page, "payout-dialog-375", false);
+  await page.keyboard.press("Escape");
+  await page.goto("/plans/states-preview?unreachable=1");
+  await expect(page.getByTestId("plan-airwallex-banner")).toBeVisible();
+  await expect(
+    page.locator('[data-testid="action-card"][data-kind="payout"]').getByTestId("approve-button"),
+  ).toBeDisabled();
+  await shot(page, "unreachable-375");
 });
 
 test("web vitals on the plan page (CI profile): LCP and CLS recorded", async ({ browser }) => {
@@ -287,7 +334,7 @@ test("web vitals on the plan page (CI profile): LCP and CLS recorded", async ({ 
     await expect(page.getByTestId("plan-screen")).toBeVisible();
     await page.waitForTimeout(1_500);
     await page.waitForTimeout(2_000);
-    await page.getByRole("radio").first().check();
+    await page.locator("summary").first().click();
     await page.waitForTimeout(500);
     const r = await page.evaluate(() => {
       const w = window as unknown as { __lcp: number; __cls: number; __inp: number };

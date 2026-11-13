@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Lock } from "lucide-react";
+import { ArrowRight, CircleCheck, Lock, TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 import { StatusBadge } from "@/components/payments/status-badge";
 import { Button } from "@/components/ui/button";
@@ -68,6 +68,7 @@ export function Headline({ plan }: { plan: PlanBlockDto }) {
     .map(([fate, n]) => fill(t.plan.headline.count[fate], { count: n }))
     .join(" · ");
   const waiting = plan.actions.filter((a) => a.approvable).length;
+  const notFunded = count("deferred") + count("escalated");
   return (
     <section
       aria-labelledby="plan-headline"
@@ -82,6 +83,19 @@ export function Headline({ plan }: { plan: PlanBlockDto }) {
           <span className="font-normal text-muted-foreground">{` · ${summary}`}</span>
         ) : null}
       </h2>
+      <p
+        className={`inline-flex items-center gap-2 font-medium ${notFunded > 0 ? "text-status-warning-fg" : "text-status-success-fg"}`}
+        data-testid="plan-funded"
+      >
+        {notFunded > 0 ? (
+          <TriangleAlert aria-hidden="true" className="size-4" />
+        ) : (
+          <CircleCheck aria-hidden="true" className="size-4" />
+        )}
+        {notFunded > 0
+          ? fill(t.plan.headline.notFunded, { count: notFunded })
+          : t.plan.headline.allFunded}
+      </p>
       <p data-testid="plan-trigger">{trigger}</p>
       <p className="text-sm text-muted-foreground">
         {fill(t.plan.headline.planned, { when: when(plan.planned_at) })}
@@ -144,95 +158,46 @@ function BalanceTable({
   previousRevision: number | null;
 }) {
   const c = now.currency;
-  const rows: Array<{
-    key: string;
-    label: string;
-    now: bigint;
-    before: bigint | null;
-    sign: 1 | -1;
-    unavailable?: boolean;
-  }> = [
-    {
-      key: "available",
-      label: t.plan.balances.available,
-      now: BigInt(now.available_minor),
-      before: before ? BigInt(before.available_minor) : null,
-      sign: 1,
-    },
-    {
-      key: "held",
-      label: t.plan.balances.held,
-      now: BigInt(now.held_minor),
-      before: before ? BigInt(before.held_minor) : null,
-      sign: -1,
-      unavailable: true,
-    },
-    {
-      key: "floor",
-      label: t.plan.balances.floor,
-      now: BigInt(now.reserve_floor_minor),
-      before: before ? BigInt(before.reserve_floor_minor) : null,
-      sign: 1,
-    },
-    {
-      key: "projected",
-      label: t.plan.balances.projected,
-      now: BigInt(now.projected_minor),
-      before: before ? BigInt(before.projected_minor) : null,
-      sign: 1,
-    },
-  ];
+  const pick = (r: BalanceRowDto | null, key: keyof BalanceRowDto) =>
+    r === null ? null : BigInt(r[key]);
+  const rows = [
+    { key: "available", label: t.plan.balances.available, field: "available_minor" },
+    { key: "held", label: t.plan.balances.held, field: "held_minor", unavailable: true },
+    { key: "floor", label: t.plan.balances.floor, field: "reserve_floor_minor" },
+    { key: "projected", label: t.plan.balances.projected, field: "projected_minor" },
+  ] as const;
   return (
-    <div
-      className="overflow-x-auto"
-      role="region"
-      aria-label={fill(t.plan.balances.tableLabel, { currency: c })}
-      // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be keyboard reachable
-      tabIndex={0}
-    >
-      <table className="w-full text-sm" data-testid={`balances-${c}`}>
-        <caption className="pb-2 text-left font-medium">{c}</caption>
-        <thead>
-          <tr className="border-b border-border text-left text-muted-foreground">
-            <th scope="col" className="py-1.5 pr-3 font-medium">
-              <span className="sr-only">{t.plan.balances.measure}</span>
-            </th>
-            {previousRevision !== null ? (
-              <th scope="col" className="px-3 py-1.5 text-right font-medium">
-                {fill(t.plan.balances.revision, { revision: previousRevision })}
-              </th>
-            ) : null}
-            <th scope="col" className="px-3 py-1.5 text-right font-medium">
-              {fill(t.plan.balances.revision, { revision })}
-            </th>
-            {previousRevision !== null ? (
-              <th scope="col" className="py-1.5 pl-3 text-right font-medium">
-                {t.plan.balances.change}
-              </th>
-            ) : null}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => {
-            const delta = r.before === null ? null : r.now - r.before;
-            return (
-              <tr key={r.key} className="border-b border-border last:border-0" data-row={r.key}>
-                <th scope="row" className="py-2 pr-3 text-left font-normal">
-                  {r.unavailable ? (
-                    <span className="inline-flex items-center gap-1.5">
-                      <Lock aria-hidden="true" className="size-3.5 text-status-held-fg" />
-                      {r.label}
-                    </span>
-                  ) : (
-                    r.label
-                  )}
-                </th>
-                {r.before !== null ? (
-                  <td className="px-3 py-2 text-right tabular-nums">{money(r.before, c)}</td>
+    <section aria-label={c} data-testid={`balances-${c}`} className="flex flex-col gap-1">
+      <h3 className="font-medium">{c}</h3>
+      <dl className="flex flex-col divide-y divide-border text-sm">
+        {rows.map((r) => {
+          const nowV = BigInt(now[r.field]);
+          const beforeV = pick(before, r.field);
+          const delta = beforeV === null ? null : nowV - beforeV;
+          return (
+            <div key={r.key} className="flex flex-col gap-0.5 py-2" data-row={r.key}>
+              <dt className="inline-flex items-center gap-1.5 text-muted-foreground">
+                {"unavailable" in r ? (
+                  <Lock aria-hidden="true" className="size-3.5 text-status-held-fg" />
                 ) : null}
-                <td className="px-3 py-2 text-right font-medium tabular-nums">{money(r.now, c)}</td>
+                {r.label}
+              </dt>
+              <dd className="flex flex-wrap items-baseline gap-x-4 gap-y-0.5 tabular-nums">
+                {beforeV !== null && previousRevision !== null ? (
+                  <span className="text-muted-foreground">
+                    {fill(t.plan.balances.was, {
+                      revision: previousRevision,
+                      amount: money(beforeV, c),
+                    })}
+                  </span>
+                ) : null}
+                <span className="font-medium">
+                  {previousRevision !== null
+                    ? fill(t.plan.balances.is, { revision, amount: money(nowV, c) })
+                    : money(nowV, c)}
+                </span>
                 {delta !== null ? (
-                  <td className="py-2 pl-3 text-right tabular-nums" data-testid={`delta-${r.key}`}>
+                  <span data-testid={`delta-${r.key}`}>
                     {delta === 0n ? (
                       <span className="text-muted-foreground">{t.plan.balances.unchanged}</span>
                     ) : (
@@ -243,21 +208,19 @@ function BalanceTable({
                             delta > 0n
                               ? t.plan.balances.moreAvailable
                               : t.plan.balances.lessAvailable,
-                            {
-                              amount: money(delta > 0n ? delta : -delta, c),
-                            },
+                            { amount: money(delta > 0n ? delta : -delta, c) },
                           )}
                         </span>
                       </>
                     )}
-                  </td>
+                  </span>
                 ) : null}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+    </section>
   );
 }
 
@@ -518,7 +481,7 @@ export function ActionCard({
         <div className="flex flex-col gap-1 pt-1">
           <Button
             type="button"
-            className="w-full sm:w-fit"
+            className="h-auto w-full whitespace-normal py-2 text-center sm:w-fit"
             disabled={readOnly || blocked}
             aria-describedby={readOnly || blocked ? `approve-note-${a.id}` : undefined}
             onClick={() => onApprove(a)}
@@ -543,6 +506,8 @@ export function ActionCard({
   );
 }
 
+const AUTO_STATES = ["APPROVED", "AUTO_APPROVED", "EXECUTING", "DONE", "FAILED"];
+
 export function ActionLists({
   plan,
   canAct,
@@ -555,7 +520,8 @@ export function ActionLists({
   airwallexUnreachable: boolean;
 }) {
   const needs = plan.actions.filter((a) => a.approvable);
-  const rest = plan.actions.filter((a) => !a.approvable);
+  const auto = plan.actions.filter((a) => !a.approvable && AUTO_STATES.includes(a.state));
+  const rest = plan.actions.filter((a) => !a.approvable && !AUTO_STATES.includes(a.state));
   const list = (items: ActionDto[]) => (
     <ul className="flex flex-col gap-3">
       {items.map((a) => (
@@ -578,9 +544,50 @@ export function ActionLists({
       >
         {needs.length === 0 ? <p className="text-sm">{t.plan.noneNeedsApproval}</p> : list(needs)}
       </Card>
+      {auto.length > 0 ? (
+        <Card title={t.plan.section.auto} headingId="plan-auto" testId="plan-auto">
+          {list(auto)}
+        </Card>
+      ) : null}
       <Card title={t.plan.section.actions} headingId="plan-actions" testId="plan-actions">
         {rest.length === 0 ? <p className="text-sm">{t.plan.noOtherActions}</p> : list(rest)}
       </Card>
     </>
+  );
+}
+
+/** "What changed since revision N": the obligations whose fate moved, as a collapsible list. */
+export function WhatChanged({ plan }: { plan: PlanBlockDto }) {
+  if (plan.previous_revision === null) return null;
+  const moved = plan.obligations.filter((o) => o.changed);
+  return (
+    <section
+      aria-labelledby="plan-changed"
+      data-testid="plan-what-changed"
+      className="rounded-md border border-border bg-card p-4 md:p-6"
+    >
+      <details open>
+        <summary className="min-h-11 cursor-pointer py-2 md:min-h-0">
+          <h2 id="plan-changed" className="inline text-lg leading-tight font-semibold">
+            {fill(t.plan.section.changed, { revision: plan.previous_revision })}
+          </h2>
+        </summary>
+        {moved.length === 0 ? (
+          <p className="pt-2 text-sm">{t.plan.changedNothing}</p>
+        ) : (
+          <ul className="flex flex-col gap-2 pt-2 text-sm">
+            {moved.map((o) => (
+              <li key={o.id}>
+                {fill(t.plan.changedLine, {
+                  payee: o.payee,
+                  from: o.previous_fate ? fateLabel(o.previous_fate) : t.plan.obligations.newInPlan,
+                  to: fateLabel(o.fate),
+                })}
+              </li>
+            ))}
+          </ul>
+        )}
+      </details>
+    </section>
   );
 }

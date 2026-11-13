@@ -10,7 +10,14 @@ import { EmptyState } from "@/components/shell/empty-state";
 import { Button } from "@/components/ui/button";
 import type { ActionDto, PlanView } from "@/server/plans";
 import { fill, t } from "@/strings";
-import { ActionLists, BalancesCard, Explanation, Headline, ObligationsCard } from "./plan-cards";
+import {
+  ActionLists,
+  BalancesCard,
+  Explanation,
+  Headline,
+  ObligationsCard,
+  WhatChanged,
+} from "./plan-cards";
 import { type ApproveSnapshot, makeSnapshot } from "./plan-dialog";
 
 // The dialog loads when an approval starts, not with the first paint (INP and TBT budget).
@@ -87,7 +94,9 @@ function Body({
   initial,
   onShow,
   notice,
+  staticPreview,
 }: {
+  staticPreview: boolean;
   target: number;
   initial: PlanView;
   onShow: (revision: number | "latest", notice: "none" | "changed") => void;
@@ -100,6 +109,7 @@ function Body({
     POLL_MS,
     {
       backoff: true,
+      enabled: !staticPreview,
     },
   );
   const view = poll.data;
@@ -179,6 +189,7 @@ function Body({
             airwallexUnreachable={view.airwallex_unreachable}
             onApprove={onApprove}
           />
+          <WhatChanged plan={plan} />
         </div>
         <div className="flex min-w-0 flex-col gap-6">
           <BalancesCard plan={plan} />
@@ -205,7 +216,14 @@ function Body({
  * banner offers it, and an approval of the old one is refused by the server. Money and approvals are
  * never updated optimistically.
  */
-export function PlanScreen({ initial }: { initial: PlanView }) {
+export function PlanScreen({
+  initial,
+  staticPreview = false,
+}: {
+  initial: PlanView;
+  /** Design-review preview only: nothing is polled, so the fabricated view stays on screen. */
+  staticPreview?: boolean;
+}) {
   const [shown, setShown] = useState<{
     target: number;
     view: PlanView;
@@ -263,6 +281,7 @@ export function PlanScreen({ initial }: { initial: PlanView }) {
         target={shown.target}
         initial={shown.view}
         notice={shown.notice}
+        staticPreview={staticPreview}
         onShow={(r, notice) => void show(r, notice)}
       />
     </>

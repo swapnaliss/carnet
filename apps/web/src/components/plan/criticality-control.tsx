@@ -64,7 +64,7 @@ export function CriticalityControl({
       disabled={!canAct || pending}
       aria-describedby={canAct ? undefined : noteId}
     >
-      <legend className="text-sm font-medium">
+      <legend className="sr-only">
         {confirmed ? t.plan.criticality.change : t.plan.criticality.choose}
       </legend>
       {CHOICES.map((n) => (
@@ -125,16 +125,12 @@ export function CriticalityControl({
       ) : (
         <p className="text-muted-foreground">{t.plan.criticality.noProposal}</p>
       )}
-      {confirmed ? (
-        <details>
-          <summary className="min-h-11 cursor-pointer py-2 font-medium md:min-h-0">
-            {t.plan.criticality.change}
-          </summary>
-          {control}
-        </details>
-      ) : (
-        control
-      )}
+      <details>
+        <summary className="min-h-11 cursor-pointer py-2 font-medium md:min-h-0">
+          {confirmed ? t.plan.criticality.change : t.plan.criticality.choose}
+        </summary>
+        {control}
+      </details>
       {canAct ? null : (
         <p id={noteId} className="text-muted-foreground">
           {t.plan.criticality.viewerNote}
