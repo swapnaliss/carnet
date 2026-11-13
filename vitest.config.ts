@@ -27,6 +27,8 @@ export default defineConfig({
             "packages/*/test/**/*.test.ts",
             "apps/*/src/**/*.test.ts",
             "apps/*/test/**/*.test.ts",
+            // M3-01: the one live criticality proof, skipped unless CRITICALITY_LIVE=1.
+            "packages/agent/evals/criticality/live.test.ts",
           ],
           // apps/web/test/auth needs the same local Postgres roles as packages/db (M1-04).
           exclude: [

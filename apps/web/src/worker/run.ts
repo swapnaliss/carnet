@@ -14,6 +14,7 @@ import { createLogger, type Logger } from "../server/log";
 import { DEFAULT_MAX_ATTEMPTS } from "./backoff";
 import { handleAnswerSubmittedMemory } from "./handlers/answer-memory";
 import { handleTransferCreate } from "./handlers/create-transfer";
+import { handleCriticalityPropose, OBLIGATION_JOB_KIND } from "./handlers/criticality";
 import {
   DRAFT_EVENT_KIND,
   handleDraftEvent,
@@ -53,6 +54,7 @@ export function defaultRegistry(planInputs?: PlanInputsLoader): HandlerRegistry 
   registerHandler(registry, JOB_KIND.answerSubmitted, handleAnswerSubmittedMemory);
   registerHandler(registry, DOCUMENT_JOB_KIND.extract, handleDocumentExtract);
   registerHandler(registry, DOCUMENT_JOB_KIND.extracted, handleDocumentExtracted);
+  registerHandler(registry, OBLIGATION_JOB_KIND.proposeCriticality, handleCriticalityPropose);
   registerHandler(registry, JOB_KIND.transferCreate, handleTransferCreate, { mutating: true });
   registerHandler(registry, JOB_KIND.transferSimulate, handleTransferSimulate, { mutating: true });
   return registry;
