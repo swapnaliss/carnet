@@ -18,6 +18,7 @@ export * from "./outbox-jobs";
 export * from "./payee-links";
 export * from "./payments";
 export * from "./plans";
+export * from "./policies";
 export * from "./rate-limits";
 export * from "./rfis";
 export * from "./system-flags";

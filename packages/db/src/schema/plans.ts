@@ -63,6 +63,9 @@ export const planActions = pgTable(
   },
   (t) => [
     unique("plan_actions_plan_id_seq_key").on(t.planId, t.seq),
+    // Target of the tenant-safe composite foreign keys from auto_approvals, plan_action_states and
+    // fx_quote_uses (M3-03).
+    unique("plan_actions_id_business_id_key").on(t.id, t.businessId),
     index("plan_actions_business_id_idx").on(t.businessId),
     foreignKey({
       name: "plan_actions_plan_same_business_fk",

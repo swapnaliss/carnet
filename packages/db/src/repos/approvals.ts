@@ -202,7 +202,11 @@ export type ConsumeResult =
   | { outcome: "consumed"; approval: Approval; attempt: ExecutionAttempt }
   | { outcome: "refused"; reason: ConsumeRefusal };
 
-const ATTEMPT_KIND_OF: Record<ApprovalKind, AttemptKind> = { rfi_answer: "respond" };
+const ATTEMPT_KIND_OF: Record<ApprovalKind, AttemptKind> = {
+  rfi_answer: "respond",
+  conversion: "conversion",
+  payout: "transfer",
+};
 
 export interface ConsumeInput {
   approvalId: ApprovalId;

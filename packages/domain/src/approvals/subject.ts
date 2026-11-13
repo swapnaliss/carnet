@@ -2,12 +2,12 @@
 // nonce, the RFI id and its `updated_at`, every question's id and text, every answer's text, the
 // attachments' document ids and SHA-256, the evidence fact versions shown, the draft id and the prompt
 // version. The draft and fact inputs come through this typed interface: M2-05 drafts plug in by
-// producing an `RfiAnswerSubject`; payout and conversion variants join the union in M3-03.
+// producing an `RfiAnswerSubject`; the conversion and payout variants joined the union in M3-03.
 import type { BusinessId, UserId } from "../ids";
 import { sha256Hex } from "../planner/sha256";
 import { approvalCanonicalJson } from "./canonical";
 
-export const APPROVAL_KINDS = ["rfi_answer"] as const;
+export const APPROVAL_KINDS = ["rfi_answer", "conversion", "payout"] as const;
 export type ApprovalKind = (typeof APPROVAL_KINDS)[number];
 
 export const APPROVAL_STATUSES = [
@@ -78,11 +78,81 @@ export interface RfiAnswerSubject {
   readonly answers: readonly ApprovalAnswer[];
 }
 
-/** Grows by one member per approval kind (payout, conversion: M3-03). */
+/**
+ * A currency conversion outside the auto-FX policy (M3-03). Bound to the plan action (and the plan
+ * revision it came from), the currency pair, the sell amount and the rate bounds the owner saw.
+ */
+export interface ConversionSubject {
+  readonly kind: "conversion";
+  readonly businessId: BusinessId;
+  readonly approverId: UserId;
+  readonly nonce: string;
+  readonly actionId: string;
+  readonly planRevision: number;
+  readonly planContentHash: string;
+  readonly sellCurrency: string;
+  readonly buyCurrency: string;
+  /** Minor units, decimal string. */
+  readonly sellMinor: string;
+  /** Decimal strings, buy per sell in major units: the fresh quote must land inside [low, high]. */
+  readonly rateLow: string;
+  readonly rateHigh: string;
+}
+
+/**
+ * A payout (M3-03, ADR 0008): every field the money movement depends on. The executor re-derives the
+ * subject from live state and refuses when the hash differs.
+ */
+export interface PayoutSubject {
+  readonly kind: "payout";
+  readonly businessId: BusinessId;
+  readonly approverId: UserId;
+  readonly nonce: string;
+  readonly paymentId: string;
+  /** The business's Airwallex account the money leaves from. */
+  readonly sourceAccount: string;
+  readonly sourceCurrency: string;
+  /** `beneficiaryFingerprint` of the beneficiary as Airwallex returns it. */
+  readonly beneficiaryFingerprint: string;
+  /** Minor units, decimal string. */
+  readonly amountMinor: string;
+  readonly currency: string;
+  /** `DEFAULT` (Airwallex's default), `PAYER` or `BENEFICIARY`. */
+  readonly feeOption: string;
+  /** `YYYY-MM-DD`, or "" when the transfer is not dated. */
+  readonly valueDate: string;
+  readonly reference: string;
+  readonly counterpartyId: string;
+}
+
+/** The RFI-answer subject (M2-07 code keeps this name). */
 export type ApprovalSubject = RfiAnswerSubject;
 
+/** Every kind of approval subject; grows by one member per approval kind. */
+export type AnySubject = RfiAnswerSubject | ConversionSubject | PayoutSubject;
+
+/** What identifies a beneficiary for a payout approval: who, where and which account (last four). */
+export function beneficiaryFingerprint(b: {
+  id: string;
+  name: string | null;
+  bankCountryCode: string;
+  accountCurrency: string;
+  accountHint: string | null;
+}): string {
+  return sha256Hex(
+    approvalCanonicalJson({
+      v: 1,
+      id: b.id,
+      name: b.name ?? "",
+      country: b.bankCountryCode,
+      currency: b.accountCurrency,
+      hint: b.accountHint ?? "",
+    }),
+  );
+}
+
 /** SHA-256 (lower-case hex) over the canonical JSON of every field of the subject. */
-export function approvalHash(subject: ApprovalSubject): string {
+export function approvalHash(subject: AnySubject): string {
   return sha256Hex(approvalCanonicalJson(subject));
 }
 

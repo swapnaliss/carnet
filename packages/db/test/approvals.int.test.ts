@@ -62,7 +62,7 @@ describe("createApproval", () => {
 
   it("refuses a malformed hash, an unknown kind and a reused nonce", async () => {
     await expect(approval({ hash: "not-a-hash" })).rejects.toThrow();
-    await expect(approval({ kind: "payout" as never })).rejects.toThrow();
+    await expect(approval({ kind: "bogus" as never })).rejects.toThrow();
     const a = await approval();
     await expect(approval({ nonce: a.nonce })).rejects.toThrow();
   });

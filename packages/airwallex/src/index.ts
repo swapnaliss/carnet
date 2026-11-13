@@ -3,7 +3,13 @@ import { TokenCache } from "./auth";
 import { getBalances } from "./balances";
 import { createBeneficiary, getBeneficiary } from "./beneficiaries";
 import { uploadFile } from "./files";
-import { createConversion, createQuote, getConversion } from "./fx";
+import {
+  createConversion,
+  createQuote,
+  findConversionByRequestId,
+  getConversion,
+  listConversions,
+} from "./fx";
 import { HttpClient, type HttpConfig } from "./http";
 import { getRfi, listRfis, respondRfi } from "./rfis";
 import { AirwallexSandboxSimulator, type SandboxSimulator } from "./simulator";
@@ -89,6 +95,8 @@ export function createAirwallexClient(config: AirwallexClientConfig) {
     createConversion: (input: Parameters<typeof createConversion>[1]) =>
       createConversion(ctx, input),
     getConversion: (id: string) => getConversion(ctx, id),
+    listConversions: (input?: Parameters<typeof listConversions>[1]) => listConversions(ctx, input),
+    findConversionByRequestId: (requestId: string) => findConversionByRequestId(ctx, requestId),
     listRfis: (input?: Parameters<typeof listRfis>[1]) => listRfis(ctx, input),
     getRfi: (id: string) => getRfi(ctx, id),
     respondRfi: (input: Parameters<typeof respondRfi>[1]) => respondRfi(ctx, input),

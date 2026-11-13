@@ -212,3 +212,42 @@ export async function createConversion(
     throw err;
   }
 }
+
+const ConversionList = z.looseObject({
+  items: z.array(ConversionWire),
+  has_more: z.boolean().nullish(),
+});
+
+export interface ListConversionsInput {
+  requestId?: string;
+  pageSize?: number;
+}
+
+export async function listConversions(
+  ctx: Ctx,
+  input: ListConversionsInput = {},
+): Promise<{ items: Conversion[]; hasMore: boolean }> {
+  const res = await authed(ctx.http, ctx.tokens, {
+    method: "GET",
+    path: "/api/v1/fx/conversions",
+    query: { request_id: input.requestId, page_size: input.pageSize },
+    schema: ConversionList,
+    retryable: true,
+    omitApiVersion: true,
+  });
+  return { items: res.items, hasMore: res.has_more ?? false };
+}
+
+/**
+ * The lookup half of ADR 0007 for conversions: the conversion created with `requestId`, or null.
+ * The `request_id` list filter is UNVERIFIED (the M0-03 recording lists without it), so the result is
+ * also filtered here: a server that ignores the filter cannot return a stranger. Absence is not proof
+ * that nothing was created (the list is one page); the caller leaves the attempt UNKNOWN.
+ */
+export async function findConversionByRequestId(
+  ctx: Ctx,
+  requestId: string,
+): Promise<Conversion | null> {
+  const { items } = await listConversions(ctx, { requestId, pageSize: 100 });
+  return items.find((c) => c.requestId === requestId) ?? null;
+}
