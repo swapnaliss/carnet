@@ -3,7 +3,14 @@
 // it over agent_runs, agent_steps and system_flags for one business. Tests use an in-memory store.
 
 /** Network outcomes: the ones that write a step. */
-export type StepOutcome = "ok" | "refused" | "truncated" | "provider_error";
+export type StepOutcome =
+  | "ok"
+  | "refused"
+  | "truncated"
+  | "provider_error"
+  // Refusals before the network (M4-02): written as zero-cost steps so the audit trail shows them.
+  | "killed"
+  | "spend_cap";
 
 export interface AgentFlags {
   /** The kill switch (`system_flags.agents_enabled`). */

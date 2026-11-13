@@ -693,6 +693,27 @@ const cases: Record<string, () => Promise<void>> = {
     expect(await repos.paymentHasHoldingRfi(ctxA(), B.paymentId)).toBe(false);
     expect(await repos.paymentHasHoldingRfi(ctxA(), A.paymentId)).toBe(true);
   },
+  setSwitch: async () => {
+    // The switch is global, its audit entry is the acting business's own.
+    await repos.setSwitch(ctxA(), { flag: "agents_enabled", value: false, actorId: A.userId });
+    await repos.setSwitch(ctxA(), { flag: "agents_enabled", value: true, actorId: A.userId });
+    const mine = await repos.lastSwitchChanges(ctxA());
+    expect(mine.agents_enabled?.actorId).toBe(A.userId);
+    expect(await repos.lastSwitchChanges(ctxB())).toEqual({});
+  },
+  lastSwitchChanges: async () => {
+    await repos.setSwitch(ctxA(), { flag: "execution_enabled", value: false, actorId: A.userId });
+    await repos.setSwitch(ctxA(), { flag: "execution_enabled", value: true, actorId: A.userId });
+    const other = await repos.lastSwitchChanges(ctxB());
+    expect(Object.values(other).some((c) => c?.actorId === A.userId)).toBe(false);
+  },
+  spendSummary: async () => {
+    const [a, b] = [await repos.spendSummary(ctxA()), await repos.spendSummary(ctxB())];
+    // Each business counts only its own runs today; the day total is platform-wide.
+    expect(a.runsToday).toBe(1);
+    expect(b.runsToday).toBe(1);
+    expect(a.todayNanoUsd).toBe(b.todayNanoUsd);
+  },
   listAudit: async () => {
     const rows = await repos.listAudit(ctxA());
     expect(rows.length).toBeGreaterThan(0);
