@@ -1,0 +1,80 @@
+{
+  "name": "payout.transfer.funding.funded",
+  "provider_event_id": "6d3c162b-d462-4996-bf9f-8f23571428f4",
+  "received_at": "2026-11-12T07:48:57.971+00:00",
+  "acked_at": "2026-11-12T07:48:57.978+00:00",
+  "processed_at": "2026-11-12T07:48:58.207+00:00",
+  "note": "raw_body as stored by Carnet after the signature was verified; account_id scrubbed. Re-sign before replaying (the real secret is never in the repo).",
+  "raw_body": "{\"id\":\"6d3c162b-d462-4996-bf9f-8f23571428f4\",\"name\":\"payout.transfer.funding.funded\",\"account_id\":\"acct_SCRUBBED\",\"data\":{\"amount_beneficiary_receives\":1320.5,\"amount_payer_pays\":1323.5,\"beneficiary\":{\"address\":{\"city\":\"New York\",\"country_code\":\"US\",\"postcode\":\"10001\",\"state\":\"New York\",\"street_address\":\"350 Fifth Avenue\"},\"bank_details\":{\"account_currency\":\"USD\",\"account_name\":\"Northwind Test Supplies LLC\",\"account_number\":\"1234567890\",\"account_routing_type1\":\"aba\",\"account_routing_value1\":\"021000021\",\"bank_account_category\":\"Checking\",\"bank_country_code\":\"US\",\"bank_name\":\"JPMorgan Chase Bank, NA\",\"local_clearing_system\":\"ACH\"},\"entity_type\":\"COMPANY\",\"type\":\"BANK_ACCOUNT\"},\"beneficiary_id\":\"effc2b36-072a-4ebd-b44c-9e88ac876816\",\"created_at\":\"2026-11-12T07:48:57+0000\",\"fee_amount\":3,\"fee_currency\":\"USD\",\"fee_paid_by\":\"PAYER\",\"funding\":{\"status\":\"FUNDED\"},\"id\":\"4b9e8961-7124-4451-b294-1602a4c6c516\",\"payer\":{\"additional_info\":{\"business_incorporation_date\":\"2025-04-08\",\"business_registration_number\":\"X12345678\",\"business_registration_type\":\"COMPANY\"},\"address\":{\"city\":\"Barito Timur\",\"country_code\":\"IN\",\"postcode\":\"76714\",\"state\":\"Nevada\",\"street_address\":\"Jl. Jend. Sudirman No. 76\"},\"company_name\":\"Sandbox Business\",\"entity_type\":\"COMPANY\"},\"reason\":\"professional_business_services\",\"reference\":\"M2RUN-2611120748-003\",\"remarks\":\"\",\"request_id\":\"0bc54de8-798d-490a-b47a-5cac4e3db2b8\",\"short_reference_id\":\"P261112-G0BSBIR\",\"source_amount\":1320.5,\"source_currency\":\"USD\",\"status\":\"SCHEDULED\",\"swift_charge_option\":\"SHARED\",\"transfer_currency\":\"USD\",\"transfer_date\":\"2026-11-12\",\"transfer_method\":\"LOCAL\",\"updated_at\":\"2026-11-12T07:48:57+0000\"},\"created_at\":\"2026-11-12T07:48:57+0000\",\"version\":\"2026-08-21\"}",
+  "body": {
+    "id": "6d3c162b-d462-4996-bf9f-8f23571428f4",
+    "name": "payout.transfer.funding.funded",
+    "account_id": "acct_SCRUBBED",
+    "data": {
+      "amount_beneficiary_receives": 1320.5,
+      "amount_payer_pays": 1323.5,
+      "beneficiary": {
+        "address": {
+          "city": "New York",
+          "country_code": "US",
+          "postcode": "10001",
+          "state": "New York",
+          "street_address": "350 Fifth Avenue"
+        },
+        "bank_details": {
+          "account_currency": "USD",
+          "account_name": "Northwind Test Supplies LLC",
+          "account_number": "1234567890",
+          "account_routing_type1": "aba",
+          "account_routing_value1": "021000021",
+          "bank_account_category": "Checking",
+          "bank_country_code": "US",
+          "bank_name": "JPMorgan Chase Bank, NA",
+          "local_clearing_system": "ACH"
+        },
+        "entity_type": "COMPANY",
+        "type": "BANK_ACCOUNT"
+      },
+      "beneficiary_id": "effc2b36-072a-4ebd-b44c-9e88ac876816",
+      "created_at": "2026-11-12T07:48:57+0000",
+      "fee_amount": 3,
+      "fee_currency": "USD",
+      "fee_paid_by": "PAYER",
+      "funding": {
+        "status": "FUNDED"
+      },
+      "id": "4b9e8961-7124-4451-b294-1602a4c6c516",
+      "payer": {
+        "additional_info": {
+          "business_incorporation_date": "2025-04-08",
+          "business_registration_number": "X12345678",
+          "business_registration_type": "COMPANY"
+        },
+        "address": {
+          "city": "Barito Timur",
+          "country_code": "IN",
+          "postcode": "76714",
+          "state": "Nevada",
+          "street_address": "Jl. Jend. Sudirman No. 76"
+        },
+        "company_name": "Sandbox Business",
+        "entity_type": "COMPANY"
+      },
+      "reason": "professional_business_services",
+      "reference": "M2RUN-2611120748-003",
+      "remarks": "",
+      "request_id": "0bc54de8-798d-490a-b47a-5cac4e3db2b8",
+      "short_reference_id": "P261112-G0BSBIR",
+      "source_amount": 1320.5,
+      "source_currency": "USD",
+      "status": "SCHEDULED",
+      "swift_charge_option": "SHARED",
+      "transfer_currency": "USD",
+      "transfer_date": "2026-11-12",
+      "transfer_method": "LOCAL",
+      "updated_at": "2026-11-12T07:48:57+0000"
+    },
+    "created_at": "2026-11-12T07:48:57+0000",
+    "version": "2026-08-21"
+  }
+}
