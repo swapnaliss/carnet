@@ -48,6 +48,9 @@ export const CROSS_TENANT_CASES: Record<string, string> = {
   "v1/obligations/[id]": "test/obligations/obligations.int.test.ts",
   "v1/obligations/[id]/criticality/propose": "test/obligations/obligations.int.test.ts",
   "v1/obligations/[id]/criticality/confirm": "test/obligations/obligations.int.test.ts",
+  // M3-04: test/plans/plan-approve.int.test.ts (another business's revision and action are 404, viewer 403).
+  "v1/plans/[revision]": "test/plans/plan-approve.int.test.ts",
+  "v1/plan-actions/[id]/approve": "test/plans/plan-approve.int.test.ts",
   "v1/payments/[id]":
     "test/payments/api.int.test.ts 'cross-tenant': another business's id is 404 with no data, both ways",
   "v1/payments/[id]/simulate":

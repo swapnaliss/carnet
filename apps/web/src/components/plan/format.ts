@@ -1,9 +1,10 @@
 // Display helpers for the plan screen (M3-04). Client-safe. Money and dates go through `Intl` (lib/intl);
 // every sentence comes from the typed strings module.
-import type { StatusDescription } from "@/components/payments/format";
-import { formatDate, formatMoney } from "@/lib/intl";
-import type { ActionDto, Fate } from "@/server/plans";
-import { fill, locale, t } from "@/strings";
+
+import { formatDate, formatMoney } from "../../lib/intl";
+import type { ActionDto, Fate } from "../../server/plans";
+import { fill, locale, t } from "../../strings";
+import type { StatusDescription } from "../payments/format";
 
 export const money = (minor: string | bigint, currency: string): string =>
   formatMoney({ minor: BigInt(minor), currency }, locale);
