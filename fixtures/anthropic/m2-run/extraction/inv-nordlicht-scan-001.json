@@ -1,0 +1,35 @@
+{
+  "kind": "extraction",
+  "document_id": "inv-nordlicht-scan-001",
+  "file": "inv-nordlicht-scan-001.pdf",
+  "sha256": "6a9d155d12abaf3513879eb03634ecbaa8f27e394d4bc62def3c4e4c13a270f0",
+  "doc_type": "invoice",
+  "prompt_version": "552c05e3154b",
+  "model": "claude-haiku-5-5",
+  "input_hash": "63149dc4a73480cee8c3601868b31d678ccda16eb92f99ec964cfad178585e90",
+  "recorded_at": "2026-11-12T07:48:50.067349+00:00",
+  "source": "live run M2-09 (2026-11-12), agent_runs.id 79b3fe85-2548-46c2-86cf-f1a8af16c40c",
+  "stored_cost_nano_usd": 703800,
+  "note": "response reconstructed from the stored agent_steps.output; the product does not store the raw HTTP body. usage token counts are not stored and are recorded as 0 (stored cost_nano_usd is in stored_cost_nano_usd); response.id is not stored and is set to the provider request id. The live upload carried one extra PDF comment line before startxref (new sha256, same text layer); sha256 above is the dataset file's.",
+  "calls": [
+    {
+      "response": {
+        "id": "req_011CgxfbvLuHQYwXLswHGMFj",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 0,
+          "output_tokens": 0
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"invoice_number\",\"page\":1,\"quote\":\"INVOICE NUMBER: NL-2026-0341\",\"value\":\"NL-2026-0341\"},{\"key\":\"invoice_date\",\"page\":1,\"quote\":\"INVOICE DATE: 2026-10-12\",\"value\":\"2026-10-12\"},{\"key\":\"supplier\",\"page\":1,\"quote\":\"FROM: NORDLICHT SOFTWARE GMBH\",\"value\":\"NORDLICHT SOFTWARE GMBH\"},{\"key\":\"buyer\",\"page\":1,\"quote\":\"BILL TO: NORTHWIND STUDIO LTD\",\"value\":\"NORTHWIND STUDIO LTD\"},{\"key\":\"total\",\"page\":1,\"quote\":\"TOTAL DUE: EUR 3,100.00\",\"value\":\"EUR 3,100.00\"},{\"key\":\"beneficiary\",\"page\":1,\"quote\":\"BENEFICIARY: NORDLICHT SOFTWARE GMBH\",\"value\":\"NORDLICHT SOFTWARE GMBH\"},{\"key\":\"iban\",\"page\":1,\"quote\":\"IBAN: DE22000000000000000002\",\"value\":\"DE22000000000000000002\"}]}"
+          }
+        ]
+      },
+      "request_id": "req_011CgxfbvLuHQYwXLswHGMFj",
+      "latency_ms": 3566
+    }
+  ]
+}

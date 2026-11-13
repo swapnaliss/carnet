@@ -1,13 +1,20 @@
-import { getSloSummary, type SloSummary } from "@carnet/db";
-import { Activity, Bot, CircleAlert, Link2 } from "lucide-react";
+import {
+  type AuditChainStatus,
+  getSloSummary,
+  readAuditChainStatus,
+  type SloSummary,
+} from "@carnet/db";
+import { Activity, Bot, CircleAlert } from "lucide-react";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Governance } from "@/components/ops/governance";
 import { formatCount, formatMs, MetricCard } from "@/components/ops/metric-card";
 import { EmptyState, PageTitle } from "@/components/shell/empty-state";
 import { formatDate, formatRelative } from "@/lib/intl";
 import { logger } from "@/lib/logger";
 import { requirePageSession } from "@/lib/page-session";
 import { appDb } from "@/server/db";
+import { loadGovernance } from "@/server/ops-governance";
 import { locale, t } from "@/strings";
 
 export const metadata: Metadata = { title: t.ops.title };
@@ -226,10 +233,66 @@ async function loadSummary(businessId: string): Promise<SloSummary | null> {
   }
 }
 
+/** The last stored verification (the worker writes it; the page never recomputes the chain). */
+async function loadChain(): Promise<AuditChainStatus | null | undefined> {
+  try {
+    return await readAuditChainStatus(appDb().db);
+  } catch (error) {
+    logger().error(
+      { event: "ops.page.error", err: error instanceof Error ? error.message : "unknown" },
+      "audit chain status failed",
+    );
+    return undefined;
+  }
+}
+
+function AuditChainPanel({ status }: { status: AuditChainStatus | null | undefined }) {
+  const a = t.ops.auditChain;
+  if (status === undefined) return null;
+  const short = (h: string | null) => (h ? `${h.slice(0, 12)}…` : "none");
+  const detail = status
+    ? [
+        `${status.checked.toLocaleString(locale)} ${a.rowsVerified}`,
+        `${a.head} ${short(status.headHash)}`,
+        `${a.lastVerified} ${formatDate(status.verifiedAt, locale, { dateStyle: "medium", timeStyle: "medium" })} ${t.ops.utc}`,
+      ].join(" · ")
+    : a.pending;
+  return (
+    <Section id="ops-audit-chain" title={a.title} grid="sm:grid-cols-2">
+      <MetricCard
+        id="audit-chain"
+        title={a.card}
+        value={status ? (status.ok ? a.ok : a.broken) : a.notChecked}
+        {...(status
+          ? {
+              verdict: status.ok
+                ? { kind: "meets" as const, label: a.okDetail }
+                : {
+                    kind: "misses" as const,
+                    label: `${a.brokenDetail} ${status.firstBadId ?? "?"}: ${status.reason ? a.reasons[status.reason] : ""}`,
+                  },
+            }
+          : {})}
+        detail={detail}
+        definition={a.definition}
+        window={a.window}
+      />
+    </Section>
+  );
+}
+
 export default async function OpsPage() {
   // The layout has already refused viewers (403) and redirected anonymous visitors.
   const ctx = await requirePageSession();
   const summary = await loadSummary(ctx.businessId);
+  const chain = await loadChain();
+  const governance = await loadGovernance(appDb().db, ctx.businessId).catch((error: unknown) => {
+    logger().error(
+      { event: "ops.governance.error", err: error instanceof Error ? error.message : "unknown" },
+      "ops governance failed",
+    );
+    return null;
+  });
 
   return (
     <>
@@ -243,6 +306,17 @@ export default async function OpsPage() {
             </p>
           ) : null}
         </div>
+        {governance ? (
+          <Governance view={governance} canChange={ctx.role === "owner"} />
+        ) : (
+          <div
+            role="alert"
+            className="flex max-w-2xl items-start gap-3 rounded-md border border-border bg-status-danger-bg p-4 text-status-danger-fg"
+          >
+            <CircleAlert aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
+            <p>{t.ops.error.panel}</p>
+          </div>
+        )}
         {summary && isEmpty(summary) ? (
           <EmptyState icon={Activity} title={t.ops.empty.title} body={t.ops.empty.body} />
         ) : null}
@@ -257,6 +331,7 @@ export default async function OpsPage() {
             <p>{t.ops.error.panel}</p>
           </div>
         )}
+        <AuditChainPanel status={chain} />
         <section aria-labelledby="ops-later" className="flex flex-col gap-3">
           <h2 id="ops-later" className="text-lg leading-tight font-semibold">
             {t.ops.later.title}
@@ -267,12 +342,6 @@ export default async function OpsPage() {
               icon={Bot}
               title={t.ops.later.agentRuns}
               body={t.ops.later.agentRunsBody}
-            />
-            <LaterSlot
-              id="later-audit-chain"
-              icon={Link2}
-              title={t.ops.later.auditChain}
-              body={t.ops.later.auditChainBody}
             />
           </div>
         </section>

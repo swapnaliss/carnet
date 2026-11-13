@@ -3,10 +3,12 @@
 // `agentSpendSince`). The harness in @carnet/agent reaches these through `agentHarnessStore`
 // (agent-store.ts).
 import type { BusinessId } from "@carnet/domain";
-import { and, asc, count, eq, sql } from "drizzle-orm";
+import { and, asc, count, eq, inArray, sql } from "drizzle-orm";
 import { translateDbError } from "../errors";
 import { type AgentRunStatus, type AgentStepOutcome, agentRuns, agentSteps } from "../schema/index";
 import type { RepoCtx } from "./context";
+
+const NETWORK_OUTCOMES: AgentStepOutcome[] = ["ok", "refused", "truncated", "provider_error"];
 
 export interface AgentRun {
   readonly id: string;
@@ -209,6 +211,8 @@ export async function countAgentCalls(ctx: RepoCtx, key: AgentStepKey): Promise<
         eq(agentRuns.kind, key.kind),
         eq(agentRuns.ref, key.ref),
         eq(agentSteps.step, key.step),
+        // A refusal before the network (kill switch, spend cap) is not a call.
+        inArray(agentSteps.outcome, NETWORK_OUTCOMES),
       ),
     );
   return row?.n ?? 0;

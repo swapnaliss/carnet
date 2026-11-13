@@ -1,0 +1,320 @@
+{
+  "server_time": "2026-11-13T09:22:06.742Z",
+  "role": "owner",
+  "rfi": {
+    "id": "0c96b34b-8476-42de-8f87-4a39e983fa12",
+    "airwallex_rfi_id": "1e753bea-ff0c-4b2a-868c-9c266a36f765",
+    "type": "TRANSACTION",
+    "state": "NEEDS_OWNER",
+    "round": 1,
+    "airwallex_status": "ACTION_REQUIRED",
+    "airwallex_updated_at": "2026-11-13T09:20:14.000Z",
+    "expires_at": "2026-11-27T09:20:14.000Z",
+    "expiring_soon": false,
+    "expired": false,
+    "payment_id": "66807a04-82f5-48ac-ae0a-81e1ea58809c",
+    "orphan_reason": null,
+    "linked_by": "match",
+    "conflict": false,
+    "created_at": "2026-11-13T09:20:15.679Z"
+  },
+  "payment": {
+    "id": "66807a04-82f5-48ac-ae0a-81e1ea58809c",
+    "counterparty": "Harbor Print Co.",
+    "reference": "M2RUN-2611120748-001",
+    "amount": {
+      "amount": "4800.00",
+      "currency": "USD"
+    },
+    "transfer_status": "PROCESSING",
+    "view": "PROCESSING",
+    "held": true
+  },
+  "questions": [
+    {
+      "id": "eafd18fc-c418-4e7a-b24c-ffa28830d52e",
+      "airwallex_question_id": "703eb9d9-909b-479f-acf9-01efcf479355",
+      "position": 0,
+      "title": "Purpose of payment",
+      "description": "Describe what this payment is for.",
+      "answer_type": "TEXT",
+      "reopened": false,
+      "answer": {
+        "status": "VERIFIED",
+        "reason_code": null,
+        "explanation": null,
+        "detail": null,
+        "text": "Invoice INV-HP-2026-0141 from Harbor Print Co. is for USD 4,800.00 under purchase order PO-NW-2026-031.",
+        "citations": [
+          {
+            "fact_version_id": "a47906fe-2399-4a17-8577-f4bdaf2824db#0",
+            "document": {
+              "id": "67b8fe29-acdc-49d7-8a56-3f46237131ce",
+              "filename": "inv-harbor-001.pdf",
+              "kind": "invoice",
+              "mime": "application/pdf",
+              "size": 2429,
+              "sha256": "8433227a39e99b383c36f88a83f7bf727d239af802aae43370256a90ca371527"
+            },
+            "key": "invoice_number",
+            "value": "INV-HP-2026-0141",
+            "quote": "Invoice number: INV-HP-2026-0141",
+            "page": 1,
+            "verification": "quote_verified"
+          },
+          {
+            "fact_version_id": "a47906fe-2399-4a17-8577-f4bdaf2824db#3",
+            "document": {
+              "id": "67b8fe29-acdc-49d7-8a56-3f46237131ce",
+              "filename": "inv-harbor-001.pdf",
+              "kind": "invoice",
+              "mime": "application/pdf",
+              "size": 2429,
+              "sha256": "8433227a39e99b383c36f88a83f7bf727d239af802aae43370256a90ca371527"
+            },
+            "key": "supplier",
+            "value": "Harbor Print Co.",
+            "quote": "From: Harbor Print Co.",
+            "page": 1,
+            "verification": "quote_verified"
+          },
+          {
+            "fact_version_id": "a47906fe-2399-4a17-8577-f4bdaf2824db#6",
+            "document": {
+              "id": "67b8fe29-acdc-49d7-8a56-3f46237131ce",
+              "filename": "inv-harbor-001.pdf",
+              "kind": "invoice",
+              "mime": "application/pdf",
+              "size": 2429,
+              "sha256": "8433227a39e99b383c36f88a83f7bf727d239af802aae43370256a90ca371527"
+            },
+            "key": "total",
+            "value": "USD 4,800.00",
+            "quote": "Total due: USD 4,800.00",
+            "page": 1,
+            "verification": "quote_verified"
+          },
+          {
+            "fact_version_id": "a47906fe-2399-4a17-8577-f4bdaf2824db#5",
+            "document": {
+              "id": "67b8fe29-acdc-49d7-8a56-3f46237131ce",
+              "filename": "inv-harbor-001.pdf",
+              "kind": "invoice",
+              "mime": "application/pdf",
+              "size": 2429,
+              "sha256": "8433227a39e99b383c36f88a83f7bf727d239af802aae43370256a90ca371527"
+            },
+            "key": "purchase_order",
+            "value": "PO-NW-2026-031",
+            "quote": "Purchase order: PO-NW-2026-031",
+            "page": 1,
+            "verification": "quote_verified"
+          }
+        ],
+        "unresolved_citations": [],
+        "documents": []
+      }
+    },
+    {
+      "id": "9b63f1e1-5081-45b9-938a-71990b50b4ea",
+      "airwallex_question_id": "f3ddbc39-65df-4c20-b310-3d0b537998a6",
+      "position": 1,
+      "title": "Relationship with the counterparty",
+      "description": "Explain your business relationship with the payee and provide the supporting agreement.",
+      "answer_type": "TEXT",
+      "reopened": false,
+      "answer": {
+        "status": "OWNER_AUTHORED",
+        "reason_code": null,
+        "explanation": null,
+        "detail": null,
+        "text": "Harbor Print Co. is our regular printing supplier. We buy brochures and posters from them under a written supply agreement, and this payment settles one of their invoices.",
+        "citations": [],
+        "unresolved_citations": [],
+        "documents": []
+      }
+    },
+    {
+      "id": "a7cc8677-ea4e-493f-95cc-cae3217c72ce",
+      "airwallex_question_id": "a0e3bc0c-4d6c-4170-8307-93ea476a22a9",
+      "position": 2,
+      "title": "Source of funds",
+      "description": "Provide evidence of where the funds for this payment came from.",
+      "answer_type": "ATTACHMENT",
+      "reopened": false,
+      "answer": {
+        "status": "VERIFIED",
+        "reason_code": null,
+        "explanation": null,
+        "detail": null,
+        "text": "",
+        "citations": [],
+        "unresolved_citations": [],
+        "documents": [
+          {
+            "id": "955b22fd-7a05-4f96-a27e-f043836f13af",
+            "filename": "remit-brightline-001.pdf",
+            "kind": "other",
+            "mime": "application/pdf",
+            "size": 2149,
+            "sha256": "26c564910125ce5486ba18c85bbff31d3e8fe84eacdf9be24b0904109235f632"
+          }
+        ]
+      }
+    },
+    {
+      "id": "e619711c-7241-475b-a93e-a41071d4896f",
+      "airwallex_question_id": "6e31801f-3f65-46b4-b1cb-8bd6caba2c8a",
+      "position": 3,
+      "title": "Proof of delivery",
+      "description": "Provide documents showing the goods or services were delivered.",
+      "answer_type": "ATTACHMENT",
+      "reopened": false,
+      "answer": {
+        "status": "VERIFIED",
+        "reason_code": null,
+        "explanation": null,
+        "detail": null,
+        "text": "",
+        "citations": [],
+        "unresolved_citations": [],
+        "documents": [
+          {
+            "id": "b962fadb-5370-4078-be18-0b8d2b1762b0",
+            "filename": "dn-harbor-001.pdf",
+            "kind": "other",
+            "mime": "application/pdf",
+            "size": 2182,
+            "sha256": "df06a3fafe6aa89652abca1b339020a03d2098302461e80209974770674aaff6"
+          }
+        ]
+      }
+    }
+  ],
+  "draft": {
+    "id": "0b418186-cfe4-43ab-b8cc-13cbfc6d881e",
+    "state": "DRAFT_READY",
+    "origin": "owner",
+    "prompt_version": null,
+    "created_at": "2026-11-13T09:22:06.560Z",
+    "injection_flagged": false
+  },
+  "approval": null,
+  "attempt": null,
+  "execution_enabled": true,
+  "approval_ttl_minutes": 30,
+  "documents": [
+    {
+      "id": "955b22fd-7a05-4f96-a27e-f043836f13af",
+      "filename": "remit-brightline-001.pdf",
+      "kind": "other",
+      "mime": "application/pdf",
+      "size": 2149,
+      "sha256": "26c564910125ce5486ba18c85bbff31d3e8fe84eacdf9be24b0904109235f632"
+    },
+    {
+      "id": "b962fadb-5370-4078-be18-0b8d2b1762b0",
+      "filename": "dn-harbor-001.pdf",
+      "kind": "other",
+      "mime": "application/pdf",
+      "size": 2182,
+      "sha256": "df06a3fafe6aa89652abca1b339020a03d2098302461e80209974770674aaff6"
+    },
+    {
+      "id": "69b4e66c-a47b-433e-8f7e-00201c2ee70e",
+      "filename": "inv-nordlicht-scan-001.pdf",
+      "kind": "invoice",
+      "mime": "application/pdf",
+      "size": 295764,
+      "sha256": "03e72606e1d966b7686b1ab95a58ab8316df35e5c26987ac99645fbe1f3c65c3"
+    },
+    {
+      "id": "c945682b-5720-479c-8aff-ad070bfbd5f0",
+      "filename": "inv-lakeside-002.pdf",
+      "kind": "invoice",
+      "mime": "application/pdf",
+      "size": 2455,
+      "sha256": "1b034c0954d33045a1959b0974c8dade6142a1d6875da6bceb502c13903c3833"
+    },
+    {
+      "id": "8c19cab8-74d1-495d-b020-8a6f11a29a52",
+      "filename": "inv-lakeside-001.pdf",
+      "kind": "invoice",
+      "mime": "application/pdf",
+      "size": 2329,
+      "sha256": "5a371e452a9859caf477aa3fe17274692d4b76ce1f660ed106fa580982d9f33d"
+    },
+    {
+      "id": "43e88865-5280-4273-b469-49e20612acc7",
+      "filename": "contract-harbor.pdf",
+      "kind": "contract",
+      "mime": "application/pdf",
+      "size": 3212,
+      "sha256": "fad4149659b8beaed0ac84a9de5039fd6b47c5c62173b352b1583717b77d3a5b"
+    },
+    {
+      "id": "a5fe0b04-34c6-483b-abd8-1514c9c0a61b",
+      "filename": "po-harbor-001.pdf",
+      "kind": "purchase_order",
+      "mime": "application/pdf",
+      "size": 2275,
+      "sha256": "6424c8ec18df77644d14260f1e28901226a70c490640912e983cecaf7ea0c20c"
+    },
+    {
+      "id": "67b8fe29-acdc-49d7-8a56-3f46237131ce",
+      "filename": "inv-harbor-001.pdf",
+      "kind": "invoice",
+      "mime": "application/pdf",
+      "size": 2429,
+      "sha256": "8433227a39e99b383c36f88a83f7bf727d239af802aae43370256a90ca371527"
+    },
+    {
+      "id": "bf426fd3-0d4a-42d8-ac57-ba188b94e0cc",
+      "filename": "inv-nordlicht-scan-001.pdf",
+      "kind": "other",
+      "mime": "application/pdf",
+      "size": 295729,
+      "sha256": "6a9d155d12abaf3513879eb03634ecbaa8f27e394d4bc62def3c4e4c13a270f0"
+    },
+    {
+      "id": "a0491480-dc0c-4625-bc83-d236c6b4ee77",
+      "filename": "inv-lakeside-002.pdf",
+      "kind": "other",
+      "mime": "application/pdf",
+      "size": 2420,
+      "sha256": "27359d59a89914f6b04c1e933e73b0266d078abae506f4409ab7b76f0e5e4960"
+    },
+    {
+      "id": "3b6792a6-9da7-4345-9852-13d2987c6378",
+      "filename": "inv-lakeside-001.pdf",
+      "kind": "other",
+      "mime": "application/pdf",
+      "size": 2294,
+      "sha256": "33c9cbb4313631a8c85dda4ef20bbe4b7b3a229bfe39156fff2491dcc0f2c5b1"
+    },
+    {
+      "id": "9c6b1f40-e34d-47bf-b2ad-7ea77bfc7327",
+      "filename": "contract-harbor.pdf",
+      "kind": "other",
+      "mime": "application/pdf",
+      "size": 3177,
+      "sha256": "b4ff0b79c940dbf0f4abad67d81975d15cc6dbdd572af6bdb14e7326374924a5"
+    },
+    {
+      "id": "da13d397-f45e-4bca-be9a-0572776951a6",
+      "filename": "po-harbor-001.pdf",
+      "kind": "other",
+      "mime": "application/pdf",
+      "size": 2240,
+      "sha256": "0d503f42f6881950ea94271382e0eed267febadba1f7ffd25d81b4d6ae9b7404"
+    },
+    {
+      "id": "0a0c859c-a37b-4e99-ad8f-c9a447cde7e3",
+      "filename": "inv-harbor-001.pdf",
+      "kind": "other",
+      "mime": "application/pdf",
+      "size": 2394,
+      "sha256": "73a5ecffe59e63f1f57f7c73a599dedf49bbc3d63c93eb44f6a911bcdbf881e9"
+    }
+  ]
+}

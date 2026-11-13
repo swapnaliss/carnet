@@ -7,15 +7,20 @@
 // the in-flight job finish before `run()` resolves.
 import { hostname } from "node:os";
 import {
+  type BreakerConfig,
+  breakerConfigFromEnv,
   claimJobs,
   completeJob,
   type Db,
   deferJob,
+  dependencyOfJobKind,
   enqueueSingletonJob,
   failJob,
   getSystemFlags,
   type OutboxJob,
+  readBreaker,
   recordWorkerHeartbeat,
+  verifyAndStoreAuditChain,
 } from "@carnet/db";
 import { type CorrelationFields, runWithContext } from "../lib/request-context";
 import type { Logger } from "../server/log";
@@ -28,6 +33,8 @@ import type {
 } from "./handlers/index";
 import { PRUNE_INTERVAL_MS, pruneExpiredRateLimits } from "./prune";
 import { RECONCILE_INTERVAL_MS, RECONCILE_JOB_KIND } from "./reconcile";
+
+export const AUDIT_VERIFY_INTERVAL_MS = 5 * 60_000;
 
 export const DEFAULT_POLL_MS = 1_000;
 export const HEARTBEAT_MS = 30_000;
@@ -51,7 +58,13 @@ export interface WorkerOptions {
   heartbeatMs?: number;
   /** How often expired rate-limit windows are deleted; null disables it (tests). */
   pruneEveryMs?: number | null;
+  /** How often the audit chain is verified and the result stored for /ops (M4-01); null disables it. */
+  auditVerifyEveryMs?: number | null;
   killSwitchDeferMs?: number;
+  /** Circuit-breaker thresholds (M4-02); defaults come from the BREAKER_* environment variables. */
+  breaker?: BreakerConfig;
+  /** Random source for the breaker's jittered delay (tests). */
+  random?: () => number;
   now?: () => number;
   /** Heartbeat row key (default `host:pid`). */
   workerId?: string;
@@ -102,8 +115,14 @@ export function createWorker(options: WorkerOptions): Worker {
   const heartbeatMs = options.heartbeatMs ?? HEARTBEAT_MS;
   const pruneEveryMs =
     options.pruneEveryMs === undefined ? PRUNE_INTERVAL_MS : options.pruneEveryMs;
+  const auditVerifyEveryMs =
+    options.auditVerifyEveryMs === undefined
+      ? AUDIT_VERIFY_INTERVAL_MS
+      : options.auditVerifyEveryMs;
   const deferMs = options.killSwitchDeferMs ?? KILL_SWITCH_DEFER_MS;
   const now = options.now ?? Date.now;
+  const breakerConfig = options.breaker ?? breakerConfigFromEnv();
+  const random = options.random ?? Math.random;
   const workerId = options.workerId ?? `${hostname()}:${process.pid}`;
   const ctx: HandlerContext = {
     db,
@@ -117,6 +136,7 @@ export function createWorker(options: WorkerOptions): Worker {
   let wake: (() => void) | null = null;
   let nextReconcileAt = 0;
   let nextPruneAt = 0;
+  let nextAuditVerifyAt = 0;
   let nextHeartbeatAt = 0;
 
   const sleep = (ms: number) =>
@@ -168,6 +188,30 @@ export function createWorker(options: WorkerOptions): Worker {
       stats.deferred += 1;
       return "deferred";
     }
+    // Circuit breaker (M4-02): the state is read from the database on every job, so every worker
+    // instance agrees. OPEN pauses new calls to the dependency; the job waits out the cool-down plus
+    // jitter and its attempt count is not spent. The reconciler has no dependency kind and always runs.
+    const dependency = dependencyOfJobKind(job.kind);
+    if (dependency) {
+      const breaker = await readBreaker(db, dependency, breakerConfig, new Date(now())).catch(
+        () => null,
+      );
+      if (breaker?.state === "OPEN") {
+        const waitMs = Math.max(1_000, (breaker.retryAt?.getTime() ?? now()) - now());
+        await deferJob(
+          db,
+          job.id,
+          new Date(now() + waitMs + Math.round(random() * waitMs * 0.5)),
+          `deferred: ${dependency} circuit breaker open`,
+        );
+        logger.warn(
+          { jobId: job.id, kind: job.kind, dependency },
+          "circuit breaker open; deferred",
+        );
+        stats.deferred += 1;
+        return "deferred";
+      }
+    }
     const started = now();
     try {
       await def.handle(job.payload, ctx, job);
@@ -217,6 +261,20 @@ export function createWorker(options: WorkerOptions): Worker {
       nextReconcileAt = t + reconcileEveryMs;
       const id = await enqueueSingletonJob(db, { kind: RECONCILE_JOB_KIND, payload: {} });
       if (id) logger.debug({ jobId: id }, "reconcile job enqueued");
+    }
+    if (auditVerifyEveryMs !== null && t >= nextAuditVerifyAt) {
+      nextAuditVerifyAt = t + auditVerifyEveryMs;
+      try {
+        const r = await verifyAndStoreAuditChain(db);
+        if (r.ok) logger.debug({ checked: r.checked }, "audit chain verified");
+        else
+          logger.error(
+            { event: "audit.chain.broken", reason: r.reason, firstBadId: String(r.firstBadId) },
+            "audit chain verification FAILED",
+          );
+      } catch (error) {
+        logger.warn({ error: errorText(error) }, "audit chain verification did not run");
+      }
     }
     if (pruneEveryMs !== null && t >= nextPruneAt) {
       nextPruneAt = t + pruneEveryMs;

@@ -1,0 +1,35 @@
+{
+  "kind": "extraction",
+  "document_id": "po-harbor-001",
+  "file": "po-harbor-001.pdf",
+  "sha256": "0d503f42f6881950ea94271382e0eed267febadba1f7ffd25d81b4d6ae9b7404",
+  "doc_type": "purchase_order",
+  "prompt_version": "789f54d7a11c",
+  "model": "claude-haiku-5-5",
+  "input_hash": "00aabdcd25dce8b3394c5428db87c81b398d9d0e9bafbc6e69bd9eed802129c8",
+  "recorded_at": "2026-11-12T07:48:35.504723+00:00",
+  "source": "live run M2-09 (2026-11-12), agent_runs.id 2607f687-9408-4eb7-9b89-1240696a88d3",
+  "stored_cost_nano_usd": 452400,
+  "note": "response reconstructed from the stored agent_steps.output; the product does not store the raw HTTP body. usage token counts are not stored and are recorded as 0 (stored cost_nano_usd is in stored_cost_nano_usd); response.id is not stored and is set to the provider request id. The live upload carried one extra PDF comment line before startxref (new sha256, same text layer); sha256 above is the dataset file's.",
+  "calls": [
+    {
+      "response": {
+        "id": "req_011CgxfaugwhGDA4FuTkR5qK",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 0,
+          "output_tokens": 0
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"purchase_order\",\"page\":1,\"quote\":\"Purchase order number: PO-NW-2026-031\",\"value\":\"PO-NW-2026-031\"},{\"key\":\"order_date\",\"page\":1,\"quote\":\"Order date: 2026-09-01\",\"value\":\"2026-09-01\"},{\"key\":\"buyer\",\"page\":1,\"quote\":\"Buyer: Northwind Studio Ltd\",\"value\":\"Northwind Studio Ltd\"},{\"key\":\"supplier\",\"page\":1,\"quote\":\"Supplier: Harbor Print Co.\",\"value\":\"Harbor Print Co.\"},{\"key\":\"total\",\"page\":1,\"quote\":\"Order total: USD 4,800.00\",\"value\":\"USD 4,800.00\"},{\"key\":\"account_number\",\"page\":1,\"quote\":\"Account number: 000123456781\",\"value\":\"000123456781\"}]}"
+          }
+        ]
+      },
+      "request_id": "req_011CgxfaugwhGDA4FuTkR5qK",
+      "latency_ms": 2719
+    }
+  ]
+}
