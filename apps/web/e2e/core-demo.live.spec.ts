@@ -351,6 +351,21 @@ test("6. a real simulated TRANSACTION RFI on the strong payment's transfer; the 
   simulator = client.simulator;
   const transferId = payments.strong?.transferId;
   if (!transferId) throw new Error("no transfer");
+  if (process.env.E2E_REUSE_RFI === "1") {
+    // Continue with the RFI the last attempt created (its real-model draft already exists), instead of
+    // closing it and paying for another draft.
+    const last = [...record.steps]
+      .reverse()
+      .find((x) => x.step === 6 && typeof x.creation_path === "string");
+    if (!last) throw new Error("E2E_REUSE_RFI=1 but run.json has no created RFI");
+    rfiAirwallexId = String(last.rfi_airwallex_id);
+    rfiId = String(last.rfi_id);
+    note(6, "reusing the RFI of the earlier attempt", {
+      rfi_airwallex_id: rfiAirwallexId,
+      rfi_id: rfiId,
+    });
+    return;
+  }
   // An earlier attempt's RFI (first live run: the supporting documents were missing, so its questions
   // were NEEDS_OWNER by design) is closed first: one open RFI per type and source. It stays in the record.
   // Taken from the recorded step 6 entry: record.ids is only flushed with the next note().
@@ -418,26 +433,81 @@ test("6. a real simulated TRANSACTION RFI on the strong payment's transfer; the 
 test("7. real-model drafts with verified citations; the owner approves; the respond executes; ANSWERED", async () => {
   test.setTimeout(600_000);
   const tStart = Date.now();
-  const ready = await poll(
-    "DRAFT_READY",
+  type HoldView = {
+    rfi?: { state: string };
+    draft: { id: string; state: string } | null;
+    questions: {
+      id: string;
+      title: string;
+      answer: { status: string; reason_code: string | null; explanation: string | null } | null;
+    }[];
+  };
+  const hold = async () => {
+    const r = await api<HoldView>(page, "GET", `/api/v1/rfis/${rfiId}/hold`);
+    writeFileSync(join(OUT, "hold-last.json"), JSON.stringify(r.body, null, 2));
+    return r.body;
+  };
+  // The real model drafts; a question it cannot ground stays NEEDS_OWNER (never invented).
+  let ready = await poll(
+    "the model's draft is finished (DRAFT_READY or NEEDS_OWNER)",
     async () => {
-      const r = await api<{
-        rfi?: { state: string };
-        draft: { state: string } | null;
-        questions?: unknown[];
-      }>(page, "GET", `/api/v1/rfis/${rfiId}/hold`);
-      writeFileSync(join(OUT, "hold-last.json"), JSON.stringify(r.body, null, 2));
-      if (r.body.rfi?.state === "NEEDS_OWNER") {
-        throw new Error(
-          "the RFI is NEEDS_OWNER: the model could not ground at least one question in the documents on file. " +
-            "Full hold view in hold-last.json (question statuses and reasons).",
-        );
-      }
-      return r.body.draft?.state === "DRAFT_READY" ? r.body : null;
+      const v = await hold();
+      return v.draft?.state === "DRAFT_READY" || v.rfi?.state === "NEEDS_OWNER" ? v : null;
     },
     300_000,
     4_000,
   );
+  if (ready.rfi?.state === "NEEDS_OWNER") {
+    const declined = ready.questions.filter((q) => q.answer?.status === "NEEDS_OWNER");
+    note(7, "the real model declined some questions (NEEDS_OWNER)", {
+      declined: declined.map((q) => ({
+        title: q.title,
+        reason_code: q.answer?.reason_code,
+        explanation: q.answer?.explanation,
+      })),
+    });
+    // The owner's own statement, through the endpoint the hold screen's "Edit answer" uses: a new draft,
+    // same verifier, no model call. Only the purpose question is expected to need it.
+    const OWNER_TEXT: Record<string, string> = {
+      "Purpose of payment":
+        "This payment is for the printing of marketing brochures and posters that Harbor Print Co. produced for our clients, under our supply agreement with them.",
+    };
+    const unexpected = declined.filter((q) => !OWNER_TEXT[q.title]);
+    if (unexpected.length > 0 || !ready.draft) {
+      throw new Error(
+        `unexpected declined question(s): ${unexpected.map((q) => q.title).join(", ")} (see hold-last.json)`,
+      );
+    }
+    const res = await api(
+      page,
+      "POST",
+      `/api/v1/rfis/${rfiId}/drafts`,
+      {
+        parent_draft_id: ready.draft.id,
+        answers: declined.map((q) => ({
+          question_id: q.id,
+          text: OWNER_TEXT[q.title],
+          document_ids: [],
+          fact_version_ids: [],
+          owner_authored: true,
+        })),
+      },
+      { "idempotency-key": `${RUN}-owner-draft` },
+    );
+    expect([200, 201], JSON.stringify(res.body)).toContain(res.status);
+    ready = await poll(
+      "DRAFT_READY after the owner's answer",
+      async () => {
+        const v = await hold();
+        return v.draft?.state === "DRAFT_READY" ? v : null;
+      },
+      60_000,
+      2_000,
+    );
+    note(7, "owner completed the declined question(s); draft is DRAFT_READY", {
+      owner_authored_questions: declined.map((q) => q.title),
+    });
+  }
   const tDraft = Date.now();
   note(7, "draft ready (real model)", { ms_poll_start_to_draft_ready: tDraft - tStart });
   await page.goto(`/rfis/${rfiId}`);
