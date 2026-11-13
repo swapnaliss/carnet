@@ -206,9 +206,29 @@ const en = {
       title: "Coming with later work",
       agentRuns: "Agent runs and model spend",
       agentRunsBody: "Model runs, tokens, cost and latency appear here once drafting is built.",
-      auditChain: "Audit chain check",
-      auditChainBody:
-        "A check that the audit log has not been altered appears here once the hash chain is built.",
+    },
+    auditChain: {
+      title: "Audit log integrity",
+      card: "Audit chain",
+      ok: "Chain intact",
+      broken: "Chain broken",
+      notChecked: "Not checked yet",
+      okDetail: "Every row links to the one before it and its hash matches.",
+      brokenDetail: "First bad row",
+      rowsVerified: "rows verified",
+      head: "Head",
+      lastVerified: "Last verified",
+      definition:
+        "Each audit row stores the hash of the row before it. The worker recomputes the whole chain every few minutes and stores the result here.",
+      window: "Latest stored check",
+      pending: "The worker has not stored a check yet. It verifies the chain every 5 minutes.",
+      reasons: {
+        HASH_MISMATCH: "a row was changed",
+        LINK_MISMATCH: "a row is missing or out of order",
+        GAP: "the log has fewer rows than were written",
+        GENESIS_MISMATCH: "the first row was removed",
+        HEAD_MISMATCH: "the newest row was removed",
+      },
     },
     error: {
       panel:

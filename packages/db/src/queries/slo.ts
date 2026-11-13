@@ -14,7 +14,9 @@
 //   unknownAttempts execution_attempts in UNKNOWN now
 // Percentiles are Postgres `percentile_cont` (linear interpolation). An empty sample is `null`
 // ("no data"), never 0.
+
 import { sql } from "drizzle-orm";
+import { auditActionCountSql } from "../audit/queries";
 import type { Db } from "../client";
 
 export const SLO_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -138,8 +140,7 @@ export async function getSloSummary(db: Db, options: SloOptions = {}): Promise<S
         (SELECT max(beat_at) FROM worker_heartbeats WHERE beat_at <= ${now}) AS beat_at,
         (SELECT max(finished_at) FROM outbox_jobs WHERE kind = ${RECONCILE_KIND}
             AND status = 'DONE' AND finished_at <= ${now}) AS reconcile_at,
-        (SELECT count(*) FROM audit_log WHERE action = ${INCIDENT_ACTION}
-            AND at >= ${start} AND at <= ${now} ${scope}) AS incidents,
+        ${auditActionCountSql(INCIDENT_ACTION, start, now, scope)} AS incidents,
         (SELECT count(*) FROM execution_attempts WHERE status = 'UNKNOWN' ${scope}) AS unknown`),
   ]);
   const c = counts.rows[0];
