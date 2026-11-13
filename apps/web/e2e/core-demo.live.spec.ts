@@ -439,7 +439,14 @@ test("7. real-model drafts with verified citations; the owner approves; the resp
     questions: {
       id: string;
       title: string;
-      answer: { status: string; reason_code: string | null; explanation: string | null } | null;
+      answer: {
+        status: string;
+        reason_code: string | null;
+        explanation: string | null;
+        text: string;
+        citations: { fact_version_id: string }[];
+        documents: { id: string }[];
+      } | null;
     }[];
   };
   const hold = async () => {
@@ -484,13 +491,28 @@ test("7. real-model drafts with verified citations; the owner approves; the resp
       `/api/v1/rfis/${rfiId}/drafts`,
       {
         parent_draft_id: ready.draft.id,
-        answers: declined.map((q) => ({
-          question_id: q.id,
-          text: OWNER_TEXT[q.title],
-          document_ids: [],
-          fact_version_ids: [],
-          owner_authored: true,
-        })),
+        // As the hold screen's edit does: EVERY question of the round, the unchanged ones as the view
+        // shows them (text, documents, cited fact versions) and the declined one with the owner's text.
+        answers: ready.questions.map((q) => {
+          const owner = OWNER_TEXT[q.title];
+          const declinedHere = declined.some((d) => d.id === q.id);
+          if (declinedHere && owner) {
+            return {
+              question_id: q.id,
+              text: owner,
+              document_ids: [],
+              fact_version_ids: [],
+              owner_authored: true,
+            };
+          }
+          return {
+            question_id: q.id,
+            text: q.answer?.text ?? "",
+            document_ids: (q.answer?.documents ?? []).map((d) => d.id),
+            fact_version_ids: (q.answer?.citations ?? []).map((c) => c.fact_version_id),
+            owner_authored: q.answer?.status === "OWNER_AUTHORED",
+          };
+        }),
       },
       { "idempotency-key": `${RUN}-owner-draft` },
     );
