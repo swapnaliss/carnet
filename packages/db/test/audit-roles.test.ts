@@ -10,7 +10,7 @@ const PERMISSION_DENIED = "42501";
 
 beforeAll(async () => {
   const biz = await createBusiness(db().app.db, { name: "Roles Co" });
-  await appendAudit(repoCtx(db().app.db, biz.id), {
+  await appendAudit(repoCtx(db().app.db, biz), {
     actorType: "system",
     action: "seed",
     subject: "s",

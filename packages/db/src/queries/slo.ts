@@ -10,7 +10,7 @@
 //   deadJobs        jobs DEAD now (total) and those that became DEAD in the window
 //   workerHeartbeat newest worker_heartbeats.beat_at and its age
 //   reconcile       newest finished_at of a DONE `reconcile` job and its age
-//   incidents       audit_log `incident.paid_then_failed` entries in the window
+//   incidents       audit-log `incident.paid_then_failed` entries in the window
 //   unknownAttempts execution_attempts in UNKNOWN now
 // Percentiles are Postgres `percentile_cont` (linear interpolation). An empty sample is `null`
 // ("no data"), never 0.
@@ -68,7 +68,7 @@ export interface SloSummary {
 export interface SloOptions {
   now?: Date;
   windowMs?: number;
-  /** Scopes the tenant tables (audit_log, execution_attempts) to one business. */
+  /** Scopes the tenant tables (the audit log, execution_attempts) to one business. */
   businessId?: string;
 }
 

@@ -31,7 +31,7 @@ const BATCH = 1000;
  */
 export async function verifyAuditChain(
   db: Db,
-  range: { from?: bigint; to?: bigint } = {},
+  range: { from?: bigint | undefined; to?: bigint | undefined } = {},
 ): Promise<AuditChainResult> {
   const full = range.from === undefined && range.to === undefined;
   let expectedPrev: string | null = null; // null = not yet seen a hashed row

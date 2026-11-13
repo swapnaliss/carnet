@@ -19,7 +19,7 @@ let ctx: ReturnType<typeof repoCtx>;
 
 beforeAll(async () => {
   const biz = await createBusiness(db().app.db, { name: "Audit Co" });
-  ctx = repoCtx(db().app.db, biz.id);
+  ctx = repoCtx(db().app.db, biz);
 });
 
 /** Runs SQL as the migration role (the owner) with the audit triggers off: a privileged attacker. */
