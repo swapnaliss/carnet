@@ -1,0 +1,257 @@
+{
+  "run": "M2RUN-2611120748",
+  "base_url": "https://carnet-web.onrender.com",
+  "started_at": "2026-11-12T07:48:26.956Z",
+  "steps": [
+    {
+      "step": 1,
+      "name": "owner signed in",
+      "at": "2026-11-12T07:48:27.726Z",
+      "deployed_version": "2331449c82f9"
+    },
+    {
+      "step": 2,
+      "name": "documents uploaded and read",
+      "at": "2026-11-12T07:48:51.532Z",
+      "documents": {
+        "inv-harbor-001": "67b8fe29-acdc-49d7-8a56-3f46237131ce",
+        "po-harbor-001": "a5fe0b04-34c6-483b-abd8-1514c9c0a61b",
+        "contract-harbor": "43e88865-5280-4273-b469-49e20612acc7",
+        "inv-lakeside-001": "8c19cab8-74d1-495d-b020-8a6f11a29a52",
+        "inv-lakeside-002": "c945682b-5720-479c-8aff-ad070bfbd5f0",
+        "inv-nordlicht-scan-001": "69b4e66c-a47b-433e-8f7e-00201c2ee70e"
+      },
+      "scan_needs_confirmation": true,
+      "injection_document_mentions_flag": true
+    },
+    {
+      "step": 3,
+      "name": "scan facts confirmed by the owner",
+      "at": "2026-11-12T07:48:51.787Z",
+      "confirmed_version": 1,
+      "status": 201
+    },
+    {
+      "step": 4,
+      "name": "payments saved, evidence attached, flags computed",
+      "at": "2026-11-12T07:48:53.055Z",
+      "strong_payment": "66807a04-82f5-48ac-ae0a-81e1ea58809c",
+      "weak_payment": "ca0e5cdf-f76a-4b13-8941-d40d9205cfa5",
+      "flag_harbor": "strong",
+      "flag_lakeside": "missing"
+    },
+    {
+      "step": 5,
+      "name": "payments sent (real sandbox transfers)",
+      "at": "2026-11-12T07:48:59.705Z",
+      "weak_send_without_ack_status": 412,
+      "transfers": {
+        "strong": "2662e6a4-e664-4d74-be1f-9889655df125",
+        "weak": "4b9e8961-7124-4451-b294-1602a4c6c516"
+      }
+    },
+    {
+      "step": 1,
+      "name": "owner signed in",
+      "at": "2026-11-12T07:56:43.637Z",
+      "deployed_version": "2331449c82f9"
+    },
+    {
+      "step": 6,
+      "name": "simulated RFI created and received",
+      "at": "2026-11-12T07:57:06.396Z",
+      "rfi_airwallex_id": "18e60744-857c-4c6c-af2e-42e132e7db4c",
+      "rfi_id": "a8af6577-5a70-4fc0-b0a8-3d4242de23a5",
+      "creation_path": "SandboxSimulator port, POST /api/v1/simulation/rfis/create (plain account, ADR 0018)",
+      "ms_create_to_visible_in_carnet": 21614,
+      "questions": 4
+    },
+    {
+      "step": 1,
+      "name": "owner signed in",
+      "at": "2026-11-13T09:11:56.974Z",
+      "deployed_version": "2331449c82f9"
+    },
+    {
+      "step": 5,
+      "name": "supporting documents uploaded for the RFI's attachment questions",
+      "at": "2026-11-13T09:11:57.365Z",
+      "delivery_note": "b962fadb-5370-4078-be18-0b8d2b1762b0",
+      "remittance_advice": "955b22fd-7a05-4f96-a27e-f043836f13af"
+    },
+    {
+      "step": 1,
+      "name": "owner signed in",
+      "at": "2026-11-13T09:13:35.577Z",
+      "deployed_version": "2331449c82f9"
+    },
+    {
+      "step": 5,
+      "name": "supporting documents uploaded for the RFI's attachment questions",
+      "at": "2026-11-13T09:13:35.697Z",
+      "delivery_note": "b962fadb-5370-4078-be18-0b8d2b1762b0",
+      "remittance_advice": "955b22fd-7a05-4f96-a27e-f043836f13af"
+    },
+    {
+      "step": 6,
+      "name": "previous attempt's RFI closed",
+      "at": "2026-11-13T09:13:36.492Z",
+      "rfi_airwallex_id": "18e60744-857c-4c6c-af2e-42e132e7db4c"
+    },
+    {
+      "step": 6,
+      "name": "simulated RFI created and received",
+      "at": "2026-11-13T09:14:15.629Z",
+      "rfi_airwallex_id": "8fee9796-9ab8-4006-b521-0208269243b0",
+      "rfi_id": "8a10d970-f4b9-4ed4-a3e1-10ddd5fe2850",
+      "creation_path": "SandboxSimulator port, POST /api/v1/simulation/rfis/create (plain account, ADR 0018)",
+      "ms_create_to_visible_in_carnet": 38868,
+      "questions": 4
+    },
+    {
+      "step": 1,
+      "name": "owner signed in",
+      "at": "2026-11-13T09:16:14.096Z",
+      "deployed_version": "2331449c82f9"
+    },
+    {
+      "step": 5,
+      "name": "supporting documents uploaded for the RFI's attachment questions",
+      "at": "2026-11-13T09:16:14.200Z",
+      "delivery_note": "b962fadb-5370-4078-be18-0b8d2b1762b0",
+      "remittance_advice": "955b22fd-7a05-4f96-a27e-f043836f13af"
+    },
+    {
+      "step": 6,
+      "name": "reusing the RFI of the earlier attempt",
+      "at": "2026-11-13T09:16:14.215Z",
+      "rfi_airwallex_id": "8fee9796-9ab8-4006-b521-0208269243b0",
+      "rfi_id": "8a10d970-f4b9-4ed4-a3e1-10ddd5fe2850"
+    },
+    {
+      "step": 7,
+      "name": "the real model declined some questions (NEEDS_OWNER)",
+      "at": "2026-11-13T09:16:14.460Z",
+      "declined": [
+        {
+          "title": "Purpose of payment",
+          "reason_code": "CANNOT_ANSWER",
+          "explanation": "Your documents do not contain what this question asks for."
+        }
+      ]
+    },
+    {
+      "step": 1,
+      "name": "owner signed in",
+      "at": "2026-11-13T09:20:11.250Z",
+      "deployed_version": "2331449c82f9"
+    },
+    {
+      "step": 5,
+      "name": "supporting documents uploaded for the RFI's attachment questions",
+      "at": "2026-11-13T09:20:11.396Z",
+      "delivery_note": "b962fadb-5370-4078-be18-0b8d2b1762b0",
+      "remittance_advice": "955b22fd-7a05-4f96-a27e-f043836f13af"
+    },
+    {
+      "step": 6,
+      "name": "previous attempt's RFI closed",
+      "at": "2026-11-13T09:20:12.050Z",
+      "rfi_airwallex_id": "8fee9796-9ab8-4006-b521-0208269243b0"
+    },
+    {
+      "step": 6,
+      "name": "simulated RFI created and received",
+      "at": "2026-11-13T09:20:17.576Z",
+      "rfi_airwallex_id": "1e753bea-ff0c-4b2a-868c-9c266a36f765",
+      "rfi_id": "0c96b34b-8476-42de-8f87-4a39e983fa12",
+      "creation_path": "SandboxSimulator port, POST /api/v1/simulation/rfis/create (plain account, ADR 0018)",
+      "ms_create_to_visible_in_carnet": 5291,
+      "questions": 4
+    },
+    {
+      "step": 7,
+      "name": "the real model declined some questions (NEEDS_OWNER)",
+      "at": "2026-11-13T09:20:30.408Z",
+      "declined": [
+        {
+          "title": "Relationship with the counterparty",
+          "reason_code": "UNSUPPORTED_TOKEN",
+          "explanation": "The answer says something the cited documents do not say."
+        }
+      ]
+    },
+    {
+      "step": 1,
+      "name": "owner signed in",
+      "at": "2026-11-13T09:22:05.997Z",
+      "deployed_version": "2331449c82f9"
+    },
+    {
+      "step": 5,
+      "name": "supporting documents uploaded for the RFI's attachment questions",
+      "at": "2026-11-13T09:22:06.140Z",
+      "delivery_note": "b962fadb-5370-4078-be18-0b8d2b1762b0",
+      "remittance_advice": "955b22fd-7a05-4f96-a27e-f043836f13af"
+    },
+    {
+      "step": 6,
+      "name": "reusing the RFI of the earlier attempt",
+      "at": "2026-11-13T09:22:06.154Z",
+      "rfi_airwallex_id": "1e753bea-ff0c-4b2a-868c-9c266a36f765",
+      "rfi_id": "0c96b34b-8476-42de-8f87-4a39e983fa12"
+    },
+    {
+      "step": 7,
+      "name": "the real model declined some questions (NEEDS_OWNER)",
+      "at": "2026-11-13T09:22:06.468Z",
+      "declined": [
+        {
+          "title": "Relationship with the counterparty",
+          "reason_code": "UNSUPPORTED_TOKEN",
+          "explanation": "The answer says something the cited documents do not say."
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "name": "owner completed the declined question(s); draft is DRAFT_READY",
+      "at": "2026-11-13T09:22:06.794Z",
+      "owner_authored_questions": [
+        "Relationship with the counterparty"
+      ]
+    },
+    {
+      "step": 7,
+      "name": "draft ready (real model)",
+      "at": "2026-11-13T09:22:06.794Z",
+      "ms_poll_start_to_draft_ready": 592
+    },
+    {
+      "step": 7,
+      "name": "approved, responded, answered",
+      "at": "2026-11-13T09:22:12.009Z",
+      "ms_approval_to_answered": 3372,
+      "attempt": {
+        "status": "CONFIRMED",
+        "request_id": "60e289e4-bea3-4705-96d2-f64d621653a8",
+        "message": null
+      },
+      "approval_status": "CONSUMED"
+    },
+    {
+      "step": 8,
+      "name": "RFI closed; transfer reached SENT then PAID on its own status",
+      "at": "2026-11-13T09:23:22.488Z",
+      "transfer_status_while_rfi_closed": "PROCESSING",
+      "final_transfer_status": "PAID",
+      "rfi_state": "CLOSED",
+      "transfer_id": "2662e6a4-e664-4d74-be1f-9889655df125"
+    }
+  ],
+  "ids": {
+    "documents": "{\"inv-harbor-001\":\"67b8fe29-acdc-49d7-8a56-3f46237131ce\",\"po-harbor-001\":\"a5fe0b04-34c6-483b-abd8-1514c9c0a61b\",\"contract-harbor\":\"43e88865-5280-4273-b469-49e20612acc7\",\"inv-lakeside-001\":\"8c19cab8-74d1-495d-b020-8a6f11a29a52\",\"inv-lakeside-002\":\"c945682b-5720-479c-8aff-ad070bfbd5f0\",\"inv-nordlicht-scan-001\":\"69b4e66c-a47b-433e-8f7e-00201c2ee70e\"}",
+    "rfi": "0c96b34b-8476-42de-8f87-4a39e983fa12",
+    "rfi_airwallex": "1e753bea-ff0c-4b2a-868c-9c266a36f765"
+  }
+}

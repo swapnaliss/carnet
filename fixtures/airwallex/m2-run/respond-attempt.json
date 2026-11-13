@@ -1,0 +1,35 @@
+{
+  "note": "The Airwallex respond result as stored on the execution attempt (request_id, status and the response the adapter recorded). Account ids scrubbed.",
+  "attempt": {
+    "id": "82d87956-5f40-4eb7-b03a-e9b95ba384f4",
+    "kind": "respond",
+    "ref_id": "0c96b34b-8476-42de-8f87-4a39e983fa12",
+    "status": "CONFIRMED",
+    "response": {
+      "hash": "e85b5e934a5f260385175779b802a121a66bbfc6344541f279f995ee347d56e3",
+      "files": [
+        {
+          "fileId": "NWY3MWJiOTAtNDYwNi00MTNjLTk3MDQtZTIxZjQ5MTM5Y2Y0LHwsc2csfCxyZW1pdC1icmlnaHRsaW5lLTAwMS5wZGZfMTc5NDU2MTcyOTU4MQ",
+          "sha256": "26c564910125ce5486ba18c85bbff31d3e8fe84eacdf9be24b0904109235f632",
+          "documentId": "955b22fd-7a05-4f96-a27e-f043836f13af"
+        },
+        {
+          "fileId": "NWY3MWJiOTAtNDYwNi00MTNjLTk3MDQtZTIxZjQ5MTM5Y2Y0LHwsc2csfCxkbi1oYXJib3ItMDAxLnBkZl8xNzk0NTYxNzI5OTA2",
+          "sha256": "df06a3fafe6aa89652abca1b339020a03d2098302461e80209974770674aaff6",
+          "documentId": "b962fadb-5370-4078-be18-0b8d2b1762b0"
+        }
+      ],
+      "sends": 1,
+      "sentAt": "2026-11-13T09:22:10.139Z",
+      "approvalId": "82b35c32-f08a-47d1-9c26-7c8f4205c060",
+      "leaseUntil": "2026-11-13T09:24:09.359Z",
+      "resolvedBy": "respond",
+      "confirmedAt": "2026-11-13T09:22:10.335Z",
+      "airwallexStatus": "ANSWERED"
+    },
+    "created_at": "2026-11-13T09:22:09.328595+00:00",
+    "request_id": "60e289e4-bea3-4705-96d2-f64d621653a8",
+    "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+    "resolved_at": "2026-11-13T09:22:10.335+00:00"
+  }
+}

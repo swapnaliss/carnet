@@ -38,14 +38,43 @@ for j in json.load(sys.stdin):
   sleep 5
 done
 echo "job status: $STATUS"
-sleep 5   # the last log lines arrive a few seconds after the job ends
-render logs -r "$JOB_ID" --limit 20000 --direction forward -o text --confirm \
-  | python3 -c '
-import sys
-for line in sys.stdin:
-    i = line.find("{")
-    if i >= 0 and "\"process\":\"demo-export\"" in line[i:]:
-        sys.stdout.write(line[i:].rstrip("\n") + "\n")
-' > "$OUT"
+sleep 8   # the last log lines arrive a few seconds after the job ends
+# Render caps one logs request at 1000 lines: page forward by timestamp and drop duplicates.
+python3 - "$JOB_ID" "$OUT" <<'PY'
+import json, subprocess, sys
+job, out = sys.argv[1], sys.argv[2]
+seen, lines, start = set(), [], None
+for _ in range(200):
+    cmd = ["render", "logs", "-r", job, "--limit", "1000", "--direction", "forward", "-o", "json", "--confirm"]
+    if start:
+        cmd += ["--start", start]
+    raw = subprocess.run(cmd, capture_output=True, text=True, check=True).stdout
+    # The CLI prints one pretty-printed JSON object per log entry, back to back (not a list).
+    rows, dec, i = [], json.JSONDecoder(), 0
+    while i < len(raw):
+        while i < len(raw) and raw[i].isspace():
+            i += 1
+        if i >= len(raw):
+            break
+        obj, i = dec.raw_decode(raw, i)
+        if isinstance(obj, list):
+            rows.extend(obj)
+        else:
+            rows.append(obj)
+    new = 0
+    for r in rows:
+        key = (r.get("timestamp"), r.get("message"))
+        if key in seen:
+            continue
+        seen.add(key)
+        new += 1
+        msg = r.get("message", "")
+        if '"process":"demo-export"' in msg and msg.lstrip().startswith("{"):
+            lines.append(msg.strip())
+    if len(rows) < 1000 or new == 0:
+        break
+    start = rows[-1].get("timestamp")
+open(out, "w").write("\n".join(lines) + ("\n" if lines else ""))
+PY
 echo "wrote $(wc -l < "$OUT") lines to $OUT"
 [ "$STATUS" = "succeeded" ]

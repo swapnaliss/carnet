@@ -1,0 +1,20 @@
+{
+  "name": "rfi.action_required",
+  "provider_event_id": "f782912d-aff6-4fc4-bac9-18516d54bea9",
+  "received_at": "2026-11-12T07:57:02.545+00:00",
+  "acked_at": "2026-11-12T07:57:02.565+00:00",
+  "processed_at": "2026-11-12T07:57:03.148+00:00",
+  "note": "raw_body as stored by Carnet after the signature was verified; account_id scrubbed. Re-sign before replaying (the real secret is never in the repo).",
+  "raw_body": "{\"id\":\"f782912d-aff6-4fc4-bac9-18516d54bea9\",\"name\":\"rfi.action_required\",\"account_id\":\"acct_SCRUBBED\",\"data\":{\"id\":\"18e60744-857c-4c6c-af2e-42e132e7db4c\",\"type\":\"TRANSACTION\"},\"created_at\":\"2026-11-12T07:56:46+0000\",\"version\":\"2026-08-21\"}",
+  "body": {
+    "id": "f782912d-aff6-4fc4-bac9-18516d54bea9",
+    "name": "rfi.action_required",
+    "account_id": "acct_SCRUBBED",
+    "data": {
+      "id": "18e60744-857c-4c6c-af2e-42e132e7db4c",
+      "type": "TRANSACTION"
+    },
+    "created_at": "2026-11-12T07:56:46+0000",
+    "version": "2026-08-21"
+  }
+}
