@@ -258,7 +258,7 @@ describe("tamper detection (privileged attacker)", () => {
 
   it("stores the result for /ops", async () => {
     const ok = await verifyAndStoreAuditChain(db().app.db);
-    expect(ok.ok).toBe(false === ok.ok ? false : true);
+    expect(ok.ok).toBe(true);
     expect(await readAuditChainStatus(db().app.db)).toMatchObject({ ok: true, checked: 6 });
     const all = await ids();
     await asOwner(`UPDATE audit_log SET action = 'forged' WHERE id = ${all[4]}`);
