@@ -353,7 +353,11 @@ test("6. a real simulated TRANSACTION RFI on the strong payment's transfer; the 
   if (!transferId) throw new Error("no transfer");
   // An earlier attempt's RFI (first live run: the supporting documents were missing, so its questions
   // were NEEDS_OWNER by design) is closed first: one open RFI per type and source. It stays in the record.
-  const previous = record.ids.rfi_airwallex;
+  // Taken from the recorded step 6 entry: record.ids is only flushed with the next note().
+  const previous =
+    record.ids.rfi_airwallex ??
+    (record.steps.find((x) => x.step === 6 && typeof x.rfi_airwallex_id === "string")
+      ?.rfi_airwallex_id as string | undefined);
   if (previous) {
     try {
       await simulator.closeRfi(previous);
@@ -408,6 +412,7 @@ test("6. a real simulated TRANSACTION RFI on the strong payment's transfer; the 
   });
   record.ids.rfi = rfiId;
   record.ids.rfi_airwallex = rfiAirwallexId;
+  writeFileSync(join(OUT, "run.json"), JSON.stringify(record, null, 2));
 });
 
 test("7. real-model drafts with verified citations; the owner approves; the respond executes; ANSWERED", async () => {
