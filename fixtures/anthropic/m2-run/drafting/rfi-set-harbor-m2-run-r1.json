@@ -1,0 +1,59 @@
+{
+  "kind": "drafting",
+  "set_id": "rfi-set-harbor-m2-run",
+  "round": 1,
+  "prompt_version": "8f4f58a2a12c",
+  "input_hash": "a04807f28c24a57fa6a68da6093a508e1491188a4cd87537ef5acc3b4bf1438b",
+  "model": "claude-sonnet-5-5",
+  "recorded_at": "2026-11-13T09:20:29.737971+00:00",
+  "source": "live run M2-09 (2026-11-13), rfi 0c96b34b-8476-42de-8f87-4a39e983fa12, agent_runs.id 4cbffcf8-cd18-47cb-9167-5e57f815a377, draft 58311300-4b0a-4c8a-bf2e-951f1f962752",
+  "stored_cost_nano_usd": 34708000,
+  "stored_draft_outcome": {
+    "state": "NEEDS_OWNER",
+    "blocking": [
+      {
+        "reason": "UNSUPPORTED_TOKEN",
+        "explanation": "The answer says something the cited documents do not say.",
+        "question_id": "9b63f1e1-5081-45b9-938a-71990b50b4ea"
+      }
+    ]
+  },
+  "note": "response reconstructed from the stored agent_steps.output; the product does not store the raw HTTP body. usage token counts are not stored and are recorded as 0 (stored cost_nano_usd is in stored_cost_nano_usd); response.id is not stored and is set to the provider request id. input_hash is the live database's (it covers that database's uuids) and will not match a replay database.",
+  "id_map": {
+    "questions": {
+      "eafd18fc-c418-4e7a-b24c-ffa28830d52e": "q-harbor-purpose",
+      "9b63f1e1-5081-45b9-938a-71990b50b4ea": "q-harbor-relationship",
+      "a7cc8677-ea4e-493f-95cc-cae3217c72ce": "q-harbor-source_of_funds",
+      "e619711c-7241-475b-a93e-a41071d4896f": "q-harbor-proof_of_delivery"
+    },
+    "fact_versions": {
+      "a47906fe-2399-4a17-8577-f4bdaf2824db": "inv-harbor-001",
+      "b707694b-1981-4d14-a0ff-831d9befd0a9": "contract-harbor"
+    },
+    "documents": {
+      "955b22fd-7a05-4f96-a27e-f043836f13af": "remit-brightline-001",
+      "b962fadb-5370-4078-be18-0b8d2b1762b0": "dn-harbor-001"
+    }
+  },
+  "calls": [
+    {
+      "response": {
+        "id": "req_011CgzgPUM1fThvwdKBGC7DA",
+        "model": "claude-sonnet-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 0,
+          "output_tokens": 0
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"answers\":[{\"text\":\"Invoice INV-HP-2026-0141 from Harbor Print Co. is for USD 4,800.00 under purchase order PO-NW-2026-031.\",\"status\":\"answered\",\"citations\":[{\"quote\":\"Invoice number: INV-HP-2026-0141\",\"fact_version_id\":\"a47906fe-2399-4a17-8577-f4bdaf2824db#0\"},{\"quote\":\"From: Harbor Print Co.\",\"fact_version_id\":\"a47906fe-2399-4a17-8577-f4bdaf2824db#3\"},{\"quote\":\"Total due: USD 4,800.00\",\"fact_version_id\":\"a47906fe-2399-4a17-8577-f4bdaf2824db#6\"},{\"quote\":\"Purchase order: PO-NW-2026-031\",\"fact_version_id\":\"a47906fe-2399-4a17-8577-f4bdaf2824db#5\"}],\"question_id\":\"eafd18fc-c418-4e7a-b24c-ffa28830d52e\",\"document_ids\":[]},{\"text\":\"Contract number CT-NW-HP-2026 names Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier), effective 2026-01-15. Its scope is printing of marketing brochures and posters for Northwind Studio clients.\",\"status\":\"answered\",\"citations\":[{\"quote\":\"Contract number: CT-NW-HP-2026\",\"fact_version_id\":\"b707694b-1981-4d14-a0ff-831d9befd0a9#0\"},{\"quote\":\"1. Parties: Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier).\",\"fact_version_id\":\"b707694b-1981-4d14-a0ff-831d9befd0a9#1\"},{\"quote\":\"2. Effective date: 2026-01-15.\",\"fact_version_id\":\"b707694b-1981-4d14-a0ff-831d9befd0a9#2\"},{\"quote\":\"3. Scope: Printing of marketing brochures and posters for Northwind Studio clients.\",\"fact_version_id\":\"b707694b-1981-4d14-a0ff-831d9befd0a9#3\"}],\"question_id\":\"9b63f1e1-5081-45b9-938a-71990b50b4ea\",\"document_ids\":[]},{\"text\":\"\",\"status\":\"answered\",\"citations\":[],\"question_id\":\"a7cc8677-ea4e-493f-95cc-cae3217c72ce\",\"document_ids\":[\"955b22fd-7a05-4f96-a27e-f043836f13af\"]},{\"text\":\"\",\"status\":\"answered\",\"citations\":[],\"question_id\":\"e619711c-7241-475b-a93e-a41071d4896f\",\"document_ids\":[\"b962fadb-5370-4078-be18-0b8d2b1762b0\"]}]}"
+          }
+        ]
+      },
+      "request_id": "req_011CgzgPUM1fThvwdKBGC7DA",
+      "latency_ms": 14003
+    }
+  ]
+}

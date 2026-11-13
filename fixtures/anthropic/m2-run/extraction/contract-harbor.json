@@ -1,0 +1,35 @@
+{
+  "kind": "extraction",
+  "document_id": "contract-harbor",
+  "file": "contract-harbor.pdf",
+  "sha256": "b4ff0b79c940dbf0f4abad67d81975d15cc6dbdd572af6bdb14e7326374924a5",
+  "doc_type": "contract",
+  "prompt_version": "17e122e799e9",
+  "model": "claude-haiku-5-5",
+  "input_hash": "d59326c25a17de5b89278b7f14ca05bd80730c1a9b8e01a3910f1a9c85c77948",
+  "recorded_at": "2026-11-12T07:48:41.762315+00:00",
+  "source": "live run M2-09 (2026-11-12), agent_runs.id 6f59c217-252c-4aea-8503-51dcc9d9286c",
+  "stored_cost_nano_usd": 1319600,
+  "note": "response reconstructed from the stored agent_steps.output; the product does not store the raw HTTP body. usage token counts are not stored and are recorded as 0 (stored cost_nano_usd is in stored_cost_nano_usd); response.id is not stored and is set to the provider request id. The live upload carried one extra PDF comment line before startxref (new sha256, same text layer); sha256 above is the dataset file's.",
+  "calls": [
+    {
+      "response": {
+        "id": "req_011Cgxfb7S8HX8kVU2MTSDg8",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 0,
+          "output_tokens": 0
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"contract_number\",\"page\":1,\"quote\":\"Contract number: CT-NW-HP-2026\",\"value\":\"CT-NW-HP-2026\"},{\"key\":\"clause_parties\",\"page\":1,\"quote\":\"1. Parties: Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier).\",\"value\":\"Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier).\"},{\"key\":\"clause_effective_date\",\"page\":1,\"quote\":\"2. Effective date: 2026-01-15.\",\"value\":\"2026-01-15\"},{\"key\":\"clause_scope\",\"page\":1,\"quote\":\"3. Scope: Printing of marketing brochures and posters for Northwind Studio clients.\",\"value\":\"Printing of marketing brochures and posters for Northwind Studio clients.\"},{\"key\":\"clause_payment_terms\",\"page\":2,\"quote\":\"4. Payment: Buyer pays each invoice within 30 days of the invoice date.\",\"value\":\"Buyer pays each invoice within 30 days of the invoice date.\"},{\"key\":\"clause_fee_cap\",\"page\":2,\"quote\":\"5. Fees: Total fees under this contract will not exceed USD 60,000.00.\",\"value\":\"Total fees under this contract will not exceed USD 60,000.00.\"},{\"key\":\"clause_beneficiary_account\",\"page\":2,\"quote\":\"6. Beneficiary account: Supplier is paid only to account number 000123456781.\",\"value\":\"Supplier is paid only to account number 000123456781.\"},{\"key\":\"clause_governing_law\",\"page\":2,\"quote\":\"7. Governing law: The laws of the Netherlands apply.\",\"value\":\"The laws of the Netherlands apply.\"},{\"key\":\"clause_signatories\",\"page\":2,\"quote\":\"Signed for Northwind Studio Ltd: Finance (synthetic signature block)\",\"value\":\"Finance (synthetic signature block)\"},{\"key\":\"clause_signatories\",\"page\":2,\"quote\":\"Signed for Harbor Print Co.: Authorised signatory (synthetic signature block)\",\"value\":\"Authorised signatory (synthetic signature block)\"}]}"
+          }
+        ]
+      },
+      "request_id": "req_011Cgxfb7S8HX8kVU2MTSDg8",
+      "latency_ms": 6225
+    }
+  ]
+}
