@@ -16,6 +16,8 @@ export const M1_TABLES = [
   "agent_steps",
   "answer_memory",
   "approvals",
+  "audit_chain_head",
+  "audit_chain_status",
   "audit_log",
   "auth_accounts",
   "auth_sessions",
