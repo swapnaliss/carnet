@@ -5,6 +5,7 @@
 //   release.mjs  preDeploy step: migrations as the migration role
 //   setup.mjs    idempotent roles / migrate / seed
 //   demo-seed.mjs  adds the dataset payees to the demo business (M2-09)
+//   demo-export.mjs  read-only export of a live run (model steps, audit, webhooks) for the run record (M2-09)
 //   migrations/  copy of packages/db/migrations;  roles.sql  copy of packages/db/sql/roles.sql
 import { cpSync, mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
@@ -20,6 +21,7 @@ await build({
     release: "scripts/release.ts",
     setup: "scripts/setup.ts",
     "demo-seed": "scripts/demo-seed.ts",
+    "demo-export": "scripts/demo-export.ts",
   },
   outdir: out,
   outExtension: { ".js": ".mjs" },
