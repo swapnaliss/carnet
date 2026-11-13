@@ -27,6 +27,10 @@ export function sanitizeFilename(raw: string | null | undefined, ext: string): s
     .replace(/\.{2,}/g, ".")
     .trim();
   name = name.replace(OLD_EXTENSION, "");
+  // An extension-like segment left in the stem would make a double extension (`invoice.php.pdf`): the
+  // only extension is the one the bytes decided, so its dot becomes an underscore (M4-04). A numeric
+  // segment (`report 2026.11`) is not an extension and stays.
+  name = name.replace(/\.(?=[A-Za-z][A-Za-z0-9]{0,4}(?:\.|$))/g, "_").replace(/_+/g, "_");
   const trimEnds = (s: string) => s.replace(/^[\s._-]+/, "").replace(/[\s.-]+$/, "");
   name = trimEnds(name);
   const room = FILENAME_MAX_LENGTH - suffix.length;

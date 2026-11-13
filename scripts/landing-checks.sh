@@ -102,4 +102,6 @@ fi
 if [ "$FAST" = 0 ]; then
   # Slow checks (full stack, e2e, evals) are added by the tickets that create them, guarded by -x.
   if [ -x scripts/check-fixtures-redacted.sh ]; then ./scripts/check-fixtures-redacted.sh; fi
+  # Every STRIDE row in docs/architecture.md section 8 has a named test (M4-04).
+  if [ -x scripts/check-stride-map.py ]; then python3 scripts/check-stride-map.py; fi
 fi
