@@ -6,6 +6,7 @@ import { eq, gte, sql } from "drizzle-orm";
 import type { Db } from "../client";
 import {
   DuplicateWebhookEventError,
+  ExecutionDisabledError,
   pgErrorOf,
   SystemFlagsMissingError,
   translateDbError,
@@ -151,4 +152,25 @@ export async function agentSpendSince(db: Db, since: Date): Promise<number> {
     .from(agentSteps)
     .where(gte(agentSteps.createdAt, since));
   return Number(row?.total ?? 0);
+}
+
+// --- kill switch helpers (M4-02) ---------------------------------------------------------------
+
+/** Midnight UTC: the daily cap's day boundary (documented in docs/architecture.md §9). */
+export function utcDayStartOf(now: Date): Date {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+}
+
+/** True only when the row is readable and `execution_enabled` is true. */
+export async function isExecutionEnabled(db: Db): Promise<boolean> {
+  try {
+    return (await getSystemFlags(db)).executionEnabled;
+  } catch {
+    return false;
+  }
+}
+
+/** Throws ExecutionDisabledError unless execution is on. Call before any new money-moving attempt. */
+export async function assertExecutionEnabled(db: Db): Promise<void> {
+  if (!(await isExecutionEnabled(db))) throw new ExecutionDisabledError();
 }

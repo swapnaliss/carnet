@@ -18,6 +18,7 @@ export * from "./draft-sweep";
 export * from "./drafts";
 export * from "./evidence";
 export * from "./execution-attempts";
+export * from "./governance";
 export * from "./idempotency-keys";
 export * from "./obligation-confirm";
 export * from "./obligations";
