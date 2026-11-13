@@ -7,12 +7,14 @@ import {
 import { Activity, Bot, CircleAlert } from "lucide-react";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { Governance } from "@/components/ops/governance";
 import { formatCount, formatMs, MetricCard } from "@/components/ops/metric-card";
 import { EmptyState, PageTitle } from "@/components/shell/empty-state";
 import { formatDate, formatRelative } from "@/lib/intl";
 import { logger } from "@/lib/logger";
 import { requirePageSession } from "@/lib/page-session";
 import { appDb } from "@/server/db";
+import { loadGovernance } from "@/server/ops-governance";
 import { locale, t } from "@/strings";
 
 export const metadata: Metadata = { title: t.ops.title };
@@ -284,6 +286,13 @@ export default async function OpsPage() {
   const ctx = await requirePageSession();
   const summary = await loadSummary(ctx.businessId);
   const chain = await loadChain();
+  const governance = await loadGovernance(appDb().db, ctx.businessId).catch((error: unknown) => {
+    logger().error(
+      { event: "ops.governance.error", err: error instanceof Error ? error.message : "unknown" },
+      "ops governance failed",
+    );
+    return null;
+  });
 
   return (
     <>
@@ -297,6 +306,17 @@ export default async function OpsPage() {
             </p>
           ) : null}
         </div>
+        {governance ? (
+          <Governance view={governance} canChange={ctx.role === "owner"} />
+        ) : (
+          <div
+            role="alert"
+            className="flex max-w-2xl items-start gap-3 rounded-md border border-border bg-status-danger-bg p-4 text-status-danger-fg"
+          >
+            <CircleAlert aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
+            <p>{t.ops.error.panel}</p>
+          </div>
+        )}
         {summary && isEmpty(summary) ? (
           <EmptyState icon={Activity} title={t.ops.empty.title} body={t.ops.empty.body} />
         ) : null}

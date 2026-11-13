@@ -378,7 +378,7 @@ describe("kill switch", () => {
     expect((await getApproval(w.ctx, approval.approvalId))?.status).toBe("APPROVED");
   });
 
-  it("kill switch turned off after the attempt is written: nothing is sent, and the same attempt resumes later", async () => {
+  it("kill switch turned off before the attempt is written: nothing is sent and no attempt exists; re-enabled, one attempt is created and confirmed", async () => {
     const w = await seedWorld(database().app.db);
     const { client, server } = replayGateway();
     const { actionIds } = await storePlan(w, [convertAction(1)]);
@@ -404,14 +404,15 @@ describe("kill switch", () => {
     );
     expect(r).toEqual({ outcome: "skipped", reason: "KILL_SWITCH" });
     expect(server.conversionRequests).toHaveLength(0);
-    const [held] = await attemptsOf(w, id);
-    expect(held?.status).toBe("INTENT");
+    // M4-02: with execution off no ExecutionAttempt is created at all.
+    expect(await attemptsOf(w, id)).toEqual([]);
 
     await setKillSwitch(true);
     const again = await executeAutoConversion(depsOf(w, client), w.businessId, id);
     expect(again.outcome).toBe("confirmed");
+    const [created] = await attemptsOf(w, id);
     expect(await attemptsOf(w, id)).toHaveLength(1);
-    expect(jsonOf(server.conversionRequests[0]).request_id).toBe(held?.requestId);
+    expect(jsonOf(server.conversionRequests[0]).request_id).toBe(created?.requestId);
   });
 });
 

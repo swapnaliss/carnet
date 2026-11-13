@@ -32,6 +32,7 @@ import {
 } from "@carnet/domain";
 import { appendAudit } from "../audit/append";
 import { withTransaction } from "../client";
+import { ExecutionDisabledError } from "../errors";
 import {
   getStoredAction,
   isActionCurrent,
@@ -244,6 +245,11 @@ export async function executeAutoConversion(
       if (!after) throw new Error("action vanished");
       return sendConversion(deps, businessId, after, attempt.id);
     } catch (error) {
+      // The switch went off after the check above: createAttempt refused, the transaction rolled
+      // back, and nothing was written (M4-02: no new attempt while execution is paused).
+      if (error instanceof ExecutionDisabledError) {
+        return { outcome: "skipped", reason: "KILL_SWITCH" };
+      }
       if (!(error instanceof Rollback)) throw error;
       if (error.reason === "QUOTE_REUSED") continue; // request a fresh quote
       if (error.reason.startsWith("DENY:")) {

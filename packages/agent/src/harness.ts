@@ -1,10 +1,12 @@
 // The agent harness: the one way Carnet calls a model (ADR 0009, architecture §10). Every call goes
 // through `callStructured`, which in order:
 //   1. rejects a request over the per-call token limit             -> limit_exceeded (max_tokens)
-//   2. reads the kill switch fresh                                  -> disabled (AGENTS_DISABLED)
+//   2. reads the kill switch fresh                                  -> disabled (AGENTS_DISABLED,
+//                                                                     a `killed` step)
 //   3. replays a stored output for the same inputs                  -> replayed (no network, no cost)
 //   4. enforces 2 calls per question and the run's wall clock       -> limit_exceeded
-//   5. prices the worst case against the per-run and daily caps     -> cap_exceeded (nothing written)
+//   5. prices the worst case against the per-run and daily caps     -> cap_exceeded (a `spend_cap`
+//                                                                     step, zero cost)
 //   6. sends one structured call with a per-call wall-clock limit   -> ok | refused | truncated |
 //                                                                     limit_exceeded | provider_error
 // and records one step per network call (tokens, cost, stop_reason, prompt version, input hash).
@@ -168,6 +170,31 @@ export function createHarness(deps: HarnessDeps): Harness {
   const transport: Transport = deps.transport ?? ((input, init) => fetch(input, init));
   const { store } = deps;
 
+  /** Writes a zero-cost step for a call refused before the network. Never throws: a refusal stands. */
+  async function recordRefusal(
+    req: StructuredRequest<z.ZodType>,
+    outcome: "killed" | "spend_cap",
+    inputHash: string,
+  ): Promise<void> {
+    await store
+      .recordStep({
+        runId: req.run.id,
+        step: req.step,
+        promptVersion: req.promptVersion,
+        model: req.model,
+        inputHash,
+        outcome,
+        output: null,
+        stopReason: null,
+        inputTokens: 0,
+        outputTokens: 0,
+        costNanoUsd: 0,
+        latencyMs: 0,
+        providerRequestId: null,
+      })
+      .catch(() => undefined);
+  }
+
   async function callStructured<S extends z.ZodType>(
     req: StructuredRequest<S>,
   ): Promise<CallOutcome<z.infer<S>>> {
@@ -179,13 +206,16 @@ export function createHarness(deps: HarnessDeps): Harness {
       throw new PromptVersionMismatchError(req.step);
     }
 
-    // Kill switch: read fresh before every call; an unreadable flag row means disabled.
+    const inputHash = hashInput(req.model, req.blocks);
+
+    // Kill switch: read fresh before every call; an unreadable flag row means disabled. The refusal
+    // is recorded as a `killed` step (zero tokens, zero cost) so the trail shows what was held back.
     const flags = await store.readFlags().catch(() => null);
     if (!flags?.agentsEnabled) {
+      await recordRefusal(req, "killed", inputHash);
       return { outcome: "disabled", replayed: false, code: "AGENTS_DISABLED" };
     }
 
-    const inputHash = hashInput(req.model, req.blocks);
     const key = { kind: req.run.kind, ref: req.run.ref, step: req.step };
     const hit = await lookupReplay(
       store,
@@ -227,6 +257,7 @@ export function createHarness(deps: HarnessDeps): Harness {
       worstCaseNanoUsd: worstCase,
     });
     if (!caps.ok) {
+      await recordRefusal(req, "spend_cap", inputHash);
       return {
         outcome: "cap_exceeded",
         replayed: false,

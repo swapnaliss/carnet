@@ -88,7 +88,12 @@ export function memoryStore(
       return hit ? { id: hit.id, output: hit.output } : null;
     },
     async countCalls(key: StepKey) {
-      return store.steps.filter((s) => matches(store.runs.get(s.runId), s, key)).length;
+      return store.steps.filter(
+        (s) =>
+          s.outcome !== "killed" &&
+          s.outcome !== "spend_cap" &&
+          matches(store.runs.get(s.runId), s, key),
+      ).length;
     },
     async spentSinceNanoUsd(since) {
       return (

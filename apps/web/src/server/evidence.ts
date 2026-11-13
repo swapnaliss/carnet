@@ -21,6 +21,7 @@ import {
   enqueueJob,
   getPaymentForUpdate,
   insertEvidenceCheck,
+  isExecutionEnabled,
   listAttemptsForRefs,
   loadEvidenceContext,
   type Payment,
@@ -329,6 +330,13 @@ export async function sendWithGuard(
   const { check, dto } = loaded;
   const problem = ackProblem(check, dto, ack);
   if (problem) throw problem;
+  // Kill switch (M4-02): no new attempt while execution is paused. The payment stays as it is.
+  if (!(await isExecutionEnabled(rc.db))) {
+    throw new HttpProblem(
+      "SERVICE_UNAVAILABLE",
+      "Execution is paused, so this payment cannot be sent right now.",
+    );
+  }
   const override = check.flag !== "strong";
   await insertEvidenceCheck(rc, paymentId, check, "send");
   if (override) {
