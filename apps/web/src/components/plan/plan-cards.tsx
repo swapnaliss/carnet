@@ -183,7 +183,13 @@ function BalanceTable({
     },
   ];
   return (
-    <div className="overflow-x-auto">
+    <div
+      className="overflow-x-auto"
+      role="region"
+      aria-label={fill(t.plan.balances.tableLabel, { currency: c })}
+      // biome-ignore lint/a11y/noNoninteractiveTabindex: a scrollable region must be keyboard reachable
+      tabIndex={0}
+    >
       <table className="w-full text-sm" data-testid={`balances-${c}`}>
         <caption className="pb-2 text-left font-medium">{c}</caption>
         <thead>

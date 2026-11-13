@@ -21,6 +21,14 @@ const ApproveDialog = dynamic(() => import("./plan-dialog").then((m) => m.Approv
 /** Slow plans re-check as often as the hold screen; nothing else is polled faster (ADR 0017). */
 const WATCHING = ["APPROVED", "AUTO_APPROVED", "EXECUTING"];
 
+/** Fetches the dialog chunk once the page is idle, so the first approve click does not wait for it. */
+function usePrefetchDialog() {
+  useEffect(() => {
+    const id = setTimeout(() => void import("./plan-dialog"), 500);
+    return () => clearTimeout(id);
+  }, []);
+}
+
 function Ticking({ poll }: { poll: { lastSuccessAt: number; failures: number; paused: boolean } }) {
   const now = useNow(1000);
   return (
@@ -85,6 +93,7 @@ function Body({
   onShow: (revision: number | "latest", notice: "none" | "changed") => void;
   notice: "none" | "changed";
 }) {
+  usePrefetchDialog();
   const poll = usePoll<PlanView>(
     `/api/v1/plans/${target > 0 ? target : "current"}`,
     initial,

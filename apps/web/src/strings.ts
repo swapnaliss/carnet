@@ -177,6 +177,7 @@ const en = {
         "Held funds are shown as unavailable: a held transfer has already left the available balance.",
       none: "No balances were recorded for this revision.",
       measure: "Measure",
+      tableLabel: "{currency} balances, scrollable",
       revision: "Revision {revision}",
       change: "Change",
       unchanged: "No change",

@@ -71,7 +71,6 @@ import {
 import { z } from "zod";
 import type { AuthRule, RouteSpec } from "../lib/define-route";
 import { conflict, HttpProblem, notFound } from "../lib/errors";
-import { EXECUTE_JOB_KIND } from "../worker/handlers/execute";
 import { webAirwallex } from "./airwallex";
 import { approvalTtlMinutes } from "./approvals";
 import { toProposalView } from "./obligation-routes";
@@ -525,6 +524,12 @@ export async function loadPlanView(
 }
 
 // ---- approval --------------------------------------------------------------------------------
+
+/** The executor job kinds (worker/handlers/execute.ts); not imported, as that module reads fees.json. */
+const EXECUTE_JOB_KIND = {
+  payout: "payout.execute",
+  conversionApproved: "conversion.execute_approved",
+} as const;
 
 export const PlanActionIdSchema = z.uuid();
 export const ApprovePlanActionBodySchema = z.strictObject({

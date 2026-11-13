@@ -166,7 +166,7 @@ describe("bound approval", () => {
     expect(rows).toHaveLength(0);
     await env()
       .db.update(schema.payments)
-      .set({ amountMinor: BigInt(original) })
+      .set({ amountMinor: BigInt(original ?? "250000") })
       .where(eq(schema.payments.id, world.paymentId));
   });
 
