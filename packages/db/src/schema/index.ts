@@ -3,6 +3,7 @@
 export * from "./agent";
 export * from "./answer-memory";
 export * from "./approvals";
+export * from "./audit-chain";
 export * from "./audit-log";
 export * from "./auth";
 export * from "./businesses";

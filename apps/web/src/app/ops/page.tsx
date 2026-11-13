@@ -1,5 +1,10 @@
-import { getSloSummary, type SloSummary } from "@carnet/db";
-import { Activity, Bot, CircleAlert, Link2 } from "lucide-react";
+import {
+  type AuditChainStatus,
+  getSloSummary,
+  readAuditChainStatus,
+  type SloSummary,
+} from "@carnet/db";
+import { Activity, Bot, CircleAlert } from "lucide-react";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { formatCount, formatMs, MetricCard } from "@/components/ops/metric-card";
@@ -226,10 +231,59 @@ async function loadSummary(businessId: string): Promise<SloSummary | null> {
   }
 }
 
+/** The last stored verification (the worker writes it; the page never recomputes the chain). */
+async function loadChain(): Promise<AuditChainStatus | null | undefined> {
+  try {
+    return await readAuditChainStatus(appDb().db);
+  } catch (error) {
+    logger().error(
+      { event: "ops.page.error", err: error instanceof Error ? error.message : "unknown" },
+      "audit chain status failed",
+    );
+    return undefined;
+  }
+}
+
+function AuditChainPanel({ status }: { status: AuditChainStatus | null | undefined }) {
+  const a = t.ops.auditChain;
+  if (status === undefined) return null;
+  const short = (h: string | null) => (h ? `${h.slice(0, 12)}…` : "none");
+  const detail = status
+    ? [
+        `${status.checked.toLocaleString(locale)} ${a.rowsVerified}`,
+        `${a.head} ${short(status.headHash)}`,
+        `${a.lastVerified} ${formatDate(status.verifiedAt, locale, { dateStyle: "medium", timeStyle: "medium" })} ${t.ops.utc}`,
+      ].join(" · ")
+    : a.pending;
+  return (
+    <Section id="ops-audit-chain" title={a.title} grid="sm:grid-cols-2">
+      <MetricCard
+        id="audit-chain"
+        title={a.card}
+        value={status ? (status.ok ? a.ok : a.broken) : a.notChecked}
+        {...(status
+          ? {
+              verdict: status.ok
+                ? { kind: "meets" as const, label: a.okDetail }
+                : {
+                    kind: "misses" as const,
+                    label: `${a.brokenDetail} ${status.firstBadId ?? "?"}: ${status.reason ? a.reasons[status.reason] : ""}`,
+                  },
+            }
+          : {})}
+        detail={detail}
+        definition={a.definition}
+        window={a.window}
+      />
+    </Section>
+  );
+}
+
 export default async function OpsPage() {
   // The layout has already refused viewers (403) and redirected anonymous visitors.
   const ctx = await requirePageSession();
   const summary = await loadSummary(ctx.businessId);
+  const chain = await loadChain();
 
   return (
     <>
@@ -257,6 +311,7 @@ export default async function OpsPage() {
             <p>{t.ops.error.panel}</p>
           </div>
         )}
+        <AuditChainPanel status={chain} />
         <section aria-labelledby="ops-later" className="flex flex-col gap-3">
           <h2 id="ops-later" className="text-lg leading-tight font-semibold">
             {t.ops.later.title}
@@ -267,12 +322,6 @@ export default async function OpsPage() {
               icon={Bot}
               title={t.ops.later.agentRuns}
               body={t.ops.later.agentRunsBody}
-            />
-            <LaterSlot
-              id="later-audit-chain"
-              icon={Link2}
-              title={t.ops.later.auditChain}
-              body={t.ops.later.auditChainBody}
             />
           </div>
         </section>
