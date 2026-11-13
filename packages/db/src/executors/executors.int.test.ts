@@ -416,6 +416,71 @@ describe("kill switch", () => {
   });
 });
 
+describe("kill switch race on the payout path", () => {
+  // executePayout never calls createAttempt: its attempt is inserted by consumeApproval, which
+  // re-reads the flag inside its own transaction and returns a refusal (it does not throw
+  // ExecutionDisabledError). So a flip between the early check and the consume is already handled.
+  it("switch turned off between the early check and the consume: refused KILL_SWITCH, no attempt, nothing sent", async () => {
+    const w = await seedWorld(database().app.db);
+    const { client, stub, server } = replayGateway();
+    const pay = await seedPayment(w);
+    const approval = await approvePayout(w, client, pay.paymentId);
+    const callsBefore = noOutbound(stub).length;
+
+    // Flip the switch right after the executor's first read of system_flags (the early check).
+    let flipped = false;
+    const wrap = (target: object): object =>
+      new Proxy(target, {
+        get(t, prop) {
+          const v = Reflect.get(t, prop, t);
+          if (prop === "then" && typeof v === "function") {
+            return (res: (x: unknown) => unknown, rej: (e: unknown) => unknown) =>
+              (v as (...a: unknown[]) => Promise<unknown>)
+                .call(t, async (rows: unknown) => {
+                  if (!flipped) {
+                    flipped = true;
+                    await setKillSwitch(false);
+                  }
+                  return rows;
+                })
+                .then(res, rej);
+          }
+          if (typeof v !== "function") return v;
+          return (...args: unknown[]) => {
+            const out = (v as (...a: unknown[]) => unknown).apply(t, args);
+            return out && typeof out === "object" ? wrap(out) : out;
+          };
+        },
+      });
+    const racingDb = new Proxy(w.db as object, {
+      get(t, prop) {
+        const v = Reflect.get(t, prop, t);
+        if (typeof v !== "function") return v;
+        if (prop === "select") {
+          return (...args: unknown[]) => {
+            const out = (v as (...a: unknown[]) => object).apply(t, args);
+            return flipped ? out : wrap(out);
+          };
+        }
+        return (v as (...a: unknown[]) => unknown).bind(t);
+      },
+    });
+
+    const r = await executePayout(
+      { ...depsOf(w, client), db: racingDb as never },
+      w.businessId,
+      approval,
+    );
+    expect(flipped).toBe(true);
+    expect(r).toEqual({ outcome: "refused", reason: "KILL_SWITCH" });
+    expect(await listAttemptsForRefs(w.ctx, "transfer", [pay.paymentId])).toHaveLength(0);
+    expect(server.transferRequests).toHaveLength(0);
+    expect(noOutbound(stub)).toHaveLength(callsBefore);
+    // consumeApproval ends the approval under the switch (committed), as in approvals.int.test.ts.
+    expect((await getApproval(w.ctx, approval.approvalId))?.endReason).toBe("KILL_SWITCH");
+  });
+});
+
 describe("conversion outside policy needs a bound approval", () => {
   it("executes through the same executor after the approval is consumed; a second consume is refused", async () => {
     const w = await seedWorld(database().app.db);
