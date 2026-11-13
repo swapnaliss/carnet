@@ -13,6 +13,8 @@ export interface StoredPlan {
   readonly plan: Plan;
   /** What caused the revision (an outbox event id or job id), if recorded. */
   readonly trigger: string | null;
+  /** The canonical JSON of the normalised inputs the plan was computed from (balances, holds, ...). */
+  readonly inputs: unknown;
   readonly createdAt: Date;
 }
 
@@ -48,7 +50,13 @@ async function load(ctx: RepoCtx, row: PlanRow): Promise<StoredPlan> {
     .from(planActions)
     .where(and(eq(planActions.planId, row.id), eq(planActions.businessId, ctx.businessId)))
     .orderBy(asc(planActions.seq));
-  return { id: row.id, plan: toPlan(row, actions), trigger: row.trigger, createdAt: row.createdAt };
+  return {
+    id: row.id,
+    plan: toPlan(row, actions),
+    trigger: row.trigger,
+    inputs: row.inputs,
+    createdAt: row.createdAt,
+  };
 }
 
 export interface InsertPlanOptions {
