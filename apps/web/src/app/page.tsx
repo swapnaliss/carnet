@@ -5,7 +5,7 @@ import { t } from "@/strings";
 
 const sections: ReadonlyArray<{ href: string; icon: LucideIcon; title: string; body: string }> = [
   { href: "/queue", icon: ListChecks, ...t.home.sections.queue },
-  { href: "/plan", icon: CalendarRange, ...t.home.sections.plan },
+  { href: "/plans/current", icon: CalendarRange, ...t.home.sections.plan },
   { href: "/ops", icon: Activity, ...t.home.sections.ops },
 ];
 

@@ -222,7 +222,7 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
         </p>
         <p>
           <Link
-            href="/plan"
+            href="/plans/current"
             className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4 hover:no-underline md:min-h-6"
           >
             {t.queue.goal.planLink}

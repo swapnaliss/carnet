@@ -13,12 +13,12 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { t } from "@/strings";
 
-const items: ReadonlyArray<{ href: string; label: string; icon: LucideIcon }> = [
+const items: ReadonlyArray<{ href: string; label: string; icon: LucideIcon; match?: string }> = [
   { href: "/queue", label: t.shell.nav.queue, icon: ListChecks },
   // M1-08: the walking-skeleton payments (create, live status). M2-03 folds them into the queue.
   { href: "/payments", label: t.shell.nav.payments, icon: Banknote },
   { href: "/rfis", label: t.shell.nav.rfis, icon: Inbox },
-  { href: "/plan", label: t.shell.nav.plan, icon: CalendarRange },
+  { href: "/plans/current", match: "/plans", label: t.shell.nav.plan, icon: CalendarRange },
   { href: "/ops", label: t.shell.nav.ops, icon: Activity },
 ];
 
@@ -39,8 +39,9 @@ export function MainNav() {
       )}
     >
       <ul className="flex md:flex-col md:gap-1 md:py-3 xl:px-3">
-        {items.map(({ href, label, icon: Icon }) => {
-          const current = pathname === href || pathname.startsWith(`${href}/`);
+        {items.map(({ href, label, icon: Icon, match }) => {
+          const base = match ?? href;
+          const current = pathname === base || pathname.startsWith(`${base}/`);
           return (
             <li key={href} className="flex-1 md:flex-none">
               <Link
