@@ -1,0 +1,35 @@
+{
+  "kind": "extraction",
+  "document_id": "inv-harbor-001",
+  "file": "inv-harbor-001.pdf",
+  "sha256": "73a5ecffe59e63f1f57f7c73a599dedf49bbc3d63c93eb44f6a911bcdbf881e9",
+  "doc_type": "invoice",
+  "prompt_version": "552c05e3154b",
+  "model": "claude-haiku-5-5",
+  "input_hash": "7149e7832e0c50163f124eb341698c99454fc8966a077defcafe83e9d9249cc2",
+  "recorded_at": "2026-11-12T07:48:32.623664+00:00",
+  "source": "live run M2-09 (2026-11-12), agent_runs.id fad930f9-a567-4c4f-9b67-b8207be53af0",
+  "stored_cost_nano_usd": 553000,
+  "note": "response reconstructed from the stored agent_steps.output; the product does not store the raw HTTP body. usage token counts are not stored and are recorded as 0 (stored cost_nano_usd is in stored_cost_nano_usd); response.id is not stored and is set to the provider request id. The live upload carried one extra PDF comment line before startxref (new sha256, same text layer); sha256 above is the dataset file's.",
+  "calls": [
+    {
+      "response": {
+        "id": "req_011CgxfagBavX6yic6brBYU3",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 0,
+          "output_tokens": 0
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"invoice_number\",\"page\":1,\"quote\":\"Invoice number: INV-HP-2026-0141\",\"value\":\"INV-HP-2026-0141\"},{\"key\":\"invoice_date\",\"page\":1,\"quote\":\"Invoice date: 2026-09-14\",\"value\":\"2026-09-14\"},{\"key\":\"due_date\",\"page\":1,\"quote\":\"Due date: 2026-10-14\",\"value\":\"2026-10-14\"},{\"key\":\"supplier\",\"page\":1,\"quote\":\"From: Harbor Print Co.\",\"value\":\"Harbor Print Co.\"},{\"key\":\"buyer\",\"page\":1,\"quote\":\"Bill to: Northwind Studio Ltd\",\"value\":\"Northwind Studio Ltd\"},{\"key\":\"purchase_order\",\"page\":1,\"quote\":\"Purchase order: PO-NW-2026-031\",\"value\":\"PO-NW-2026-031\"},{\"key\":\"total\",\"page\":1,\"quote\":\"Total due: USD 4,800.00\",\"value\":\"USD 4,800.00\"},{\"key\":\"beneficiary\",\"page\":1,\"quote\":\"Beneficiary: Harbor Print Co.\",\"value\":\"Harbor Print Co.\"},{\"key\":\"account_number\",\"page\":1,\"quote\":\"Account number: 000123456781\",\"value\":\"000123456781\"}]}"
+          }
+        ]
+      },
+      "request_id": "req_011CgxfagBavX6yic6brBYU3",
+      "latency_ms": 3133
+    }
+  ]
+}

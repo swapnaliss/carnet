@@ -1,0 +1,35 @@
+{
+  "kind": "extraction",
+  "document_id": "inv-lakeside-002",
+  "file": "inv-lakeside-002.pdf",
+  "sha256": "27359d59a89914f6b04c1e933e73b0266d078abae506f4409ab7b76f0e5e4960",
+  "doc_type": "invoice",
+  "prompt_version": "552c05e3154b",
+  "model": "claude-haiku-5-5",
+  "input_hash": "506a31479537c072fe40a66769bd78a53b387cf1c5851a38433879a7ffad29ce",
+  "recorded_at": "2026-11-12T07:48:46.400987+00:00",
+  "source": "live run M2-09 (2026-11-12), agent_runs.id 8884bbb6-5a8f-4293-beee-592beae48bcf",
+  "stored_cost_nano_usd": 554800,
+  "note": "response reconstructed from the stored agent_steps.output; the product does not store the raw HTTP body. usage token counts are not stored and are recorded as 0 (stored cost_nano_usd is in stored_cost_nano_usd); response.id is not stored and is set to the provider request id. The live upload carried one extra PDF comment line before startxref (new sha256, same text layer); sha256 above is the dataset file's.",
+  "calls": [
+    {
+      "response": {
+        "id": "req_011CgxfbkkCVEarAtEXwvMXc",
+        "model": "claude-haiku-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 0,
+          "output_tokens": 0
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"facts\":[{\"key\":\"invoice_number\",\"page\":1,\"quote\":\"Invoice number: LF-2026-0455\",\"value\":\"LF-2026-0455\"},{\"key\":\"invoice_date\",\"page\":1,\"quote\":\"Invoice date: 2026-10-05\",\"value\":\"2026-10-05\"},{\"key\":\"due_date\",\"page\":1,\"quote\":\"Due date: 2026-11-04\",\"value\":\"2026-11-04\"},{\"key\":\"supplier\",\"page\":1,\"quote\":\"From: Lakeside Freight LLC\",\"value\":\"Lakeside Freight LLC\"},{\"key\":\"buyer\",\"page\":1,\"quote\":\"Bill to: Northwind Studio Ltd\",\"value\":\"Northwind Studio Ltd\"},{\"key\":\"line_item_total\",\"page\":1,\"quote\":\"Line 1: Express freight, Rotterdam to Chicago - USD 980.00\",\"value\":\"USD 980.00\"},{\"key\":\"total\",\"page\":1,\"quote\":\"Total due: USD 980.00\",\"value\":\"USD 980.00\"},{\"key\":\"beneficiary\",\"page\":1,\"quote\":\"Beneficiary: Lakeside Freight LLC\",\"value\":\"Lakeside Freight LLC\"},{\"key\":\"account_number\",\"page\":1,\"quote\":\"Account number: 000987654329\",\"value\":\"000987654329\"}]}"
+          }
+        ]
+      },
+      "request_id": "req_011CgxfbkkCVEarAtEXwvMXc",
+      "latency_ms": 2131
+    }
+  ]
+}

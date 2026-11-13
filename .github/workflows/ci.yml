@@ -72,8 +72,11 @@ jobs:
         run: |
           npm run db:migrate -w packages/db
           npx tsx packages/db/src/seed/run.ts
-      - name: playwright (axe, web vitals, CSP, /ops roles)
+      - name: playwright (axe, web vitals, CSP, /ops roles, core demo replay)
         run: npx playwright test
+        env:
+          # core-demo.replay.spec.ts runs only with this (recorded model responses, no network).
+          E2E_MODE: replay
       - name: landing checks
         run: ./scripts/landing-checks.sh
   docker:
