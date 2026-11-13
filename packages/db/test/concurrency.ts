@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { expect, inject, it } from "vitest";
 import { DuplicateWebhookEventError } from "../src/errors";
 import { insertWebhookEvent } from "../src/repos/system";
-import { type TestDatabase, workerId } from "./harness";
+import { type TestDatabase, workerKey } from "./harness";
 
 export const SHARED_KEY = "evt_concurrency_same_key";
 
@@ -27,7 +27,7 @@ export function concurrencyTest(self: "a" | "b", db: () => TestDatabase): void {
   it("writes the same unique key as the other worker, at the same time, without interference", async () => {
     const dir = inject("rendezvousDir");
     const { app, name } = db();
-    expect(name).toBe(`carnet_test_${workerId()}`);
+    expect(name).toBe(`carnet_test_${workerKey()}`);
 
     await insertWebhookEvent(app.db, {
       providerEventId: SHARED_KEY,

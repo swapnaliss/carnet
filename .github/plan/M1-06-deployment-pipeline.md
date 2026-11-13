@@ -82,6 +82,7 @@ docker run --rm --entrypoint id carnet:test -u | grep -v '^0$'
 CID=$(docker run -d -e PROCESS_MODE=worker -e DATABASE_URL="$DATABASE_URL" --network host carnet:test)
 sleep 35; docker logs "$CID" 2>&1 | grep -ci heartbeat; docker rm -f "$CID"
 ! docker run --rm -e PROCESS_MODE=bogus carnet:test
+export SEED_OWNER_PASSWORD="$(openssl rand -hex 12)" SEED_APPROVER_PASSWORD="$(openssl rand -hex 12)" SEED_JUDGE_PASSWORD="$(openssl rand -hex 12)"  # seedDemoUsers aborts without them
 npx tsx scripts/setup.ts && npx tsx scripts/setup.ts
 curl -fsS "${DEPLOY_URL:?set DEPLOY_URL to the deployed origin}/healthz"
 ./scripts/check-no-secrets.sh

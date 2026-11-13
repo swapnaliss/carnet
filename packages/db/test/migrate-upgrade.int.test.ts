@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { MIGRATIONS_FOLDER, runMigrations } from "../src/migrate";
-import { withClient, withDatabase, workerId } from "./harness";
+import { withClient, withDatabase, workerKey } from "./harness";
 
 interface Entry {
   idx: number;
@@ -32,7 +32,7 @@ describe("migration journal", () => {
   it("a database that already has every earlier migration gets the documents table", async () => {
     const admin = process.env.DATABASE_MIGRATION_URL;
     if (!admin) throw new Error("DATABASE_MIGRATION_URL is not set");
-    const name = `carnet_test_upg_${workerId()}`;
+    const name = `carnet_test_upg_${workerKey()}`;
     const adminUrl = admin;
     const url = withDatabase(new URL(admin), name);
     const dir = await mkdtemp(join(tmpdir(), "carnet-mig-"));
