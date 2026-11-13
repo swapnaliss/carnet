@@ -17,6 +17,7 @@ listed below run in the `db` and `web-db` projects of the root `vitest.config.ts
 ## Spoofing · Stolen session
 - apps/web/test/security/login-ratelimit.int.test.ts :: 20 concurrent wrong-password attempts
 - apps/web/test/auth/authz.test.ts :: unauthenticated gets 401
+- tests/security/payee-token-and-cookies.test.ts :: are HttpOnly and SameSite=Lax, Secure in production
 
 ## Tampering · Changing an answer between approval and submit
 - apps/web/test/approval-toctou.int.test.ts :: a newer updated_at: refused RFI_UPDATED
@@ -32,6 +33,7 @@ listed below run in the `db` and `web-db` projects of the root `vitest.config.ts
 ## Information disclosure · Payee page reveals a compliance hold
 - apps/web/test/payee/payee-status.int.test.ts :: a live link answers 200 with the privacy headers and no cookie
 - apps/web/test/payee/payee-status.int.test.ts :: a limited caller answers 429 with the same headers and retry-after
+- tests/security/payee-token-and-cookies.test.ts :: carry at least 128 bits of randomness
 
 ## Information disclosure · Prompt injection exfiltrates data
 - packages/agent/test/guardrail.test.ts :: puts text in one delimited block that the content cannot close or reopen
@@ -44,6 +46,11 @@ listed below run in the `db` and `web-db` projects of the root `vitest.config.ts
 - apps/web/test/security/webhook-ratelimit.int.test.ts :: 601 requests from one IP within a minute
 - apps/web/tests/fuzz/documents.fuzz.test.ts :: never 5xx, and stores a row only for a 200/201
 - tests/security/upload-filenames.test.ts :: becomes a safe name of at most 50 characters ending .pdf
+- apps/web/test/documents/documents.int.test.ts :: a 21-page PDF is TOO_MANY_PAGES, a 20-page PDF is stored
+- apps/web/test/documents/documents.int.test.ts :: an encrypted PDF is rejected ENCRYPTED_PDF
+- apps/web/test/documents/documents.int.test.ts :: a PDF-header ZIP-body polyglot
+- apps/web/test/documents/no-url-fetch.test.ts :: no server-side fetch of a user-supplied URL
+- tests/security/headers-all-routes.test.ts :: carries the CSP, nosniff, referrer policy, framing and permissions headers
 
 ## Elevation of privilege · Cross-tenant access
 - apps/web/test/security/cross-tenant.int.test.ts :: reads: own id 200; another business's id 404
@@ -55,5 +62,9 @@ listed below run in the `db` and `web-db` projects of the root `vitest.config.ts
 - tests/security/hostile-model.test.ts :: tool-call lookalike
 
 ## Not yet covered by a named test (tracked on the M4-04 issue and BL-01)
-Hostile stub model over document text (only RFI question text is covered), the 21-page and encrypted-PDF cases through the live route, payee token entropy, cookie flags, and the
-kill-switch/spend-cap row (M4-02, PR #102). These are not claimed by this map.
+- A hostile stub model over text inside a document (only RFI question text is covered here; document-text
+  injection is covered by the extraction guardrail tests, not by a hostile-model run).
+- The kill-switch and spend-cap row (M4-02, PR #102); not a row of the STRIDE table.
+- A hostile model driving the plan/policy executors (M3-03): the model has no path to them (see
+  `packages/agent/test/boundaries.test.ts`), but no test runs a hostile model against them.
+These are not claimed by this map.
