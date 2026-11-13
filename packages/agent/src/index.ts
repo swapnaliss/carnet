@@ -5,6 +5,27 @@ export { checkCaps, inputTokensUpperBound, utcDayStart } from "./caps";
 export type { ClientOptions, Transport } from "./client";
 export { MissingApiKeyError, SDK_MAX_RETRIES, SDK_TIMEOUT_MS } from "./client";
 export type {
+  CriticalityStore,
+  RunCriticalityParams,
+  RunCriticalityResult,
+} from "./criticality/handler";
+export { criticalityStep, runCriticalityProposal } from "./criticality/handler";
+export type {
+  ContractDocument,
+  CriticalityResult,
+  CriticalityUsage,
+  ProposeParams,
+} from "./criticality/propose";
+export {
+  buildCriticalityBlocks,
+  CRITICALITY_MODEL,
+  CRITICALITY_PROMPT_VERSION,
+  CRITICALITY_RUN_KIND,
+  CRITICALITY_SYSTEM,
+  CriticalityOutputSchema,
+  proposeCriticality,
+} from "./criticality/propose";
+export type {
   DraftInput,
   DraftParams,
   DraftQuestion,
@@ -93,6 +114,13 @@ export {
   schemaSubsetViolations,
 } from "./prompt-version";
 export { inputHash, lookupReplay } from "./replay";
+export type { FollowUpPlan, FollowUpReuse } from "./reuse/follow-up";
+export {
+  combineFollowUp,
+  planFollowUp,
+  REUSE_PROMPT_VERSION,
+  reuseOnlyResult,
+} from "./reuse/follow-up";
 export type {
   AgentFlags,
   HarnessStore,

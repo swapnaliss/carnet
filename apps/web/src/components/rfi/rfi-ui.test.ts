@@ -40,6 +40,7 @@ const answer = (over: Partial<AnswerDto> = {}): AnswerDto => ({
   ],
   unresolved_citations: [],
   documents: [],
+  reuse: null,
   ...over,
 });
 const question = (id: string, a: AnswerDto | null, type = "TEXT"): QuestionDto => ({
@@ -50,6 +51,7 @@ const question = (id: string, a: AnswerDto | null, type = "TEXT"): QuestionDto =
   description: "",
   answer_type: type,
   reopened: false,
+  follow_up: null,
   answer: a,
 });
 const view = (over: Partial<HoldView> = {}): HoldView => ({

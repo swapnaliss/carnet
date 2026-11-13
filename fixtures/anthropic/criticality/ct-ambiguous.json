@@ -1,0 +1,42 @@
+{
+  "kind": "criticality",
+  "document_id": "ct-ambiguous",
+  "file": "fixtures/criticality/ct-ambiguous.pdf",
+  "sha256": "c037d0d0a2cc47a384c9eae0828086c93f6485b38a6c1838498a4941ab265590",
+  "prompt_version": "7dd35b1df2dd",
+  "model": "claude-sonnet-5-5",
+  "recorded_at": "2026-11-11T15:10:50.004Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011CgwMVzGHnYepWVB8mk5Pw",
+        "model": "claude-sonnet-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 1693,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 130,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"criticality\":\"3\",\"rationale\":\"The only late-payment clause says delays may have consequences the parties will discuss in good faith. That is a right to talk first, with no fee, interest, suspension or termination stated, so the cost is minor.\",\"quote\":\"Late payment: Delays in payment may have consequences that the parties will discuss in good\\nfaith.\",\"page\":2,\"injection_suspected\":false}"
+          }
+        ]
+      },
+      "request_id": "req_011CgwMVytTcuCSqothPjeVF",
+      "latency_ms": 2508
+    }
+  ]
+}

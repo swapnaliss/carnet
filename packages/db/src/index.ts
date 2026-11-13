@@ -6,6 +6,7 @@ export * from "./executors/index";
 export * from "./migrate";
 export * from "./queries/slo";
 export * from "./repos/index";
+export * from "./rfis/follow-up";
 export type {
   AgentRunStatus,
   AgentStepOutcome,

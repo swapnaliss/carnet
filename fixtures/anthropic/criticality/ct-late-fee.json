@@ -1,0 +1,42 @@
+{
+  "kind": "criticality",
+  "document_id": "ct-late-fee",
+  "file": "fixtures/criticality/ct-late-fee.pdf",
+  "sha256": "03862eb6097eee9d674941a53fd921e36eed6dd8137b137ec3733b468955435c",
+  "prompt_version": "7dd35b1df2dd",
+  "model": "claude-sonnet-5-5",
+  "recorded_at": "2026-11-11T15:10:44.731Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011CgwMVakg1xGx3Ei6pC8fH",
+        "model": "claude-sonnet-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 1721,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 145,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"criticality\":\"2\",\"rationale\":\"Late invoices incur a monthly late fee of 1.5% of the overdue amount, and the contract states services continue, so there is no suspension or termination. This is a modest fee, not an accelerated penalty.\",\"quote\":\"5. Late payment: A late fee of 1.5% of the overdue amount is charged for each month an invoice\\nstays unpaid.\",\"page\":2,\"injection_suspected\":false}"
+          }
+        ]
+      },
+      "request_id": "req_011CgwMVaSZcBRgoFfRvzydU",
+      "latency_ms": 2750
+    }
+  ]
+}

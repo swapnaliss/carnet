@@ -65,6 +65,10 @@ const helperNames = new Set([
   "effectiveApprovalStatus", // repos/approvals: a pure reader of a row already loaded
   "toAttempt", // repos/execution-attempts: row mapper used by consumeApproval
   "sha256Hex", // repos/documents: a pure hash helper, no table access
+  "toObligation", // repos/obligations: row mapper
+  "toProposal", // repos/criticality-proposals: row mapper
+  "planningCriticalityOf", // repos/obligations: a pure reader of a row already loaded
+  "ProposalNotFoundError", // repos/obligation-confirm: an error class
 ]);
 const tenantRepoFns: [string, RepoFn][] = Object.entries(repos as Record<string, unknown>).filter(
   (e): e is [string, RepoFn] => typeof e[1] === "function" && !helperNames.has(e[0]),
@@ -92,6 +96,8 @@ interface Fixture {
   planId: string;
   actionId: string;
   policyHash: string;
+  obligationId: string;
+  proposalId: string;
 }
 
 /** Revision 2: one conversion, so every tenant owns a stored plan action (M3-03). */
@@ -320,10 +326,32 @@ async function seed(name: string): Promise<Fixture> {
     createdBy: user.id,
   });
   if (!link) throw new Error("seed link not created");
+  const contract = await repos.storeDocument(ctx, {
+    kind: "contract",
+    filename: `${name}-contract.pdf`,
+    mime: "application/pdf",
+    bytes: new TextEncoder().encode(`%PDF-1.7 contract ${name}\n%%EOF`),
+  });
+  const obligation = await repos.createObligation(ctx, {
+    counterpartyId: cp.id,
+    amountMinor: 50_000n,
+    currency: "USD",
+    dueAt: new Date("2026-12-01T00:00:00Z"),
+    sourceDocumentId: contract.document.id,
+  });
+  const proposal = await repos.insertCriticalityProposal(ctx, {
+    obligationId: obligation.id,
+    documentId: contract.document.id,
+    proposalKey: "seed",
+    verifierResult: "REJECTED",
+    verifierReason: "no_clause",
+  });
   return {
     planId: convertRevision.stored.id,
     actionId: storedAction.id,
     policyHash: policy.hash,
+    obligationId: obligation.id,
+    proposalId: proposal.proposal.id,
     approvalId: approval.id,
     approvalHash,
     linkId: link.id,
@@ -392,6 +420,8 @@ async function snapshotB(): Promise<unknown> {
     storedAction: await repos.getStoredAction(b, B.actionId),
     autoApproval: await repos.getAutoApprovalForAction(b, B.actionId),
     autoTotal: await repos.autoApprovedTotalToday(b, "USD", new Date("2026-11-30T00:00:00Z")),
+    obligations: await repos.listObligations(b),
+    proposal: await repos.getLatestCriticalityProposal(b, B.obligationId),
   };
 }
 
@@ -1039,6 +1069,62 @@ const cases: Record<string, () => Promise<void>> = {
     });
     expect(hit?.id).toBe(A.agentStepId);
     expect(hit?.output).toEqual({ business: "a-co" });
+  },
+  createObligation: async () => {
+    // B's counterparty is not A's: the composite foreign key refuses it and nothing is written.
+    await expect(
+      repos.createObligation(ctxA(), {
+        counterpartyId: B.counterpartyId,
+        amountMinor: 1n,
+        currency: "USD",
+        dueAt: new Date("2026-12-01T00:00:00Z"),
+      }),
+    ).rejects.toBeInstanceOf(ForeignKeyViolationError);
+  },
+  getObligation: async () => {
+    expect(await repos.getObligation(ctxA(), B.obligationId)).toBeNull();
+    expect((await repos.getObligation(ctxA(), A.obligationId))?.businessId).toBe(A.businessId);
+  },
+  listObligations: async () => {
+    expect(ownedBy(await repos.listObligations(ctxA()), A.businessId)).toBe(true);
+    expect((await repos.listObligations(ctxA())).map((o) => o.id)).not.toContain(B.obligationId);
+  },
+  insertCriticalityProposal: async () => {
+    await expect(
+      repos.insertCriticalityProposal(ctxA(), {
+        obligationId: B.obligationId,
+        documentId: A.documentId,
+        proposalKey: "x",
+        verifierResult: "REJECTED",
+        verifierReason: "no_clause",
+      }),
+    ).rejects.toBeInstanceOf(ForeignKeyViolationError);
+  },
+  getCriticalityProposal: async () => {
+    expect(await repos.getCriticalityProposal(ctxA(), B.proposalId)).toBeNull();
+  },
+  getLatestCriticalityProposal: async () => {
+    expect(await repos.getLatestCriticalityProposal(ctxA(), B.obligationId)).toBeNull();
+  },
+  confirmCriticality: async () => {
+    expect(
+      await repos.confirmCriticality(ctxA(), {
+        obligationId: B.obligationId,
+        criticality: 1,
+        userId: A.userId,
+        at: new Date(),
+      }),
+    ).toBeNull();
+    // A cannot attach B's proposal to its own obligation either.
+    await expect(
+      repos.confirmCriticality(ctxA(), {
+        obligationId: A.obligationId,
+        criticality: 1,
+        userId: A.userId,
+        proposalId: B.proposalId,
+        at: new Date(),
+      }),
+    ).rejects.toBeInstanceOf(repos.ProposalNotFoundError);
   },
   countAgentCalls: async () => {
     const n = await repos.countAgentCalls(ctxA(), {

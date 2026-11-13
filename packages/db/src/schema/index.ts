@@ -13,6 +13,7 @@ export * from "./drafts";
 export * from "./evidence";
 export * from "./execution-attempts";
 export * from "./idempotency-keys";
+export * from "./obligations";
 export * from "./outbox-jobs";
 export * from "./payee-links";
 export * from "./payments";

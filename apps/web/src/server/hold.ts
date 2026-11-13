@@ -10,6 +10,7 @@
 import { createHash } from "node:crypto";
 import {
   appendAudit,
+  classifyFollowUp,
   createOwnerDraft,
   type DocumentRecord,
   DuplicateIdempotencyKeyError,
@@ -85,6 +86,11 @@ export interface AnswerDto {
   /** Citations the draft named that could not be resolved to a stored fact (the source did not load). */
   readonly unresolved_citations: readonly string[];
   readonly documents: readonly DocumentDto[];
+  /** "Same as approved on <date>" (M3-05): set when the answer is the remembered, approved one. */
+  readonly reuse: {
+    readonly approved_on: string;
+    readonly source_approval_id: string;
+  } | null;
 }
 
 export interface QuestionDto {
@@ -95,6 +101,14 @@ export interface QuestionDto {
   readonly description: string;
   readonly answer_type: string;
   readonly reopened: boolean;
+  /**
+   * Round 2 and later (M3-05): `unchanged` and `changed` are questions Airwallex reopened, `new` one it
+   * appended. `previous` is the earlier wording of a reopened question. Null in round 1.
+   */
+  readonly follow_up: {
+    readonly kind: "unchanged" | "changed" | "new";
+    readonly previous: { readonly title: string; readonly description: string } | null;
+  } | null;
   readonly answer: AnswerDto | null;
 }
 
@@ -199,6 +213,12 @@ async function resolveAnswer(
       .map((id) => docs.get(id))
       .filter((d): d is DocumentRecord => d !== undefined)
       .map(documentDto),
+    reuse: answer.reused
+      ? {
+          approved_on: answer.reused.approved_on,
+          source_approval_id: answer.reused.source_approval_id,
+        }
+      : null,
   };
 }
 
@@ -231,6 +251,16 @@ export async function loadHoldView(
   const projection = payment?.transferStatus
     ? project(payment.transferStatus, rfiHolds(rfi.state))
     : null;
+
+  const followUp =
+    rfi.round > 1
+      ? new Map(
+          classifyFollowUp(
+            (await listRfiQuestions(repo, rfi.id)).filter((q) => q.round < rfi.round),
+            questionRows,
+          ).map((c) => [c.airwallexQuestionId, c]),
+        )
+      : null;
 
   const approval = approvals[0] ?? null;
   const attempts = approval
@@ -268,6 +298,12 @@ export async function loadHoldView(
         description: english(q.description),
         answer_type: q.answerType,
         reopened: q.reopened,
+        follow_up: followUp
+          ? (() => {
+              const c = followUp.get(q.airwallexQuestionId);
+              return c ? { kind: c.kind, previous: c.previous } : null;
+            })()
+          : null,
         answer: resolved.get(q.id) ?? null,
       })),
     draft: draft ? draftDto(draft) : null,

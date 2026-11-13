@@ -1,0 +1,42 @@
+{
+  "kind": "criticality",
+  "document_id": "contract-rhein",
+  "file": "fixtures/dataset/contract-rhein.pdf",
+  "sha256": "1d43c530f75d74f8b1764c24bee9bb15ef8a6edcb1bb885bb3944e02aace487d",
+  "prompt_version": "7dd35b1df2dd",
+  "model": "claude-sonnet-5-5",
+  "recorded_at": "2026-11-11T15:10:55.545Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011CgwMWL6t5hQrmJrY2UHJ6",
+        "model": "claude-sonnet-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 1733,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 110,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"criticality\":\"NONE\",\"rationale\":\"The contract sets a 30-day payment term in clause 4 but no clause says what happens if an invoice is paid late (no fee, interest, suspension, termination or penalty), so no consequence is stated. No quote or page is given.\",\"quote\":\"\",\"page\":0,\"injection_suspected\":false}"
+          }
+        ]
+      },
+      "request_id": "req_011CgwMWKdc3JTm2mrUUhLAg",
+      "latency_ms": 3449
+    }
+  ]
+}

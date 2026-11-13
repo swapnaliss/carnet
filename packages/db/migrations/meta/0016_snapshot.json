@@ -1,6 +1,6 @@
 {
-  "id": "31cfd77a-9daa-45b5-9ee9-117300e9c751",
-  "prevId": "3d550b8a-0ced-41ca-a695-98344ceafb88",
+  "id": "fd6d4993-ca0f-416c-bb98-9704d8298893",
+  "prevId": "9a6b07cc-6139-4a41-a4a1-75fc104d9c57",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -2579,6 +2579,435 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.criticality_proposals": {
+      "name": "criticality_proposals",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "business_id": {
+          "name": "business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "obligation_id": {
+          "name": "obligation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposal_key": {
+          "name": "proposal_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposed_criticality": {
+          "name": "proposed_criticality",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rationale": {
+          "name": "rationale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "quote": {
+          "name": "quote",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        },
+        "quote_page": {
+          "name": "quote_page",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "document_id": {
+          "name": "document_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "agent_run_id": {
+          "name": "agent_run_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verifier_result": {
+          "name": "verifier_result",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "verifier_reason": {
+          "name": "verifier_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "injection_suspected": {
+          "name": "injection_suspected",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "injection_flags": {
+          "name": "injection_flags",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "prompt_version": {
+          "name": "prompt_version",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "criticality_proposals_key_key": {
+          "name": "criticality_proposals_key_key",
+          "columns": [
+            {
+              "expression": "business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "obligation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "proposal_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "criticality_proposals_obligation_idx": {
+          "name": "criticality_proposals_obligation_idx",
+          "columns": [
+            {
+              "expression": "business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "obligation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "criticality_proposals_business_id_businesses_id_fk": {
+          "name": "criticality_proposals_business_id_businesses_id_fk",
+          "tableFrom": "criticality_proposals",
+          "tableTo": "businesses",
+          "columnsFrom": ["business_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "criticality_proposals_obligation_same_business_fk": {
+          "name": "criticality_proposals_obligation_same_business_fk",
+          "tableFrom": "criticality_proposals",
+          "tableTo": "obligations",
+          "columnsFrom": ["obligation_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "criticality_proposals_document_same_business_fk": {
+          "name": "criticality_proposals_document_same_business_fk",
+          "tableFrom": "criticality_proposals",
+          "tableTo": "documents",
+          "columnsFrom": ["document_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "criticality_proposals_id_business_id_key": {
+          "name": "criticality_proposals_id_business_id_key",
+          "nullsNotDistinct": false,
+          "columns": ["id", "business_id"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "criticality_proposals_range_check": {
+          "name": "criticality_proposals_range_check",
+          "value": "\"criticality_proposals\".\"proposed_criticality\" IN (1, 2, 3)"
+        },
+        "criticality_proposals_status_check": {
+          "name": "criticality_proposals_status_check",
+          "value": "\"status\" IN ('PROPOSED', 'CONFIRMED', 'OVERRIDDEN', 'REJECTED')"
+        },
+        "criticality_proposals_verifier_check": {
+          "name": "criticality_proposals_verifier_check",
+          "value": "\"verifier_result\" IN ('VERIFIED', 'REJECTED')"
+        },
+        "criticality_proposals_rejected_check": {
+          "name": "criticality_proposals_rejected_check",
+          "value": "(\"criticality_proposals\".\"verifier_result\" = 'REJECTED') = (\"criticality_proposals\".\"status\" = 'REJECTED')"
+        },
+        "criticality_proposals_verified_check": {
+          "name": "criticality_proposals_verified_check",
+          "value": "\"criticality_proposals\".\"verifier_result\" = 'REJECTED' OR (\"criticality_proposals\".\"proposed_criticality\" IS NOT NULL AND \"criticality_proposals\".\"quote_page\" IS NOT NULL AND length(\"criticality_proposals\".\"quote\") > 0)"
+        },
+        "criticality_proposals_reason_check": {
+          "name": "criticality_proposals_reason_check",
+          "value": "(\"criticality_proposals\".\"verifier_result\" = 'REJECTED') = (\"criticality_proposals\".\"verifier_reason\" IS NOT NULL)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.obligations": {
+      "name": "obligations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "business_id": {
+          "name": "business_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "counterparty_id": {
+          "name": "counterparty_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount_minor": {
+          "name": "amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "char(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "due_at": {
+          "name": "due_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "criticality": {
+          "name": "criticality",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criticality_confirmed_by": {
+          "name": "criticality_confirmed_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criticality_confirmed_at": {
+          "name": "criticality_confirmed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "criticality_confirmed_proposal_id": {
+          "name": "criticality_confirmed_proposal_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payment_id": {
+          "name": "payment_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "source_document_id": {
+          "name": "source_document_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "obligations_business_id_due_at_idx": {
+          "name": "obligations_business_id_due_at_idx",
+          "columns": [
+            {
+              "expression": "business_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "due_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "obligations_business_id_businesses_id_fk": {
+          "name": "obligations_business_id_businesses_id_fk",
+          "tableFrom": "obligations",
+          "tableTo": "businesses",
+          "columnsFrom": ["business_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "obligations_criticality_confirmed_by_users_id_fk": {
+          "name": "obligations_criticality_confirmed_by_users_id_fk",
+          "tableFrom": "obligations",
+          "tableTo": "users",
+          "columnsFrom": ["criticality_confirmed_by"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "obligations_payment_id_payments_id_fk": {
+          "name": "obligations_payment_id_payments_id_fk",
+          "tableFrom": "obligations",
+          "tableTo": "payments",
+          "columnsFrom": ["payment_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "obligations_counterparty_same_business_fk": {
+          "name": "obligations_counterparty_same_business_fk",
+          "tableFrom": "obligations",
+          "tableTo": "counterparties",
+          "columnsFrom": ["counterparty_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "obligations_source_document_same_business_fk": {
+          "name": "obligations_source_document_same_business_fk",
+          "tableFrom": "obligations",
+          "tableTo": "documents",
+          "columnsFrom": ["source_document_id", "business_id"],
+          "columnsTo": ["id", "business_id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "obligations_id_business_id_key": {
+          "name": "obligations_id_business_id_key",
+          "nullsNotDistinct": false,
+          "columns": ["id", "business_id"]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "obligations_amount_check": {
+          "name": "obligations_amount_check",
+          "value": "\"amount_minor\" > 0"
+        },
+        "obligations_currency_check": {
+          "name": "obligations_currency_check",
+          "value": "\"currency\" ~ '^[A-Z]{3}$'"
+        },
+        "obligations_criticality_range_check": {
+          "name": "obligations_criticality_range_check",
+          "value": "\"obligations\".\"criticality\" IN (1, 2, 3)"
+        },
+        "obligations_criticality_confirmed_check": {
+          "name": "obligations_criticality_confirmed_check",
+          "value": "\"obligations\".\"criticality\" IS NULL OR \"obligations\".\"criticality_confirmed_by\" IS NOT NULL"
+        },
+        "obligations_confirmed_pair_check": {
+          "name": "obligations_confirmed_pair_check",
+          "value": "(\"obligations\".\"criticality_confirmed_by\" IS NULL) = (\"obligations\".\"criticality_confirmed_at\" IS NULL)"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.outbox_jobs": {

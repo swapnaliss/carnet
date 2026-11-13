@@ -15,9 +15,17 @@ import type { PaymentDto } from "@/server/payments";
 import { fill, t } from "@/strings";
 import { ApprovalBar } from "./approval-bar";
 import { type ApproveSnapshot, makeSnapshot } from "./approve-dialog";
+import { FollowUpPanel } from "./follow-up-panel";
 import { LinkPayment } from "./link-payment";
 import { QuestionCard, QuestionStatusChip } from "./question-card";
-import { approveGate, countQuestions, describeChange, questionStatus, shortId } from "./view";
+import {
+  allAnswersReused,
+  approveGate,
+  countQuestions,
+  describeChange,
+  questionStatus,
+  shortId,
+} from "./view";
 
 // The dialog loads when an approval starts, not with the first paint (INP and TBT budget).
 const ApproveDialog = dynamic(() => import("./approve-dialog").then((m) => m.ApproveDialog), {
@@ -137,6 +145,8 @@ export function HoldScreen({ initial }: { initial: HoldView }) {
   const [activeSnippet, setActiveSnippet] = useState<string | null>(null);
   const [snapshot, setSnapshot] = useState<ApproveSnapshot | null>(null);
   const [withdrawing, setWithdrawing] = useState(false);
+  const [applying, setApplying] = useState(false);
+  const [applyError, setApplyError] = useState<string | null>(null);
   const previous = useRef(initial);
   const trigger = useRef<HTMLElement | null>(null);
   const closeDialog = useCallback(() => {
@@ -193,6 +203,35 @@ export function HoldScreen({ initial }: { initial: HoldView }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [goto, selected, view.questions.length]);
+
+  // "Apply all reused answers" (M3-05): one approval over exactly the answers on screen, the same request
+  // the dialog sends. Nothing counts as applied until the server says so.
+  async function applyReused() {
+    const snap = makeSnapshot(view);
+    if (!snap || applying) return;
+    setApplying(true);
+    setApplyError(null);
+    try {
+      const res = await fetch(`/api/v1/rfis/${rfiId}/approvals`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "idempotency-key": snap.key },
+        body: JSON.stringify(snap.body),
+      });
+      if (!res.ok) {
+        const problem = (await res.json().catch(() => null)) as { message?: string } | null;
+        setApplyError(
+          res.status === 409
+            ? t.hold.followUp.applyChanged
+            : fill(t.hold.followUp.applyError, { message: problem?.message ?? "" }),
+        );
+      }
+    } catch {
+      setApplyError(fill(t.hold.followUp.applyError, { message: "" }));
+    } finally {
+      setApplying(false);
+      poll.checkNow();
+    }
+  }
 
   async function withdraw() {
     if (!view.approval || withdrawing) return;
@@ -365,6 +404,8 @@ export function HoldScreen({ initial }: { initial: HoldView }) {
         </Callout>
       ) : null}
 
+      <FollowUpPanel view={view} error={applyError} onGoto={(position) => goto(position - 1)} />
+
       <section aria-labelledby="questions-heading" className="flex flex-col gap-4">
         <div className="flex flex-col gap-2">
           <h2 id="questions-heading" className="text-lg leading-tight font-semibold">
@@ -420,6 +461,9 @@ export function HoldScreen({ initial }: { initial: HoldView }) {
         onGoto={(position) => goto(position - 1)}
         onWithdraw={() => void withdraw()}
         withdrawing={withdrawing}
+        reused={allAnswersReused(view)}
+        onApplyReused={() => void applyReused()}
+        applying={applying}
       />
 
       {snapshot ? (

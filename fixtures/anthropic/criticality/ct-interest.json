@@ -1,0 +1,42 @@
+{
+  "kind": "criticality",
+  "document_id": "ct-interest",
+  "file": "fixtures/criticality/ct-interest.pdf",
+  "sha256": "d99ff20b26b35ae636dce97e4ee3bbc4de0f7713c5baa96f0b0a874ed4237526",
+  "prompt_version": "7dd35b1df2dd",
+  "model": "claude-sonnet-5-5",
+  "recorded_at": "2026-11-11T15:10:47.450Z",
+  "calls": [
+    {
+      "response": {
+        "id": "msg_011CgwMVo2c8Q8ofCMeC5s5j",
+        "model": "claude-sonnet-5-5",
+        "stop_reason": "end_turn",
+        "usage": {
+          "input_tokens": 1696,
+          "cache_creation_input_tokens": 0,
+          "cache_read_input_tokens": 0,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_tokens": 131,
+          "output_tokens_details": {
+            "thinking_tokens": 0
+          },
+          "service_tier": "standard",
+          "inference_geo": "global",
+          "speed": "standard"
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"criticality\":\"2\",\"rationale\":\"Late payment triggers interest at 8% per year on overdue amounts, which is a late-interest charge. The contract does not mention suspension, termination, default or acceleration for late payment.\",\"quote\":\"Late payment: Overdue amounts bear interest at 8% per year from the due date until the day\\nthey are paid.\",\"page\":2,\"injection_suspected\":false}"
+          }
+        ]
+      },
+      "request_id": "req_011CgwMVnj1TZkurgTJjyQ5A",
+      "latency_ms": 2592
+    }
+  ]
+}

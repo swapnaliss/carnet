@@ -11,6 +11,7 @@ import type { Rfi as AirwallexRfi, RfiQuestion as AirwallexRfiQuestion } from "@
 import {
   appendAudit,
   attributeRfi,
+  classifyFollowUp,
   enqueueJob,
   findOpenRfiBySourceKey,
   getRfiByAirwallexIdForUpdate,
@@ -23,6 +24,7 @@ import {
   type RepoCtx,
   type Rfi,
   repoCtx,
+  summariseFollowUp,
   updateRfi,
   withTransaction,
 } from "@carnet/db";
@@ -99,6 +101,12 @@ export function snapshotOf(rfi: AirwallexRfi): RfiSnapshot {
       newest.questions.every((q) => q.answer !== null),
   };
 }
+
+const textOf = (q: AirwallexRfiQuestion) => ({
+  airwallexQuestionId: q.id,
+  title: q.title,
+  description: q.description,
+});
 
 function questionRows(rounds: Round[]): NewRfiQuestion[] {
   const seen = new Set<string>();
@@ -330,6 +338,18 @@ export async function ingestRfi(
 
     await insertRfiQuestions(rc, row.id, questionRows(roundsOf(fetched)));
 
+    // Follow-up round (M3-05): which questions Airwallex reopened and which it appended, on the audit trail.
+    const rounds = roundsOf(fetched);
+    const followUp =
+      plan.round > 1
+        ? summariseFollowUp(
+            classifyFollowUp(
+              rounds.filter((r) => r.round < plan.round).flatMap((r) => r.questions.map(textOf)),
+              rounds.filter((r) => r.round === plan.round).flatMap((r) => r.questions.map(textOf)),
+            ),
+          )
+        : null;
+
     let from = stored?.state ?? "ACTION_REQUIRED";
     for (const step of steps) {
       if (step.from !== from) throw new Error(`ingest plan out of sequence at ${step.from}`);
@@ -337,7 +357,16 @@ export async function ingestRfi(
         ...ACTOR,
         action: "rfi.transition",
         subject: `rfi:${row.id}`,
-        data: { from: step.from, to: step.to, event: step.event, round: plan.round, source },
+        data: {
+          from: step.from,
+          to: step.to,
+          event: step.event,
+          round: plan.round,
+          source,
+          ...(followUp && step.to === "DRAFTING"
+            ? { reopenedQuestionIds: followUp.reopened, newQuestionIds: followUp.new }
+            : {}),
+        },
       });
       if (step.enqueueDraft) {
         const payload: RfiDraftJobPayload = { businessId, rfiId: row.id, round: plan.round };
