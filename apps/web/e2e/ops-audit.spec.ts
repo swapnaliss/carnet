@@ -1,6 +1,6 @@
 import { appendAudit, createDbClientFromEnv, repoCtx, verifyAndStoreAuditChain } from "@carnet/db";
 import { expect, test } from "@playwright/test";
-import pg from "pg";
+import { forgeLatestAction, restoreAction } from "../test/support/audit-tamper";
 import { ownerPassword, signIn, withDb } from "./evidence-support";
 
 // M4-01: the audit chain panel on /ops. The worker stores each verification; this spec appends rows
@@ -11,18 +11,6 @@ test.skip(
   !ownerPassword || !process.env.DATABASE_URL || !migrationUrl,
   "SEED_OWNER_PASSWORD, DATABASE_URL and DATABASE_MIGRATION_URL are not set; /ops audit e2e skipped.",
 );
-
-async function asOwner<T>(fn: (c: pg.Client) => Promise<T>): Promise<T> {
-  const c = new pg.Client({ connectionString: migrationUrl });
-  await c.connect();
-  try {
-    await c.query("ALTER TABLE audit_log DISABLE TRIGGER USER");
-    return await fn(c);
-  } finally {
-    await c.query("ALTER TABLE audit_log ENABLE TRIGGER USER");
-    await c.end();
-  }
-}
 
 test("owner sees the chain intact, then broken with the tampered row id, and a non-owner is refused", async ({
   page,
@@ -54,24 +42,14 @@ test("owner sees the chain intact, then broken with the tampered row id, and a n
     await expect(card).not.toContainText("Chain broken");
 
     // tamper: change one row's action without touching its hash
-    const victim = await asOwner(async (c) => {
-      const id = (
-        await c.query<{ id: string }>(
-          "select id from audit_log where action = 'e2e.audit_chain' order by id desc limit 1",
-        )
-      ).rows[0]?.id;
-      await c.query("update audit_log set action = 'e2e.forged' where id = $1", [id]);
-      return id as string;
-    });
+    const victim = await forgeLatestAction(migrationUrl as string, "e2e.audit_chain", "e2e.forged");
     try {
       await verifyAndStoreAuditChain(client.db);
       await page.goto("/ops");
       await expect(card).toContainText("Chain broken");
       await expect(card).toContainText(`First bad row ${victim}`);
     } finally {
-      await asOwner((c) =>
-        c.query("update audit_log set action = 'e2e.audit_chain' where id = $1", [victim]),
-      );
+      await restoreAction(migrationUrl as string, victim, "e2e.audit_chain");
       await verifyAndStoreAuditChain(client.db);
     }
     await page.goto("/ops");
