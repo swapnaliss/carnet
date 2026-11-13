@@ -270,7 +270,9 @@ describe("AC4: kill switch", () => {
     }
     expect(rec.requests).toHaveLength(0);
     expect(store.flagReads - reads).toBe(100);
-    expect(store.steps).toHaveLength(0);
+    // Each refusal is a zero-cost `killed` step (M4-02) and nothing else was written.
+    expect(store.steps).toHaveLength(100);
+    expect(store.steps.every((s) => s.outcome === "killed" && s.costNanoUsd === 0)).toBe(true);
   });
 
   it("an unreadable flags row is treated as disabled", async () => {
@@ -307,7 +309,7 @@ describe("AC5: spend caps are enforced before the network", () => {
       expect(out.remainingNanoUsd).toBe(0.015 * USD);
     }
     expect(rec.requests).toHaveLength(0);
-    expect(store.steps).toHaveLength(0);
+    expect(store.steps.map((s) => s.outcome)).toEqual(["spend_cap"]);
     expect(store.runs.get(run.id)).toEqual(before);
   });
 
@@ -332,7 +334,7 @@ describe("AC5: spend caps are enforced before the network", () => {
     expect(out).toMatchObject({ outcome: "cap_exceeded", cap: "daily" });
     if (out.outcome === "cap_exceeded") expect(out.remainingNanoUsd).toBe(0.01 * USD);
     expect(rec.requests).toHaveLength(0);
-    expect(store.steps).toHaveLength(0);
+    expect(store.steps.map((s) => s.outcome)).toEqual(["spend_cap"]);
     expect(store.runs.get(run.id)).toEqual(before);
     expect(await store.spentSinceNanoUsd(new Date(0))).toBe(10 * USD - 0.01 * USD);
   });

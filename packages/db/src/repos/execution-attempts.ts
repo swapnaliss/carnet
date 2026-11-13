@@ -3,6 +3,7 @@ import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { DuplicateRequestIdError, pgErrorOf, translateDbError } from "../errors";
 import { type AttemptKind, type AttemptStatus, executionAttempts } from "../schema/index";
 import type { RepoCtx } from "./context";
+import { assertExecutionEnabled } from "./system";
 
 export interface ExecutionAttempt {
   readonly id: AttemptId;
@@ -40,6 +41,9 @@ export interface NewAttempt {
 
 /** Inserts an INTENT attempt. Throws DuplicateRequestIdError if the request_id is taken. */
 export async function createAttempt(ctx: RepoCtx, input: NewAttempt): Promise<ExecutionAttempt> {
+  // Kill switch (M4-02): no new attempt of any kind while execution is off. Resolving an existing
+  // attempt (reconciler, claim, status updates) never goes through here.
+  await assertExecutionEnabled(ctx.db);
   try {
     const [row] = await ctx.db
       .insert(executionAttempts)

@@ -22,7 +22,15 @@ export const AGENT_RUN_STATUSES = ["RUNNING", "DONE", "FAILED"] as const;
 export type AgentRunStatus = (typeof AGENT_RUN_STATUSES)[number];
 
 // Mirrors the network outcomes of @carnet/agent's CallOutcome (the ones that write a step).
-export const AGENT_STEP_OUTCOMES = ["ok", "refused", "truncated", "provider_error"] as const;
+// `killed` and `spend_cap` (M4-02) are refusals before the network: zero tokens, zero cost.
+export const AGENT_STEP_OUTCOMES = [
+  "ok",
+  "refused",
+  "truncated",
+  "provider_error",
+  "killed",
+  "spend_cap",
+] as const;
 export type AgentStepOutcome = (typeof AGENT_STEP_OUTCOMES)[number];
 
 const nanoUsd = (name: string) => bigint(name, { mode: "number" });

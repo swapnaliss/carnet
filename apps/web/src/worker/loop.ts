@@ -7,14 +7,18 @@
 // the in-flight job finish before `run()` resolves.
 import { hostname } from "node:os";
 import {
+  type BreakerConfig,
+  breakerConfigFromEnv,
   claimJobs,
   completeJob,
   type Db,
   deferJob,
+  dependencyOfJobKind,
   enqueueSingletonJob,
   failJob,
   getSystemFlags,
   type OutboxJob,
+  readBreaker,
   recordWorkerHeartbeat,
   verifyAndStoreAuditChain,
 } from "@carnet/db";
@@ -57,6 +61,10 @@ export interface WorkerOptions {
   /** How often the audit chain is verified and the result stored for /ops (M4-01); null disables it. */
   auditVerifyEveryMs?: number | null;
   killSwitchDeferMs?: number;
+  /** Circuit-breaker thresholds (M4-02); defaults come from the BREAKER_* environment variables. */
+  breaker?: BreakerConfig;
+  /** Random source for the breaker's jittered delay (tests). */
+  random?: () => number;
   now?: () => number;
   /** Heartbeat row key (default `host:pid`). */
   workerId?: string;
@@ -113,6 +121,8 @@ export function createWorker(options: WorkerOptions): Worker {
       : options.auditVerifyEveryMs;
   const deferMs = options.killSwitchDeferMs ?? KILL_SWITCH_DEFER_MS;
   const now = options.now ?? Date.now;
+  const breakerConfig = options.breaker ?? breakerConfigFromEnv();
+  const random = options.random ?? Math.random;
   const workerId = options.workerId ?? `${hostname()}:${process.pid}`;
   const ctx: HandlerContext = {
     db,
@@ -177,6 +187,30 @@ export function createWorker(options: WorkerOptions): Worker {
       logger.warn({ jobId: job.id, kind: job.kind }, "execution disabled; mutating job deferred");
       stats.deferred += 1;
       return "deferred";
+    }
+    // Circuit breaker (M4-02): the state is read from the database on every job, so every worker
+    // instance agrees. OPEN pauses new calls to the dependency; the job waits out the cool-down plus
+    // jitter and its attempt count is not spent. The reconciler has no dependency kind and always runs.
+    const dependency = dependencyOfJobKind(job.kind);
+    if (dependency) {
+      const breaker = await readBreaker(db, dependency, breakerConfig, new Date(now())).catch(
+        () => null,
+      );
+      if (breaker?.state === "OPEN") {
+        const waitMs = Math.max(1_000, (breaker.retryAt?.getTime() ?? now()) - now());
+        await deferJob(
+          db,
+          job.id,
+          new Date(now() + waitMs + Math.round(random() * waitMs * 0.5)),
+          `deferred: ${dependency} circuit breaker open`,
+        );
+        logger.warn(
+          { jobId: job.id, kind: job.kind, dependency },
+          "circuit breaker open; deferred",
+        );
+        stats.deferred += 1;
+        return "deferred";
+      }
     }
     const started = now();
     try {

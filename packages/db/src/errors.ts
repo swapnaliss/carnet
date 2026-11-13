@@ -71,6 +71,14 @@ export class SystemFlagsMissingError extends DbError {
   }
 }
 
+/** execution_enabled is off (or unreadable): no new ExecutionAttempt may be created (M4-02). */
+export class ExecutionDisabledError extends DbError {
+  override readonly name = "ExecutionDisabledError";
+  constructor() {
+    super("execution is switched off; no new attempt can be created");
+  }
+}
+
 interface PgErrorShape {
   code?: unknown;
   constraint?: unknown;
