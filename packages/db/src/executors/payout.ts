@@ -22,9 +22,9 @@ import {
   type UserId,
 } from "@carnet/domain";
 import { and, eq } from "drizzle-orm";
+import { appendAudit } from "../audit/append";
 import { getStoredAction, isActionCurrent, transitionAction } from "../repos/action-states";
 import { type Approval, consumeApproval, endApproval, getApproval } from "../repos/approvals";
-import { appendAudit } from "../repos/audit-log";
 import { repoCtx } from "../repos/context";
 import { getCounterparty } from "../repos/counterparties";
 import {
