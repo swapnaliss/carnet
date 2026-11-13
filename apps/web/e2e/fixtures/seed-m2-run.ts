@@ -34,8 +34,8 @@ import {
   updatePaymentTransfer,
 } from "@carnet/db";
 import { type BusinessId, money, type PaymentId, type RfiId } from "@carnet/domain";
-import { memoryStore } from "../../../../packages/agent/test/memory-store";
 import { replayTransport } from "../../../../packages/agent/evals/extraction/run";
+import { memoryStore } from "../../../../packages/agent/test/memory-store";
 import { memoryLogger } from "../../src/server/log";
 import { createRfiDraftHandler, RFI_DRAFT_JOB_KIND } from "../../src/worker/handlers/draft";
 import type { HandlerContext } from "../../src/worker/handlers/index";
