@@ -37,6 +37,8 @@ listed below run in the `db` and `web-db` projects of the root `vitest.config.ts
 - packages/agent/test/guardrail.test.ts :: puts text in one delimited block that the content cannot close or reopen
 - packages/agent/test/drafting/drafting.test.ts :: a poisoned question and a model that obeys it: flags are stored and the claim is rejected
 - packages/agent/test/boundaries.test.ts :: the API key is read in exactly one module
+- tests/security/hostile-model.test.ts :: markdown exfiltration link
+- tests/security/hostile-model.test.ts :: leaves ordinary text alone
 
 ## Denial of service · Webhook flood, upload abuse
 - apps/web/test/security/webhook-ratelimit.int.test.ts :: 601 requests from one IP within a minute
@@ -50,8 +52,8 @@ listed below run in the `db` and `web-db` projects of the root `vitest.config.ts
 ## Elevation of privilege · Prompt-injected plan action
 - packages/agent/test/boundaries.test.ts :: imports no web framework
 - apps/web/test/security/approval-routes.int.test.ts :: an answer that needs the owner is refused (412)
+- tests/security/hostile-model.test.ts :: tool-call lookalike
 
 ## Not yet covered by a named test (tracked on the M4-04 issue and BL-01)
-Hostile stub model across documents and RFI text with a full action/approval/outbound-host assertion,
-the 21-page and encrypted-PDF cases through the live route, payee token entropy, cookie flags, and the
+Hostile stub model over document text (only RFI question text is covered), the 21-page and encrypted-PDF cases through the live route, payee token entropy, cookie flags, and the
 kill-switch/spend-cap row (M4-02, PR #102). These are not claimed by this map.
