@@ -69,11 +69,53 @@ export function needsOwnerKey(reasonCode: string | null): NeedsOwnerKey {
       return "modelUnavailable";
     case "UNSUPPORTED_ANSWER_TYPE":
       return "unsupported";
+    case "REUSE_STALE":
     case "STALE_REUSE":
       return "staleReuse";
     default:
       return "verifierRejected";
   }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Follow-up rounds (M3-05)
+
+export type FollowUpBadge = "reused" | "new_draft" | "needs_you";
+
+/** The badge of a question in round 2 or later; null in round 1 (nothing to compare with). */
+export function followUpBadge(q: QuestionDto, rfiState: string): FollowUpBadge | null {
+  if (!q.follow_up) return null;
+  const status = questionStatus(q, rfiState);
+  if (status === "needs_owner") return "needs_you";
+  if (q.answer?.reuse) return "reused";
+  return "new_draft";
+}
+
+export function followUpCounts(view: HoldView) {
+  const badges = view.questions.map((q) => followUpBadge(q, view.rfi.state));
+  return {
+    reused: badges.filter((b) => b === "reused").length,
+    fresh: badges.filter((b) => b === "new_draft").length,
+    needs: badges.filter((b) => b === "needs_you").length,
+  };
+}
+
+/** True when every question of a follow-up round is answered from an earlier approval. */
+export function allAnswersReused(view: HoldView): boolean {
+  return (
+    view.rfi.round > 1 &&
+    view.questions.length > 0 &&
+    view.questions.every((q) => followUpBadge(q, view.rfi.state) === "reused")
+  );
+}
+
+/** The questions that block the whole RFI, by 1-based position and title. */
+export function blockingQuestions(view: HoldView): { position: number; title: string }[] {
+  return view.questions.flatMap((q, i) =>
+    questionStatus(q, view.rfi.state) === "needs_owner"
+      ? [{ position: i + 1, title: q.title }]
+      : [],
+  );
 }
 
 // ---------------------------------------------------------------------------------------------

@@ -17,6 +17,8 @@ import { EditAnswer, type EditMode } from "./edit-answer";
 import { SourceSnippet, snippetId } from "./source-snippet";
 import {
   claimsOf,
+  type FollowUpBadge,
+  followUpBadge,
   formatBytes,
   needsOwnerKey,
   type QuestionStatus,
@@ -73,6 +75,37 @@ export function QuestionStatusChip({
     </span>
   );
 }
+
+const BADGE_STYLE: Record<FollowUpBadge, string> = {
+  reused: "bg-status-success-bg text-status-success-fg",
+  new_draft: "bg-status-progress-bg text-status-progress-fg",
+  needs_you: "bg-status-warning-bg text-status-warning-fg",
+};
+
+/** Round 2 and later: where this question's answer came from (never colour alone: the label says it). */
+function FollowUpChip({ badge }: { badge: FollowUpBadge }) {
+  const label =
+    badge === "reused"
+      ? t.hold.followUp.badgeReused
+      : badge === "new_draft"
+        ? t.hold.followUp.badgeNew
+        : t.hold.followUp.badgeNeeds;
+  return (
+    <span
+      data-testid="follow-up-badge"
+      data-badge={badge}
+      className={cn(
+        "inline-flex min-h-6 items-center rounded-sm border border-border px-2 text-xs font-medium whitespace-nowrap",
+        BADGE_STYLE[badge],
+      )}
+    >
+      {label}
+    </span>
+  );
+}
+
+const formatDay = (iso: string) =>
+  new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(iso));
 
 function Chip({
   citation,
@@ -138,6 +171,8 @@ function QuestionCardImpl({
   const rejectedText = status === "needs_owner" && answer && answer.text !== "";
   const reasonKey = needsOwnerKey(answer?.reason_code ?? null);
   const qid = question.id;
+  const badge = followUpBadge(question, view.rfi.state);
+  const changed = question.follow_up?.kind === "changed" ? question.follow_up.previous : null;
 
   return (
     <li
@@ -163,11 +198,14 @@ function QuestionCardImpl({
               title: question.title,
             })}
           </h3>
-          <QuestionStatusChip
-            status={status}
-            edited={ownerDraft && status === "ready"}
-            sent={view.rfi.state === "ANSWERED" || view.rfi.state === "CLOSED"}
-          />
+          <div className="flex flex-wrap items-center gap-2">
+            {badge && badge !== "needs_you" ? <FollowUpChip badge={badge} /> : null}
+            <QuestionStatusChip
+              status={status}
+              edited={ownerDraft && status === "ready"}
+              sent={view.rfi.state === "ANSWERED" || view.rfi.state === "CLOSED"}
+            />
+          </div>
         </div>
         <p className="text-sm text-muted-foreground">
           {question.description}
@@ -182,6 +220,40 @@ function QuestionCardImpl({
             </span>
           ) : null}
         </p>
+
+        {changed ? (
+          <section
+            aria-label={t.hold.followUp.changedTitle}
+            data-testid="question-diff"
+            className="flex flex-col gap-1 rounded-md border border-border bg-status-progress-bg p-3 text-sm text-status-progress-fg"
+          >
+            <p className="font-semibold">{t.hold.followUp.changedTitle}</p>
+            <p>
+              <span className="font-medium">{t.hold.followUp.earlier} </span>
+              <del data-testid="diff-old">
+                {[changed.title, changed.description].filter(Boolean).join(" - ")}
+              </del>
+            </p>
+            <p>
+              <span className="font-medium">{t.hold.followUp.now} </span>
+              <ins data-testid="diff-new" className="no-underline">
+                {[question.title, question.description].filter(Boolean).join(" - ")}
+              </ins>
+            </p>
+          </section>
+        ) : null}
+
+        {answer?.reuse && status !== "needs_owner" ? (
+          <p
+            data-testid="same-as-approved"
+            className="rounded-md bg-status-success-bg p-2 text-sm text-status-success-fg"
+          >
+            <span className="font-semibold">
+              {fill(t.hold.followUp.sameAs, { date: formatDay(answer.reuse.approved_on) })}
+            </span>
+            <span className="block">{t.hold.followUp.sameAsHint}</span>
+          </p>
+        ) : null}
 
         {status === "drafting" ? (
           <p className="flex items-center gap-2 text-sm text-muted-foreground">

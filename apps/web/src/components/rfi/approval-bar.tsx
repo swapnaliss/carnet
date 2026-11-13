@@ -56,6 +56,9 @@ export function ApprovalBar({
   onWithdraw,
   withdrawing,
   count,
+  reused = false,
+  onApplyReused,
+  applying = false,
 }: {
   view: HoldView;
   gate: Gate;
@@ -64,6 +67,10 @@ export function ApprovalBar({
   onWithdraw: () => void;
   withdrawing: boolean;
   count: number;
+  /** Follow-up round whose every answer is a reused one: the one action applies them (M3-05). */
+  reused?: boolean;
+  onApplyReused?: () => void;
+  applying?: boolean;
 }) {
   const reasonId = useId();
   const state = view.rfi.state;
@@ -143,7 +150,9 @@ export function ApprovalBar({
                 <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
               )}
               {gate.enabled
-                ? t.hold.approval.readySummary
+                ? reused
+                  ? t.hold.followUp.readyReused
+                  : t.hold.approval.readySummary
                 : GATE_TEXT[gate.reason ?? "NOT_READY"](gate, view)}
             </p>
             {priorEnded ? (
@@ -169,13 +178,16 @@ export function ApprovalBar({
               size="lg"
               aria-disabled={!gate.enabled}
               aria-describedby={reasonId}
-              data-testid="approve-button"
+              data-testid={reused ? "apply-reused" : "approve-button"}
+              aria-busy={applying}
               onClick={() => {
-                if (gate.enabled) onApprove();
+                if (!gate.enabled || applying) return;
+                if (reused && onApplyReused) onApplyReused();
+                else onApprove();
               }}
               className={cn("w-full md:w-auto", !gate.enabled && "cursor-not-allowed opacity-60")}
             >
-              {label}
+              {reused ? (applying ? t.hold.followUp.applying : t.hold.followUp.applyAll) : label}
             </Button>
           )}
         </div>

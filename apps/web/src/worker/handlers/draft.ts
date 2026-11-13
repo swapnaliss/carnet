@@ -24,9 +24,11 @@ import {
   getRfi,
   getRfiForUpdate,
   insertDraft,
+  listDocuments,
   listRfiQuestions,
   listStuckDraftingRfis,
   loadDraftingEvidence,
+  MAX_DRAFTING_DOCUMENTS,
   repoCtx,
   updateRfi,
   withTransaction,
@@ -81,12 +83,27 @@ export function draftingStoreFor(
         })),
         facts: evidence.facts,
         documents: evidence.documents,
-        ...(prior.length > 0 ? { priorAnswers: prior } : {}),
+        // A follow-up round decides matched questions from memory (below), so only round 1 gets context.
+        ...(prior.length > 0 && round === 1 ? { priorAnswers: prior } : {}),
       };
       const hasDraft = (await getLatestDraft(repo, rfi.id, round)) !== null;
+      // Follow-up round (M3-05): approved answers to identical questions are decided without the model.
+      const docs =
+        round > 1 && matches.size > 0 ? await listDocuments(repo, MAX_DRAFTING_DOCUMENTS) : [];
       return {
         input,
         awaitingDraft: rfi.state === "DRAFTING" && rfi.round === round && !hasDraft,
+        ...(round > 1
+          ? {
+              reuse: {
+                matches,
+                context: {
+                  ...evidence,
+                  documentHashes: new Map(docs.map((d) => [d.id as string, d.sha256])),
+                },
+              },
+            }
+          : {}),
       };
     },
     async saveDraft({ rfiId, round, draftKey, runId, origin, result }) {
@@ -99,6 +116,8 @@ export function draftingStoreFor(
           result.results,
           (await findReusableForRound(rc, rfi, round)).matches,
         );
+        // Follow-up round (M3-05): answers decided from memory carry their provenance, also when stale.
+        const provenance = result.reuseProvenance ?? {};
         const { draft, inserted } = await insertDraft(rc, {
           rfiId: rfi.id,
           round,
@@ -118,6 +137,7 @@ export function draftingStoreFor(
                   citations: [],
                   documentIds: [],
                   verdict: r.verdict,
+                  reused: provenance[r.question_id] ?? null,
                 }
               : {
                   questionId: r.question_id,
@@ -125,7 +145,7 @@ export function draftingStoreFor(
                   citations: r.answer.citations,
                   documentIds: r.answer.document_ids,
                   verdict: r.verdict,
-                  reused: marks.get(r.question_id) ?? null,
+                  reused: provenance[r.question_id] ?? marks.get(r.question_id) ?? null,
                 },
           ),
         });
