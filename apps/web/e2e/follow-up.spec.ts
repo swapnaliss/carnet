@@ -70,7 +70,19 @@ async function axe(page: Page, name: string) {
   // transition-colors). axe reads computed colours, so sampling mid-transition reports a false
   // color-contrast failure (BL-01, 2026-11-13). Wait until every transition has finished; the page is
   // then checked in its final, real state. Nothing is disabled or skipped.
-  await page.evaluate(() => Promise.all(document.getAnimations().map((a) => a.finished)));
+  // Only finite animations are awaited (a looping one, such as a live-status pulse, never finishes),
+  // and the wait is capped so it cannot hang the test.
+  await page.evaluate(() =>
+    Promise.race([
+      Promise.all(
+        document
+          .getAnimations()
+          .filter((a) => a.effect?.getComputedTiming().iterations !== Number.POSITIVE_INFINITY)
+          .map((a) => a.finished),
+      ),
+      new Promise((resolve) => setTimeout(resolve, 2_000)),
+    ]),
+  );
   const results = await new AxeBuilder({ page }).withTags(TAGS).analyze();
   const bad = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
   // Name the offending nodes and their data (colours, ratio) so a CI failure shows its cause.
