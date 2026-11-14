@@ -52,7 +52,7 @@ R3 and R6 ask for a system that moves money or state with approvals that can be 
 ```bash
 set -euo pipefail
 export TMPDIR="${TMPDIR:-/tmp}"
-docker compose up -d db
+docker compose up -d postgres
 npm run db:migrate
 npx vitest run packages/db/test/audit-chain.test.ts packages/db/test/audit-roles.test.ts
 npx playwright test apps/web/e2e/ops-audit.spec.ts

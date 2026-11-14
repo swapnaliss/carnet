@@ -60,7 +60,7 @@ A test suite under `tests/security/` (Vitest + a few Playwright checks), one tes
 ```bash
 set -euo pipefail
 export TMPDIR="${TMPDIR:-/tmp}"
-docker compose up -d db
+docker compose up -d postgres
 npm run db:migrate
 npx vitest run tests/security
 python3 scripts/check-stride-map.py

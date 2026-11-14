@@ -24,7 +24,8 @@
     "smoke": "./scripts/toolchain-smoke.sh",
     "design:contrast": "node scripts/design-contrast.ts",
     "dataset:generate": "node scripts/dataset/generate.mjs",
-    "dataset:check": "node scripts/dataset/check.mjs fixtures/dataset"
+    "dataset:check": "node scripts/dataset/check.mjs fixtures/dataset",
+    "db:migrate": "npm run db:migrate -w @carnet/db"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.4",

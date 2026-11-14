@@ -40,6 +40,7 @@ listed below run in the `db` and `web-db` projects of the root `vitest.config.ts
 - packages/agent/test/drafting/drafting.test.ts :: a poisoned question and a model that obeys it: flags are stored and the claim is rejected
 - packages/agent/test/boundaries.test.ts :: the API key is read in exactly one module
 - tests/security/hostile-model.test.ts :: markdown exfiltration link
+- tests/security/hostile-model-documents.test.ts :: a forged total with a quote that is not in the document is never verified
 - tests/security/hostile-model.test.ts :: leaves ordinary text alone
 
 ## Denial of service · Webhook flood, upload abuse
@@ -60,11 +61,10 @@ listed below run in the `db` and `web-db` projects of the root `vitest.config.ts
 - packages/agent/test/boundaries.test.ts :: imports no web framework
 - apps/web/test/security/approval-routes.int.test.ts :: an answer that needs the owner is refused (412)
 - tests/security/hostile-model.test.ts :: tool-call lookalike
+- tests/security/model-has-no-executor-path.test.ts :: no file imports an executor, an approval consumer or a plan action
+- tests/security/model-has-no-executor-path.test.ts :: only the owner-approved handlers import the executors
 
-## Not yet covered by a named test (tracked on the M4-04 issue and BL-01)
-- A hostile stub model over text inside a document (only RFI question text is covered here; document-text
-  injection is covered by the extraction guardrail tests, not by a hostile-model run).
+## Not covered by a named test
+- A hostile model run against the M3-03 executors themselves: there is no path to them from model output
+  (import scan above), so none is run. The executors' own refusal cases are in their own tests.
 - The kill-switch and spend-cap controls (M4-02, merged as #102) have their own tests; they are not a row of the STRIDE table, so they are not mapped here.
-- A hostile model driving the plan/policy executors (M3-03): the model has no path to them (see
-  `packages/agent/test/boundaries.test.ts`), but no test runs a hostile model against them.
-These are not claimed by this map.
