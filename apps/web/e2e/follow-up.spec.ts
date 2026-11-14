@@ -66,9 +66,31 @@ async function capture(page: Page, name: string) {
 }
 
 async function axe(page: Page, name: string) {
+  // capture() just flipped the colour scheme and width, which starts colour transitions (buttons use
+  // transition-colors). axe reads computed colours, so sampling mid-transition reports a false
+  // color-contrast failure (BL-01, 2026-11-13). Wait until every transition has finished; the page is
+  // then checked in its final, real state. Nothing is disabled or skipped.
+  // Only finite animations are awaited (a looping one, such as a live-status pulse, never finishes),
+  // and the wait is capped so it cannot hang the test.
+  await page.evaluate(() =>
+    Promise.race([
+      Promise.all(
+        document
+          .getAnimations()
+          .filter((a) => a.effect?.getComputedTiming().iterations !== Number.POSITIVE_INFINITY)
+          .map((a) => a.finished),
+      ),
+      new Promise((resolve) => setTimeout(resolve, 2_000)),
+    ]),
+  );
   const results = await new AxeBuilder({ page }).withTags(TAGS).analyze();
   const bad = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
-  expect(bad.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+  // Name the offending nodes and their data (colours, ratio) so a CI failure shows its cause.
+  const detail = (v: (typeof bad)[number]) =>
+    `${v.id}: ${v.help}\n${v.nodes
+      .map((n) => `  ${n.target.join(" ")} ${n.any.map((c) => c.message).join("; ")}`)
+      .join("\n")}`;
+  expect(bad.map(detail)).toEqual([]);
   const { writeFileSync } = await import("node:fs");
   writeFileSync(join(SHOTS, `axe-${name}.json`), JSON.stringify(results.violations, null, 1));
 }

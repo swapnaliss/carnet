@@ -24,7 +24,9 @@ async function collectViolations(page: Page): Promise<string[]> {
   await page.addInitScript(() => {
     document.addEventListener("securitypolicyviolation", (e) => {
       const report = (window as unknown as { __cspViolation: (v: string) => void }).__cspViolation;
-      report(`${e.violatedDirective} ${e.blockedURI}`);
+      report(
+        `${e.violatedDirective} blocked=${e.blockedURI} source=${e.sourceFile}:${e.lineNumber} sample=${e.sample} document=${e.documentURI}`,
+      );
     });
   });
   return found;
@@ -38,16 +40,17 @@ for (const path of ["/", "/login"]) {
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).toMatch(/script-src 'self' 'nonce-[^']+' 'strict-dynamic'/);
     await expect(page.locator("main")).toBeVisible();
-    // Next.js's scripts carry the nonce from the response's CSP.
+    // Every script in the server's HTML carries the response's nonce. Checked on the response, not the
+    // live DOM: the runtime adds chunk <script src> elements without a nonce once hydration starts
+    // (allowed by 'strict-dynamic'), so a DOM read races with them (BL-01, 2026-11-13).
     const nonce = /'nonce-([^']+)'/.exec(csp)?.[1];
-    const scripts = await page
-      .locator("script")
-      .evaluateAll((els) => els.map((s) => (s as HTMLScriptElement).nonce));
-    expect(scripts.length).toBeGreaterThan(0);
-    for (const n of scripts) expect(n).toBe(nonce);
+    const tags = (await res?.text())?.match(/<script\b[^>]*>/g) ?? [];
+    expect(tags.length).toBeGreaterThan(0);
+    for (const tag of tags) expect(tag, tag).toContain(`nonce="${nonce}"`);
     // Every client bundle has loaded (and would have reported a blocked script by now).
     await page.waitForLoadState("networkidle");
-    expect(violations).toEqual([]);
+    // The message prints every violation, so a CI failure names its cause (BL-01, 2026-11-13).
+    expect(violations, `CSP violations on ${path}:\n${violations.join("\n")}`).toEqual([]);
   });
 }
 
