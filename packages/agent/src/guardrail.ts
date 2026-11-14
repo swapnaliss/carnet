@@ -85,6 +85,12 @@ const RULES: readonly Rule[] = [
     re: /\b(answer|reply|respond)\s+(to\s+)?(every|all|each|any)\s+(question|request|query|rfi)s?\s+with\b/i,
   },
   {
+    // M4-04: an order to approve or release money, found in a document or an RFI question.
+    kind: "instruction_phrase",
+    rule: "approve-payment",
+    re: /\b(approve|authori[sz]e|release)\s+(this|the|all|every|each)\s+(payment|transfer|payout)s?\b/i,
+  },
+  {
     kind: "instruction_phrase",
     rule: "do-not-flag",
     re: /\b(do not|don't|never)\s+(flag|report|mention|verify|check|disclose|escalate)\b[^.\n]{0,40}\b(this|these|the|any)\b/i,
