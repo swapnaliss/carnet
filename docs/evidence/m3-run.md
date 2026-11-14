@@ -1,0 +1,95 @@
+# M3-07 run record: the full demo, live (TEMPLATE, NOT YET RUN)
+
+**Status: template.** No live run has happened. Every `TBD` below is filled from the real run (the spec's `docs/evidence/m3/run.json`, `docs/evidence/m3/airwallex/*.json`, and the database export), never written from memory or invented. Delete this paragraph when the run is recorded. Claims discipline: the README and video claim only what this file shows.
+
+**What this is.** One real run of `PROJECT.md` §2 storyboard steps 1-9 against the deployed Carnet (`carnet-web`, `carnet-worker`; commit TBD), the real Airwallex sandbox and the real model. Synthetic data; the sandbox and model API are real. Run by the owner on TBD (UTC), started with `apps/web/e2e/demo-live.spec.ts`.
+
+## How to run it (owner)
+
+1. Reset: `./scripts/demo-reset.sh` (idempotent; adds the six dataset payees, never deletes; every run uses a fresh reference prefix `M3RUN-<yymmddhhmm>`, so "clean" means clean per run, as in M2-09). The spec needs nothing else reset.
+2. Precondition: the deployed worker must create plan revisions (BL-01, "no production plan inputs loader / plan.rerun never enqueued"). Without it step 1 fails with a message naming this.
+3. Run (exclusive `AIRWALLEX_SANDBOX` and `DEPLOY`):
+   `E2E_MODE=live E2E_BASE_URL=<deployed url> E2E_OWNER_PASSWORD=<owner password> node --env-file=.env node_modules/.bin/playwright test apps/web/e2e/demo-live.spec.ts --reporter=list`
+   (`E2E_OWNER_EMAIL` defaults to `owner@carnet.example`; empty values count as unset.) Screenshots, `run.json` and `airwallex/*.json` land in `docs/evidence/m3/`.
+4. Export what the API does not expose (needs the export job image to include the M3-07 tables, so deploy `main` with this PR first): `./scripts/demo-export.sh <run-start-iso> "$TMPDIR/m3-run.jsonl"`.
+5. Capture the replay fixtures: `npx tsx scripts/demo-capture-m3.ts "$TMPDIR/m3-run.jsonl"` (writes `fixtures/replay/m3/` with `manifest.json`: kind `recording`, run date), then `./scripts/check-no-secrets.sh`.
+6. Fill this file; commit it with `docs/evidence/m3/*.png` and `fixtures/replay/m3/`.
+7. Repeat from step 1 after a failure; fix the cause in the owning code, not in the spec.
+
+## Run facts
+
+| Field | Value |
+|---|---|
+| Run date and start/end (UTC) | TBD |
+| Deployed commit (`/healthz` version) | TBD |
+| Run prefix | TBD |
+| RFI creation path (sandbox-simulated via `/simulation/rfis/create`, or labelled injection) | TBD (state which; if injected, say why) |
+| Model spend for the run (USD) and cap `MODEL_PER_RUN_CAP_USD` | TBD |
+
+## Steps 1-9
+
+| # | Step | Time (UTC) | Result and ids |
+|---|---|---|---|
+| 1 | Goal (payroll and two suppliers by Friday), obligations, criticality confirmed by the owner, plan revision 1 | TBD | obligation ids, confirmed criticality and proposal id, plan revision 1 `inputs_hash` TBD |
+| 2 | Evidence flags in the queue, one not strong | TBD | flags TBD |
+| 3 | Two payments cleared, sent as real sandbox transfers | TBD | transfer ids TBD |
+| 4 | Hold: Transaction RFI on the sent transfer, webhook verified, payment held, re-plan | TBD | RFI Airwallex id TBD, Carnet id TBD; webhook `rfi.action_required` received TBD; plan revision 2 `inputs_hash` TBD, trigger TBD |
+| 5 | Cited drafts, source snippets, one bound approval, submit | TBD | draft id, approval id and hash TBD, attempt `request_id` TBD |
+| 6 | Revision executes: conversion under policy, payout approved, bill deferred | TBD | conversion id TBD, payout transfer id TBD, deferred obligation TBD |
+| 7 | Transfer reaches SENT then PAID on its own status | TBD | transfer id TBD; status while RFI answered TBD |
+| 8 | Follow-up round: reopen one question, one reused answer, one drafted | TBD | reopened question TBD, new approval hash TBD |
+| 9 | Payee page: GENERIC, then opt-in while held | TBD | wording read while held, headers, wording after paid TBD |
+
+## Plan revisions
+
+| Revision | `inputs_hash` | `content_hash` | Trigger |
+|---|---|---|---|
+| 1 | TBD | TBD | first |
+| 2 | TBD | TBD | held |
+
+## Money status was never set by an RFI event (AC 3)
+
+Query over the exported event log: for every payment, each change of `transfer_status` is preceded by an `airwallex.transfer.*` / `payout.transfer.*` webhook for that transfer. Paste the query and its output here: TBD. Count of payments that became SENT or PAID on an RFI event alone: TBD (must be 0).
+
+## Conversion and payout (AC 4)
+
+| Item | Value |
+|---|---|
+| Conversion: plan action id, Airwallex conversion id | TBD |
+| AutoApproval row id, policy version, policy hash | TBD |
+| Conversion attempt: id, `request_id` (one), status | TBD (CONFIRMED) |
+| Payout: approval id, status (CONSUMED) | TBD |
+| Payout attempt: id, `request_id` (one), status | TBD (CONFIRMED) |
+| Payout Airwallex transfer id | TBD |
+| Balances re-read at execution (before/after) | TBD |
+
+## Follow-up round (AC 5)
+
+Reused answer count, model calls made for the reused answer (from `agent_steps`; must be 0), applied by one click (yes/no), round 1 and round 2 approval hashes (must differ): TBD.
+
+## Payee page (AC 6)
+
+Required headers observed (`referrer-policy: no-referrer`, `x-robots-tag` with `noindex`, `cache-control: no-store`, `x-content-type-options: nosniff`): TBD. GENERIC wording while held: TBD. Opt-in wording while held and PROCESSING: TBD. Wording after the transfer is PAID: TBD. The opt-in wording can only show while the transfer is SCHEDULED or PROCESSING and an RFI holds the payment (`payeeStatus`), which is why the spec reads it in step 4 and again after PAID in step 9.
+
+## Latency and SLOs (AC 7)
+
+Event-to-draft latency observed (`rfi.action_required` received to draft stored): TBD s (a single run reports the observed value, not a p95). Approval to answered: TBD s. Webhook acknowledgement (n webhooks): TBD.
+
+## Model runs and cost (AC 9)
+
+| Run id | Kind | Model | Input / output tokens | Cost (USD) |
+|---|---|---|---|---|
+| TBD | | | | |
+
+Total TBD USD; per-run cap TBD; daily cap TBD.
+
+## Deviations and UNVERIFIED items
+
+List every deviation (a step retried, an RFI question the model declined and the owner wrote, a sandbox behaviour that differed) and everything not verified. TBD. Known going in: the sandbox returns `usage: MULTI_USE` on quotes (M0-03); production behaviour is unverified; held-funds balance behaviour is as measured by M0-04.
+
+## Files
+
+- Screenshots: `docs/evidence/m3/01-goal-and-plan-revision-1.png` ... `09c-*.png` (one per step, several for steps 6 and 9).
+- `docs/evidence/m3/run.json`, `docs/evidence/m3/airwallex/*.json`: what the spec observed.
+- `fixtures/replay/m3/`: `manifest.json`, `webhooks.jsonl`, `model-outputs.jsonl`, `plans.json`, `attempts.json`, `rfis.json`, `airwallex/`, `run.json`.
+- Env keys this ticket introduces (names only): `E2E_MODE`, `E2E_BASE_URL`, `E2E_OWNER_EMAIL`, `E2E_OWNER_PASSWORD`, `E2E_EVIDENCE_DIR`.

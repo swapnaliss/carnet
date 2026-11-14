@@ -25,6 +25,16 @@ const TABLES = [
   "approvals",
   "evidence_links",
   "document_facts",
+  // M3-07: the plan, its actions and their execution, the auto-approval records, obligations and the
+  // criticality proposals. Payee links are exported without their token hash (the key filter drops it).
+  "plans",
+  "plan_actions",
+  "plan_action_states",
+  "auto_approvals",
+  "obligations",
+  "criticality_proposals",
+  "fx_quote_uses",
+  "payee_links",
 ] as const;
 const TIME_COLUMNS = ["created_at", "received_at", "at", "updated_at"] as const;
 const SECRET_KEY = /signature|secret|token|password|authorization|cookie/i;
