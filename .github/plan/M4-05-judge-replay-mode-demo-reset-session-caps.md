@@ -53,7 +53,7 @@ This ticket builds to `docs/design/` and must pass the independent `ui-reviewer`
 ```bash
 set -euo pipefail
 export TMPDIR="${TMPDIR:-/tmp}"
-docker compose up -d db
+docker compose up -d postgres
 npm run db:migrate
 export SEED_JUDGE_PASSWORD="$(head -c 18 /dev/urandom | base64)"   # throwaway local value, never recorded
 npm run demo:reset -- --yes

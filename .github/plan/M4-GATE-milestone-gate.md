@@ -48,7 +48,7 @@ M4 makes Carnet's trust claims checkable: an audit chain that detects tampering,
 set -euo pipefail
 export TMPDIR="${TMPDIR:-/tmp}"
 test -z "$(git status --porcelain)"
-docker compose down -v && docker compose up -d db
+docker compose down -v && docker compose up -d postgres
 npm ci
 npm run db:migrate
 ./scripts/landing-checks.sh

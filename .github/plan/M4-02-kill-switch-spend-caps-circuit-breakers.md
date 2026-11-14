@@ -56,7 +56,7 @@ R5 and R6 ("code enforces, model judges", typed tools, bound approvals) need a g
 ```bash
 set -euo pipefail
 export TMPDIR="${TMPDIR:-/tmp}"
-docker compose up -d db
+docker compose up -d postgres
 npm run db:migrate
 npx vitest run packages/agent/test/killswitch.test.ts packages/agent/test/spend-caps.test.ts packages/db/test/breaker.test.ts packages/db/test/inflight-semantics.test.ts
 npx playwright test apps/web/e2e/ops-killswitch.spec.ts
