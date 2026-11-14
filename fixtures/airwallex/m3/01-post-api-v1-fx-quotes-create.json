@@ -1,0 +1,47 @@
+{
+  "method": "POST",
+  "path": "/api/v1/fx/quotes/create",
+  "request": {
+    "buy_currency": "EUR",
+    "sell_currency": "USD",
+    "sell_amount": 100,
+    "validity": "MIN_1"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "body": {
+      "awx_rate": 1.105321,
+      "buy_amount": 89.58,
+      "buy_currency": "EUR",
+      "client_rate": 1.116374,
+      "conversion_date": "2026-11-14",
+      "currency_pair": "EURUSD",
+      "dealt_currency": "USD",
+      "mid_rate": 1.10199,
+      "quote_id": "a6d3f7e3-1a55-3995-9479-7846b5c3fe8f",
+      "rate_details": [
+        {
+          "buy_amount": 90.47,
+          "level": "AWX",
+          "rate": 1.105321,
+          "sell_amount": 100
+        },
+        {
+          "buy_amount": 89.58,
+          "level": "CLIENT",
+          "rate": 1.116374,
+          "sell_amount": 100
+        }
+      ],
+      "sell_amount": 100,
+      "sell_currency": "USD",
+      "usage": "MULTI_USE",
+      "valid_from_at": "2026-11-14T15:31:55+0000",
+      "valid_to_at": "2026-11-14T15:32:55+0000",
+      "validity": "MIN_1"
+    }
+  }
+}

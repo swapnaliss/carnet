@@ -115,18 +115,32 @@ describe.skipIf(!LIVE)("M3-03 live proof (sandbox)", () => {
     const deps = { db: w.db, gateway, swiftPayoutFeeMinor: () => 0n };
 
     // 1. A conversion the policy allows: USD 1.00 (limit USD 10.00 in the test policy).
+    // The plan's indicative rate must be the sandbox's current one (the policy refuses a quote more than
+    // slippageBps away from it), so read it from a USD 100.00 probe quote (never converted; a USD 1.00 quote
+    // rounds EUR to cents and is too coarse a rate).
+    const probe = await gateway.createQuote({
+      buyCurrency: "EUR",
+      sellCurrency: "USD",
+      sellAmount: { minor: 10000n, currency: "USD" },
+      validity: "MIN_1",
+    });
+    if (!probe.buyAmount) throw new Error("the probe quote has no buy amount");
+    const liveRate = Number(probe.buyAmount.minor) / 10000;
+    const rate = liveRate.toFixed(4);
     const { actionIds } = await storePlan(w, [
       convertAction(1, {
         sell_minor: "100",
-        buy_minor: "88",
-        rate: "0.8840",
-        rate_low: "0.8",
-        rate_high: "0.95",
+        buy_minor: String(Math.round(liveRate * 100)),
+        rate,
+        rate_low: (liveRate * 0.995).toFixed(4),
+        rate_high: (liveRate * 1.005).toFixed(4),
       }),
     ]);
     const actionId = actionIds[0] as string;
     const conversion = await executeAutoConversion(deps, w.businessId, actionId);
-    expect(conversion.outcome).toBe("confirmed");
+    expect(
+      JSON.stringify(conversion, (_k, v: unknown) => (typeof v === "bigint" ? v.toString() : v)),
+    ).toContain('"outcome":"confirmed"');
     const policy = await getLatestPolicy(w.ctx);
     const auto = await getAutoApprovalForAction(w.ctx, actionId);
     const [convAttempt] = await listAttemptsForRefs(w.ctx, "conversion", [actionId]);
