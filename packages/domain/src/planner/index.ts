@@ -1,3 +1,4 @@
+export * from "./explain";
 export { decide } from "./plan";
 export { inputsHash, nextRevision, parseInputs, parsePlan, plan } from "./revision";
 export * from "./schemas";
