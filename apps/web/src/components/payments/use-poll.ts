@@ -71,7 +71,7 @@ export function usePoll<T>(
         if (!res.ok) throw new Error(`poll failed with ${res.status}`);
         const next = (await res.json()) as T;
         if (stopped) return;
-        setData(next);
+        setData((prev) => share(prev, next));
         setLastSuccessAt(Date.now());
         setFailures(0);
         failuresRef.current = 0;
@@ -105,6 +105,33 @@ export function usePoll<T>(
 
   const checkNow = useCallback(() => trigger.current(), []);
   return { data, lastSuccessAt, failures, paused, checkNow };
+}
+
+/**
+ * Structural sharing: returns `next`, but every sub-object or array that is deep-equal to the one in
+ * `prev` is replaced by the `prev` instance (and `prev` itself when nothing changed). A 3 s poll that
+ * brings back the same data then keeps object identities, so memoised children skip re-rendering and a
+ * poll landing during a tap does not block it (INP, M4-07). Plain JSON values only.
+ */
+export function share<T>(prev: T, next: T): T {
+  if (Object.is(prev, next)) return prev;
+  if (typeof prev !== "object" || typeof next !== "object" || prev === null || next === null)
+    return next;
+  if (Array.isArray(prev) !== Array.isArray(next)) return next;
+  if (Array.isArray(prev) && Array.isArray(next)) {
+    const out = next.map((v, i) => share(prev[i], v));
+    return (out.length === prev.length && out.every((v, i) => v === prev[i]) ? prev : out) as T;
+  }
+  const p = prev as Record<string, unknown>;
+  const n = next as Record<string, unknown>;
+  const keys = Object.keys(n);
+  const out: Record<string, unknown> = {};
+  let same = keys.length === Object.keys(p).length;
+  for (const k of keys) {
+    out[k] = share(p[k], n[k]);
+    if (out[k] !== p[k]) same = false;
+  }
+  return (same ? prev : out) as T;
 }
 
 /** The current time, re-rendered every `everyMs` (for "checked 3 s ago"). */

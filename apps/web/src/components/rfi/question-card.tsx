@@ -442,4 +442,24 @@ function QuestionCardImpl({
   );
 }
 
-export const QuestionCard = memo(QuestionCardImpl);
+type QuestionCardProps = Parameters<typeof QuestionCardImpl>[0];
+
+/**
+ * A poll response carries a new `server_time` every 3 s; the card never reads it. With the poll's
+ * structural sharing (use-poll.ts `share`) every other part of an unchanged view keeps its identity, so
+ * the card skips re-rendering unless something it shows changed (INP on mid-tier phones, M4-07).
+ */
+function sameProps(a: QuestionCardProps, b: QuestionCardProps): boolean {
+  for (const k of Object.keys(b) as (keyof QuestionCardProps)[]) {
+    if (k === "view") continue;
+    if (a[k] !== b[k]) return false;
+  }
+  if (a.view === b.view) return true;
+  const va = a.view as unknown as Record<string, unknown>;
+  const vb = b.view as unknown as Record<string, unknown>;
+  const keys = Object.keys(vb);
+  if (keys.length !== Object.keys(va).length) return false;
+  return keys.every((k) => k === "server_time" || va[k] === vb[k]);
+}
+
+export const QuestionCard = memo(QuestionCardImpl, sameProps);
