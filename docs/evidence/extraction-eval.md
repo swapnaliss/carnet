@@ -56,7 +56,7 @@ measure how often a model invents a quote.
 | Calls | 19 (one per file) |
 | Input tokens | 67,296 |
 | Output tokens | 12,396 |
-| Cost (token usage x PROJECT.md prices) | USD 0.0129 (USD 0.00045 to 0.00136 per file; the three contracts cost most) |
+| Cost (token usage x `packages/agent/src/pricing.ts` prices) | USD 0.0129 (USD 0.00045 to 0.00136 per file; the three contracts cost most) |
 | Wall time, 19 sequential calls | 60 s (longest call 7.3 s) |
 
 A first single-file live call (`inv-lakeside-002`, USD 0.0006) validated the pipeline before the full run;

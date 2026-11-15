@@ -21,7 +21,7 @@ K = known (with source), A = assumed (with how it is validated).
 | Data | Relational rows ≈ 36 KB per payment on the webhook path, measured ([load test](evidence/load-test.md); documents separate); money and approvals need strong consistency; traces and analytics may be eventually consistent | A |
 | Security / compliance | Synthetic data only (hackathon IP and privacy rules); the repository is public (HackerEarth FAQ) | K: HackerEarth FAQ: all code public; Airwallex rules: submissions must use Airwallex APIs |
 | Global | ISO currencies with exponents, UTC storage, per-business time zone, externalised strings, WCAG 2.2 AA | A |
-| Budget | Model spend from a $100 grant; infrastructure $5–20/month assumed until the hosting ticket fixes it (`docs/budget.md`); about $1k/month at 100×, dominated by model calls | K/A |
+| Budget | Model spend from a $100 grant; infrastructure $5–20/month assumed until the hosting ticket fixes it (ADR 0019); about $1k/month at 100×, dominated by model calls | K/A |
 | Feedback loops | Local check ≤ 2 min, pull-request CI ≤ 5 min, environment reset ≤ 2 min | A |
 | Model cost | About $0.045 per RFI draft and $0.004 per extracted document (token counts estimated, prices from the provider's pricing page) | A |
 

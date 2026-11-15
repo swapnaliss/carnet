@@ -1,6 +1,6 @@
 # Performance
 
-Targets from ADR 0017 and CLAUDE.md: **LCP < 2.5 s, INP < 200 ms, CLS < 0.1** at most, on every screen.
+Targets from ADR 0017 and the product brief: **LCP < 2.5 s, INP < 200 ms, CLS < 0.1** at most, on every screen.
 Several screens have tighter budgets because they are light. Numbers below are budgets, not
 measurements; measured values are recorded per screen by the ticket that builds it.
 

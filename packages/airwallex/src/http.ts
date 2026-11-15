@@ -147,7 +147,7 @@ export interface RequestOptions<T> {
    * A POST without a request_id is never retried.
    */
   retryable: boolean;
-  /** FX endpoints never carry `x-api-version` (CLAUDE.md). */
+  /** FX endpoints never carry `x-api-version` (docs/evidence/airwallex-money-path.md). */
   omitApiVersion?: boolean;
 }
 

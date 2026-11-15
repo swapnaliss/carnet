@@ -1,7 +1,7 @@
 // The Airwallex calls the executors make (M3-03), as a structural port: `packages/db` takes no
 // dependency on `packages/airwallex`, and the real client satisfies it as it is (the worker passes it,
 // tests pass the real client wired to the recorded fixtures). Amounts are domain Money (minor units);
-// FX calls carry no `x-api-version` (the adapter omits it, CLAUDE.md).
+// FX calls carry no `x-api-version` (the adapter omits it, docs/evidence/airwallex-money-path.md).
 import type { Currency, Money, RequestId } from "@carnet/domain";
 
 export interface GatewayBalance {

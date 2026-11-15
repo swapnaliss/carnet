@@ -10,7 +10,7 @@ export const FIXTURES = join(ROOT, "fixtures", "anthropic");
 export const DATASET = join(ROOT, "fixtures", "dataset");
 mkdirSync(FIXTURES, { recursive: true });
 
-// PROJECT.md §4 prices, USD per million tokens. Above 100k prompt tokens the price is 5x (not reached here).
+// Anthropic list prices at build time, USD per million tokens. Above 100k prompt tokens the price is 5x (not reached here).
 export const PRICES = {
   "claude-haiku-5-5": { in: 0.1, out: 0.5 },
   "claude-sonnet-5-5": { in: 2, out: 10 },

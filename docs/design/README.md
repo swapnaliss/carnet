@@ -5,7 +5,7 @@ and is reviewed against them by the independent `ui-reviewer`. Produced by the `
 ticket M1-07 on 4 Nov 2026.
 
 **Tooling note.** The `frontend-design` skill was **not installed** in this environment when M1-07 ran, so
-these decisions apply the `ux-designer` rules (`.claude/agents/ux-designer.md`) on their own: evidence
+these decisions apply the `ux-designer` rules on their own: evidence
 over decoration, status never by colour alone, calm density, honest copy, live not refresh, every state
 designed, every script rendered, WCAG 2.2 AA, no template look.
 

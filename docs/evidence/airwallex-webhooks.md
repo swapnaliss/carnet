@@ -60,5 +60,5 @@ Deliveries are **not** in occurrence order. A transfer is created as `SCHEDULED`
 `receipt - x-timestamp`: 13 to 601 ms, median 50 ms (59 events). `rfi.action_required` arrived about 10 ms after the create call returned. The first request after the placeholder had been idle needed a wake-up request first; a free Render instance sleeps after 15 minutes, which would add about a minute to a first delivery.
 
 ## Open
-- Whether the 5-minute tolerance is what Airwallex intends is not stated in anything observed; it comes from CLAUDE.md. Retries later than a few seconds were not observed.
+- Whether the 5-minute tolerance is what Airwallex intends is not stated in anything observed; it is Carnet's own project rule. Retries later than a few seconds were not observed.
 - Behaviour when the endpoint is down for minutes or hours was not tested.

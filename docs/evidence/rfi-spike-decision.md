@@ -18,7 +18,7 @@
 Also: `follow_up` reopens and appends (repeated title accepted); the one-open rule applies per type and source.
 
 ## Differences from the documented contract and from our project notes
-1. **One open RFI per account (CLAUDE.md, PROJECT.md, `docs/evidence`) is wrong as stated.** The sandbox rejects a second RFI for the same type **and source**; RFIs on other sources, or with none, coexist. Planning that assumes one open RFI per account is stricter than needed, not unsafe. Proposed ADR 0018 amendment: do not rely on a global exclusive account; keep a per-source guard in our own state.
+1. **One open RFI per account (the project's planning notes, `docs/evidence`) is wrong as stated.** The sandbox rejects a second RFI for the same type **and source**; RFIs on other sources, or with none, coexist. Planning that assumes one open RFI per account is stricter than needed, not unsafe. Proposed ADR 0018 amendment: do not rely on a global exclusive account; keep a per-source guard in our own state.
 2. **A true orphan RFI cannot be simulated**: no sources produces a synthetic `DEPOSIT` source. The orphan queue (M2-04) needs a test that injects an RFI whose source we do not know, not an API-created one.
 3. **Limits are not enforced in the sandbox** (20 MB file, text length). Carnet enforces its own caps and must not claim Airwallex limits it has not verified.
 4. Held funds are visible only as the debit at creation, not as a separate held amount.

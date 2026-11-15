@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-// packages/domain imports no framework, SDK or I/O (docs/engineering-standards.md, ADR 0001).
+// packages/domain imports no framework, SDK or I/O (ADR 0001).
 const SRC = fileURLToPath(new URL("../src/", import.meta.url));
 
 function sources(dir: string): string[] {

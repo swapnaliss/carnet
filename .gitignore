@@ -40,3 +40,18 @@ media/*
 .DS_Store
 packages/db/.smoke/
 apps/web/next-env.d.ts
+
+# build workflow: kept locally, untracked for the public tree (M5-CLEANUP; history is not rewritten).
+# [.] keeps these lines out of the citation check, which reads every tracked file.
+.github/plan/
+/PROJECT.md
+/WORKFLOW.md
+/CLAUDE.md
+.claude/
+scripts/waves[.]py
+scripts/bootstrap_github[.]py
+scripts/check-prereqs[.]py
+scripts/check-plan[.]py
+docs/engineering-standards[.]md
+docs/PREREQS[.]md
+docs/budget[.]md
