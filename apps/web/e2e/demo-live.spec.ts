@@ -80,7 +80,9 @@ const keep = (name: string, value: unknown) =>
     join(OUT, "airwallex"),
     `${String(++airwallexSeq).padStart(2, "0")}-${name}.json`,
     JSON.parse(
-      JSON.stringify(value, (k, v) => (/account_id|accountId/.test(k) ? "acct_SCRUBBED" : v)),
+      JSON.stringify(value, (k, v) =>
+        /account_id|accountId/.test(k) ? "acct_SCRUBBED" : typeof v === "bigint" ? v.toString() : v,
+      ),
     ),
   );
 
