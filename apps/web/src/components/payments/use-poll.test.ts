@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { share } from "./use-poll";
+import { POLL_MS, STALE_AFTER_MS, share, staleAfterMs } from "./use-poll";
 
 // Structural sharing for the 3 s poll (M4-07, INP): unchanged parts keep their identity.
 describe("share", () => {
@@ -34,5 +34,17 @@ describe("share", () => {
     expect(share([1, 2], [1])).toEqual([1]);
     expect(share({ a: null }, { a: { x: 1 } })).toEqual({ a: { x: 1 } });
     expect(share<unknown>({ a: [1] }, { a: { 0: 1 } })).toEqual({ a: { 0: 1 } });
+  });
+});
+
+// Found while filming the demo: the evidence page polls every 30 s once nothing is extracting, and
+// showed "may be out of date" at 15 s with every poll succeeding.
+describe("staleAfterMs", () => {
+  it("keeps the 15 s budget for the 3 s poll", () => {
+    expect(staleAfterMs(POLL_MS)).toBe(STALE_AFTER_MS);
+  });
+  it("never flags a 30 s poll as stale before two polls could land", () => {
+    expect(staleAfterMs(30_000)).toBe(60_000);
+    expect(16_000 > staleAfterMs(30_000)).toBe(false);
   });
 });
