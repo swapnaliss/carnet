@@ -70,7 +70,7 @@ The controls, in five lines:
 
 ## Demo
 
-- **Video:** TODO (M5-02 adds the unlisted link, under three minutes).
+- **Video:** [Carnet demo (3:29, YouTube, unlisted)](https://youtu.be/MgKlYqolyVM). Recorded on the Airwallex sandbox with synthetic documents; segments labelled TEST DATA use seeded data on a local copy; AI narration; nothing sped up.
 - **Deployed app:** https://carnet-web.onrender.com (Airwallex sandbox only). **Judge login:** `judge@carnet.example`. The password is in the submission form. It opens a read-only, labelled playback of real recorded runs: the M2 core demo (12 Nov 2026), with its screens, and the M3 full demo (15 Nov 2026) as a timeline. Every screen shows "Recording of a real sandbox run … Nothing here is live", and every write is refused (403).
 - **Hold screen** (from the M2 live run: drafted answers with the cited document snippets):
 
