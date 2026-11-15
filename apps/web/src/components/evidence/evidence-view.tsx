@@ -19,7 +19,7 @@ import { announce } from "@/components/payments/announce";
 import { describeStatus, formatWire } from "@/components/payments/format";
 import { LiveIndicator, StaleBanner } from "@/components/payments/live-status";
 import { StatusBadge } from "@/components/payments/status-badge";
-import { STALE_AFTER_MS, useNow, usePoll } from "@/components/payments/use-poll";
+import { staleAfterMs, useNow, usePoll } from "@/components/payments/use-poll";
 import { Button } from "@/components/ui/button";
 import { fieldClass } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
@@ -851,10 +851,11 @@ export function EvidenceView({
   const now = useNow();
   const tabRefs = useRef<Record<Tab, HTMLButtonElement | null>>({ checks: null, documents: null });
   const pending = data.documents.some((d) => d.extraction === "pending");
+  const pollEveryMs = pending ? 3_000 : 30_000;
   const poll = usePoll<EvidenceCheckDto>(
     `/api/v1/payments/${id}/evidence-check`,
     initial,
-    pending ? 3_000 : 30_000,
+    pollEveryMs,
   );
 
   // The poll is the server's latest answer; take it unless a newer local action already replaced it.
@@ -960,7 +961,7 @@ export function EvidenceView({
     total: rows.length,
     notRun: rows.filter((r) => r.outcome === "not_run").length,
   };
-  const stale = now - poll.lastSuccessAt > STALE_AFTER_MS;
+  const stale = now - poll.lastSuccessAt > staleAfterMs(pollEveryMs);
   const payee = data.payment.counterparty_name ?? t.queue.unnamedPayee;
   const summary =
     data.flag === "strong"

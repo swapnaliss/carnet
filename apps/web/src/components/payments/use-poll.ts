@@ -9,6 +9,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export const POLL_MS = 3_000;
 /** The ticket's freshness budget: a StaleBanner once the last good poll is older than this. */
 export const STALE_AFTER_MS = 15_000;
+
+/**
+ * When a screen counts as stale for a poll that runs every `intervalMs`: the freshness budget, but
+ * never before two polls had the chance to land (a 30 s poll must not look stale at 15 s).
+ */
+export function staleAfterMs(intervalMs: number): number {
+  return Math.max(STALE_AFTER_MS, 2 * intervalMs);
+}
 /** Two failed polls in a row turn the LiveIndicator to "Retrying" (docs/design/components.md). */
 export const RETRYING_AFTER_FAILURES = 2;
 
