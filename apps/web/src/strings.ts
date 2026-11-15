@@ -856,7 +856,7 @@ const en = {
       attachRemove: "Remove {name}",
       attachListLabel: "Documents in Carnet",
       upload: "Upload a document",
-      uploadHint: "To add a new document, upload it on the documents page first.",
+      uploadHint: "To add a new document, upload it on the payment's evidence page first.",
     },
     approval: {
       cta: "Approve and submit",
