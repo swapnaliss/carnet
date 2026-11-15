@@ -168,7 +168,10 @@ async function resolveRoutes(browser: import("@playwright/test").Browser, base: 
   };
   await context.close();
   const items = body.items ?? [];
-  const rfi = items.find((i) => i.state === "DRAFT_READY") ?? items[0];
+  const rfi =
+    items.find((i) => i.state === "DRAFT_READY" && i.payment_id) ??
+    items.find((i) => i.state === "DRAFT_READY") ??
+    items[0];
   if (!rfi) throw new Error("no RFI to open: seed the database first");
   const paymentId = rfi.payment_id ?? rfi.payment?.id ?? null;
   const routes: { name: string; path: string; interact: boolean }[] = [

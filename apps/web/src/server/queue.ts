@@ -36,8 +36,13 @@ export async function loadQueue(repo: RepoCtx, now = new Date()): Promise<QueueR
   const list = await loadPaymentList(repo, now);
   const holding = await listRfis(repo, { states: [...RFI_HOLDING_STATES], orphan: false });
   const items: QueueItemDto[] = [];
-  for (const base of list.items) {
-    const loaded = await loadEvidenceCheck(repo, base.id as PaymentId, now);
+  // One evidence check per payment, issued together rather than one after another: the page's server
+  // time (and so its LCP) no longer grows with a serial round trip per payment (M4-07). Order is kept.
+  const checks = await Promise.all(
+    list.items.map((base) => loadEvidenceCheck(repo, base.id as PaymentId, now)),
+  );
+  for (const [i, base] of list.items.entries()) {
+    const loaded = checks[i];
     if (!loaded) continue;
     const rfi = holding.find((r) => r.paymentId === base.id) ?? null;
     const status = base.transfer_status as Parameters<typeof project>[0] | null;
