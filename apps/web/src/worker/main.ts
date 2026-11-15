@@ -7,7 +7,7 @@ import { startWorker, stopSignalFromProcess } from "./run";
 
 const logger = createLogger({ process: "worker" });
 
-startWorker({ signal: stopSignalFromProcess(logger), logger }).then(
+startWorker({ signal: stopSignalFromProcess(logger), logger, planInputs: "production" }).then(
   () => {
     logger.info({ code: 0 }, "worker exited");
     process.exit(0);

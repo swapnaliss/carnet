@@ -33,7 +33,6 @@ const NO_WRAPPER = new Set([
   "beneficiary-schema-us-usd-local",
   "beneficiary-validate-bad", // POST /beneficiaries/validate
   "beneficiary-validate-us-local",
-  "fx-current-rate", // GET /fx/rates/current
   "fx-conversion-list", // GET /fx/conversions
   "global-accounts-list", // GET /global_accounts
   "simulation-deposit-fetch", // GET /global_accounts/{id}/transactions
@@ -132,6 +131,15 @@ function route(f: Fixture): Invoke | undefined {
     };
   if (f.method === "GET" && /^\/api\/v1\/fx\/conversions\/[^/]+$/.test(p))
     return (s) => makeClient(s).getConversion(seg(f, 5));
+  if (k === "GET /api/v1/fx/rates/current") {
+    const q = pathOf(f).searchParams;
+    return (s) =>
+      makeClient(s).getCurrentRate({
+        buyCurrency: q.get("buy_currency") as Currency,
+        sellCurrency: q.get("sell_currency") as Currency,
+        sellAmount: parseMajor(q.get("sell_amount") ?? "", q.get("sell_currency") as Currency),
+      });
+  }
   if (k === "GET /api/v1/rfis") {
     const q = pathOf(f).searchParams;
     return (s) =>

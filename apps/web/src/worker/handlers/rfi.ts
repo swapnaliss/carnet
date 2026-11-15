@@ -13,6 +13,7 @@ import {
   attributeRfi,
   classifyFollowUp,
   enqueueJob,
+  enqueuePlanRerun,
   findOpenRfiBySourceKey,
   getRfiByAirwallexIdForUpdate,
   insertRfi,
@@ -36,6 +37,7 @@ import {
   RFI_TERMINAL_STATES,
   type RfiMatch,
   type RfiSnapshot,
+  rfiHolds,
   rfiSourceKey,
 } from "@carnet/domain";
 import {
@@ -373,6 +375,17 @@ export async function ingestRfi(
         await enqueueJob(tx, { kind: RFI_DRAFT_JOB_KIND, payload });
       }
       from = step.to;
+    }
+    // The planner's `held` input depends on which payment an RFI holds and whether it still does:
+    // re-plan when either changed (an RFI never changes the payment's money status, ADR 0006).
+    const holdsBefore = stored !== null && stored.paymentId !== null && rfiHolds(stored.state);
+    const holdsNow = row.paymentId !== null && rfiHolds(finalState);
+    if (holdsBefore !== holdsNow || (holdsNow && stored?.paymentId !== row.paymentId)) {
+      await enqueuePlanRerun(tx, {
+        businessId,
+        eventId: `rfi:${row.id}:${finalState}`,
+        cause: "rfi.holding_changed",
+      });
     }
     ctx.logger.info(
       {

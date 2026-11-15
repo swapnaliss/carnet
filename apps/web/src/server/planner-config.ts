@@ -19,6 +19,7 @@ import {
   parseMajor,
 } from "@carnet/domain";
 import { z } from "zod";
+import feesFile from "../../../../config/fees.json";
 
 const FeesFileSchema = z.object({
   heldFundsVisibleInBalances: z.boolean(),
@@ -43,6 +44,13 @@ export const DEFAULT_FEES_PATH = resolve(
   "../../../../config/fees.json",
 );
 
-export function loadPlannerConfig(path: string = DEFAULT_FEES_PATH): PlannerConfig {
-  return plannerConfigFromJson(JSON.parse(readFileSync(path, "utf8")));
+/**
+ * With no path, config/fees.json as it was at build time: the bundler inlines the file, so the deployed
+ * worker needs no file next to it (the image carries no `config/`; reading it by path failed there).
+ * With a path, that file (tests).
+ */
+export function loadPlannerConfig(path?: string): PlannerConfig {
+  return plannerConfigFromJson(
+    path === undefined ? feesFile : JSON.parse(readFileSync(path, "utf8")),
+  );
 }

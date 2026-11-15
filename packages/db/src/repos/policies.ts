@@ -12,6 +12,7 @@ import { and, desc, eq, sql } from "drizzle-orm";
 import { translateDbError } from "../errors";
 import { autoApprovals, fxQuoteUses, policies } from "../schema/index";
 import { currencyFromDb, type RepoCtx } from "./context";
+import { enqueuePlanRerun } from "./outbox";
 
 type PolicyRow = typeof policies.$inferSelect;
 
@@ -70,6 +71,12 @@ export async function createPolicyVersion(
   } catch (error) {
     throw translateDbError(error);
   }
+  // The policy (its reserve floor and auto-convert limits) is a planner input: re-plan in this transaction.
+  await enqueuePlanRerun(ctx.db, {
+    businessId: ctx.businessId,
+    eventId: `policy:${policy.version}`,
+    cause: "policy.changed",
+  });
   return policy;
 }
 
