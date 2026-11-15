@@ -72,12 +72,18 @@ jobs:
         run: |
           npm run db:migrate -w packages/db
           npx tsx packages/db/src/seed/run.ts
-          # Judge replay (M4-05): load the recordings under fixtures/replay/ (offline, no network).
-          npm run demo:reset -- --yes
-      - name: playwright (axe, web vitals, CSP, /ops roles, core demo replay)
+      - name: playwright (web vitals, CSP, /ops roles, core demo replay, viewer read-only)
         run: npx playwright test
         env:
           # core-demo.replay.spec.ts runs only with this (recorded model responses, no network).
+          E2E_MODE: replay
+          # Before any recording is loaded: the judge reads the live demo business (playwright.config.ts).
+          E2E_PHASE: before-replay
+      - name: judge replay recordings (demo:reset, offline from fixtures/replay/)
+        run: npm run demo:reset -- --yes
+      - name: playwright (judge replay, axe, ops audit)
+        run: npx playwright test apps/web/e2e/replay.spec.ts apps/web/e2e/ops-audit.spec.ts apps/web/e2e/a11y/axe.spec.ts
+        env:
           E2E_MODE: replay
       - name: landing checks
         run: ./scripts/landing-checks.sh
