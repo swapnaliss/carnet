@@ -146,6 +146,10 @@ export async function executePayout<T extends GatewayTransfer>(
   if (!approval || approval.kind !== "payout") return { outcome: "refused", reason: "NOT_FOUND" };
   const paymentId = approval.subjectRef;
 
+  // An alternate payout pays a HELD payment's obligation another way (ADR 0021 rule 3): that payment
+  // already has its transfer, so "already sent" is expected, and the new transfer never replaces the
+  // held one on the payment (the held transfer keeps its own status, ADR 0006).
+  let alternate = false;
   if (input.actionId !== undefined) {
     const stored = await getStoredAction(rc, input.actionId);
     if (!stored) return { outcome: "refused", reason: "NO_ACTION" };
@@ -153,6 +157,10 @@ export async function executePayout<T extends GatewayTransfer>(
       await endApproval(rc, approval.id, "REJECTED", "SUPERSEDED");
       return { outcome: "refused", reason: "SUPERSEDED" };
     }
+    alternate =
+      stored.action.kind === "payout" &&
+      stored.action.reason_code === "PAYOUT_ALTERNATE_FOR_HELD" &&
+      stored.action.params.held_payment_id === paymentId;
   }
 
   const consumed = await consumeApproval(rc, {
@@ -214,7 +222,9 @@ export async function executePayout<T extends GatewayTransfer>(
     nonce: approval.nonce,
   });
   if (typeof live === "string") return refuse(live);
-  if (live.alreadySentAs !== null) return refuse("ALREADY_SENT");
+  // A plain payout must not send twice; an alternate payout is only for a payment already in flight.
+  if (!alternate && live.alreadySentAs !== null) return refuse("ALREADY_SENT");
+  if (alternate && live.alreadySentAs === null) return refuse("NOT_IN_FLIGHT");
   if (approvalHash(live.subject as AnySubject) !== approval.hash) return refuse("HASH_MISMATCH");
 
   const balances = await deps.gateway.getBalances();
@@ -227,6 +237,7 @@ export async function executePayout<T extends GatewayTransfer>(
     paymentId,
     reference: live.subject.reference,
     feeOption: live.subject.feeOption,
+    alternate,
     ...(input.actionId === undefined ? {} : { actionId: input.actionId }),
   });
 }
@@ -240,6 +251,8 @@ async function sendTransfer<T extends GatewayTransfer>(
     paymentId: string;
     reference: string;
     feeOption: string;
+    /** An alternate payout: the transfer is not applied to the held payment. */
+    alternate: boolean;
     actionId?: string;
   },
 ): Promise<PayoutOutcome<T>> {
@@ -331,9 +344,14 @@ async function sendTransfer<T extends GatewayTransfer>(
       actorType: "system",
       action: "payout.confirmed",
       subject: args.paymentId,
-      data: { attemptId, transferId: transfer.id, status: transfer.status },
+      data: {
+        attemptId,
+        transferId: transfer.id,
+        status: transfer.status,
+        ...(args.alternate ? { alternateFor: args.paymentId } : {}),
+      },
     });
-    if (deps.onTransfer) await deps.onTransfer(transfer);
+    if (deps.onTransfer && !args.alternate) await deps.onTransfer(transfer);
     return { outcome: "confirmed", attemptId, transfer };
   } catch (error) {
     await releaseAttempt(rc, attemptId).catch(() => undefined);
