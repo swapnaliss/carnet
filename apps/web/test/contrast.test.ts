@@ -41,7 +41,8 @@ describe("design token contrast (WCAG 2.2 AA)", () => {
         const base = name.slice(0, -"-foreground".length);
         if (tokens.has(base)) expected.push(`${name} on ${base}`);
       }
-      if (/^--status-[a-z]+-fg$/.test(name)) expected.push(`${name} on ${name.replace(/-fg$/, "-bg")}`);
+      if (/^--status-[a-z]+-fg$/.test(name))
+        expected.push(`${name} on ${name.replace(/-fg$/, "-bg")}`);
     }
     expected.push("--foreground on --background");
     expect(expected.filter((e) => !listed.has(e))).toEqual([]);

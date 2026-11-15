@@ -2,8 +2,8 @@ import { expect, type Page, test } from "@playwright/test";
 import {
   focusIndicatorProblem,
   hasStack,
-  SKIP_REASON,
   type SeededRfi,
+  SKIP_REASON,
   seedHoldWorld,
   signIn,
   tabUntil,
@@ -90,7 +90,8 @@ test("keyboard only: queue -> RFI -> questions -> citation -> edit -> approve an
   expect(count).toBeGreaterThan(1);
   await tabUntil(
     page,
-    async () => page.evaluate(() => !!document.activeElement?.closest("[data-testid=question-nav]")),
+    async () =>
+      page.evaluate(() => !!document.activeElement?.closest("[data-testid=question-nav]")),
     "the question navigator",
     { onStop: check },
   );
@@ -98,7 +99,9 @@ test("keyboard only: queue -> RFI -> questions -> citation -> edit -> approve an
     await page.keyboard.press("ArrowDown");
     await check();
     await page.keyboard.press("Enter");
-    await expect(page.getByTestId("question").nth(i).getByRole("heading", { level: 3 })).toBeFocused();
+    await expect(
+      page.getByTestId("question").nth(i).getByRole("heading", { level: 3 }),
+    ).toBeFocused();
     await check();
     await tabUntil(
       page,
@@ -124,10 +127,15 @@ test("keyboard only: queue -> RFI -> questions -> citation -> edit -> approve an
   await page.keyboard.press("Enter");
   const box = page.getByRole("textbox", { name: "Answer text" });
   await expect(box).toBeVisible();
-  await tabUntil(page, async () => box.evaluate((el) => el === document.activeElement), "the draft", {
-    max: 10,
-    onStop: check,
-  });
+  await tabUntil(
+    page,
+    async () => box.evaluate((el) => el === document.activeElement),
+    "the draft",
+    {
+      max: 10,
+      onStop: check,
+    },
+  );
   await page.keyboard.press("End");
   await page.keyboard.press("Space");
   await page.keyboard.press("Backspace");

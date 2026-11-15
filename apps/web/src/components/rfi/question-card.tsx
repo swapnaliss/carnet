@@ -191,11 +191,7 @@ function QuestionCardImpl({
     >
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <h3
-            id={titleId}
-            tabIndex={-1}
-            className="text-lg leading-tight font-semibold"
-          >
+          <h3 id={titleId} tabIndex={-1} className="text-lg leading-tight font-semibold">
             {fill(t.hold.question.position, {
               position,
               total,

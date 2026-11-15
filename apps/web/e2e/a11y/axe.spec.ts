@@ -5,8 +5,8 @@ import {
   AXE_DIR,
   expectNoAxeViolations,
   hasStack,
-  SKIP_REASON,
   type SeededRfi,
+  SKIP_REASON,
   seedHold,
   seedHoldWorld,
   seedPlan,
@@ -36,7 +36,15 @@ const hold = async (page: Page, ctx: Ctx, name: string) => {
 };
 
 const CASES: Case[] = [
-  { route: "/", state: "home", role: null, run: async (p) => { await p.goto("/"); await ready(p); } },
+  {
+    route: "/",
+    state: "home",
+    role: null,
+    run: async (p) => {
+      await p.goto("/");
+      await ready(p);
+    },
+  },
   {
     route: "/login",
     state: "login",
@@ -59,7 +67,11 @@ const CASES: Case[] = [
     state: "queue loading",
     run: async (p) => {
       await p.goto("/queue/preview-loading", { waitUntil: "commit" });
-      await expect(p.locator("main [aria-busy='true'], main [data-testid$='skeleton'], main [role='status']").first()).toBeAttached();
+      await expect(
+        p
+          .locator("main [aria-busy='true'], main [data-testid$='skeleton'], main [role='status']")
+          .first(),
+      ).toBeAttached();
     },
   },
   {
@@ -98,8 +110,14 @@ const CASES: Case[] = [
     route: "/payments/[id]/evidence/preview-loading",
     state: "evidence loading",
     run: async (p, c) => {
-      await p.goto(`/payments/${c.rfis["draft-ready"]?.paymentId}/evidence/preview-loading`, { waitUntil: "commit" });
-      await expect(p.locator("main [aria-busy='true'], main [data-testid$='skeleton'], main [role='status']").first()).toBeAttached();
+      await p.goto(`/payments/${c.rfis["draft-ready"]?.paymentId}/evidence/preview-loading`, {
+        waitUntil: "commit",
+      });
+      await expect(
+        p
+          .locator("main [aria-busy='true'], main [data-testid$='skeleton'], main [role='status']")
+          .first(),
+      ).toBeAttached();
     },
   },
   {
@@ -275,7 +293,11 @@ const CASES: Case[] = [
     state: "plan loading",
     run: async (p) => {
       await p.goto("/plans/loading-preview", { waitUntil: "commit" });
-      await expect(p.locator("main [aria-busy='true'], main [data-testid$='skeleton'], main [role='status']").first()).toBeAttached();
+      await expect(
+        p
+          .locator("main [aria-busy='true'], main [data-testid$='skeleton'], main [role='status']")
+          .first(),
+      ).toBeAttached();
     },
   },
   {

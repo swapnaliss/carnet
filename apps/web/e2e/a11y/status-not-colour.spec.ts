@@ -1,5 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
-import { hasStack, SKIP_REASON, type SeededRfi, seedHoldWorld, signIn } from "./support";
+import { hasStack, type SeededRfi, SKIP_REASON, seedHoldWorld, signIn } from "./support";
 
 // WCAG 1.4.1 (M4-07 Scope 4): status is never conveyed by colour alone. Every status component on the
 // queue and the hold screen (StatusBadge, EvidenceStrength, the Held badge, the hold-screen badges)
@@ -29,7 +29,10 @@ test("queue: every status, evidence and held badge has a text label and an icon"
   await page.goto("/queue");
   await expect(page.getByTestId("queue-table")).toBeVisible();
   const table = page.getByTestId("queue-table");
-  const found = await badges(page, "[data-testid=queue-table] [data-status], [data-testid=queue-table] [data-flag]");
+  const found = await badges(
+    page,
+    "[data-testid=queue-table] [data-status], [data-testid=queue-table] [data-flag]",
+  );
   expect(found.length).toBeGreaterThan(3);
   for (const b of found) {
     expect(b.text, b.html).not.toBe("");

@@ -105,11 +105,7 @@ export function ApproveDialog({
         <div className="flex max-h-[90dvh] flex-col" data-testid="approve-dialog">
           <div className="flex flex-col gap-4 overflow-y-auto p-4 md:p-6">
             <div className="flex flex-col gap-1">
-              <h2
-                id={titleId}
-                tabIndex={-1}
-                className="text-xl leading-tight font-semibold"
-              >
+              <h2 id={titleId} tabIndex={-1} className="text-xl leading-tight font-semibold">
                 {t.hold.dialog.title}
               </h2>
               <p className="text-sm text-muted-foreground">{t.hold.dialog.body}</p>

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { hasStack, SKIP_REASON, type SeededRfi, seedHold, seedHoldWorld, signIn } from "./support";
+import { hasStack, type SeededRfi, SKIP_REASON, seedHold, seedHoldWorld, signIn } from "./support";
 
 // Focus management (M4-07 Scope 3): dialogs return focus to their trigger, a confirmed approval moves
 // focus to the status message, a 3 s poll update never moves focus and is announced through the shell's

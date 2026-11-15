@@ -14,7 +14,8 @@ export const passwords = {
 };
 export const databaseUrl = process.env.DATABASE_URL;
 export const hasStack = Boolean(passwords.owner && passwords.judge && databaseUrl);
-export const SKIP_REASON = "DATABASE_URL and SEED_*_PASSWORD are not set; the a11y suite is skipped.";
+export const SKIP_REASON =
+  "DATABASE_URL and SEED_*_PASSWORD are not set; the a11y suite is skipped.";
 
 /** WCAG 2.0, 2.1 and 2.2 at levels A and AA. */
 export const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22a", "wcag22aa"];
@@ -25,8 +26,7 @@ export const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22a", "wca
  */
 export const EXCLUDED_RULES: ReadonlyArray<{ id: string; why: string }> = [];
 
-export const AXE_DIR =
-  process.env.A11Y_AXE_DIR ?? join(process.env.TMPDIR ?? "/tmp", "m4-07-axe");
+export const AXE_DIR = process.env.A11Y_AXE_DIR ?? join(process.env.TMPDIR ?? "/tmp", "m4-07-axe");
 mkdirSync(AXE_DIR, { recursive: true });
 
 export async function signIn(page: Page, role: "owner" | "judge" = "owner"): Promise<void> {
@@ -192,11 +192,11 @@ export async function focusIndicatorProblem(page: Page): Promise<string | null> 
     };
   });
   if (!info) return "nothing is focused";
-  if (!info.color || info.width < 2) return `${info.tag}: no >= 2px focus indicator (${info.detail})`;
+  if (!info.color || info.width < 2)
+    return `${info.tag}: no >= 2px focus indicator (${info.detail})`;
   const css = (c: number[]) => `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
   const ratio = contrastOf(css(info.color), css(info.bg));
   if (ratio < 3)
     return `${info.tag}: focus indicator ${css(info.color)} on ${css(info.bg)} is ${ratio.toFixed(2)}:1`;
   return null;
 }
-
