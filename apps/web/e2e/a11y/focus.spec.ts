@@ -41,8 +41,12 @@ test("the approve dialog takes focus on its title and returns it to the trigger 
 test("after a confirmed approval, focus is on the approval status message", async ({ page }) => {
   await signIn(page);
   await page.goto(`/rfis/${rfis.approve?.id}`);
-  await page.getByTestId("approve-button").focus();
-  await page.keyboard.press("Enter");
+  // A key press before hydration finishes does nothing; retry until the page is interactive.
+  await expect(async () => {
+    await page.getByTestId("approve-button").focus();
+    await page.keyboard.press("Enter");
+    await expect(page.getByTestId("approve-dialog")).toBeVisible({ timeout: 1_000 });
+  }).toPass({ timeout: 10_000 });
   await page
     .getByTestId("approve-dialog")
     .getByRole("button", { name: /Approve and submit \d+ answers/ })

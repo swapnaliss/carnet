@@ -37,7 +37,15 @@ The route list is checked against the App Router tree by `apps/web/e2e/a11y/rout
 | `/status/[token]` | payee status (no cookies); link not available |
 | not-found, forbidden | unknown path; viewer on `/ops` (403) |
 
-**Not covered: the judge replay mode and its banner.** M4-05 is still being built and has added no route yet. When it lands, `route-table.spec.ts` fails for any new `page.tsx` until an axe case is added. A replay banner rendered inside existing routes needs its own state in `axe.spec.ts`, which is a follow-up.
+**Judge replay mode (M4-05), follow-up run on 2026-11-15:** M4-05 added `/replay` and `/replay/payee`, and `route-table.spec.ts` failed on both until they had cases. There are 6 new states, each run in light and dark:
+- `/replay` with the recording banner (judge)
+- `/replay` with the LIVE indicator (owner)
+- `/replay` after stepping the timeline to step 3 (judge)
+- `/replay/payee`, the payee view of the recording (judge)
+- `/queue` in a replay session, with the banner in context (judge)
+- the hold screen in a replay session (judge)
+
+The database was prepared with `npm run demo:reset -- --yes` (fixtures/replay/m2) plus the e2e seeds. **Result: 84 of 84 axe checks passed (42 states × light and dark) with 0 violations.** No fixes were needed. The whole `apps/web/e2e/a11y` directory now passes 101 tests: 84 axe, 2 route-table, 2 status-not-colour, 10 focus, 2 keyboard and 1 lazy-load.
 
 ## 2. Keyboard-only path through the hold screen
 
@@ -200,6 +208,45 @@ Earlier local runs on the same day (kept for honesty):
 | `/payments/[id]/evidence` | desktop | warm | 5 | 96 | 0 |  |
 
 
+### Follow-up run (2026-11-15, after M4-05 merged): hydration JavaScript trimmed
+
+What changed:
+- The approve dialog was already wrapped in `next/dynamic`, but the hold screen imported `makeSnapshot` from `approve-dialog.tsx`, so the dialog stayed in the first-load bundle. The snapshot now lives in `approve-snapshot.ts`, so the dialog really loads on first use.
+- The answer editor (`edit-answer.tsx`) now loads with `next/dynamic` when it is first opened.
+- `apps/web/e2e/a11y/hold-lazy.spec.ts` proves that neither module is in the hold screen's first-load scripts, that each arrives when it is first opened, and that both still work by keyboard.
+
+How it was measured: `scripts/cwv.ts --runs 5 --assert` on a fresh local database (demo reset plus the e2e seeds), local production build, the same machine, nothing else running. This database is smaller than the one behind the run above, so the two runs are not like-for-like. A baseline at `origin/main` **without** this change was measured on the same database, so the before and after below are comparable.
+
+| Hold screen, mobile | Baseline: `origin/main` a3cdd2b, same DB | With the lazy dialog and editor |
+|---|---|---|
+| INP cold, median (worst) | 72 ms (80) | 48 ms (64) |
+| INP warm, median (worst) | 96 ms (112) | 88 ms (104) |
+| LCP cold, median (worst) | 880 ms (936) | 904 ms (916) |
+| LCP warm, median (worst) | 748 ms (780) | 732 ms (816) |
+
+**Result with the change: 16 of 16 groups are within budget, and `--assert` exited 0.** The full table is below. The baseline also passed 16 of 16 on this database. So the earlier miss (median 256 ms cold and 576 ms warm) was **not reproduced** on today's `main` with a fresh database, even without this change. The run above used a larger database (several seed rounds) and a different RFI, and that is the likely difference. This was not isolated further. The lazy loading lowers mobile INP a little (median 72 → 48 ms cold, 96 → 88 ms warm), and the earlier probe saw a first tap before hydration drop from 192 ms to 88–104 ms.
+
+| Route | Profile | Cache | LCP median (worst) | CLS median (worst) | INP median (worst) | Within budget |
+|---|---|---|---|---|---|---|
+| `/queue` | mobile | cold | 884 ms (912) | 0 (0) | n/a (no scripted interaction) | yes |
+| `/queue` | mobile | warm | 648 ms (676) | 0 (0) | n/a (no scripted interaction) | yes |
+| `/queue` | desktop | cold | 276 ms (348) | 0 (0) | n/a (no scripted interaction) | yes |
+| `/queue` | desktop | warm | 580 ms (616) | 0 (0) | n/a (no scripted interaction) | yes |
+| `/rfis/[id] (hold screen)` | mobile | cold | 904 ms (916) | 0 (0) | 48 ms (64) | yes |
+| `/rfis/[id] (hold screen)` | mobile | warm | 732 ms (816) | 0 (0) | 88 ms (104) | yes |
+| `/rfis/[id] (hold screen)` | desktop | cold | 276 ms (308) | 0 (0) | 48 ms (72) | yes |
+| `/rfis/[id] (hold screen)` | desktop | warm | 248 ms (456) | 0 (0) | 48 ms (56) | yes |
+| `/plans/current` | mobile | cold | 900 ms (912) | 0 (0) | n/a (no scripted interaction) | yes |
+| `/plans/current` | mobile | warm | 680 ms (704) | 0 (0) | n/a (no scripted interaction) | yes |
+| `/plans/current` | desktop | cold | 284 ms (336) | 0 (0) | n/a (no scripted interaction) | yes |
+| `/plans/current` | desktop | warm | 460 ms (484) | 0 (0) | n/a (no scripted interaction) | yes |
+| `/payments/[id]/evidence` | mobile | cold | 816 ms (832) | 0 (0) | n/a (no scripted interaction) | yes |
+| `/payments/[id]/evidence` | mobile | warm | 684 ms (692) | 0 (0) | n/a (no scripted interaction) | yes |
+| `/payments/[id]/evidence` | desktop | cold | 240 ms (324) | 0 (0) | n/a (no scripted interaction) | yes |
+| `/payments/[id]/evidence` | desktop | warm | 92 ms (436) | 0 (0) | n/a (no scripted interaction) | yes |
+
+These are still local numbers. The hosted run is still owed before the gate.
+
 ## 6. Fixes made in this ticket (each has a test)
 
 | Fix | File | Test |
@@ -216,7 +263,7 @@ Earlier local runs on the same day (kept for honesty):
 
 - Only automated checks and a scripted keyboard walk were run. There was no manual screen-reader pass (NVDA, VoiceOver); that is out of scope for this ticket.
 - CWV was measured on a local production build, not the hosted app. The hosted run (`npx tsx scripts/cwv.ts --url "$DEPLOY_URL" --runs 5 --assert`) is still owed before the gate.
-- Judge replay mode (M4-05) is not covered yet; see section 1.
-- **The mobile hold screen misses the INP budget** (section 5): the gate fails on this item until it is fixed. BL-01 comment 6891327363.
+- Judge replay mode (M4-05) is covered since the follow-up run (section 1).
+- **Mobile hold-screen INP:** it missed the budget in the first run (256 ms cold, 576 ms warm). In the follow-up run it is within budget on a fresh database, both before (72 ms cold, 96 ms warm) and after (48 ms cold, 88 ms warm) the lazy-loading change. The earlier miss was not reproduced, and the hosted run is still owed (section 5). BL-01 comment 6891327363.
 - Hold-screen polish from the ui-reviewer (identical citation chips, the "Edited by you" tone, spec drift, the nav-rail label edges at 768, the dialog footer at 375, focus-ring spacing): BL-01 comment 6891157470.
 - Seed answers that do not match the seeded payment header: BL-01 comment 6891157727.
