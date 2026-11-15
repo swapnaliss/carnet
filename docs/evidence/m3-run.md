@@ -16,6 +16,10 @@
 6. Fill this file; commit it with `docs/evidence/m3/*.png` and `fixtures/replay/m3/`.
 7. Repeat from step 1 after a failure; fix the cause in the owning code, not in the spec.
 
+## Repeatability
+
+The demo business keeps every earlier run (reset is add-only). The weak flag therefore comes from an amount mismatch, not from "first payment, no contract" (which only applies when there are no earlier payments to the payee; found in the first live attempt). Obligations of earlier runs are still owed and appear in the plan: the spec records `obligations_from_earlier_runs` in step 1; state it here: TBD.
+
 ## Run facts
 
 | Field | Value |
@@ -31,7 +35,7 @@
 | # | Step | Time (UTC) | Result and ids |
 |---|---|---|---|
 | 1 | Goal (payroll and two suppliers by Friday), obligations, criticality confirmed by the owner, plan revision 1 | TBD | obligation ids, confirmed criticality and proposal id, the plan for the goal (funds the obligations): revision and `inputs_hash` TBD |
-| 2 | Evidence flags in the queue, one not strong | TBD | flags TBD |
+| 2 | Evidence flags in the queue, one not strong | TBD | flags TBD. The Lakeside payment (USD 1,250.00) is weak because its amount differs from the invoice (USD 1,320.50), so it does not depend on history |
 | 3 | Two payments cleared, sent as real sandbox transfers | TBD | transfer ids TBD; the sends create their own revision (the obligations leave the plan): revision, `inputs_hash`, action kinds (expected none) TBD |
 | 4 | Hold: Transaction RFI on the sent transfer, webhook verified, payment held, re-plan | TBD | RFI Airwallex id TBD, Carnet id TBD; webhook `rfi.action_required` received TBD; plan after the hold: revision, `inputs_hash`, trigger `held`, payout action with reason `PAYOUT_ALTERNATE_FOR_HELD` TBD |
 | 5 | Cited drafts, source snippets, one bound approval, submit | TBD | draft id, approval id and hash TBD, attempt `request_id` TBD |
