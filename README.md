@@ -151,11 +151,14 @@ None of this is built:
 ```bash
 git clone <this repo> carnet && cd carnet
 npm ci
+cp .env.example .env                      # optional; fill it in first (step 2) for the live flow
 make up                                   # builds the image; starts postgres, web (port 3000) and worker; waits for health
 npm run db:migrate -w packages/db         # applies migrations as the local carnet_migrator role
 ```
 
 A fresh Postgres volume creates the two local roles (`carnet_migrator` and `carnet_app`, from `packages/db/sql/roles.sql`) automatically. `make reset` drops the volume and migrates again. `make down` stops everything.
+
+**What the containers read.** `docker-compose.yml` loads `.env` into the `web` and `worker` containers when the file exists (`env_file` with `required: false`); without it the stack still starts. Three values are fixed by compose and win over `.env`: `DATABASE_URL` (the compose Postgres as `carnet_app`), `PROCESS_MODE` (`web` or `worker`) and `NODE_ENV=production`. For a local run keep `APP_BASE_URL` and `BETTER_AUTH_URL` at `http://localhost:3000` and set `BETTER_AUTH_SECRET`. After editing `.env`, run `make up` again so the containers pick it up. Without `AIRWALLEX_CLIENT_ID` and `AIRWALLEX_API_KEY` the worker starts in degraded mode: it stays up and logs that it is not processing jobs. With them, the machine running Docker must be on the Airwallex key's IP allowlist (step 2).
 
 Next, seed the demo business and the three demo users (owner, approver, judge). Choose your own passwords, each at least 8 characters:
 
@@ -167,11 +170,9 @@ npx tsx scripts/setup.ts
 
 Then open http://localhost:3000 and sign in as `owner@carnet.example` with `SEED_OWNER_PASSWORD`.
 
-**Local limitation:** `docker-compose.yml` passes only `PROCESS_MODE` and `DATABASE_URL` to the containers. Without `AIRWALLEX_CLIENT_ID` and `AIRWALLEX_API_KEY`, the worker starts in degraded mode: it stays up and logs that it is not processing jobs. The full live flow below therefore runs on the hosted deployment.
-
 ### 2. Keys and environment (names only; values never go in the repo)
 
-Copy [`.env.example`](.env.example) to `.env` and fill it in. The keys the core flow needs:
+Copy [`.env.example`](.env.example) to `.env` and fill it in (`.env` is gitignored; the local containers load it, see step 1). The keys the core flow needs:
 - **Airwallex sandbox:** `AIRWALLEX_CLIENT_ID`, `AIRWALLEX_API_KEY`, `AIRWALLEX_BASE_URL`, `AIRWALLEX_FILES_URL`, `AIRWALLEX_WEBHOOK_SECRET`. Create a sandbox account and an API key in the Airwallex web app. Use **sandbox keys only**. The key has an IP allowlist: every machine or host that logs in must be on it, or login returns an HTML 403 ([`docs/deployment.md`](docs/deployment.md)).
 - **Anthropic:** `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL_EXTRACT`, `ANTHROPIC_MODEL_DRAFT`. The recorded runs used Claude Haiku 5.5 for extraction and Sonnet 5.5 for drafting.
 - **Database:** `DATABASE_URL` (app role), `DATABASE_MIGRATION_URL` (migration role), `TEST_DATABASE_URL`
