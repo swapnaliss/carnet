@@ -47,7 +47,13 @@ const LAKESIDE = "6b297011-01a1-51c9-8df5-9ab5bfb73049";
 /** The weak payment pays USD 1,250.00 against an invoice of USD 1,320.50: the amounts do not match. */
 const WEAK_AMOUNT = "1250.00";
 const WEAK_AMOUNT_MINOR = "125000";
-const ALTSTADT = "18dfa35f-d0eb-58c9-b90b-15143f9024e0";
+/**
+ * The SGD payroll payee (M3-07 owner decision, issue #40): the sandbox holds no SGD, so payroll in SGD is
+ * a real shortfall the planner covers with a conversion. The demo only funds payroll, it never pays it.
+ */
+const LIONCITY = "411e7182-55c6-5efc-a891-2b08f8382c06";
+/** SGD 1,500.00: well under the policy's USD 5,000.00 per-action limit at any plausible USD/SGD rate. */
+const PAYROLL_SGD_MINOR = "150000";
 
 interface Step {
   step: number;
@@ -89,6 +95,9 @@ let questionIds: { title: string; id: string }[] = [];
 let client: ReturnType<typeof createAirwallexClient>;
 let planAfterGoal: PlanBlock | null = null;
 let planAfterSend: PlanBlock | null = null;
+let revisionAtStart = 0;
+let heldPlan: PlanBlock | null = null;
+let payoutActionId = "";
 let payeeLinks: { urls: Record<string, string>; held: Record<string, string> } | null = null;
 
 test.beforeAll(async ({ browser }) => {
@@ -127,11 +136,27 @@ interface PlanBlock {
     state: string;
     approvable: boolean;
     bound: Record<string, string> | null;
+    needs_approval: boolean;
+    params: Record<string, unknown>;
     auto: { policy_version: number; policy_hash: string } | null;
   }[];
+  policy_version: number;
+  policy_hash: string;
 }
 const currentPlan = async (): Promise<PlanBlock | null> =>
   (await api.call<{ plan: PlanBlock | null }>("GET", "/api/v1/plans/current")).body.plan;
+const planAt = async (revision: number): Promise<PlanBlock | null> =>
+  (await api.call<{ plan: PlanBlock | null }>("GET", `/api/v1/plans/${revision}`)).body.plan;
+/** Every revision written during this run, oldest first. */
+async function runRevisions(): Promise<PlanBlock[]> {
+  const latest = (await currentPlan())?.revision ?? 0;
+  const out: PlanBlock[] = [];
+  for (let r = revisionAtStart + 1; r <= latest; r++) {
+    const p = await planAt(r);
+    if (p) out.push(p);
+  }
+  return out;
+}
 
 /**
  * The newest plan once it stops changing. Every input change queues its own re-run (ADR 0021: obligation
@@ -205,13 +230,15 @@ test("1. goal and plan: owner signs in, states payroll and two suppliers by Frid
   // R-AMT fails, which makes the flag Weak under any history (strength.ts).
   payments.weak = { id: await create(LAKESIDE, WEAK_AMOUNT, `${RUN}-003`, "p3"), transferId: null };
 
-  // The goal, as obligations: payroll (EUR) and two suppliers, due next Friday. The owner confirms each
+  // The goal, as obligations: payroll (SGD) and two suppliers, due next Friday. The owner confirms each
   // criticality through the only endpoint that sets it; the model's proposal (the Harbor contract) is
   // asked for first and its id is passed so the confirmation records the proposal the owner saw.
   // History is not reset (scripts/demo-reset.sh is add-only): obligations of earlier runs are still owed and
   // are in this run's plan. Record how many there were so the run note can say so.
-  const earlier = await api.call<{ items: unknown[] }>("GET", "/api/v1/obligations");
+  const earlier = await api.call<{ items: { currency: string }[] }>("GET", "/api/v1/obligations");
   const earlierObligations = earlier.body.items?.length ?? 0;
+  const earlierSgd = (earlier.body.items ?? []).filter((o) => o.currency === "SGD").length;
+  revisionAtStart = (await currentPlan())?.revision ?? 0;
   const due = nextFriday(new Date()).toISOString();
   const mk = async (name: string, body: Record<string, unknown>) => {
     const r = await api.call<{ id: string }>("POST", "/api/v1/obligations", {
@@ -221,7 +248,11 @@ test("1. goal and plan: owner signs in, states payroll and two suppliers by Frid
     expect(r.status, JSON.stringify(r.body)).toBe(201);
     obligations[name] = r.body.id;
   };
-  await mk("payroll", { counterparty_id: ALTSTADT, amount_minor: "250000", currency: "EUR" });
+  await mk("payroll", {
+    counterparty_id: LIONCITY,
+    amount_minor: PAYROLL_SGD_MINOR,
+    currency: "SGD",
+  });
   await mk("harbor", {
     counterparty_id: HARBOR,
     amount_minor: "480000",
@@ -269,12 +300,21 @@ test("1. goal and plan: owner signs in, states payroll and two suppliers by Frid
 
   const rev1 = await settledPlan("the plan for the goal (funds the obligations)");
   planAfterGoal = rev1;
+  // Without a policy nothing auto-executes (M3-03): scripts/demo-reset.sh stores the demo policy.
+  expect(
+    rev1.policy_version,
+    "the plan has no policy (policy_version 0): run scripts/demo-reset.sh, which stores the demo policy",
+  ).toBeGreaterThanOrEqual(1);
   await expectPlanScreen(page, rev1.revision);
   await shot(page, "01-goal-and-plan");
   note(1, "owner signed in; goal stated as obligations; criticality confirmed; plan for the goal", {
     deployed_version: health.version,
     obligations,
     obligations_from_earlier_runs: earlierObligations,
+    sgd_obligations_from_earlier_runs: earlierSgd,
+    revision_at_start: revisionAtStart,
+    policy_version: rev1.policy_version,
+    policy_hash: rev1.policy_hash,
     payments: { strong: payments.strong?.id, weak: payments.weak?.id },
     plan_revision: rev1.revision,
     inputs_hash: rev1.inputs_hash,
@@ -481,6 +521,7 @@ test("4. hold: a real Transaction RFI on the sent transfer; webhook verified; pa
     await viewer.close();
   }
   payeeLinks = { urls, held: heldReads };
+  heldPlan = rev2;
   await expectPlanScreen(page, rev2.revision);
   await page.goto(`/payments/${payments.strong?.id}`);
   await shot(page, "04-hold-payment-held-alternate-plan");
@@ -501,6 +542,34 @@ test("4. hold: a real Transaction RFI on the sent transfer; webhook verified; pa
       trigger: rev2.trigger,
     },
   );
+
+  // The alternate payout is approved now, on the plan screen, while the payment is held: once the RFI is
+  // answered (step 5) it no longer holds the payment (RFI_HOLDING_STATES), the next re-run drops the
+  // payout, and an unapproved payout of an older revision is superseded (plan.revised). Its execution is
+  // checked in step 6.
+  const payoutAction = rev2.actions.find(
+    (a) => a.kind === "payout" && a.reason_code === "PAYOUT_ALTERNATE_FOR_HELD",
+  );
+  if (!payoutAction) throw new Error("no alternate payout in the held plan");
+  payoutActionId = payoutAction.id;
+  const card = page.locator(`[data-testid="action-card"][data-kind="payout"]`);
+  await expect(card.getByTestId("approve-button")).toBeEnabled();
+  await card.getByTestId("approve-button").click();
+  await expect(page.getByTestId("plan-approve-dialog")).toBeVisible();
+  await shot(page, "04b-payout-approval-dialog");
+  await page.getByTestId("plan-approve-confirm").click();
+  await api.poll(
+    "the payout is approved",
+    async () => {
+      const a = (await planAt(rev2.revision))?.actions.find((x) => x.id === payoutActionId);
+      return a && ["APPROVED", "EXECUTING", "DONE"].includes(a.state) ? a : null;
+    },
+    120_000,
+  );
+  note(4, "alternate payout approved by the owner on the plan screen", {
+    payout_action_id: payoutActionId,
+    plan_revision: rev2.revision,
+  });
 });
 
 type HoldView = {
@@ -618,51 +687,84 @@ test("5. drafts and approval: cited drafts, source snippets, one bound approval,
   });
 });
 
-test("6. plan revised: conversion auto-executes under policy, payout approved on the plan screen, bill deferred", async () => {
+test("6. plan revised: the USD to SGD conversion auto-executed under policy, the approved payout executed", async () => {
   test.setTimeout(420_000);
-  const current = await api.poll(
-    "a plan with a conversion executed",
+  // The conversion: the first revision with the SGD payroll shortfall queues plan.execute (plan.revised),
+  // which may already have run in step 1, so every revision of this run is searched, not only the newest.
+  type Found = { plan: PlanBlock; action: PlanBlock["actions"][number] };
+  const findConvert = async (): Promise<Found | null> => {
+    for (const p of (await runRevisions()).reverse()) {
+      const action = p.actions.find((a) => a.kind === "convert" && a.params.buy_currency === "SGD");
+      if (action) return { plan: p, action };
+    }
+    return null;
+  };
+  const conv = await api.poll(
+    "the SGD conversion is DONE",
     async () => {
-      const p = await currentPlan();
-      const conv = p?.actions.find((a) => a.kind === "convert");
-      return p && conv && ["EXECUTING", "DONE"].includes(conv.state) ? p : null;
+      const f = await findConvert();
+      if (f?.action.needs_approval) {
+        throw new Error(
+          `the planner's SGD conversion sells ${String(f.action.params.sell_currency)} and needs approval: the policy only allows USD (sources are tried alphabetically, plan.ts rule 3)`,
+        );
+      }
+      if (f?.action.state === "FAILED")
+        throw new Error(`the conversion failed: ${JSON.stringify(f.action)}`);
+      return f?.action.state === "DONE" ? f : null;
     },
     300_000,
     4_000,
   );
-  const conversion = current.actions.find((a) => a.kind === "convert");
+  expect(conv.action.params.sell_currency).toBe("USD");
   // Auto-executed under policy: an AutoApproval record with the policy version and hash, no owner action.
-  expect(conversion?.auto, "the conversion carries no AutoApproval record").toBeTruthy();
-  await page.goto("/plans/current");
+  expect(conv.action.auto, "the conversion carries no AutoApproval record").toBeTruthy();
+  expect(conv.action.auto?.policy_version).toBe(conv.plan.policy_version);
+  expect(conv.action.auto?.policy_hash).toBe(conv.plan.policy_hash);
+  await page.goto(`/plans/${conv.plan.revision}`);
   await expect(page.getByTestId("plan-screen")).toBeVisible();
   await shot(page, "06a-plan-conversion-auto-executed");
 
-  const payout = page.locator('[data-testid="action-card"][data-kind="payout"]');
-  await expect(payout.getByTestId("approve-button")).toBeEnabled();
-  await payout.getByTestId("approve-button").click();
-  await expect(page.getByTestId("plan-approve-dialog")).toBeVisible();
-  await page.getByTestId("plan-approve-confirm").click();
-  const after = await api.poll(
-    "payout and conversion DONE",
+  // The payout the owner approved in step 4 (while the payment was held).
+  if (!heldPlan) throw new Error("no held plan: step 4 did not run");
+  const heldRevision = heldPlan.revision;
+  const payout = await api.poll(
+    "the approved payout is DONE",
     async () => {
-      const p = await currentPlan();
-      const conv = p?.actions.find((a) => a.kind === "convert");
-      const pay = p?.actions.find((a) => a.kind === "payout");
-      return p && conv?.state === "DONE" && pay?.state === "DONE" ? p : null;
+      const a = (await planAt(heldRevision))?.actions.find((x) => x.id === payoutActionId);
+      if (a?.state === "FAILED") throw new Error(`the payout failed: ${JSON.stringify(a)}`);
+      return a?.state === "DONE" ? a : null;
     },
     300_000,
     4_000,
   );
-  const deferred = after.actions.filter((a) => a.kind === "defer");
-  expect(deferred.length, "no non-critical bill was deferred").toBeGreaterThan(0);
-  await page.reload();
-  await shot(page, "06b-plan-payout-executed-bill-deferred");
-  note(6, "revision executed: conversion under policy, payout approved, bill deferred", {
-    plan_revision: after.revision,
-    inputs_hash: after.inputs_hash,
-    content_hash: after.content_hash,
-    conversion_auto: conversion?.auto,
-    action_states: after.actions.map((a) => ({ id: a.id, kind: a.kind, state: a.state })),
+  await page.goto(`/plans/${heldRevision}`);
+  await expect(page.getByTestId("plan-screen")).toBeVisible();
+  await shot(page, "06b-plan-payout-executed");
+
+  // Deferral: the planner defers a criticality 2 or 3 obligation only when its currency cannot be funded
+  // or converted (plan.ts rule 4). With the sandbox's large USD balance nothing is short after a
+  // conversion, so this run records whether any revision deferred anything instead of asserting it.
+  const revisions = await runRevisions();
+  const deferred = revisions.flatMap((p) =>
+    p.actions.filter((a) => a.kind === "defer").map((a) => ({ revision: p.revision, id: a.id })),
+  );
+  note(6, "conversion auto-executed under policy; approved payout executed", {
+    conversion: {
+      plan_revision: conv.plan.revision,
+      action_id: conv.action.id,
+      sell_currency: conv.action.params.sell_currency,
+      sell_minor: conv.action.params.sell_minor,
+      buy_minor: conv.action.params.buy_minor,
+      auto: conv.action.auto,
+    },
+    payout: { plan_revision: heldRevision, action_id: payout.id, state: payout.state },
+    deferred_in_run: deferred,
+    revisions_in_run: revisions.map((p) => ({
+      revision: p.revision,
+      inputs_hash: p.inputs_hash,
+      policy_version: p.policy_version,
+      kinds: p.actions.map((a) => `${a.kind}:${a.state}`),
+    })),
   });
 });
 
