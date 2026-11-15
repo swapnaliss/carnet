@@ -4,7 +4,7 @@ import { call, newId, record, requireEnv } from "./lib.mjs";
 requireEnv();
 
 export async function run({ usBeneficiaryId, deBeneficiaryId }) {
-  // FX: leave x-api-version off (CLAUDE.md). Rate, quote, conversion.
+  // FX: leave x-api-version off (docs/evidence/airwallex-money-path.md). Rate, quote, conversion.
   await call(
     "fx-current-rate",
     "GET",

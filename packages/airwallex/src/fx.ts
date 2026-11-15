@@ -1,4 +1,4 @@
-// FX: quote, conversion create, conversion retrieve. FX calls never carry `x-api-version` (CLAUDE.md;
+// FX: quote, conversion create, conversion retrieve. FX calls never carry `x-api-version` (docs/evidence/airwallex-money-path.md;
 // the M0-03 fixtures were recorded without it). The conversion id is `conversion_id`.
 // Quotes came back `MULTI_USE` in the sandbox (BL-01, M0-03): Carnet enforces one use per quote in
 // its own state (M3-03); the adapter does not rely on Airwallex rejecting a reused quote.

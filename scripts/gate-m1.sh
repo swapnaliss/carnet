@@ -29,6 +29,5 @@ curl -fsS "${DEPLOY_URL%/}/healthz"
 test -s docs/evidence/m1-skeleton/run-log.json
 jq -e '.attempt_status=="CONFIRMED" and .transfer_id' docs/evidence/m1-skeleton/run-log.json
 ls docs/evidence/m1-skeleton/screenshots/*.png
-python3 scripts/check-plan.py
 ./scripts/check-no-secrets.sh
 echo "gate-m1: PASS"

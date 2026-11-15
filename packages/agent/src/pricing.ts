@@ -1,4 +1,4 @@
-// Model prices (PROJECT.md §4), as integer nano-USD per token so cost arithmetic stays exact:
+// Model prices (Anthropic list prices at build time), as integer nano-USD per token so cost arithmetic stays exact:
 // $0.10 per million tokens is 100 nano-USD per token. Above 100k prompt tokens the price is 5x.
 
 export const MODEL_PRICES = {

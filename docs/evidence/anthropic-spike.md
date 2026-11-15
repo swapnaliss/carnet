@@ -56,7 +56,7 @@ Haiku, one PDF per call as a base64 `document` block, asked for the ground-truth
 - **SDK retry behaviour (from the SDK README, not observed):** the client retries 429, 408, 409 and 5xx up to `maxRetries` (default 2) with exponential backoff and honours `retry-after`. The product client keeps `maxRetries: 2` and a 120 s timeout.
 
 ## Cost
-Prices from PROJECT.md §4: Haiku 5.5 $0.10 / $0.50, Sonnet 5.5 $2 / $10 per million input / output tokens. The price is 5x above 100k prompt tokens, which no call came near (largest prompt 4,333 tokens). The table is from the recorded fixtures (`node scripts/spikes/anthropic/cost-table.mjs`):
+Prices from `packages/agent/src/pricing.ts`: Haiku 5.5 $0.10 / $0.50, Sonnet 5.5 $2 / $10 per million input / output tokens. The price is 5x above 100k prompt tokens, which no call came near (largest prompt 4,333 tokens). The table is from the recorded fixtures (`node scripts/spikes/anthropic/cost-table.mjs`):
 
 | Unit | Call | Model | Input tokens | Output tokens | stop_reason | Cost | Latency ms |
 |---|---|---|---|---|---|---|---|

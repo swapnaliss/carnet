@@ -2,7 +2,7 @@
 
 **Status: template.** No live run has happened. Every `TBD` below is filled from the real run (the spec's `docs/evidence/m3/run.json`, `docs/evidence/m3/airwallex/*.json`, and the database export), never written from memory or invented. Delete this paragraph when the run is recorded. Claims discipline: the README and video claim only what this file shows.
 
-**What this is.** One real run of `PROJECT.md` §2 storyboard steps 1-9 against the deployed Carnet (`carnet-web`, `carnet-worker`; commit TBD), the real Airwallex sandbox and the real model. Synthetic data; the sandbox and model API are real. Run by the owner on TBD (UTC), started with `apps/web/e2e/demo-live.spec.ts`.
+**What this is.** One real run of the demo storyboard steps 1-9 (README, Demo) against the deployed Carnet (`carnet-web`, `carnet-worker`; commit TBD), the real Airwallex sandbox and the real model. Synthetic data; the sandbox and model API are real. Run by the owner on TBD (UTC), started with `apps/web/e2e/demo-live.spec.ts`.
 
 ## How to run it (owner)
 
