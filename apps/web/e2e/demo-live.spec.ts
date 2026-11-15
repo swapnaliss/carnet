@@ -84,6 +84,8 @@ let rfiId = "";
 let rfiAirwallexId = "";
 let questionIds: { title: string; id: string }[] = [];
 let client: ReturnType<typeof createAirwallexClient>;
+let planAfterGoal: PlanBlock | null = null;
+let planAfterSend: PlanBlock | null = null;
 let payeeLinks: { urls: Record<string, string>; held: Record<string, string> } | null = null;
 
 test.beforeAll(async ({ browser }) => {
@@ -118,6 +120,7 @@ interface PlanBlock {
   actions: {
     id: string;
     kind: string;
+    reason_code: string;
     state: string;
     approvable: boolean;
     bound: Record<string, string> | null;
@@ -127,10 +130,29 @@ interface PlanBlock {
 const currentPlan = async (): Promise<PlanBlock | null> =>
   (await api.call<{ plan: PlanBlock | null }>("GET", "/api/v1/plans/current")).body.plan;
 
-const NO_PLAN =
-  "no plan revision appeared. The deployed worker must load plan inputs and enqueue plan.rerun (BL-01, M3-07 finding); check that wiring is deployed before re-running.";
+/**
+ * The newest plan once it stops changing. Every input change queues its own re-run (ADR 0021: obligation
+ * created, criticality confirmed, payment submitted, transfer status, RFI hold), so right after an action
+ * the newest revision may still be one of several on the way.
+ */
+async function settledPlan(label: string, accept: (p: PlanBlock) => boolean = () => true) {
+  let last = "";
+  return api.poll(
+    label,
+    async () => {
+      const p = await currentPlan();
+      if (!p || !accept(p)) return null;
+      const key = `${p.revision}:${p.inputs_hash}`;
+      const settled = key === last;
+      last = key;
+      return settled ? p : null;
+    },
+    240_000,
+    6_000,
+  );
+}
 
-test("1. goal and plan: owner signs in, states payroll and two suppliers by Friday, confirms criticality, plan revision 1", async () => {
+test("1. goal and plan: owner signs in, states payroll and two suppliers by Friday, confirms criticality, plan", async () => {
   test.setTimeout(420_000);
   const res = await page.request.post("/api/auth/sign-in/email", {
     data: { email: ownerEmail, password: ownerPassword },
@@ -234,11 +256,11 @@ test("1. goal and plan: owner signs in, states payroll and two suppliers by Frid
   await confirm("harbor", 2, proposal);
   await confirm("lakeside", 3); // the non-critical bill: the plan may defer it
 
-  const rev1 = await api.poll("plan revision 1", currentPlan, 180_000, 4_000);
-  expect(rev1, NO_PLAN).toBeTruthy();
+  const rev1 = await settledPlan("the plan for the goal (funds the obligations)");
+  planAfterGoal = rev1;
   await expectPlanScreen(page, rev1.revision);
-  await shot(page, "01-goal-and-plan-revision-1");
-  note(1, "owner signed in; goal stated as obligations; criticality confirmed; plan revision 1", {
+  await shot(page, "01-goal-and-plan");
+  note(1, "owner signed in; goal stated as obligations; criticality confirmed; plan for the goal", {
     deployed_version: health.version,
     obligations,
     payments: { strong: payments.strong?.id, weak: payments.weak?.id },
@@ -307,20 +329,31 @@ test("3. payments: both cleared, both sent as real sandbox transfers", async () 
     );
     p.transferId = d.transfer_id;
   }
+  // A send creates its own revision (ADR 0021: an obligation whose money is on its way leaves the plan).
+  const afterSend = await settledPlan(
+    "a plan revision after the sends",
+    (p) => p.revision > (planAfterGoal?.revision ?? 0),
+  );
+  planAfterSend = afterSend;
   await page.goto("/payments");
   await shot(page, "03-payments-sent");
   note(3, "payments sent (real sandbox transfers)", {
+    plan_after_send: {
+      revision: afterSend.revision,
+      inputs_hash: afterSend.inputs_hash,
+      action_kinds: afterSend.actions.map((a) => a.kind),
+    },
     weak_send_without_ack_status: refused.status,
     transfers: { strong: payments.strong?.transferId, weak: payments.weak?.transferId },
   });
 });
 
-test("4. hold: a real Transaction RFI on the sent transfer; webhook verified; payment held; plan re-runs to revision 2", async () => {
+test("4. hold: a real Transaction RFI on the sent transfer; webhook verified; payment held; the plan re-runs to the alternate payout", async () => {
   test.setTimeout(420_000);
   client = createAirwallexClient(configFromEnv(process.env));
   const transferId = payments.strong?.transferId;
   if (!transferId) throw new Error("no transfer");
-  const before = await currentPlan();
+  const before = planAfterSend ?? (await currentPlan());
   // Money status the RFI must not touch.
   const statusOf = async () =>
     (
@@ -388,10 +421,14 @@ test("4. hold: a real Transaction RFI on the sent transfer; webhook verified; pa
   expect(during).not.toBe("SENT");
   expect(during).not.toBe("PAID");
   const rev2 = await api.poll(
-    "plan revision 2 after the hold",
+    "the plan after the hold (an alternate payout for the held payment)",
     async () => {
       const p = await currentPlan();
-      return p && p.revision > (before?.revision ?? 0) ? p : null;
+      return p &&
+        p.revision > (before?.revision ?? 0) &&
+        p.actions.some((a) => a.kind === "payout" && a.reason_code === "PAYOUT_ALTERNATE_FOR_HELD")
+        ? p
+        : null;
     },
     240_000,
     4_000,
@@ -432,20 +469,24 @@ test("4. hold: a real Transaction RFI on the sent transfer; webhook verified; pa
   payeeLinks = { urls, held: heldReads };
   await expectPlanScreen(page, rev2.revision);
   await page.goto(`/payments/${payments.strong?.id}`);
-  await shot(page, "04-hold-payment-held-plan-revision-2");
-  note(4, "simulated RFI created, webhook received, payment held, plan re-ran", {
-    rfi_airwallex_id: rfiAirwallexId,
-    rfi_id: rfiId,
-    creation_path:
-      "SandboxSimulator port, POST /api/v1/simulation/rfis/create (ADR 0018); not injected",
-    ms_create_to_visible_in_carnet: tSeen - tCreate,
-    transfer_status_while_held: during,
-    plan_revision: rev2.revision,
-    inputs_hash: rev2.inputs_hash,
-    content_hash: rev2.content_hash,
-    previous_inputs_hash: before?.inputs_hash,
-    trigger: rev2.trigger,
-  });
+  await shot(page, "04-hold-payment-held-alternate-plan");
+  note(
+    4,
+    "simulated RFI created, webhook received, payment held, plan re-ran to the alternate payout",
+    {
+      rfi_airwallex_id: rfiAirwallexId,
+      rfi_id: rfiId,
+      creation_path:
+        "SandboxSimulator port, POST /api/v1/simulation/rfis/create (ADR 0018); not injected",
+      ms_create_to_visible_in_carnet: tSeen - tCreate,
+      transfer_status_while_held: during,
+      plan_revision: rev2.revision,
+      inputs_hash: rev2.inputs_hash,
+      content_hash: rev2.content_hash,
+      previous_inputs_hash: before?.inputs_hash,
+      trigger: rev2.trigger,
+    },
+  );
 });
 
 type HoldView = {

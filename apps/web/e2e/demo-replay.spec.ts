@@ -8,7 +8,8 @@ import { apiFor, expectPayeeHeaders, expectPlanScreen, readPayeePage } from "./d
 // database seeded with the payroll-Friday revision pair through the real planner and real rows
 // (apps/web/e2e/fixtures/seed-plan.ts, as plan-screen.spec.ts does): the plan screen at its latest
 // revision, and the payee's public page (headers, status-only wording) through a link the owner creates.
-// It does NOT cover what needs Airwallex or the model (the sandbox transfers, the RFI, the conversion and
+// It does NOT cover the plan inputs loader or the re-run triggers (ADR 0021; apps/web/test/worker/plan-inputs.int.test.ts
+// does), nor how revisions are numbered in a live run, nor what needs Airwallex or the model (the sandbox transfers, the RFI, the conversion and
 // payout executing, the follow-up round): those are the live spec's and docs/evidence/m3-run.md.
 // The recorded fixtures/replay/m3 are served by the judge replay mode (M4-05), not read here.
 // Needs DATABASE_URL, SEED_*_PASSWORD and the web server on the same database; otherwise skipped loudly.

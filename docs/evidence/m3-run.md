@@ -7,7 +7,7 @@
 ## How to run it (owner)
 
 1. Reset: `./scripts/demo-reset.sh` (idempotent; adds the six dataset payees, never deletes; every run uses a fresh reference prefix `M3RUN-<yymmddhhmm>`, so "clean" means clean per run, as in M2-09). The spec needs nothing else reset.
-2. Precondition: the deployed worker must create plan revisions (BL-01, "no production plan inputs loader / plan.rerun never enqueued"). Without it step 1 fails with a message naming this.
+2. Precondition: deployed `main` at or after 3d67376 (the production worker registers `plan.rerun` with a real loader, ADR 0021). Revision numbers are not fixed: every input change (obligation created, criticality confirmed, payment submitted, transfer status, RFI hold) queues a re-run and a revision is written only when `inputs_hash` changed, so the spec asserts on the newest plan once it stops changing, not on numbers.
 3. Run (exclusive `AIRWALLEX_SANDBOX` and `DEPLOY`):
    `E2E_MODE=live E2E_BASE_URL=<deployed url> E2E_OWNER_PASSWORD=<owner password> node --env-file=.env node_modules/.bin/playwright test apps/web/e2e/demo-live.spec.ts --reporter=list`
    (`E2E_OWNER_EMAIL` defaults to `owner@carnet.example`; empty values count as unset.) Screenshots, `run.json` and `airwallex/*.json` land in `docs/evidence/m3/`.
@@ -30,10 +30,10 @@
 
 | # | Step | Time (UTC) | Result and ids |
 |---|---|---|---|
-| 1 | Goal (payroll and two suppliers by Friday), obligations, criticality confirmed by the owner, plan revision 1 | TBD | obligation ids, confirmed criticality and proposal id, plan revision 1 `inputs_hash` TBD |
+| 1 | Goal (payroll and two suppliers by Friday), obligations, criticality confirmed by the owner, plan revision 1 | TBD | obligation ids, confirmed criticality and proposal id, the plan for the goal (funds the obligations): revision and `inputs_hash` TBD |
 | 2 | Evidence flags in the queue, one not strong | TBD | flags TBD |
-| 3 | Two payments cleared, sent as real sandbox transfers | TBD | transfer ids TBD |
-| 4 | Hold: Transaction RFI on the sent transfer, webhook verified, payment held, re-plan | TBD | RFI Airwallex id TBD, Carnet id TBD; webhook `rfi.action_required` received TBD; plan revision 2 `inputs_hash` TBD, trigger TBD |
+| 3 | Two payments cleared, sent as real sandbox transfers | TBD | transfer ids TBD; the sends create their own revision (the obligations leave the plan): revision, `inputs_hash`, action kinds (expected none) TBD |
+| 4 | Hold: Transaction RFI on the sent transfer, webhook verified, payment held, re-plan | TBD | RFI Airwallex id TBD, Carnet id TBD; webhook `rfi.action_required` received TBD; plan after the hold: revision, `inputs_hash`, trigger `held`, payout action with reason `PAYOUT_ALTERNATE_FOR_HELD` TBD |
 | 5 | Cited drafts, source snippets, one bound approval, submit | TBD | draft id, approval id and hash TBD, attempt `request_id` TBD |
 | 6 | Revision executes: conversion under policy, payout approved, bill deferred | TBD | conversion id TBD, payout transfer id TBD, deferred obligation TBD |
 | 7 | Transfer reaches SENT then PAID on its own status | TBD | transfer id TBD; status while RFI answered TBD |
@@ -44,8 +44,10 @@
 
 | Revision | `inputs_hash` | `content_hash` | Trigger |
 |---|---|---|---|
-| 1 | TBD | TBD | first |
-| 2 | TBD | TBD | held |
+| after the goal (step 1) | TBD | TBD | first |
+| after the sends (step 3) | TBD | TBD | inputs changed |
+| after the hold (step 4) | TBD | TBD | held (alternate payout) |
+| after execution (step 6), if it differs | TBD | TBD | TBD |
 
 ## Money status was never set by an RFI event (AC 3)
 
@@ -89,7 +91,7 @@ List every deviation (a step retried, an RFI question the model declined and the
 
 ## Files
 
-- Screenshots: `docs/evidence/m3/01-goal-and-plan-revision-1.png` ... `09c-*.png` (one per step, several for steps 6 and 9).
+- Screenshots: `docs/evidence/m3/01-goal-and-plan.png` ... `09c-*.png` (one per step, several for steps 6 and 9).
 - `docs/evidence/m3/run.json`, `docs/evidence/m3/airwallex/*.json`: what the spec observed.
 - `fixtures/replay/m3/`: `manifest.json`, `webhooks.jsonl`, `model-outputs.jsonl`, `plans.json`, `attempts.json`, `rfis.json`, `airwallex/`, `run.json`.
 - Env keys this ticket introduces (names only): `E2E_MODE`, `E2E_BASE_URL`, `E2E_OWNER_EMAIL`, `E2E_OWNER_PASSWORD`, `E2E_EVIDENCE_DIR`.
