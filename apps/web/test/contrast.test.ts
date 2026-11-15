@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { contrast, parsePairs, parseThemes } from "../../../scripts/design-contrast.ts";
+import { contrast, parsePairs, parseThemes } from "../../../scripts/design-contrast";
 
 // M4-07 Scope 4: every foreground/background token pair in docs/design meets WCAG 2.2 AA in light and
 // dark (4.5:1 body text, 3:1 large text and UI components). The pair list is the `contrast-pairs` block

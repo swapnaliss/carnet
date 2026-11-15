@@ -88,6 +88,41 @@ test("errors from an action the person started are assertive", async ({ page }) 
   await expect(alert).toHaveAttribute("role", "alert");
 });
 
+// WCAG 2.4.11 Focus Not Obscured: a heading focused by the question navigator or after saving an edit
+// sits fully below the sticky header (ui-reviewer finding, M4-07).
+for (const width of [375, 768, 1440] as const) {
+  test(`focused question headings are not hidden under the sticky header (${width})`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: width === 375 ? 812 : 900 });
+    await signIn(page);
+    await page.goto(`/rfis/${rfis.edit?.id}`);
+    await expect(page.getByTestId("hold-screen")).toBeVisible();
+    const clear = async () => {
+      const [headerBottom, top] = await page.evaluate(() => [
+        document.querySelector("header")?.getBoundingClientRect().bottom ?? 0,
+        (document.activeElement as HTMLElement).getBoundingClientRect().top,
+      ]);
+      expect(top, "focused heading top vs header bottom").toBeGreaterThanOrEqual(headerBottom);
+    };
+    const nav = page.getByTestId("question-nav").getByRole("button");
+    await nav.first().focus();
+    await page.keyboard.press("ArrowDown");
+    await page.keyboard.press("Enter");
+    await expect(
+      page.getByTestId("question").nth(1).getByRole("heading", { level: 3 }),
+    ).toBeFocused();
+    await clear();
+    const first = page.getByTestId("question").first();
+    await first.getByRole("button", { name: "Edit answer" }).focus();
+    await page.keyboard.press("Enter");
+    await first.getByRole("button", { name: "Save edit" }).focus();
+    await page.keyboard.press("Enter");
+    await expect(first.getByRole("heading", { level: 3 })).toBeFocused();
+    await clear();
+  });
+}
+
 for (const name of ["draft-ready", "needs-owner-view", "answered"] as const) {
   test(`hold screen (${name}): one h1, landmarks, skip link to main`, async ({ page }) => {
     await signIn(page);
