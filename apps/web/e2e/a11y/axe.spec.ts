@@ -355,6 +355,70 @@ const CASES: Case[] = [
     },
   },
   {
+    route: "/replay",
+    state: "replay timeline with recording banner (judge)",
+    role: "judge",
+    run: async (p) => {
+      await p.goto("/replay");
+      await expect(p.getByTestId("recording-banner")).toBeVisible();
+      await expect(p.locator("[data-recording]").first()).toBeVisible();
+    },
+  },
+  {
+    route: "/replay",
+    state: "replay timeline with LIVE indicator (owner)",
+    run: async (p) => {
+      await p.goto("/replay");
+      await expect(p.getByTestId("live-indicator").first()).toBeVisible();
+      await expect(p.getByRole("heading", { level: 1 })).toBeVisible();
+    },
+  },
+  {
+    route: "/replay",
+    state: "replay timeline after stepping (judge)",
+    role: "judge",
+    run: async (p) => {
+      await p.goto("/replay");
+      const timeline = p.locator("[data-recording]").first();
+      await timeline.getByTestId("replay-next").click();
+      await timeline.getByTestId("replay-next").click();
+      await expect(timeline.getByTestId("replay-current")).toContainText("Step 3 of");
+    },
+  },
+  {
+    route: "/replay/payee",
+    state: "payee view of the recording (judge)",
+    role: "judge",
+    run: async (p) => {
+      const res = await p.goto("/replay/payee");
+      expect(res?.status()).toBe(200);
+      await expect(p.getByRole("heading", { level: 1 })).toBeVisible();
+    },
+  },
+  {
+    route: "/queue",
+    state: "queue in a replay session (judge)",
+    role: "judge",
+    run: async (p) => {
+      await p.goto("/queue");
+      await expect(p.getByTestId("recording-banner")).toBeVisible();
+      await expect(p.getByRole("heading", { level: 1 })).toBeVisible();
+    },
+  },
+  {
+    route: "/rfis/[id]",
+    state: "hold screen in a replay session (judge)",
+    role: "judge",
+    run: async (p) => {
+      await p.goto("/rfis");
+      const row = p.getByTestId("rfi-row").first();
+      await expect(row).toBeVisible();
+      await p.goto((await row.getByRole("link").first().getAttribute("href")) ?? "/rfis");
+      await expect(p.getByTestId("hold-screen")).toBeVisible();
+      await expect(p.getByTestId("recording-banner")).toBeVisible();
+    },
+  },
+  {
     route: "not-found",
     state: "not found",
     role: null,

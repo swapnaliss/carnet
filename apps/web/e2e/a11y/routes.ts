@@ -75,6 +75,20 @@ export const COVERAGE: Readonly<Record<string, readonly string[]>> = {
   "/ops": ["ops with kill switch panel"],
   "/error-preview": ["page error"],
   "/status/[token]": ["payee status", "payee link not available"],
+  // M4-05 judge replay: the recording timeline, the payee view of the recording, and the recording
+  // banner (judge) or LIVE indicator (owner) that the shell shows on every screen.
+  "/replay": [
+    "replay timeline with recording banner (judge)",
+    "replay timeline with LIVE indicator (owner)",
+    "replay timeline after stepping (judge)",
+  ],
+  "/replay/payee": ["payee view of the recording (judge)"],
+};
+
+/** Existing routes opened again in a replay session, so the recording banner is checked in context. */
+export const REPLAY_CONTEXT: Readonly<Record<string, readonly string[]>> = {
+  "/queue": ["queue in a replay session (judge)"],
+  "/rfis/[id]": ["hold screen in a replay session (judge)"],
 };
 
 export const CONVENTIONS: Readonly<Record<string, readonly string[]>> = {
