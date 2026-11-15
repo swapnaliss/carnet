@@ -3,7 +3,7 @@
 // These functions take `db` and return the owning business id with each row; the caller then works
 // through a tenant context (`repoCtx(db, businessId)`). Nothing here is reachable from a request.
 import type { BusinessId, PaymentId, RequestId } from "@carnet/domain";
-import { and, asc, eq, inArray, isNotNull, isNull, notInArray, or } from "drizzle-orm";
+import { and, asc, eq, inArray, isNotNull, isNull, notInArray, notLike, or } from "drizzle-orm";
 import type { Db } from "../client";
 import { type AttemptKind, type AttemptStatus, executionAttempts, payments } from "../schema/index";
 
@@ -62,6 +62,9 @@ export interface OpenTransferRef extends PaymentRef {
   readonly transferId: string;
 }
 
+/** Transfer ids of payments materialized from a recording (scripts/replay): never sent to Airwallex. */
+export const REPLAY_TRANSFER_PREFIX = "replay-";
+
 /** Payments with a transfer that can still change, oldest update first (the reconcile poll). */
 export async function listOpenTransfers(db: Db, limit = 100): Promise<OpenTransferRef[]> {
   const rows = await db
@@ -74,6 +77,7 @@ export async function listOpenTransfers(db: Db, limit = 100): Promise<OpenTransf
     .where(
       and(
         isNotNull(payments.transferId),
+        notLike(payments.transferId, `${REPLAY_TRANSFER_PREFIX}%`),
         or(
           notInArray(payments.transferStatus, SETTLED_TRANSFER_STATUSES),
           // a stored transfer id with no status yet

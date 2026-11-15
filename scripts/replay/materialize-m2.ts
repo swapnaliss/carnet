@@ -33,6 +33,7 @@ import {
   insertRfiQuestions,
   listDraftAnswers,
   listRfiQuestions,
+  REPLAY_TRANSFER_PREFIX,
   repoCtx,
   storeDocument,
   updatePaymentTransfer,
@@ -238,8 +239,10 @@ export async function materializeM2(
         createdBy: ownerId,
       });
     }
+    // `replay-` prefix: the live demo business's payment already owns the real transfer id
+    // (payments.transfer_id is unique), and the reconcile poll skips replay ids (listOpenTransfers).
     await updatePaymentTransfer(repo, payment.id, {
-      transferId: t.id,
+      transferId: `${REPLAY_TRANSFER_PREFIX}${t.id}`,
       transferStatus: t.status,
       transferUpdatedAt: new Date(t.at),
     });

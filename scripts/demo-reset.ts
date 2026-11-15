@@ -41,7 +41,8 @@ import { type LoadedRecording, loadRecordings } from "./replay/load";
 import { materializeM2 } from "./replay/materialize-m2";
 
 /** Bumped when a materializer changes what it writes, so the next reset loads a new generation. */
-const MATERIALIZER_VERSION = "m2-pipeline/1";
+// /2: replay transfer ids carry the `replay-` prefix (collided with the live payments on the hosted DB).
+const MATERIALIZER_VERSION = "m2-pipeline/2";
 const MATERIALIZERS: Record<string, typeof materializeM2> = { "m2-pipeline": materializeM2 };
 
 /** Default system_flags (migration 0001 / M4-02): switches on, USD 10.00 a day, USD 0.50 a run. */
