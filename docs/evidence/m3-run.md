@@ -16,9 +16,24 @@
 6. Fill this file; commit it with `docs/evidence/m3/*.png` and `fixtures/replay/m3/`.
 7. Repeat from step 1 after a failure; fix the cause in the owning code, not in the spec.
 
+## Demo settings (stated, owner decisions on issue #40)
+
+These are settings chosen for the demo, not observations.
+
+- **Auto-FX policy, version 1** (stored by `scripts/demo-reset.sh` through `ensureDemoPolicy`, only when the demo business has no policy; never a second version, never an update): per-action conversion limit USD 5,000.00, daily cap USD 10,000.00, USD reserve floor USD 100.00, slippage 100 bps, quote freshness 300 s. Policy hash as stored: TBD.
+- **Payroll in SGD**: payee "Lion City Payroll Pte. Ltd." (synthetic, SG), SGD 1,500.00 due next Friday, criticality 1. The sandbox holds no SGD (EUR ~10,000,471 made EUR payroll a non-event), so payroll is a real shortfall the planner covers with a USD to SGD conversion. The demo only funds payroll; it never pays the payee, so the payee has no bank details or Airwallex beneficiary.
+- **Order of approvals**: the alternate payout is approved on the plan screen in step 4, while the payment is held. Once the RFI is answered it no longer holds the payment and the next re-run drops the payout, so approving it after step 5 is not possible.
+- **Conversion source**: when several currencies can cover a shortfall, the planner tries first those the policy can auto-approve, then the rest alphabetically (ADR 0021 amendment 1). With the demo policy (USD only) the SGD shortfall sells USD although the sandbox also holds CNY.
+- **Deferral: not shown by this live run.** The sandbox account holds about 10 million in each of several currencies, so the live run had no cash shortfall the planner could not convert, and nothing was deferred. The spec records `deferred_in_run` (expected empty) and asserts nothing about it. Deferral of a non-critical bill is proven elsewhere, not by this run:
+  - `packages/domain/src/planner/scenarios.test.ts`: "payroll Friday with one held payment: convert, fund payroll, alternate payout, defer the bill" (pure planner, fixtures/planner/payroll-friday.json);
+  - `packages/domain/src/planner/planner.property.test.ts`: "property generator reaches every action kind and the unconfirmed and floor paths" and "more cash never turns a fund into a defer or escalate";
+  - `apps/web/test/plans/plan-approve.int.test.ts`: "shows the revision pair: held funds unavailable, the four actions, fates, a verified explanation" (stored revisions, the plan read model);
+  - `apps/web/e2e/plan-screen.spec.ts` (CI replay job): "the payroll-Friday pair: held funds unavailable, before and after, convert, fund, payout, defer" (the plan screen shows the defer card).
+  The README and video must not claim a live deferral.
+
 ## Repeatability
 
-The demo business keeps every earlier run (reset is add-only). The weak flag therefore comes from an amount mismatch, not from "first payment, no contract" (which only applies when there are no earlier payments to the payee; found in the first live attempt). Obligations of earlier runs are still owed and appear in the plan: the spec records `obligations_from_earlier_runs` in step 1; state it here: TBD.
+The demo business keeps every earlier run (reset is add-only). The weak flag therefore comes from an amount mismatch, not from "first payment, no contract" (which only applies when there are no earlier payments to the payee; found in the first live attempt). Obligations of earlier runs are still owed and appear in the plan: the spec records `obligations_from_earlier_runs` and `sgd_obligations_from_earlier_runs` in step 1; state them here: TBD. An earlier run's SGD obligation whose conversion executed is funded by the SGD that conversion bought, so a new run then converts roughly its own SGD 1,500.00 (inferred from plan.ts, not observed).
 
 ## Run facts
 
@@ -34,12 +49,12 @@ The demo business keeps every earlier run (reset is add-only). The weak flag the
 
 | # | Step | Time (UTC) | Result and ids |
 |---|---|---|---|
-| 1 | Goal (payroll and two suppliers by Friday), obligations, criticality confirmed by the owner, plan revision 1 | TBD | obligation ids, confirmed criticality and proposal id, the plan for the goal (funds the obligations): revision and `inputs_hash` TBD |
+| 1 | Goal (SGD payroll and two USD suppliers by Friday), obligations, criticality confirmed by the owner, the first plan (policy version 1) | TBD | obligation ids, confirmed criticality and proposal id, the plan for the goal (funds the obligations): revision and `inputs_hash` TBD |
 | 2 | Evidence flags in the queue, one not strong | TBD | flags TBD. The Lakeside payment (USD 1,250.00) is weak because its amount differs from the invoice (USD 1,320.50), so it does not depend on history |
 | 3 | Two payments cleared, sent as real sandbox transfers | TBD | transfer ids TBD; the sends create their own revision (the obligations leave the plan): revision, `inputs_hash`, action kinds (expected none) TBD |
 | 4 | Hold: Transaction RFI on the sent transfer, webhook verified, payment held, re-plan | TBD | RFI Airwallex id TBD, Carnet id TBD; webhook `rfi.action_required` received TBD; plan after the hold: revision, `inputs_hash`, trigger `held`, payout action with reason `PAYOUT_ALTERNATE_FOR_HELD` TBD |
 | 5 | Cited drafts, source snippets, one bound approval, submit | TBD | draft id, approval id and hash TBD, attempt `request_id` TBD |
-| 6 | Revision executes: conversion under policy, payout approved, bill deferred | TBD | conversion id TBD, payout transfer id TBD, deferred obligation TBD |
+| 6 | Execution: USD to SGD conversion auto-executed under policy; the payout approved in step 4 executed | TBD | conversion plan revision and action id, sell USD / buy SGD amounts, Airwallex conversion id TBD; payout action id and transfer id TBD; deferrals seen in the run (expected none: no shortfall at these balances; see Demo settings) TBD |
 | 7 | Transfer reaches SENT then PAID on its own status | TBD | transfer id TBD; status while RFI answered TBD |
 | 8 | Follow-up round: reopen one question, one reused answer, one drafted | TBD | reopened question TBD, new approval hash TBD |
 | 9 | Payee page: GENERIC, then opt-in while held | TBD | wording read while held, headers, wording after paid TBD |
@@ -61,7 +76,7 @@ Query over the exported event log: for every payment, each change of `transfer_s
 
 | Item | Value |
 |---|---|
-| Conversion: plan action id, Airwallex conversion id | TBD |
+| Conversion (USD to SGD): plan revision, action id, sell and buy amounts, Airwallex conversion id | TBD |
 | AutoApproval row id, policy version, policy hash | TBD |
 | Conversion attempt: id, `request_id` (one), status | TBD (CONFIRMED) |
 | Payout: approval id, status (CONSUMED) | TBD |
