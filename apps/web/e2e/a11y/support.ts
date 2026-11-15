@@ -143,40 +143,60 @@ export function contrastOf(a: string, b: string): number {
 }
 
 /**
- * The focused element's visible indicator: outline (or box-shadow ring) width >= 2 px and >= 3:1
- * against the nearest opaque background behind it. Returns a description on failure, null when fine.
+ * The focused element's visible indicator: an outline or a box-shadow ring >= 2 px wide whose colour has
+ * >= 3:1 contrast against what is behind it (the element's own background for an inset outline, else the
+ * nearest opaque ancestor background). Colours in any CSS syntax (rgb, oklch, lab) are normalised through
+ * a canvas. Returns a description on failure, null when fine.
  */
 export async function focusIndicatorProblem(page: Page): Promise<string | null> {
   const info = await page.evaluate(() => {
     const el = document.activeElement as HTMLElement | null;
     if (!el || el === document.body) return null;
-    const cs = getComputedStyle(el);
-    let bg = "rgb(255, 255, 255)";
-    for (let n: HTMLElement | null = el.parentElement; n; n = n.parentElement) {
-      const c = getComputedStyle(n).backgroundColor;
-      if (c && !/rgba\(.*,\s*0\)$/.test(c) && c !== "transparent") {
-        bg = c;
-        break;
+    const ctx = document.createElement("canvas").getContext("2d", { willReadFrequently: true });
+    const rgba = (c: string): [number, number, number, number] => {
+      if (!ctx) return [0, 0, 0, 0];
+      ctx.clearRect(0, 0, 1, 1);
+      ctx.fillStyle = "rgba(0,0,0,0)";
+      ctx.fillStyle = c;
+      ctx.fillRect(0, 0, 1, 1);
+      const d = ctx.getImageData(0, 0, 1, 1).data;
+      return [d[0] ?? 0, d[1] ?? 0, d[2] ?? 0, (d[3] ?? 0) / 255];
+    };
+    const opaqueBg = (start: HTMLElement | null): [number, number, number, number] => {
+      for (let n = start; n; n = n.parentElement) {
+        const c = rgba(getComputedStyle(n).backgroundColor);
+        if (c[3] > 0.5) return c;
       }
-      if (n === document.documentElement) bg = getComputedStyle(document.body).backgroundColor;
+      return rgba(getComputedStyle(document.body).backgroundColor);
+    };
+    const cs = getComputedStyle(el);
+    const outlineW = cs.outlineStyle === "none" ? 0 : Number.parseFloat(cs.outlineWidth);
+    // Box-shadow rings: "<color> 0px 0px 0px <spread>px" segments; take the widest opaque one.
+    let ringColor: string | null = null;
+    let ringW = 0;
+    for (const seg of cs.boxShadow.split(/,(?![^(]*\))/)) {
+      const m = /^\s*(.*?)\s+0px\s+0px\s+0px\s+([\d.]+)px/.exec(seg);
+      if (m && Number(m[2]) > ringW && rgba(m[1] as string)[3] > 0.5) {
+        ringW = Number(m[2]);
+        ringColor = m[1] as string;
+      }
     }
-    const ring = /(rgba?\([^)]*\))\s+0px\s+0px\s+0px\s+(\d+(?:\.\d+)?)px/.exec(cs.boxShadow);
+    const useOutline = outlineW >= 2;
+    const inset = useOutline && Number.parseFloat(cs.outlineOffset) < 0;
     return {
-      tag: `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ""}[${(el.getAttribute("aria-label") ?? el.textContent ?? "").trim().slice(0, 40)}]`,
-      outlineStyle: cs.outlineStyle,
-      outlineWidth: Number.parseFloat(cs.outlineWidth),
-      outlineColor: cs.outlineColor,
-      ringColor: ring?.[1] ?? null,
-      ringWidth: ring ? Number(ring[2]) : 0,
-      bg,
+      tag: `${el.tagName.toLowerCase()}[${(el.getAttribute("aria-label") ?? el.textContent ?? "").trim().slice(0, 40)}]`,
+      width: useOutline ? outlineW : ringW,
+      color: useOutline ? rgba(cs.outlineColor) : ringColor ? rgba(ringColor) : null,
+      bg: inset ? opaqueBg(el) : opaqueBg(el.parentElement),
+      detail: `outline ${cs.outlineStyle} ${cs.outlineWidth}; shadow ${cs.boxShadow.slice(0, 100)}`,
     };
   });
   if (!info) return "nothing is focused";
-  const outline = info.outlineStyle !== "none" && info.outlineWidth >= 2;
-  const color = outline ? info.outlineColor : info.ringColor;
-  const width = outline ? info.outlineWidth : info.ringWidth;
-  if (!color || width < 2) return `${info.tag}: no >= 2px focus indicator`;
-  const ratio = contrastOf(color, info.bg);
-  if (ratio < 3) return `${info.tag}: focus indicator ${color} on ${info.bg} is ${ratio.toFixed(2)}:1`;
+  if (!info.color || info.width < 2) return `${info.tag}: no >= 2px focus indicator (${info.detail})`;
+  const css = (c: number[]) => `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+  const ratio = contrastOf(css(info.color), css(info.bg));
+  if (ratio < 3)
+    return `${info.tag}: focus indicator ${css(info.color)} on ${css(info.bg)} is ${ratio.toFixed(2)}:1`;
   return null;
 }
+
