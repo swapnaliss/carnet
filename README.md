@@ -71,7 +71,7 @@ The controls, in five lines:
 ## Demo
 
 - **Video:** TODO (M5-02 adds the unlisted link, under three minutes).
-- **Deployed app:** https://carnet-web.onrender.com (Airwallex sandbox only). *TODO (M4-05):* a judge login that plays back a labelled recording of a real run is planned but not built yet. Until it is, this README does not offer a judge login.
+- **Deployed app:** https://carnet-web.onrender.com (Airwallex sandbox only). **Judge login:** `judge@carnet.example`. The password is in the submission form. It opens a read-only, labelled playback of real recorded runs: the M2 core demo (12 Nov 2026), with its screens, and the M3 full demo (15 Nov 2026) as a timeline. Every screen shows "Recording of a real sandbox run … Nothing here is live", and every write is refused (403).
 - **Hold screen** (from the M2 live run: drafted answers with the cited document snippets):
 
   ![Hold screen with cited snippets](docs/evidence/m2-run/03-hold-screen-with-snippets.png)
@@ -190,7 +190,7 @@ The live runs used Render, deployed from [`render.yaml`](render.yaml) as one ima
 - **Webhook subscription:** in the Airwallex sandbox web app, subscribe to `rfi.*` and `payout.transfer.*` events at `https://<your host>/api/webhooks/airwallex` (it must be a public HTTPS URL). Store the subscription's signing secret as `AIRWALLEX_WEBHOOK_SECRET`.
 - **Without a webhook:** the worker's reconcile loop polls Airwallex every 60 s, so the flow still progresses, just more slowly.
 - **Demo reset (hosted):** `./scripts/demo-reset.sh` runs an idempotent seed job on `carnet-web` that adds the six dataset payees. It never deletes anything (needs the Render CLI).
-- **Judge replay login:** TODO (M4-05). Not built yet; see [Demo](#demo).
+- **Judge replay login:** `npm run demo:reset -- --yes` with `DATABASE_URL` pointing at the hosted database and `SEED_JUDGE_PASSWORD` set. It creates the judge user and loads every recording under `fixtures/replay/`. It is idempotent and never deletes a live run's rows. See [Demo](#demo).
 
 ### 4. Checks
 
@@ -206,9 +206,9 @@ make check                                # typecheck, lint (Biome + dependency 
 - Airwallex Transaction RFIs only. Carnet never contacts payees or third parties. It does not unfreeze accounts or bypass any provider's review: it helps the owner answer the review.
 
 **Simulation and replay disclosures.**
-- RFIs were created with Airwallex's own simulation endpoint (`/simulation/rfis/create`) on a plain sandbox account. **The ADR 0018 local-injection fallback was not used.** It was not needed in M0-04 ([`rfi-spike-decision.md`](docs/evidence/rfi-spike-decision.md)) or in the M2 live run ([`m2-run.md`](docs/evidence/m2-run.md)). *TODO after the M3 live run:* confirm the same for [`m3-run.md`](docs/evidence/m3-run.md).
+- RFIs were created with Airwallex's own simulation endpoint (`/simulation/rfis/create`) on a plain sandbox account. **The ADR 0018 local-injection fallback was not used.** It was not needed in M0-04 ([`rfi-spike-decision.md`](docs/evidence/rfi-spike-decision.md)) or in the M2 live run ([`m2-run.md`](docs/evidence/m2-run.md)). The M3 live run used the same simulation endpoint, not injection ([`m3-run.md`](docs/evidence/m3-run.md), Run facts).
 - Transfer status changes (`SENT`, `PAID`) in the runs were requested through Airwallex's sandbox simulation endpoint.
-- Judge login: the design ([ADR 0018](docs/adr/0018-sandbox-simulator-and-replay-mode.md)) is that the judge login plays back a recorded real run, labelled as a recording. *TODO (M4-05):* not built yet.
+- Judge login: the design ([ADR 0018](docs/adr/0018-sandbox-simulator-and-replay-mode.md)) is that the judge login plays back a recorded real run, labelled as a recording. Built (M4-05): the judge account is always in replay mode, and each recording is labelled with its capture date.
 - CI replays recorded real responses. The M2 replay covers only the Carnet side; the Airwallex side is covered by the single live run.
 
 **Airwallex behaviour that was unverified, or differed from our expectations** (sandbox observations, not production behaviour):
