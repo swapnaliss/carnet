@@ -21,7 +21,19 @@ See [`docs/architecture.md`](docs/architecture.md) and the decisions in [`docs/a
 <!-- M5-02: video link (under 3 minutes) and screenshots of the hold screen and the plan screen; M2-09 and M3-07 supply the live-run evidence -->
 
 ## Evals and measured claims
-<!-- M4-03 supplies the eval results, including the mutation-rejection rate; M4-06 supplies the load-test numbers -->
+Numbers below are copied from [`docs/evidence/evals.md`](docs/evidence/evals.md) (replay mode: the
+pipeline and the code verifier over recorded real model replies, no model call); `python3 scripts/check-readme-numbers.py`
+fails if they drift. Run it yourself with `npm run eval -- --mode replay`.
+
+- cases: 76 ground-truth cases (extraction, drafting, verifier); ground-truth cases passed: 75
+- mutation rejection: 100% of mutants: 721 wrong drafts (numbers, dates, names, currencies, citations) all rejected by the verifier
+- grounding rate: 95% of answerable RFI questions came back with every claim matched to a cited quote
+- extraction accuracy: 100% field-level on the synthetic dataset, quote verification: 100% against the PDF text layer
+- adversarial cases: 26 (hidden instructions, contradicting or missing documents, image-only scans, follow-up reuse), all safe
+
+The dataset is small and synthetic, and the prompts were tuned on it; these numbers show the controls
+work, not accuracy on unseen documents.
+<!-- M4-06 supplies the load-test numbers -->
 
 ## Future vision
 <!-- M5-01: other providers' information requests, accountants managing many small clients, account-level reviews -->
