@@ -19,9 +19,13 @@ test("the approve dialog takes focus on its title and returns it to the trigger 
   await signIn(page);
   await page.goto(`/rfis/${rfis["draft-ready"]?.id}`);
   const trigger = page.getByTestId("approve-button");
-  await trigger.focus();
-  await page.keyboard.press("Enter");
   const dialog = page.getByTestId("approve-dialog");
+  // A key press before hydration finishes does nothing; retry until the page is interactive.
+  await expect(async () => {
+    await trigger.focus();
+    await page.keyboard.press("Enter");
+    await expect(dialog).toBeVisible({ timeout: 1_000 });
+  }).toPass({ timeout: 10_000 });
   await expect(dialog.getByRole("heading", { name: "Approve and submit" })).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(dialog).toBeHidden();
