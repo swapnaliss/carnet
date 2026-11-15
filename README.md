@@ -48,18 +48,33 @@ Carnet runs the whole review loop for one business, in plain steps:
 
 The full design is in [`docs/architecture.md`](docs/architecture.md), and the decisions are in [`docs/adr/`](docs/adr/).
 
+```mermaid
+flowchart TB
+    owner(["Owner<br/>(browser)"])
+    airwallex[("Airwallex<br/>sandbox")]
+    anthropic[("Anthropic API")]
+
+    subgraph carnet["Carnet"]
+        web["<b>web</b> mode (Next.js)<br/>UI · /api/v1 · /api/webhooks/airwallex<br/>/status/:token · /ops · /healthz"]
+        db[("<b>PostgreSQL</b><br/>documents · facts · payments · RFIs<br/>drafts · approvals · attempts · plans<br/>outbox · webhook events<br/>audit (hash chain) · agent runs")]
+        worker["<b>worker</b> mode<br/>job loop (1 s) + reconcile (60 s)"]
+        agent["<b>agent package</b><br/>3 typed calls + verifier<br/>no tools · no keys · no money"]
+        executor["<b>executor</b><br/>acts on approvals only"]
+        adapter["<b>Airwallex adapter</b><br/>timeouts · lookup before retry"]
+    end
+
+    owner -- "reviews, approves exact content" --> web
+    airwallex -- "webhooks (HMAC verified)" --> web
+    web -- "webhook_events → outbox_jobs" --> db
+    db --> worker
+    worker --> agent
+    agent -- "typed calls" --> anthropic
+    worker --> executor
+    executor --> adapter
+    adapter --> airwallex
 ```
- Owner (browser) ──► Next.js "web" mode ─ UI · /api/v1 · /api/webhooks/airwallex · /status/<token> · /ops · /healthz
-                         │
- Airwallex sandbox ◄─ adapter (timeouts, lookup before retry) ◄─ executor ◄─ approvals only
-        │ webhooks (HMAC)                           ▲
-        ▼                                           │
-   webhook_events ─► outbox_jobs ─► "worker" mode: job loop (1 s) + reconcile (60 s)
- Anthropic API ◄─ agent package: 3 typed calls + verifier (no tools, no keys, no money)
- PostgreSQL: documents · facts · payments · RFIs · drafts · approvals · attempts · plans ·
-             outbox · webhook events · audit (hash chain) · agent runs
- Trust boundaries: browser | Airwallex (HMAC) | documents and RFI text (untrusted data) | model → executor (approvals only)
-```
+
+Trust boundaries: the browser · Airwallex (HMAC-verified webhooks) · documents and RFI text (untrusted data, never instructions) · model to executor (the executor acts only on approvals).
 
 The controls, in five lines:
 - **Bound approvals.** An approval covers a hash of the exact content. It is consumed once and refused if the content changed ([ADR 0008](docs/adr/0008-bound-approvals.md)).
@@ -70,7 +85,7 @@ The controls, in five lines:
 
 ## Demo
 
-- **Video:** TODO (M5-02 adds the unlisted link, under three minutes).
+- **Video:** [Carnet demo (3:29, YouTube, unlisted)](https://youtu.be/MgKlYqolyVM). Recorded on the Airwallex sandbox with synthetic documents; segments labelled TEST DATA use seeded data on a local copy; AI narration; nothing sped up.
 - **Deployed app:** https://carnet-web.onrender.com (Airwallex sandbox only). **Judge login:** `judge@carnet.example`. The password is in the submission form. It opens a read-only, labelled playback of real recorded runs: the M2 core demo (12 Nov 2026), with its screens, and the M3 full demo (15 Nov 2026) as a timeline. Every screen shows "Recording of a real sandbox run … Nothing here is live", and every write is refused (403).
 - **Hold screen** (from the M2 live run: drafted answers with the cited document snippets):
 

@@ -69,15 +69,22 @@ describe("auth logs", () => {
     const { rt, logs } = env();
     rt.logger.info(
       {
-        password: "p-123456",
-        body: { password: "p-234567", token: "t-1" },
-        headers: { cookie: "c-1", authorization: "Bearer a-1" },
+        password: "pw-secret-alpha",
+        body: { password: "pw-secret-bravo", token: "tok-secret-charlie" },
+        headers: { cookie: "cookie-secret-delta", authorization: "Bearer bearer-secret-echo" },
       },
       "careless",
     );
     const line = logs.at(-1) ?? "";
     expect(line).toContain("careless");
-    for (const value of ["p-123456", "p-234567", "t-1", "c-1", "a-1"]) {
+    // Markers that cannot occur by chance in a request id (a UUID can contain "c-1").
+    for (const value of [
+      "pw-secret-alpha",
+      "pw-secret-bravo",
+      "tok-secret-charlie",
+      "cookie-secret-delta",
+      "bearer-secret-echo",
+    ]) {
       expect(line).not.toContain(value);
     }
   });

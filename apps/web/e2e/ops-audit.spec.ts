@@ -55,11 +55,13 @@ test("owner sees the chain intact, then broken with the tampered row id, and a n
     await page.goto("/ops");
     await expect(card).toContainText("Chain intact");
 
-    // a non-owner role is refused
+    // The judge (a viewer, always in replay mode) reads /ops of the recording, read-only (M4-05,
+    // apps/web/src/app/ops/layout.tsx): 200 with the recording banner, never the live business.
     await page.context().clearCookies();
     await signIn(page, "judge");
     const res = await page.goto("/ops");
-    expect(res?.status()).toBe(403);
+    expect(res?.status()).toBe(200);
+    await expect(page.getByText(/Recording of a real sandbox run/).first()).toBeVisible();
   } finally {
     await client.close();
   }
