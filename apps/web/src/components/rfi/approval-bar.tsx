@@ -1,7 +1,7 @@
 "use client";
 
 import { CircleCheck, CircleDashed, LoaderCircle, OctagonX, TriangleAlert } from "lucide-react";
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { HoldView } from "@/server/hold";
@@ -82,6 +82,15 @@ export function ApprovalBar({
     attempt !== null && ["SENT_TO_AIRWALLEX", "CONFIRMED", "UNKNOWN"].includes(attempt.status);
   const label =
     count === 1 ? t.hold.approval.ctaCountOne : fill(t.hold.approval.ctaCount, { count });
+  // After a server-confirmed approval in this session, focus moves to the status text: it is the
+  // confirmation the person needs (docs/design/accessibility.md "Focus management", M4-07). An RFI
+  // that was already approved when the page loaded leaves focus alone.
+  const statusRef = useRef<HTMLParagraphElement>(null);
+  const wasWaiting = useRef(waiting || finished);
+  useEffect(() => {
+    if (waiting && !wasWaiting.current) statusRef.current?.focus();
+    wasWaiting.current = waiting || finished;
+  }, [waiting, finished]);
   const priorEnded =
     view.approval &&
     !waiting &&
@@ -96,7 +105,13 @@ export function ApprovalBar({
     >
       {waiting || finished ? (
         <div className="flex flex-col gap-3">
-          <p role="status" className="text-sm font-medium" data-testid="approval-status">
+          <p
+            ref={statusRef}
+            tabIndex={-1}
+            role="status"
+            className="rounded-sm text-sm font-medium"
+            data-testid="approval-status"
+          >
             {finished
               ? t.hold.approval.submitted
               : attempt?.status === "UNKNOWN"

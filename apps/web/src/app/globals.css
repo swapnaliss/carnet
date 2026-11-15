@@ -81,6 +81,10 @@
     outline: var(--focus-width) solid var(--focus-ring);
     outline-offset: var(--focus-offset);
   }
+  /* WCAG 2.4.11 (M4-07): an element focused by script or a jump scrolls clear of the sticky header. */
+  html {
+    scroll-padding-top: calc(var(--shell-header-height) + 1rem);
+  }
 }
 
 /* Reduced motion (docs/design/tokens.md "Motion"): no movement, only instant state changes. */

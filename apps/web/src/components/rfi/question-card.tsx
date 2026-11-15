@@ -168,6 +168,10 @@ function QuestionCardImpl({
   const claims = answer && status !== "needs_owner" ? claimsOf(answer) : [];
   const groups = answer && status !== "needs_owner" ? snippetGroups(claims, answer) : [];
   const titleId = `q-${question.id}-title`;
+  // Closing the editor removes the focused control; focus returns to this question's heading so a
+  // keyboard user keeps their place (M4-07).
+  const returnFocus = () =>
+    window.requestAnimationFrame(() => document.getElementById(titleId)?.focus());
   const rejectedText = status === "needs_owner" && answer && answer.text !== "";
   const reasonKey = needsOwnerKey(answer?.reason_code ?? null);
   const qid = question.id;
@@ -187,11 +191,7 @@ function QuestionCardImpl({
     >
       <div className="flex min-w-0 flex-col gap-3">
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <h3
-            id={titleId}
-            tabIndex={-1}
-            className="text-lg leading-tight font-semibold outline-none"
-          >
+          <h3 id={titleId} tabIndex={-1} className="text-lg leading-tight font-semibold">
             {fill(t.hold.question.position, {
               position,
               total,
@@ -406,10 +406,14 @@ function QuestionCardImpl({
             view={view}
             question={question}
             mode={mode}
-            onCancel={() => setMode(null)}
+            onCancel={() => {
+              setMode(null);
+              returnFocus();
+            }}
             onDone={() => {
               setMode(null);
               onChanged();
+              returnFocus();
             }}
           />
         ) : null}
@@ -438,4 +442,24 @@ function QuestionCardImpl({
   );
 }
 
-export const QuestionCard = memo(QuestionCardImpl);
+type QuestionCardProps = Parameters<typeof QuestionCardImpl>[0];
+
+/**
+ * A poll response carries a new `server_time` every 3 s; the card never reads it. With the poll's
+ * structural sharing (use-poll.ts `share`) every other part of an unchanged view keeps its identity, so
+ * the card skips re-rendering unless something it shows changed (INP on mid-tier phones, M4-07).
+ */
+function sameProps(a: QuestionCardProps, b: QuestionCardProps): boolean {
+  for (const k of Object.keys(b) as (keyof QuestionCardProps)[]) {
+    if (k === "view") continue;
+    if (a[k] !== b[k]) return false;
+  }
+  if (a.view === b.view) return true;
+  const va = a.view as unknown as Record<string, unknown>;
+  const vb = b.view as unknown as Record<string, unknown>;
+  const keys = Object.keys(vb);
+  if (keys.length !== Object.keys(va).length) return false;
+  return keys.every((k) => k === "server_time" || va[k] === vb[k]);
+}
+
+export const QuestionCard = memo(QuestionCardImpl, sameProps);
