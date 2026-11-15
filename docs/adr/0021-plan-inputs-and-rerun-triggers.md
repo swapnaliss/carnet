@@ -26,3 +26,11 @@ Owner decision on issue #40 (found in the M3-07 live run, BL-01). The loader rea
 **Decision.** When several currencies can cover a shortfall, the planner tries first those the policy has a per-action auto-convert limit for (`plannerPolicy(...).autoConvertLimits`), then the others; alphabetical within each group. Whether the conversion is then auto-eligible is still decided by the amount against that limit. With no policy, or a limit for every source, the order is alphabetical as before. The planner stays pure and deterministic; `inputs_hash` is unchanged (the inputs are the same), and `content_hash` changes only for plans whose source changes.
 
 **Tests.** `packages/domain/src/planner/scenarios.test.ts`, "conversion source (ADR 0021 amendment 1)".
+
+## Amendment 2 (2026-11-15): executing an alternate payout
+
+Found in the M3-07 live run: the approved alternate payout was refused `ALREADY_SENT` and returned to PROPOSED, because the payout executor (M3-03) refused any payment that already had a transfer, and a held payment always has one (rule 2).
+
+**Decision.** A payout approved from a plan action with reason `PAYOUT_ALTERNATE_FOR_HELD` for that payment sends a **new** transfer (its own attempt and `request_id`) for the held payment's obligation, bound to the same approval hash. It is refused `NOT_IN_FLIGHT` if the payment has no transfer. The new transfer is recorded on the attempt and the audit entry (`alternateFor`), and is **not** applied to the payment: the payment keeps its held transfer, whose status stays the money status (ADR 0006); `applyFetchedTransfer` already ignores a transfer that is not the payment's own. A plain payout of an already-sent payment is still refused `ALREADY_SENT`. Whether the held transfer is later returned is outside Carnet's control; both transfers can complete (stated risk: the payee may be paid twice, which the owner accepts by approving the alternate payout).
+
+**Tests.** `packages/db/src/executors/executors.int.test.ts`, "an alternate payout for a held payment sends a new transfer and leaves the held one on the payment".
