@@ -290,7 +290,11 @@ describe("BL-01 6623995507: every recorded delivery, in recorded delivery order"
       "b9d31842-bc29-4711-bf0c-bd62c75529ac": "PAID",
       "3e28c6fe-5601-4a15-9623-9c3cda2592bf": "CANCELLED",
     });
-    const jobs = await query<{ status: string }>(db().appUrl, "SELECT status FROM outbox_jobs");
+    // plan.rerun jobs (ADR 0021) are asked for by each applied status and have no consumer in this registry.
+    const jobs = await query<{ status: string }>(
+      db().appUrl,
+      "SELECT status FROM outbox_jobs WHERE kind <> 'plan.rerun'",
+    );
     expect(jobs.length).toBe(23);
     expect(jobs.every((j) => j.status === "DONE")).toBe(true);
   });

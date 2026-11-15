@@ -32,7 +32,7 @@ async function runWorker(): Promise<void> {
   const missing = missingAirwallexKeys(process.env);
   if (missing.length === 0) {
     // The outbox loop (M1-05). It logs "worker heartbeat" every 30 s and records a heartbeat row.
-    await startWorker({ signal, logger });
+    await startWorker({ signal, logger, planInputs: "production" });
     return;
   }
   // Degraded: without Airwallex credentials the loop cannot run its handlers. Keep the process up so

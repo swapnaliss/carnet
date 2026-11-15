@@ -251,3 +251,74 @@ export async function findConversionByRequestId(
   const { items } = await listConversions(ctx, { requestId, pageSize: 100 });
   return items.find((c) => c.requestId === requestId) ?? null;
 }
+
+// ---- Indicative rate (planner input, M3) --------------------------------------------------------
+
+export interface RateDetail {
+  /** `AWX` (the market rate) or `CLIENT` (what the account would get). */
+  level: string;
+  /** Exact decimal text, for the pair as Airwallex quotes it (not necessarily buy per sell). */
+  rate: string;
+  buyAmount: string;
+  sellAmount: string;
+}
+
+export interface CurrentRate {
+  buyCurrency: Currency;
+  sellCurrency: Currency;
+  currencyPair: string | null;
+  createdAt: string | null;
+  details: RateDetail[];
+}
+
+const CurrentRateWire = z
+  .looseObject({
+    buy_currency: CurrencySchema,
+    sell_currency: CurrencySchema,
+    currency_pair: z.string().nullish(),
+    created_at: z.string().nullish(),
+    rate_details: z.array(
+      z.looseObject({
+        level: z.string(),
+        rate: WireDecimal,
+        buy_amount: WireDecimal,
+        sell_amount: WireDecimal,
+      }),
+    ),
+  })
+  .transform(
+    (w): CurrentRate => ({
+      buyCurrency: w.buy_currency,
+      sellCurrency: w.sell_currency,
+      currencyPair: w.currency_pair ?? null,
+      createdAt: w.created_at ?? null,
+      details: w.rate_details.map((d) => ({
+        level: d.level,
+        rate: d.rate,
+        buyAmount: d.buy_amount,
+        sellAmount: d.sell_amount,
+      })),
+    }),
+  );
+
+/**
+ * `GET /fx/rates/current` (fixture `fx-current-rate`): an indicative rate, not a quote. It moves no
+ * money and cannot be converted at. No `x-api-version`, like every FX call.
+ */
+export async function getCurrentRate(
+  ctx: Ctx,
+  input: { buyCurrency: Currency; sellCurrency: Currency; sellAmount: Money },
+): Promise<CurrentRate> {
+  return authed(ctx.http, ctx.tokens, {
+    method: "GET",
+    path: "/api/v1/fx/rates/current",
+    query: {
+      buy_currency: input.buyCurrency,
+      sell_currency: input.sellCurrency,
+      sell_amount: toWireAmount(input.sellAmount, "sellAmount", input.sellCurrency),
+    },
+    schema: CurrentRateWire,
+    retryable: true,
+    omitApiVersion: true,
+  });
+}

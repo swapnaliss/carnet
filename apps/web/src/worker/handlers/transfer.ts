@@ -5,6 +5,7 @@
 import type { Transfer } from "@carnet/airwallex";
 import {
   appendAudit,
+  enqueuePlanRerun,
   findPaymentForTransfer,
   getPaymentForUpdate,
   markWebhookEventProcessed,
@@ -82,6 +83,12 @@ export async function applyFetchedTransfer(
       transferStatus: incoming.status,
       transferUpdatedAt: incoming.updatedAt,
       failureType: transfer.failure?.type ?? null,
+    });
+    // A transfer's own status is a planner input (what is held, what is spent): re-plan with it.
+    await enqueuePlanRerun(tx, {
+      businessId: owner.businessId,
+      eventId: `transfer:${transfer.id}:${incoming.status}`,
+      cause: "airwallex.transfer.updated",
     });
     if (result.incident) {
       const data = {

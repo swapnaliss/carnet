@@ -37,6 +37,7 @@ import { handleRfiRespond } from "./handlers/rfi-respond";
 import { handleTransferSimulate } from "./handlers/simulate-transfer";
 import { handleTransferSync } from "./handlers/transfer";
 import { createWorker, DEFAULT_POLL_MS } from "./loop";
+import { createPlanInputsLoader, type PlanInputsGateway } from "./plan-inputs";
 import { handleReconcile } from "./reconcile";
 
 /** The handlers worker mode runs. Later tickets register theirs here (M2-04, M2-07, M3-03). */
@@ -85,8 +86,13 @@ export interface StartWorkerOptions {
   logger?: Logger;
   /** Tests only: replace the handlers, the Airwallex reader or the reconcile cadence. */
   registry?: HandlerRegistry;
-  /** Reads the planner's inputs; `plan.rerun` is registered only when this is supplied (M3-01/M2). */
-  planInputs?: PlanInputsLoader;
+  /**
+   * Reads the planner's inputs; `plan.rerun` is registered only when this is supplied. `"production"`
+   * builds the loader over the worker's own Airwallex client (ADR 0021); a function is a test loader.
+   */
+  planInputs?: PlanInputsLoader | "production";
+  /** Tests only, with `planInputs: "production"`: the balance and rate reads. Default: the client. */
+  planGateway?: PlanInputsGateway;
   airwallex?: AirwallexReader;
   airwallexWriter?: AirwallexWriter;
   reconcileEveryMs?: number | null;
@@ -104,6 +110,7 @@ export async function startWorker(options: StartWorkerOptions = {}): Promise<voi
   });
   let airwallex: AirwallexReader;
   let airwallexWriter: AirwallexWriter | undefined = options.airwallexWriter;
+  let planGateway: PlanInputsGateway | undefined = options.planGateway;
   try {
     if (options.airwallex) {
       airwallex = options.airwallex;
@@ -111,14 +118,25 @@ export async function startWorker(options: StartWorkerOptions = {}): Promise<voi
       const client = createAirwallexClient({ ...configFromEnv(env), logger });
       airwallex = client;
       airwallexWriter ??= client;
+      planGateway ??= client;
     }
   } catch (error) {
     await db.close().catch(() => undefined);
     throw error;
   }
+  let planInputs: PlanInputsLoader | undefined;
+  if (options.planInputs === "production") {
+    if (!planGateway) {
+      await db.close().catch(() => undefined);
+      throw new Error("planInputs: production needs the Airwallex client or a planGateway");
+    }
+    planInputs = createPlanInputsLoader({ db: db.db, gateway: planGateway });
+  } else {
+    planInputs = options.planInputs;
+  }
   const worker = createWorker({
     db: db.db,
-    registry: options.registry ?? defaultRegistry(options.planInputs),
+    registry: options.registry ?? defaultRegistry(planInputs),
     airwallex,
     ...(airwallexWriter ? { airwallexWriter } : {}),
     logger,

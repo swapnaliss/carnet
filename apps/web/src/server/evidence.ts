@@ -19,6 +19,7 @@ import {
   type EvidenceDocumentView,
   type ExecutionAttempt,
   enqueueJob,
+  enqueuePlanRerun,
   getPaymentForUpdate,
   insertEvidenceCheck,
   isExecutionEnabled,
@@ -365,6 +366,11 @@ export async function sendWithGuard(
   await enqueueJob(rc.db, {
     kind: JOB_KIND.transferCreate,
     payload: { attemptId: attempt.id, businessId: rc.businessId, paymentId },
+  });
+  await enqueuePlanRerun(rc.db, {
+    businessId: rc.businessId,
+    eventId: `payment:${paymentId}:submitted`,
+    cause: "payment.submitted",
   });
   return {
     attempt,
