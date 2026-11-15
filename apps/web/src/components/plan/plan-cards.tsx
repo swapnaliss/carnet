@@ -441,6 +441,7 @@ export function ActionCard({
     <li
       className="flex flex-col gap-2 rounded-md border border-border bg-card p-4"
       data-testid="action-card"
+      data-action-id={a.id}
       data-kind={a.kind}
       data-state={a.state}
     >
