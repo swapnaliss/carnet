@@ -44,6 +44,9 @@ const RUN = `M3RUN-${new Date().toISOString().slice(2, 16).replace(/[-:T]/g, "")
 // Dataset payees seeded by scripts/demo-reset.sh (packages/db/src/seed/demo-dataset.ts).
 const HARBOR = "970431ea-f5c8-56e4-9ce1-5e5a7d12e1a3";
 const LAKESIDE = "6b297011-01a1-51c9-8df5-9ab5bfb73049";
+/** The weak payment pays USD 1,250.00 against an invoice of USD 1,320.50: the amounts do not match. */
+const WEAK_AMOUNT = "1250.00";
+const WEAK_AMOUNT_MINOR = "125000";
 const ALTSTADT = "18dfa35f-d0eb-58c9-b90b-15143f9024e0";
 
 interface Step {
@@ -196,11 +199,19 @@ test("1. goal and plan: owner signs in, states payroll and two suppliers by Frid
     return r.body.payment.id;
   };
   payments.strong = { id: await create(HARBOR, "4800.00", `${RUN}-001`, "p1"), transferId: null };
-  payments.weak = { id: await create(LAKESIDE, "1320.50", `${RUN}-003`, "p3"), transferId: null };
+  // The weak case must not depend on payment history (the demo business keeps every earlier run, and the
+  // contract rule only applies to a FIRST payment to a payee). So the payment's amount deliberately differs
+  // from the attached invoice's total (inv-lakeside-001: USD 1,320.50, fixtures/dataset/ground-truth.json):
+  // R-AMT fails, which makes the flag Weak under any history (strength.ts).
+  payments.weak = { id: await create(LAKESIDE, WEAK_AMOUNT, `${RUN}-003`, "p3"), transferId: null };
 
   // The goal, as obligations: payroll (EUR) and two suppliers, due next Friday. The owner confirms each
   // criticality through the only endpoint that sets it; the model's proposal (the Harbor contract) is
   // asked for first and its id is passed so the confirmation records the proposal the owner saw.
+  // History is not reset (scripts/demo-reset.sh is add-only): obligations of earlier runs are still owed and
+  // are in this run's plan. Record how many there were so the run note can say so.
+  const earlier = await api.call<{ items: unknown[] }>("GET", "/api/v1/obligations");
+  const earlierObligations = earlier.body.items?.length ?? 0;
   const due = nextFriday(new Date()).toISOString();
   const mk = async (name: string, body: Record<string, unknown>) => {
     const r = await api.call<{ id: string }>("POST", "/api/v1/obligations", {
@@ -220,7 +231,7 @@ test("1. goal and plan: owner signs in, states payroll and two suppliers by Frid
   });
   await mk("lakeside", {
     counterparty_id: LAKESIDE,
-    amount_minor: "132050",
+    amount_minor: WEAK_AMOUNT_MINOR,
     currency: "USD",
     payment_id: payments.weak?.id,
   });
@@ -263,6 +274,7 @@ test("1. goal and plan: owner signs in, states payroll and two suppliers by Frid
   note(1, "owner signed in; goal stated as obligations; criticality confirmed; plan for the goal", {
     deployed_version: health.version,
     obligations,
+    obligations_from_earlier_runs: earlierObligations,
     payments: { strong: payments.strong?.id, weak: payments.weak?.id },
     plan_revision: rev1.revision,
     inputs_hash: rev1.inputs_hash,
@@ -296,7 +308,9 @@ test("2. evidence flags: the queue shows strength per payment, one not strong", 
   );
   const weak = await flagOf(payments.weak?.id);
   expect(strong).toBe("strong");
-  expect(weak).not.toBe("strong");
+  expect(weak, "the amount mismatch must keep the Lakeside payment from being strong").not.toBe(
+    "strong",
+  );
   await page.goto("/payments");
   await expect(page.getByRole("heading", { level: 1, name: "Payments" })).toBeVisible();
   await shot(page, "02-queue-evidence-flags");
