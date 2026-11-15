@@ -24,9 +24,11 @@ import {
   listAttemptsForRefs,
   listCounterparties,
   listPayments,
+  listRfis,
   listWebhookEventsForPayment,
   type Payment,
   type PaymentWebhookEvent,
+  paymentHasHoldingRfi,
   type RepoCtx,
   repoCtx,
   saveIdempotencyRecord,
@@ -44,6 +46,7 @@ import {
   type PaymentView,
   parseEvidencePolicy,
   project,
+  RFI_HOLDING_STATES,
   SendPaymentBodySchema,
   SimulateTransferBodySchema,
   toMoneyWire,
@@ -154,9 +157,16 @@ export function attemptDto(attempt: ExecutionAttempt): AttemptDto {
   };
 }
 
-/** No `rfis` table exists before M2-04, so no payment is held yet (openRfi = false). */
-export function paymentDto(payment: Payment, attempt: ExecutionAttempt | null): PaymentDto {
-  const projection = payment.transferStatus ? project(payment.transferStatus, false) : null;
+/**
+ * `openRfi` is whether a holding RFI is linked to the payment (RFI_HOLDING_STATES, as the queue reads it).
+ * It only decides `view` and `held` through `project()`; it never touches `transfer_status` (ADR 0006).
+ */
+export function paymentDto(
+  payment: Payment,
+  attempt: ExecutionAttempt | null,
+  openRfi = false,
+): PaymentDto {
+  const projection = payment.transferStatus ? project(payment.transferStatus, openRfi) : null;
   return {
     id: payment.id,
     reference: payment.reference,
@@ -209,8 +219,13 @@ export async function loadPaymentList(
       payments.map((p) => p.id),
     ),
   );
+  const holding = new Set(
+    (await listRfis(repo, { states: [...RFI_HOLDING_STATES], orphan: false })).map(
+      (r) => r.paymentId,
+    ),
+  );
   return {
-    items: payments.map((p) => paymentDto(p, attempts.get(p.id) ?? null)),
+    items: payments.map((p) => paymentDto(p, attempts.get(p.id) ?? null, holding.has(p.id))),
     server_time: now.toISOString(),
   };
 }
@@ -226,7 +241,7 @@ export async function loadPaymentDetail(
   const attempt = latestAttempts(await listAttemptsForRefs(repo, "transfer", [id])).get(id) ?? null;
   const webhooks = await listWebhookEventsForPayment(repo, id);
   return {
-    payment: paymentDto(payment, attempt),
+    payment: paymentDto(payment, attempt, await paymentHasHoldingRfi(repo, id)),
     webhooks: webhooks.map((w) => webhookDto(w, role)),
     server_time: now.toISOString(),
   };
@@ -438,7 +453,7 @@ export function paymentRouteSpecs(deps: { balances: BalanceReader; now?: () => D
       const fresh = (await getPayment(repo, params.id)) ?? payment;
       return Response.json(
         {
-          payment: paymentDto(fresh, outcome.attempt),
+          payment: paymentDto(fresh, outcome.attempt, await paymentHasHoldingRfi(repo, params.id)),
           already_sent: outcome.alreadySent,
           evidence: outcome.alreadySent
             ? null
