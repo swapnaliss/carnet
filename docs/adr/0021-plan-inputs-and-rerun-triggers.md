@@ -19,3 +19,10 @@ Polling balances on a timer (a new loop, and the plan would lag a change by up t
 
 ## Consequences
 Cost to reverse: low. Unverified: the rate's behaviour outside the sandbox, a held cross-currency transfer's source amount (stored amount is the transfer amount), and a balance change from an executed conversion, which has no trigger of its own and is picked up by the next event.
+
+## Amendment 1 (15 Nov 2026): which currency a shortfall is converted from
+Owner decision on issue #40 (found in the M3-07 live run, BL-01). The loader reads a rate for every currency with a positive balance, and the sandbox holds several (CNY, EUR, GBP, HKD, INR, USD). The planner used to try sources alphabetically, so an SGD shortfall would sell CNY even when the policy only lets USD conversions run without a person.
+
+**Decision.** When several currencies can cover a shortfall, the planner tries first those the policy has a per-action auto-convert limit for (`plannerPolicy(...).autoConvertLimits`), then the others; alphabetical within each group. Whether the conversion is then auto-eligible is still decided by the amount against that limit. With no policy, or a limit for every source, the order is alphabetical as before. The planner stays pure and deterministic; `inputs_hash` is unchanged (the inputs are the same), and `content_hash` changes only for plans whose source changes.
+
+**Tests.** `packages/domain/src/planner/scenarios.test.ts`, "conversion source (ADR 0021 amendment 1)".

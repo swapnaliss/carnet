@@ -14,7 +14,7 @@ import {
   SeedConfigError,
   seedDemoUsers,
 } from "../src/index";
-import { authAccounts, businesses, counterparties, users } from "../src/schema/index";
+import { authAccounts, businesses, counterparties, policies, users } from "../src/schema/index";
 import { useTestDatabase } from "./harness";
 
 const db = useTestDatabase();
@@ -134,5 +134,42 @@ describe("ensureDemoDataset (M2-09)", () => {
     expect(await db().app.db.$count(counterparties)).toBe(
       before + DEMO_DATASET_COUNTERPARTIES.length,
     );
+  });
+});
+
+describe("ensureDemoPolicy (M3-07)", () => {
+  it("stores the demo policy as version 1 once; a re-run adds nothing", async () => {
+    const { ensureDemoBusiness, ensureDemoPolicy, DEMO_POLICY, DEMO_BUSINESS_ID } = await import(
+      "../src/index"
+    );
+    const { policyHash } = await import("@carnet/domain");
+    await ensureDemoBusiness(db().app.db);
+    const count = () =>
+      db().app.db.$count(policies, eq(policies.businessId, DEMO_BUSINESS_ID as string));
+    expect(await count()).toBe(0);
+    const first = await ensureDemoPolicy(db().app.db);
+    const second = await ensureDemoPolicy(db().app.db);
+    expect(first).toEqual({ created: true, version: 1, hash: policyHash(DEMO_POLICY) });
+    expect(second).toEqual({ created: false, version: 1, hash: first.hash });
+    expect(await count()).toBe(1);
+  });
+
+  it("leaves an existing policy of other content alone (no new version)", async () => {
+    const { createPolicyVersion, ensureDemoPolicy, repoCtx, withTransaction } = await import(
+      "../src/index"
+    );
+    const businessId = await createBusiness(db().app.db, { name: "Policy owner (synthetic)" });
+    const own = await withTransaction(db().app.db, (tx) =>
+      createPolicyVersion(repoCtx(tx, businessId), {
+        reserveFloor: [],
+        perActionLimit: [{ currency: "EUR", minor: "100" }],
+        dailyCap: [],
+        slippageBps: 10,
+        quoteFreshnessSeconds: 60,
+      }),
+    );
+    const result = await ensureDemoPolicy(db().app.db, businessId);
+    expect(result).toEqual({ created: false, version: own.version, hash: own.hash });
+    expect(await db().app.db.$count(policies, eq(policies.businessId, businessId))).toBe(1);
   });
 });
