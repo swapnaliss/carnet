@@ -1,0 +1,924 @@
+{
+  "measured_at": "2026-11-15T13:43:06.786Z",
+  "url_class": "hosted",
+  "runs": 5,
+  "budget": {
+    "lcpMs": 2500,
+    "inpMs": 200,
+    "cls": 0.1
+  },
+  "profiles": {
+    "mobile": {
+      "viewport": {
+        "width": 375,
+        "height": 812
+      },
+      "isMobile": true,
+      "hasTouch": true,
+      "cpu": 4,
+      "net": {
+        "latency": 150,
+        "down": 209715.2,
+        "up": 96000
+      }
+    },
+    "desktop": {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "isMobile": false,
+      "hasTouch": false,
+      "cpu": 1,
+      "net": {
+        "latency": 40,
+        "down": 1310720,
+        "up": 655360
+      }
+    }
+  },
+  "summary": [
+    {
+      "key": "/queue | mobile | cold",
+      "lcpMedianMs": 1760,
+      "lcpWorstMs": 2384,
+      "clsMedian": 0.0004,
+      "clsWorst": 0.0004,
+      "inpMedianMs": null,
+      "inpWorstMs": null,
+      "pass": true
+    },
+    {
+      "key": "/queue | mobile | warm",
+      "lcpMedianMs": 1252,
+      "lcpWorstMs": 1404,
+      "clsMedian": 0,
+      "clsWorst": 0,
+      "inpMedianMs": null,
+      "inpWorstMs": null,
+      "pass": true
+    },
+    {
+      "key": "/queue | desktop | cold",
+      "lcpMedianMs": 1548,
+      "lcpWorstMs": 2228,
+      "clsMedian": 0,
+      "clsWorst": 0,
+      "inpMedianMs": null,
+      "inpWorstMs": null,
+      "pass": true
+    },
+    {
+      "key": "/queue | desktop | warm",
+      "lcpMedianMs": 1448,
+      "lcpWorstMs": 2396,
+      "clsMedian": 0,
+      "clsWorst": 0,
+      "inpMedianMs": null,
+      "inpWorstMs": null,
+      "pass": true
+    },
+    {
+      "key": "/rfis/[id] (hold screen) | mobile | cold",
+      "lcpMedianMs": 1284,
+      "lcpWorstMs": 1296,
+      "clsMedian": 0,
+      "clsWorst": 0.0013,
+      "inpMedianMs": 168,
+      "inpWorstMs": 224,
+      "pass": true
+    },
+    {
+      "key": "/rfis/[id] (hold screen) | mobile | warm",
+      "lcpMedianMs": 692,
+      "lcpWorstMs": 764,
+      "clsMedian": 0,
+      "clsWorst": 0,
+      "inpMedianMs": 184,
+      "inpWorstMs": 240,
+      "pass": true
+    },
+    {
+      "key": "/rfis/[id] (hold screen) | desktop | cold",
+      "lcpMedianMs": 532,
+      "lcpWorstMs": 1352,
+      "clsMedian": 0,
+      "clsWorst": 0.0008,
+      "inpMedianMs": 64,
+      "inpWorstMs": 80,
+      "pass": true
+    },
+    {
+      "key": "/rfis/[id] (hold screen) | desktop | warm",
+      "lcpMedianMs": 672,
+      "lcpWorstMs": 796,
+      "clsMedian": 0,
+      "clsWorst": 0,
+      "inpMedianMs": 48,
+      "inpWorstMs": 72,
+      "pass": true
+    },
+    {
+      "key": "/plans/current | mobile | cold",
+      "lcpMedianMs": 1248,
+      "lcpWorstMs": 1356,
+      "clsMedian": 0.0025,
+      "clsWorst": 0.0025,
+      "inpMedianMs": null,
+      "inpWorstMs": null,
+      "pass": true
+    },
+    {
+      "key": "/plans/current | mobile | warm",
+      "lcpMedianMs": 716,
+      "lcpWorstMs": 796,
+      "clsMedian": 0,
+      "clsWorst": 0,
+      "inpMedianMs": null,
+      "inpWorstMs": null,
+      "pass": true
+    },
+    {
+      "key": "/plans/current | desktop | cold",
+      "lcpMedianMs": 516,
+      "lcpWorstMs": 800,
+      "clsMedian": 0.0005,
+      "clsWorst": 0.0005,
+      "inpMedianMs": null,
+      "inpWorstMs": null,
+      "pass": true
+    },
+    {
+      "key": "/plans/current | desktop | warm",
+      "lcpMedianMs": 600,
+      "lcpWorstMs": 892,
+      "clsMedian": 0,
+      "clsWorst": 0,
+      "inpMedianMs": null,
+      "inpWorstMs": null,
+      "pass": true
+    },
+    {
+      "key": "/payments/[id]/evidence | mobile | cold",
+      "lcpMedianMs": 1196,
+      "lcpWorstMs": 1280,
+      "clsMedian": 0,
+      "clsWorst": 0,
+      "inpMedianMs": null,
+      "inpWorstMs": null,
+      "pass": true
+    },
+    {
+      "key": "/payments/[id]/evidence | mobile | warm",
+      "lcpMedianMs": 644,
+      "lcpWorstMs": 836,
+      "clsMedian": 0,
+      "clsWorst": 0,
+      "inpMedianMs": null,
+      "inpWorstMs": null,
+      "pass": true
+    },
+    {
+      "key": "/payments/[id]/evidence | desktop | cold",
+      "lcpMedianMs": 504,
+      "lcpWorstMs": 504,
+      "clsMedian": 0.0038,
+      "clsWorst": 0.0126,
+      "inpMedianMs": null,
+      "inpWorstMs": null,
+      "pass": true
+    },
+    {
+      "key": "/payments/[id]/evidence | desktop | warm",
+      "lcpMedianMs": 604,
+      "lcpWorstMs": 624,
+      "clsMedian": 0,
+      "clsWorst": 0,
+      "inpMedianMs": null,
+      "inpWorstMs": null,
+      "pass": true
+    }
+  ],
+  "samples": [
+    {
+      "route": "/queue",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 1,
+      "lcpMs": 2384,
+      "cls": 0.0004,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 2,
+      "lcpMs": 1472,
+      "cls": 0.0004,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 3,
+      "lcpMs": 1656,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 4,
+      "lcpMs": 1760,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 5,
+      "lcpMs": 2088,
+      "cls": 0.0004,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 1,
+      "lcpMs": 1176,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 2,
+      "lcpMs": 1360,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 3,
+      "lcpMs": 1404,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 4,
+      "lcpMs": 900,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 5,
+      "lcpMs": 1252,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 1,
+      "lcpMs": 2032,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 2,
+      "lcpMs": 1452,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 3,
+      "lcpMs": 1548,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 4,
+      "lcpMs": 1492,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 5,
+      "lcpMs": 2228,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 1,
+      "lcpMs": 1384,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 2,
+      "lcpMs": 1784,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 3,
+      "lcpMs": 1448,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 4,
+      "lcpMs": 2396,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/queue",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 5,
+      "lcpMs": 1432,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 1,
+      "lcpMs": 1296,
+      "cls": 0,
+      "inpMs": 168
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 2,
+      "lcpMs": 1284,
+      "cls": 0,
+      "inpMs": 160
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 3,
+      "lcpMs": 1284,
+      "cls": 0,
+      "inpMs": 160
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 4,
+      "lcpMs": 1276,
+      "cls": 0,
+      "inpMs": 224
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 5,
+      "lcpMs": 1220,
+      "cls": 0.0013,
+      "inpMs": 184
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 1,
+      "lcpMs": 720,
+      "cls": 0,
+      "inpMs": 184
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 2,
+      "lcpMs": 676,
+      "cls": 0,
+      "inpMs": 168
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 3,
+      "lcpMs": 676,
+      "cls": 0,
+      "inpMs": 240
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 4,
+      "lcpMs": 692,
+      "cls": 0,
+      "inpMs": 160
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 5,
+      "lcpMs": 764,
+      "cls": 0,
+      "inpMs": 184
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 1,
+      "lcpMs": 532,
+      "cls": 0.0008,
+      "inpMs": 48
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 2,
+      "lcpMs": 1352,
+      "cls": 0,
+      "inpMs": 24
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 3,
+      "lcpMs": 532,
+      "cls": 0,
+      "inpMs": 80
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 4,
+      "lcpMs": 448,
+      "cls": 0,
+      "inpMs": 64
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 5,
+      "lcpMs": 920,
+      "cls": 0,
+      "inpMs": 72
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 1,
+      "lcpMs": 680,
+      "cls": 0,
+      "inpMs": 48
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 2,
+      "lcpMs": 796,
+      "cls": 0,
+      "inpMs": 72
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 3,
+      "lcpMs": 632,
+      "cls": 0,
+      "inpMs": 48
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 4,
+      "lcpMs": 596,
+      "cls": 0,
+      "inpMs": 64
+    },
+    {
+      "route": "/rfis/[id] (hold screen)",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 5,
+      "lcpMs": 672,
+      "cls": 0,
+      "inpMs": 48
+    },
+    {
+      "route": "/plans/current",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 1,
+      "lcpMs": 1212,
+      "cls": 0.0025,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 2,
+      "lcpMs": 1236,
+      "cls": 0.0025,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 3,
+      "lcpMs": 1356,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 4,
+      "lcpMs": 1300,
+      "cls": 0.0025,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 5,
+      "lcpMs": 1248,
+      "cls": 0.0025,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 1,
+      "lcpMs": 712,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 2,
+      "lcpMs": 736,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 3,
+      "lcpMs": 796,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 4,
+      "lcpMs": 712,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 5,
+      "lcpMs": 716,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 1,
+      "lcpMs": 492,
+      "cls": 0.0005,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 2,
+      "lcpMs": 436,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 3,
+      "lcpMs": 800,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 4,
+      "lcpMs": 516,
+      "cls": 0.0005,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 5,
+      "lcpMs": 544,
+      "cls": 0.0005,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 1,
+      "lcpMs": 584,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 2,
+      "lcpMs": 892,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 3,
+      "lcpMs": 600,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 4,
+      "lcpMs": 628,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/plans/current",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 5,
+      "lcpMs": 584,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 1,
+      "lcpMs": 1260,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 2,
+      "lcpMs": 1192,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 3,
+      "lcpMs": 1196,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 4,
+      "lcpMs": 1280,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "mobile",
+      "cache": "cold",
+      "run": 5,
+      "lcpMs": 1196,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 1,
+      "lcpMs": 640,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 2,
+      "lcpMs": 640,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 3,
+      "lcpMs": 652,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 4,
+      "lcpMs": 836,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "mobile",
+      "cache": "warm",
+      "run": 5,
+      "lcpMs": 644,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 1,
+      "lcpMs": 504,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 2,
+      "lcpMs": 456,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 3,
+      "lcpMs": 480,
+      "cls": 0.0126,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 4,
+      "lcpMs": 504,
+      "cls": 0.0061,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "desktop",
+      "cache": "cold",
+      "run": 5,
+      "lcpMs": 504,
+      "cls": 0.0038,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 1,
+      "lcpMs": 604,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 2,
+      "lcpMs": 604,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 3,
+      "lcpMs": 504,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 4,
+      "lcpMs": 624,
+      "cls": 0,
+      "inpMs": null
+    },
+    {
+      "route": "/payments/[id]/evidence",
+      "profile": "desktop",
+      "cache": "warm",
+      "run": 5,
+      "lcpMs": 476,
+      "cls": 0,
+      "inpMs": null
+    }
+  ]
+}

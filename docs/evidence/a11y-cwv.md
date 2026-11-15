@@ -267,3 +267,22 @@ These are still local numbers. The hosted run is still owed before the gate.
 - **Mobile hold-screen INP:** it missed the budget in the first run (256 ms cold, 576 ms warm). In the follow-up run it is within budget on a fresh database, both before (72 ms cold, 96 ms warm) and after (48 ms cold, 88 ms warm) the lazy-loading change. The earlier miss was not reproduced, and the hosted run is still owed (section 5). BL-01 comment 6891327363.
 - Hold-screen polish from the ui-reviewer (identical citation chips, the "Edited by you" tone, spec drift, the nav-rail label edges at 768, the dialog footer at 375, focus-ring spacing): BL-01 comment 6891157470.
 - Seed answers that do not match the seeded payment header: BL-01 comment 6891157727.
+
+## Hosted run (2026-11-15, owed by Scope 5)
+
+`npx tsx scripts/cwv.ts --url https://carnet-web.onrender.com --runs 5 --assert` against the deployed app at `ee254af` (Render, Singapore), measured from one client machine. Raw output: [`cwv-hosted.json`](cwv-hosted.json). **16 of 16 route/profile/cache groups within budget on the median; `--assert` exited 0.**
+
+| Route | Profile | LCP median (worst) | CLS median (worst) | INP median (worst) |
+|---|---|---|---|---|
+| /queue | mobile cold / warm | 1760 (2384) / 1252 (1404) ms | 0.0004 / 0 | n/a |
+| /queue | desktop cold / warm | 1548 (2228) / 1448 (2396) ms | 0 / 0 | n/a |
+| hold screen | mobile cold / warm | 1284 (1296) / 692 (764) ms | 0 (0.0013) / 0 | **168 (224) / 184 (240) ms** |
+| hold screen | desktop cold / warm | 532 (1352) / 672 (796) ms | 0 (0.0008) / 0 | 64 (80) / 48 (72) ms |
+| /plans/current | mobile cold / warm | 1248 (1356) / 716 (796) ms | 0.0025 / 0 | n/a |
+| /plans/current | desktop cold / warm | 516 (800) / 600 (892) ms | 0.0005 / 0 | n/a |
+| /payments/[id]/evidence | mobile cold / warm | 1196 (1280) / 644 (836) ms | 0 / 0 | n/a |
+| /payments/[id]/evidence | desktop cold / warm | 504 (504) / 604 (624) ms | 0.0038 (0.0126) / 0 | n/a |
+
+- **Mobile hold-screen INP is within budget on the median but close to it**, and the worst run of each profile is over 200 ms (224 ms cold, 240 ms warm). Budgets are judged on the median (performance.md), so this passes, narrowly. It is the one number to watch.
+- The hold screen measured is an RFI whose draft was DRAFT_READY: it was created for this purpose by running steps 1-4 of `demo-live.spec.ts` live just before. A first hosted run that same afternoon opened a CLOSED RFI, where the scripted interactions do not exist and INP read 0 ms; that run is discarded, not reported.
+- One run of 5 samples per group from one network location; the service was already warm, so a cold start is not included.

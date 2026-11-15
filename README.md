@@ -115,7 +115,9 @@ Everything below comes from one recorded run or from a replayable eval. One run 
 
 **M3 full demo, live** ([`m3-run.md`](docs/evidence/m3-run.md)): all 9 storyboard steps passed against the deployed app, the real sandbox and the real model on 2026-11-15 (run `M3RUN-2611151316`). Measured in that run: the RFI was visible in Carnet 5.4 s after creation; approval to answered took 3.7 s; 24 webhooks were acknowledged with a median of 9.5 ms (max 298 ms); model cost was between USD 0.99 and USD 1.11. Earlier attempts that day found and fixed a real bug (an approved alternate payout could never execute); the run note lists them.
 
-**Not yet measured:** the eval-suite report, load-test numbers, and accessibility and Core Web Vitals results (M4-03, M4-06, M4-07). Until their evidence files exist, this README claims no number for them.
+**Accessibility and Core Web Vitals** ([`a11y-cwv.md`](docs/evidence/a11y-cwv.md), M4-07): axe found 0 WCAG 2.2 A/AA violations in 84 of 84 checks (42 screen states, light and dark). On the hosted app, 16 of 16 route, device and cache groups met the budgets (LCP < 2.5 s, CLS < 0.1, INP < 200 ms) on the median of 5 runs. The closest is the mobile hold screen: INP median 168 ms cold and 184 ms warm, with worst runs of 224 ms and 240 ms.
+
+**Load** ([`load-test.md`](docs/evidence/load-test.md), M4-06, local stack on one laptop): webhook acknowledgement p95 was 45.5 ms at average load and 109.3 ms in a 20/s burst, against a 300 ms target. With 3 workers no job ran twice.
 
 **Eval suite** ([`evals.md`](docs/evidence/evals.md), M4-03):
 Numbers below are copied from [`docs/evidence/evals.md`](docs/evidence/evals.md) (replay mode: the
@@ -130,7 +132,6 @@ fails if they drift. Run it yourself with `npm run eval -- --mode replay`.
 
 The dataset is small and synthetic, and the prompts were tuned on it; these numbers show the controls
 work, not accuracy on unseen documents.
-<!-- M4-06 supplies the load-test numbers -->
 
 ## Future vision
 
