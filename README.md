@@ -4,33 +4,228 @@
 
 Built for the Airwallex Agentic Banking Hackathon (Oct–Nov 2026). Sandbox only; every document and counterparty is synthetic.
 
+How to read this README: every number links to the evidence file it comes from in [`docs/evidence/`](docs/evidence/). Where we infer something, we say so. Where Airwallex behaviour was not verified, we mark it **unverified**. Sections marked **TODO after the M3 live run** are waiting for the full live run recording ([`docs/evidence/m3-run.md`](docs/evidence/m3-run.md)). Until then they make no claim.
+
 ## Problem
-<!-- M5-01: the pain, in users' words with links (verified quotes), who suffers, what it costs, why it is unsolved -->
+
+A business sends a supplier payment or receives a client payment, and the provider's risk team holds it and asks for paperwork. Airwallex's own documentation says what such a request usually asks for:
+
+> "This is commonly a request for supporting documents relating to the transaction itself such as invoices or contracts"
+>
+> — Airwallex Docs, [Handle Transaction RFI](https://www.airwallex.com/docs/banking-as-a-service/risk/rfi-(request-for-information)/handle-transaction-rfi), opened 2026-11-15
+
+**Who suffers.** We expect the people hit hardest to be founder-operators of small cross-border agencies, part-time finance leads at importers and solo exporters, where the person who makes the payment also has to answer for it. While a payment is held they have three jobs at once:
+- find and send the right documents, often more than once;
+- keep payroll and other suppliers paid from what is left;
+- tell a supplier where a payment is that nobody can see.
+
+**Why it is unsolved.** Airwallex offers ways to *answer* a Transaction RFI (an embedded component, a hosted flow and the Connected Account Console, listed on the page above), but none of them prepares the answer from the business's own documents or re-plans other payments during the hold. *Inference:* the pain is the same at every payment provider, but Airwallex's RFI API is the only one we could demonstrate in a sandbox.
+
+*Quote note:* our research also gathered first-person forum posts about held payments, payroll due during a hold, and repeated document requests. Reddit refused automated fetches when we tried to re-open them on 2026-11-15. We could not confirm them verbatim that day, so they are left out.
 
 ## Solution
-<!-- M5-01: what Carnet does end to end, in plain language; the differentiation answer -->
+
+Carnet runs the whole review loop for one business, in plain steps:
+
+1. **State the goal.** For example, "payroll and two suppliers by Friday". Carnet turns it into obligations and a plan. *(TODO after the M3 live run: cite [`m3-run.md`](docs/evidence/m3-run.md) step 1.)*
+2. **Check the evidence before money moves.** Each payment gets an evidence flag computed from the owner's documents (invoice, purchase order, contract). If a payment's flag is "missing", it can only be sent after an explicit acknowledgement, which is written to the audit log. Shown live in the M2 run: a "missing" payment without acknowledgement got **412**, and nothing was sent ([`m2-run.md`](docs/evidence/m2-run.md) step 5).
+3. **Approve and send.** The payment goes out as a real Airwallex sandbox transfer.
+4. **A payment is held.** Airwallex raises a Transaction RFI. Carnet receives the webhook, checks the signature, fetches the RFI and links it to the payment. The RFI never changes the payment's money status. That status always comes from the transfer itself.
+5. **Cited drafts.** The model drafts an answer to every question, using only facts extracted from the owner's documents. Code checks each claim against the cited quote (the verifier). A question that cannot be grounded goes back to the owner as `NEEDS_OWNER`, never as a guess.
+6. **One bound approval.** The owner approves the exact answer set. The approval is tied to a hash of that content. Carnet sends the answers only if the content still matches, and an approval can be used only once.
+7. **Plan revised.** While the payment is held, the plan re-runs. It can make a conversion that falls within a policy limit, propose an alternate payout that needs approval, or defer a payment. *(TODO after the M3 live run.)*
+8. **Outcome tracked.** Carnet follows the transfer's own status to `SENT` and `PAID`, and treats neither as final.
+9. **Follow-up reuse.** If Airwallex reopens a question, an answer the owner already approved can be reused in one click. *(TODO after the M3 live run.)*
+
+**What is different (stated vs inferred).** Stated: Airwallex documents RFI answering *screens* (embedded component, hosted flow, console), which we read on the docs page cited above. Inferred: we found no product that drafts grounded answers from the business's documents and also re-plans the business's other payments during the hold.
 
 ## Why now
-<!-- M5-01: Airwallex's RFI API and simulators, agentic banking, governed execution -->
+
+- **Airwallex exposes RFIs as an API, with simulators.** A plain sandbox account can create simulated Transaction RFIs with `POST /api/v1/simulation/rfis/create`. It can also answer them, close them, and move transfers through `SENT`, `PAID` and `FAILED` while an RFI is open ([`rfi-spike-decision.md`](docs/evidence/rfi-spike-decision.md)). That makes it possible to build and test the full review loop against the real provider.
+- **Agentic banking needs governed execution.** A model can read documents and draft answers well, but nobody should hand it money. In Carnet the model holds no credentials and no money tools. Code decides, the owner approves exact content, and the executor acts only on approvals ([ADR 0009](docs/adr/0009-deterministic-workflow-no-money-tools.md)).
 
 ## Architecture
-See [`docs/architecture.md`](docs/architecture.md) and the decisions in [`docs/adr/`](docs/adr/).
-<!-- M5-01: paste the system diagram from docs/architecture.md and a 5-line summary of the controls (bound approvals, attempts, verifier) -->
+
+The full design is in [`docs/architecture.md`](docs/architecture.md), and the decisions are in [`docs/adr/`](docs/adr/).
+
+```
+ Owner (browser) ──► Next.js "web" mode ─ UI · /api/v1 · /api/webhooks/airwallex · /status/<token> · /ops · /healthz
+                         │
+ Airwallex sandbox ◄─ adapter (timeouts, lookup before retry) ◄─ executor ◄─ approvals only
+        │ webhooks (HMAC)                           ▲
+        ▼                                           │
+   webhook_events ─► outbox_jobs ─► "worker" mode: job loop (1 s) + reconcile (60 s)
+ Anthropic API ◄─ agent package: 3 typed calls + verifier (no tools, no keys, no money)
+ PostgreSQL: documents · facts · payments · RFIs · drafts · approvals · attempts · plans ·
+             outbox · webhook events · audit (hash chain) · agent runs
+ Trust boundaries: browser | Airwallex (HMAC) | documents and RFI text (untrusted data) | model → executor (approvals only)
+```
+
+The controls, in five lines:
+- **Bound approvals.** An approval covers a hash of the exact content. It is consumed once and refused if the content changed ([ADR 0008](docs/adr/0008-bound-approvals.md)).
+- **Execution attempts.** Every money or respond call is recorded first with one `request_id`. After a timeout, Carnet looks the object up instead of resending ([ADR 0007](docs/adr/0007-execution-attempts-and-unknown-outcomes.md)).
+- **Grounded drafting and the verifier.** Every amount, date, name and reference in a draft must appear in a cited, quote-verified fact. Anything else fails closed to `NEEDS_OWNER` ([ADR 0010](docs/adr/0010-grounded-drafting-and-quote-verification.md)).
+- **Code decides, the model judges.** The workflow is deterministic. The model gets typed calls with no tools, and document text is treated as data, never as instructions ([ADR 0009](docs/adr/0009-deterministic-workflow-no-money-tools.md)).
+- **Audit chain.** Audit rows are hash-chained, and the chain is checked on `/ops` ([ADR 0013](docs/adr/0013-audit-log-hash-chain.md)). This limit applies: see [Limits](#limits).
 
 ## Demo
-<!-- M5-02: video link (under 3 minutes) and screenshots of the hold screen and the plan screen; M2-09 and M3-07 supply the live-run evidence -->
+
+- **Video:** TODO (M5-02 adds the unlisted link, under three minutes).
+- **Deployed app:** https://carnet-web.onrender.com (Airwallex sandbox only). *TODO (M4-05):* a judge login that plays back a labelled recording of a real run is planned but not built yet. Until it is, this README does not offer a judge login.
+- **Hold screen** (from the M2 live run: drafted answers with the cited document snippets):
+
+  ![Hold screen with cited snippets](docs/evidence/m2-run/03-hold-screen-with-snippets.png)
+
+- **Bound approval dialog** (M2 live run):
+
+  ![Approval dialog](docs/evidence/m2-run/04-approval-dialog.png)
+
+- **Plan screen:** TODO after the M3 live run (screenshot from `docs/evidence/m3/`, cited in [`m3-run.md`](docs/evidence/m3-run.md)).
 
 ## Evals and measured claims
-<!-- M4-03 supplies the eval results, including the mutation-rejection rate; M4-06 supplies the load-test numbers -->
+
+Everything below comes from one recorded run or from a replayable eval. One run is not a p95; single observations are labelled as such.
+
+**Extraction** ([`extraction-eval.md`](docs/evidence/extraction-eval.md); synthetic dataset, recorded live 2026-11-06, replayed deterministically since):
+- 106 of 106 ground-truth fields correct; 134 of 134 extracted facts quote-verified against the PDF text layer; wrong-but-verified: 0.
+- Quote-mutation detection: 402 of 402.
+- The prompt-injection document was flagged, and its facts still matched the ground truth. All 21 facts from image-only files were held for owner confirmation; none were auto-verified.
+- What it does not show: behaviour on real, unseen documents. The same team wrote the dataset and the prompts.
+
+**Draft verifier** ([`verifier-eval.md`](docs/evidence/verifier-eval.md)):
+- 651 mutants of good drafts, and every one was rejected (100%). The mutants cover wrong amount, currency, date, reference or name, invented facts, foreign citations, changed quotes, URLs, instruction strings, dropped citations, attachment tricks and unsupported answer types.
+- 28 of 28 good drafts were accepted.
+- What it does not show: the verifier proves that a statement is *supported* by the cited facts, not that it is *true*. See [Limits](#limits).
+
+**M2 core demo, live** ([`m2-run.md`](docs/evidence/m2-run.md); deployed app, real Airwallex sandbox, real model, 2026-11-12 and 2026-11-13):
+- A simulated Transaction RFI on a real sandbox transfer was received by webhook, drafted, answered with every question after one bound approval, and confirmed. The transfer stayed `PROCESSING` while the RFI was answered and closed, and only then reached `SENT` and `PAID` on its own status.
+- The webhook acknowledgement was measured over 19 webhooks in one session: median 8 ms, p95 21 ms.
+- `rfi.action_required` to model draft stored: 14.6 s (one observation).
+- Approval to answer confirmed: 1.56 s (one observation).
+- Payments marked `SENT`/`PAID` by an RFI event: zero.
+- Model spend for everything in the record: USD 0.0926.
+- **What it does not show:** a fully automatic answer. On every attempt the live model either declined or was rejected by the verifier on one of the four questions. The owner wrote that answer, and it is stored as `OWNER_AUTHORED`.
+
+**M3-03 money path, live** ([`m3-03-live.md`](docs/evidence/m3-03-live.md); 2026-11-14):
+- One real sandbox conversion executed under the auto-approval policy, ending `SETTLED`.
+- One real payout sent after a bound approval: attempt `CONFIRMED`, transfer created `SCHEDULED`. It was not followed to a final status.
+- The slippage guard refused live attempts when the real sandbox rate had moved past the policy bound.
+
+**M3 full demo, live:** TODO after the M3 live run. It will cite [`m3-run.md`](docs/evidence/m3-run.md). Partial, not yet recorded in the run note: steps 1 to 5 passed live on 2026-11-15. Those steps covered the plan, the evidence flags, real transfers, a real RFI hold received by webhook, and cited drafts with a bound approval.
+
+**Not yet measured:** the eval-suite report, load-test numbers, and accessibility and Core Web Vitals results (M4-03, M4-06, M4-07). Until their evidence files exist, this README claims no number for them.
+
+**Eval suite** ([`evals.md`](docs/evidence/evals.md), M4-03):
+Numbers below are copied from [`docs/evidence/evals.md`](docs/evidence/evals.md) (replay mode: the
+pipeline and the code verifier over recorded real model replies, no model call); `python3 scripts/check-readme-numbers.py`
+fails if they drift. Run it yourself with `npm run eval -- --mode replay`.
+
+- cases: 76 ground-truth cases (extraction, drafting, verifier); ground-truth cases passed: 75
+- mutation rejection: 100% of mutants: 721 wrong drafts (numbers, dates, names, currencies, citations) all rejected by the verifier
+- grounding rate: 95% of answerable RFI questions came back with every claim matched to a cited quote
+- extraction accuracy: 100% field-level on the synthetic dataset, quote verification: 100% against the PDF text layer
+- adversarial cases: 26 (hidden instructions, contradicting or missing documents, image-only scans, follow-up reuse), all safe
+
+The dataset is small and synthetic, and the prompts were tuned on it; these numbers show the controls
+work, not accuracy on unseen documents.
+<!-- M4-06 supplies the load-test numbers -->
 
 ## Future vision
-<!-- M5-01: other providers' information requests, accountants managing many small clients, account-level reviews -->
+
+None of this is built:
+- information requests from other providers (for example Wise, Payoneer, Stripe), using the same evidence model;
+- accountants and bookkeepers managing many small clients from one place;
+- account-level and onboarding reviews, not only transaction RFIs;
+- a payment-readiness score shown before a payment is sent.
 
 ## How to run
-<!-- M5-01: prerequisites, `make up`, environment variables from .env.example, seed script, sandbox signup, webhook subscription -->
+
+### Prerequisites
+- Node 24 and npm 11 (the toolchain record used Node 24.22.1 and npm 11.19.1: [`toolchain.md`](docs/evidence/toolchain.md); `engines` in `package.json` requires `node >=24 <25`, `npm >=11`)
+- Docker with Compose (Postgres 17, plus the web and worker images)
+- `make`
+- Python 3, only for the helper scripts that use it
+
+### 1. Local stack (database, web, worker)
+
+```bash
+git clone <this repo> carnet && cd carnet
+npm ci
+make up                                   # builds the image; starts postgres, web (port 3000) and worker; waits for health
+npm run db:migrate -w packages/db         # applies migrations as the local carnet_migrator role
+```
+
+A fresh Postgres volume creates the two local roles (`carnet_migrator` and `carnet_app`, from `packages/db/sql/roles.sql`) automatically. `make reset` drops the volume and migrates again. `make down` stops everything.
+
+Next, seed the demo business and the three demo users (owner, approver, judge). Choose your own passwords, each at least 8 characters:
+
+```bash
+DATABASE_URL=postgres://carnet_app:carnet_app@localhost:5432/carnet \
+SEED_OWNER_PASSWORD=... SEED_APPROVER_PASSWORD=... SEED_JUDGE_PASSWORD=... \
+npx tsx scripts/setup.ts
+```
+
+Then open http://localhost:3000 and sign in as `owner@carnet.example` with `SEED_OWNER_PASSWORD`.
+
+**Local limitation:** `docker-compose.yml` passes only `PROCESS_MODE` and `DATABASE_URL` to the containers. Without `AIRWALLEX_CLIENT_ID` and `AIRWALLEX_API_KEY`, the worker starts in degraded mode: it stays up and logs that it is not processing jobs. The full live flow below therefore runs on the hosted deployment.
+
+### 2. Keys and environment (names only; values never go in the repo)
+
+Copy [`.env.example`](.env.example) to `.env` and fill it in. The keys the core flow needs:
+- **Airwallex sandbox:** `AIRWALLEX_CLIENT_ID`, `AIRWALLEX_API_KEY`, `AIRWALLEX_BASE_URL`, `AIRWALLEX_FILES_URL`, `AIRWALLEX_WEBHOOK_SECRET`. Create a sandbox account and an API key in the Airwallex web app. Use **sandbox keys only**. The key has an IP allowlist: every machine or host that logs in must be on it, or login returns an HTML 403 ([`docs/deployment.md`](docs/deployment.md)).
+- **Anthropic:** `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL_EXTRACT`, `ANTHROPIC_MODEL_DRAFT`. The recorded runs used Claude Haiku 5.5 for extraction and Sonnet 5.5 for drafting.
+- **Database:** `DATABASE_URL` (app role), `DATABASE_MIGRATION_URL` (migration role), `TEST_DATABASE_URL`
+- **App:** `APP_BASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `PROCESS_MODE` (`web` or `worker`)
+- **Demo users:** `SEED_OWNER_PASSWORD`, `SEED_APPROVER_PASSWORD`, `SEED_JUDGE_PASSWORD`
+- **Limits and controls** (code has defaults): `MODEL_DAILY_SPEND_CAP_USD`, `MODEL_PER_RUN_CAP_USD`, `AGENTS_ENABLED`, `EXECUTION_ENABLED`, `UPLOAD_MAX_BYTES`, and the others listed in `.env.example`
+
+### 3. Hosted deployment and the webhook
+
+The live runs used Render, deployed from [`render.yaml`](render.yaml) as one image in two process modes (`web` and `worker`). First-time setup (roles, migrations, seed), the environment group and rollback are covered step by step in [`docs/deployment.md`](docs/deployment.md).
+
+- **Webhook subscription:** in the Airwallex sandbox web app, subscribe to `rfi.*` and `payout.transfer.*` events at `https://<your host>/api/webhooks/airwallex` (it must be a public HTTPS URL). Store the subscription's signing secret as `AIRWALLEX_WEBHOOK_SECRET`.
+- **Without a webhook:** the worker's reconcile loop polls Airwallex every 60 s, so the flow still progresses, just more slowly.
+- **Demo reset (hosted):** `./scripts/demo-reset.sh` runs an idempotent seed job on `carnet-web` that adds the six dataset payees. It never deletes anything (needs the Render CLI).
+- **Judge replay login:** TODO (M4-05). Not built yet; see [Demo](#demo).
+
+### 4. Checks
+
+```bash
+make check                                # typecheck, lint (Biome + dependency direction), tests
+./scripts/landing-checks.sh               # the full chain CI runs on every PR
+```
 
 ## Limits
-<!-- M5-01: honest limits: sandbox only, synthetic data, what is simulated, Airwallex behaviours that were unverified -->
+
+**Scope.**
+- Sandbox only: no real money and no production keys. Every document, counterparty and customer in the dataset is synthetic. The Airwallex sandbox and the model API are real.
+- Airwallex Transaction RFIs only. Carnet never contacts payees or third parties. It does not unfreeze accounts or bypass any provider's review: it helps the owner answer the review.
+
+**Simulation and replay disclosures.**
+- RFIs were created with Airwallex's own simulation endpoint (`/simulation/rfis/create`) on a plain sandbox account. **The ADR 0018 local-injection fallback was not used.** It was not needed in M0-04 ([`rfi-spike-decision.md`](docs/evidence/rfi-spike-decision.md)) or in the M2 live run ([`m2-run.md`](docs/evidence/m2-run.md)). *TODO after the M3 live run:* confirm the same for [`m3-run.md`](docs/evidence/m3-run.md).
+- Transfer status changes (`SENT`, `PAID`) in the runs were requested through Airwallex's sandbox simulation endpoint.
+- Judge login: the design ([ADR 0018](docs/adr/0018-sandbox-simulator-and-replay-mode.md)) is that the judge login plays back a recorded real run, labelled as a recording. *TODO (M4-05):* not built yet.
+- CI replays recorded real responses. The M2 replay covers only the Carnet side; the Airwallex side is covered by the single live run.
+
+**Airwallex behaviour that was unverified, or differed from our expectations** (sandbox observations, not production behaviour):
+- The sandbox enforces neither the documented 20 MB file limit (a 22 MB file was accepted) nor any limit on TEXT answer length. Carnet enforces its own caps ([`rfi-spike-decision.md`](docs/evidence/rfi-spike-decision.md)).
+- A second open RFI is rejected only for the **same type and the same source**; RFIs on other sources coexist. Carnet keeps its own per-source guard (ADR 0018 amendment).
+- Held funds show only as the debit at transfer creation. `pending_amount` and `reserved_amount` stayed 0 while an RFI was open.
+- FX quotes came back `usage: MULTI_USE`, and one quote was converted twice. Carnet still treats quotes as single-use. Production behaviour is **unverified** ([`airwallex-money-path.md`](docs/evidence/airwallex-money-path.md)).
+- A simulated failure arrives as both `payout.transfer.failed` and `payout.transfer.cancelled`, and fetching the transfer returns `CANCELLED`. Webhooks were not delivered in order, and RFI webhooks carry no source, so Carnet fetches the object every time ([`airwallex-webhooks.md`](docs/evidence/airwallex-webhooks.md)).
+- Simulation transitions sometimes returned a 500 even though the change was applied.
+- The M3-03 payout was not followed past `SCHEDULED`. Quote single-use and webhook delivery for those objects were not verified there ([`m3-03-live.md`](docs/evidence/m3-03-live.md)).
+
+**Accepted limitations (from our backlog):**
+- **Support, not truth.** The verifier proves that a draft says only what the cited facts say, not that it is the right statement. Swapping two cited values (invoice date for due date, buyer for supplier) passes. The control is owner review of each claim beside its cited snippet.
+- **Owner statements may be sent.** An owner-edited answer that fails the verifier can still be approved and sent, labelled "Your statement / Not found in your documents". The M2 run's owner-authored answer took this path.
+- **Attachments are chosen by file name and kind only** for delivery notes and remittance advices, which have no extraction schema. The owner reviews the exact file list before approval.
+- **Partial invoicing fails closed.** An invoice whose total differs from its purchase order's total is marked conflicting, and answers that cite either document become `NEEDS_OWNER` until the owner confirms the facts.
+- **Stuck drafts are not re-drafted automatically.** An RFI left in drafting past the run limit gets a system `NEEDS_OWNER` draft, and the owner writes the answers.
+- **Conflict flag is sticky.** If a second open RFI with the same type and source arrives (Airwallex forbids this), it is flagged as a conflict. The flag is re-checked only when that RFI changes.
+- **Audit chain coverage.** Tamper evidence covers only audit rows from migration 0017 on; earlier rows predate the chain and cannot be back-filled. The app role can write the chain head, so the proven tamper cases are those at the migration-role level. There is no external anchoring.
+- **IP allowlist dependency.** The Airwallex key's IP allowlist must hold the hosting provider's outbound ranges and every developer IP; otherwise login fails with a 403.
+- **Kill-switch label.** An approval ended by the kill switch is `EXPIRED` with `end_reason = KILL_SWITCH`; there is no separate revoked status. The behaviour is the same.
 
 ## Licence
 MIT, see [`LICENSE`](LICENSE).

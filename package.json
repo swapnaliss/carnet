@@ -26,6 +26,7 @@
     "dataset:generate": "node scripts/dataset/generate.mjs",
     "dataset:check": "node scripts/dataset/check.mjs fixtures/dataset",
     "db:migrate": "npm run db:migrate -w @carnet/db",
+    "eval": "npm run eval -w @carnet/agent --",
     "load": "tsx scripts/load/run.ts"
   },
   "devDependencies": {
