@@ -72,6 +72,8 @@ jobs:
         run: |
           npm run db:migrate -w packages/db
           npx tsx packages/db/src/seed/run.ts
+          # Judge replay (M4-05): load the recordings under fixtures/replay/ (offline, no network).
+          npm run demo:reset -- --yes
       - name: playwright (axe, web vitals, CSP, /ops roles, core demo replay)
         run: npx playwright test
         env:

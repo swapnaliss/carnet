@@ -369,7 +369,7 @@ const CASES: Case[] = [
     state: "replay timeline with LIVE indicator (owner)",
     run: async (p) => {
       await p.goto("/replay");
-      await expect(p.getByTestId("live-indicator").first()).toBeVisible();
+      await expect(p.getByTestId("mode-live-indicator").first()).toBeVisible();
       await expect(p.getByRole("heading", { level: 1 })).toBeVisible();
     },
   },

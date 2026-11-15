@@ -18,7 +18,7 @@ export async function ModeBanner() {
     return (
       <section
         aria-label={t.replay.liveLabel}
-        data-testid="live-indicator"
+        data-testid="mode-live-indicator"
         className="flex flex-wrap items-center gap-3 border-b border-border bg-status-success-bg px-4 py-2 text-sm text-status-success-fg md:px-6"
       >
         <span className="inline-flex items-center gap-1.5 rounded-sm border border-current px-2 py-0.5 text-xs font-semibold tracking-wide">

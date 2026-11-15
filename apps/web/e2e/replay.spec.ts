@@ -101,7 +101,7 @@ test("the judge cannot switch to live, by the API or by tampering", async ({ pag
   expect(put.status()).toBe(403);
   await page.goto("/queue?mode=live");
   await expectBanner(page);
-  await expect(page.getByTestId("live-indicator")).toHaveCount(0);
+  await expect(page.getByTestId("mode-live-indicator")).toHaveCount(0);
   await expect(page.getByTestId("switch-mode-live")).toHaveCount(0);
 });
 
@@ -109,11 +109,11 @@ test("the owner switches to the recording and back; LIVE replaces the banner", a
   test.skip(!owner, "SEED_OWNER_PASSWORD is not set.");
   await signIn(page, "owner@carnet.example", owner as string);
   await page.goto("/queue");
-  await expect(page.getByTestId("live-indicator")).toBeVisible();
+  await expect(page.getByTestId("mode-live-indicator")).toBeVisible();
   await page.getByTestId("switch-mode-replay").click();
   await expectBanner(page);
-  await expect(page.getByTestId("live-indicator")).toHaveCount(0);
+  await expect(page.getByTestId("mode-live-indicator")).toHaveCount(0);
   await page.getByTestId("switch-mode-live").click();
-  await expect(page.getByTestId("live-indicator")).toBeVisible();
+  await expect(page.getByTestId("mode-live-indicator")).toBeVisible();
   await expect(page.getByRole("region", { name: "Recording notice" })).toHaveCount(0);
 });
