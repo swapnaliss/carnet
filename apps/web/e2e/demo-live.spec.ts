@@ -709,8 +709,8 @@ test("8. follow-up round: a real follow_up reopens a question; round 2 reuses an
     append: [
       {
         answerType: "TEXT",
-        title: "Expected delivery date",
-        description: "When are the goods covered by this payment expected to be delivered?",
+        title: "Invoice number for this payment",
+        description: "Which invoice number does this payment settle?",
         sources: [{ id: String(payments.strong?.transferId), type: "TRANSFER" }],
       },
     ],
@@ -720,6 +720,19 @@ test("8. follow-up round: a real follow_up reopens a question; round 2 reuses an
     "round 2 in Carnet",
     async () => (((await hold()).rfi?.round ?? 1) > roundBefore ? true : null),
     240_000,
+  );
+  // Reuse needs a finished, unapproved round-2 draft (PRECONDITION_FAILED otherwise), so wait for the
+  // model's draft of the round first (the appended question is answerable from the invoice).
+  await api.poll(
+    "round 2 draft finished",
+    async () => {
+      const v = await hold();
+      return v.draft && (v.rfi?.state === "DRAFT_READY" || v.rfi?.state === "NEEDS_OWNER")
+        ? v
+        : null;
+    },
+    300_000,
+    4_000,
   );
   // One click: reuse the approved answer. No model call is made for it (checked in the export: no
   // rfi.draft step for the reused question).
@@ -734,9 +747,13 @@ test("8. follow-up round: a real follow_up reopens a question; round 2 reuses an
     "round 2 draft ready",
     async () => {
       const v = await hold();
+      if (v.rfi?.state === "NEEDS_OWNER")
+        throw new Error(
+          "round 2 needs the owner for a question; the appended question was meant to be grounded in the invoice",
+        );
       return v.draft?.state === "DRAFT_READY" ? v : null;
     },
-    300_000,
+    120_000,
     4_000,
   );
   await page.goto(`/rfis/${rfiId}`);
@@ -767,7 +784,7 @@ test("8. follow-up round: a real follow_up reopens a question; round 2 reuses an
   );
   note(8, "follow-up round 2: one answer reused, one drafted", {
     reopened_question: reopen.title,
-    appended_question: "Expected delivery date",
+    appended_question: "Invoice number for this payment",
     applied_with_one_click: oneClick,
     draft_id: ready.draft?.id,
     attempt: answered.attempt,

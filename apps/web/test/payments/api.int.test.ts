@@ -9,9 +9,11 @@ import {
   createPayment,
   type Db,
   enqueueJob,
+  insertRfi,
   insertWebhookEvent,
   repoCtx,
   updatePaymentTransfer,
+  updateRfi,
 } from "@carnet/db";
 import {
   ApiErrorSchema,
@@ -19,9 +21,10 @@ import {
   type Currency,
   money,
   type PaymentId,
+  type RfiState,
 } from "@carnet/domain";
 import { sql } from "drizzle-orm";
-import { beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { createRouteKit, type RouteHandler } from "../../src/lib/define-route";
 import { memoryLogger } from "../../src/server/log";
 import {
@@ -405,5 +408,81 @@ describe("GET /api/v1/payments/{id}: projection and webhook evidence", () => {
     ).json()) as PaymentDetailResponse;
     expect(judge.webhooks).toHaveLength(1);
     expect(judge.webhooks[0]).not.toHaveProperty("raw_body");
+  });
+});
+
+describe("held and view come from the open RFI (ADR 0006), never from a stored money status", () => {
+  afterEach(async () => {
+    await env().db.execute(sql`DELETE FROM rfis WHERE business_id = ${env().businessId}`);
+  });
+
+  async function sentPayment(key: string): Promise<PaymentId> {
+    const res = await create(cookies.owner, key);
+    const { payment } = (await res.json()) as { payment: { id: PaymentId } };
+    await updatePaymentTransfer(repoCtx(env().db, env().businessId), payment.id, {
+      transferId: "420468b9-15f0-4e07-a015-155c99b92444",
+      transferStatus: "PROCESSING",
+      transferUpdatedAt: new Date(),
+    });
+    return payment.id;
+  }
+
+  const rfiFor = (paymentId: PaymentId, state: RfiState, n: number) =>
+    insertRfi(repoCtx(env().db, env().businessId), {
+      airwallexRfiId: `rfi-held-${n}`,
+      type: "TRANSACTION",
+      subType: null,
+      airwallexStatus: "ACTION_REQUIRED",
+      airwallexUpdatedAt: new Date(),
+      airwallexAnsweredRequests: 0,
+      state,
+      round: 1,
+      expiresAt: null,
+      paymentId,
+      orphanReason: null,
+      linkedBy: "match",
+      sourceKey: `TRANSFER:held-${n}`,
+      conflict: false,
+    });
+
+  const detail = async (id: PaymentId) =>
+    (
+      (await (
+        await get(routes.detail, `/api/v1/payments/${id}`, cookies.owner, { id })
+      ).json()) as PaymentDetailResponse
+    ).payment;
+  const listed = async (id: PaymentId) =>
+    (
+      (await (
+        await get(routes.list, "/api/v1/payments", cookies.owner)
+      ).json()) as PaymentListResponse
+    ).items.find((p) => p.id === id);
+
+  it("no RFI: processing, not held", async () => {
+    const id = await sentPayment("key-held-none-1");
+    for (const p of [await detail(id), await listed(id)]) {
+      expect(p).toMatchObject({ transfer_status: "PROCESSING", held: false, view: "PROCESSING" });
+    }
+  });
+
+  it("an open RFI holds the payment in the detail and the list; the transfer status is unchanged", async () => {
+    const id = await sentPayment("key-held-open-1");
+    await rfiFor(id, "ACTION_REQUIRED", 1);
+    for (const p of [await detail(id), await listed(id)]) {
+      expect(p?.held).toBe(true);
+      expect(p?.view).toBe("PROCESSING"); // project(): the view is the transfer's; only `held` is added
+      expect(p?.transfer_status).toBe("PROCESSING");
+    }
+  });
+
+  it("an answered or closed RFI no longer holds it", async () => {
+    const id = await sentPayment("key-held-closed-1");
+    const rfi = await rfiFor(id, "ACTION_REQUIRED", 2);
+    for (const state of ["ANSWERED", "CLOSED"] as const) {
+      await updateRfi(repoCtx(env().db, env().businessId), rfi.id, { state });
+      const p = await detail(id);
+      expect(p).toMatchObject({ held: false, view: "PROCESSING", transfer_status: "PROCESSING" });
+      expect((await listed(id))?.held).toBe(false);
+    }
   });
 });
