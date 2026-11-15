@@ -15,10 +15,10 @@ K = known (with source), A = assumed (with how it is validated).
 |---|---|---|
 | Functional | F1 ingest documents and extract facts · F2 payment queue with evidence-strength flags · F3 create beneficiary, FX conversion and transfer under approval · F4 receive RFIs by webhook and poll · F5 draft cited answers · F6 bound approval, then respond and upload · F7 re-plan under a hold · F8 payee status page · F9 append-only audit | K: product definition |
 | Load, launch | 1 business, ≤ 50 payments/day, ≤ 5 RFIs/day | A: demo scale |
-| Load, 100× | 100 businesses, 5,000 payments/day, 500 RFIs/day; about 15,000 webhook events/day = 0.17 requests/s average, about 2/s at 10× peak | A: validated by the load-test ticket |
-| Latency | Webhook acknowledged p95 < 300 ms warm (cold start up to 2 s tolerated, duplicates are de-duplicated) · RFI event to draft ready p95 < 60 s · UI server p95 < 500 ms | A |
+| Load, 100× | 100 businesses, 5,000 payments/day, 500 RFIs/day; 7 webhook events per payment (recorded M2-09 run) plus about 2 per RFI round is about 36,000 events/day = 0.42 requests/s average, about 4/s at 10× peak | Corrected by the load test ([evidence](evidence/load-test.md)) |
+| Latency | Webhook acknowledged p95 < 300 ms warm (cold start up to 2 s tolerated, duplicates are de-duplicated) · RFI event to draft ready p95 < 60 s · UI server p95 < 500 ms | Ack SLO met on a local stack, p95 45–110 ms from 0.17/s to 20/s ([load test](evidence/load-test.md)); the rest A |
 | Availability | 99.5%; data loss ≤ 5 min; recovery ≤ 1 h; a missed webhook is recovered by polling | A |
-| Data | Relational rows ≈ 5 KB per payment (documents separate); money and approvals need strong consistency; traces and analytics may be eventually consistent | A |
+| Data | Relational rows ≈ 36 KB per payment on the webhook path, measured ([load test](evidence/load-test.md); documents separate); money and approvals need strong consistency; traces and analytics may be eventually consistent | A |
 | Security / compliance | Synthetic data only (hackathon IP and privacy rules); the repository is public (HackerEarth FAQ) | K: HackerEarth FAQ: all code public; Airwallex rules: submissions must use Airwallex APIs |
 | Global | ISO currencies with exponents, UTC storage, per-business time zone, externalised strings, WCAG 2.2 AA | A |
 | Budget | Model spend from a $100 grant; infrastructure $5–20/month assumed until the hosting ticket fixes it (`docs/budget.md`); about $1k/month at 100×, dominated by model calls | K/A |
@@ -61,7 +61,7 @@ Events (in-process, from the outbox; versioned): `document.extracted`, `payment.
 | Data | PostgreSQL via `DATABASE_URL`, `pg`, Drizzle; integer minor units | Strong consistency for money | Document store | Medium | [0002](adr/0002-postgres-and-money-representation.md) |
 | Documents | `bytea` in Postgres, ≤ 5 MB | No second store | Object storage | Medium | [0003](adr/0003-documents-in-postgres.md) |
 | API | REST under `/api/v1`, shared zod schemas, idempotency keys on money and approval calls | Documented contract | GraphQL, tRPC | Low | [0004](adr/0004-rest-zod-idempotency.md) |
-| Async | Outbox jobs claimed with `SKIP LOCKED` by a worker process; reconcile poll | Duplicated, unordered events; no broker needed at 0.17 requests/s | Message broker | Low | [0005](adr/0005-outbox-worker-and-reconciliation.md) |
+| Async | Outbox jobs claimed with `SKIP LOCKED` by a worker process; reconcile poll | Duplicated, unordered events; no broker needed at under 1 request/s | Message broker | Low | [0005](adr/0005-outbox-worker-and-reconciliation.md) |
 | Payment status | Projection over 11 transfer statuses | Out-of-order events | Stored status machine | Medium | [0006](adr/0006-payment-status-as-projection.md) |
 | Money calls | Persisted attempts, lookup before retry | Timeouts must not double-pay | Retry with new id | Low | [0007](adr/0007-execution-attempts-and-unknown-outcomes.md) |
 | Approvals | Hash-bound, single-use, atomic consume | R6 | Role-only checks | Low | [0008](adr/0008-bound-approvals.md) |
@@ -174,8 +174,8 @@ Secrets live in the platform's environment (marked sensitive) and in `.env` loca
 Not applicable.
 
 ## 12. Scaling story and cost at 100×
-- Traffic: 5,000 payments/day and about 3 webhook events per payment is 15,000 events/day, 0.17 requests/s on average and about 2/s at a 10× peak, against the Airwallex sandbox limit of 20/s; the web tier is stateless and scales horizontally, the worker can run several instances because jobs are claimed with `SKIP LOCKED`.
-- Storage: about 5 KB of relational rows per payment is about 25 MB/day (about 9 GB/year) at 100×, which needs a paid database plan; documents then move to object storage (trigger recorded in ADR 0003).
+- Traffic (corrected by the M4-06 load test, [evidence](evidence/load-test.md)): one sandbox payment produced 7 `payout.transfer.*` webhook events in the recorded M2-09 run, not 3, and an RFI round adds about 2. 5,000 payments/day × 7 plus 500 RFIs × 2 is about 36,000 events/day: 0.42 requests/s on average and about 4/s at a 10× peak, against the Airwallex sandbox limit of 20/s. On a local laptop stack, webhook ack p95 stayed between 45 and 110 ms from 0.17/s to 20/s; the web tier is stateless and scales horizontally, the worker can run several instances because jobs are claimed with `SKIP LOCKED`.
+- Storage (corrected, measured): about 36 KB of relational rows per payment on the webhook path (25 KB of it is `webhook_events`, mostly raw bodies) is about 182 MB/day (about 67 GB/year) at 100×. That needs a paid database plan and a retention rule for raw webhook bodies. The figure leaves out creation-side rows (approvals, execution attempts, evidence), so it is a lower bound; documents then move to object storage (trigger recorded in ADR 0003).
 - Model cost: about $0.045 per RFI draft × 500/day ≈ $22/day, plus about $0.004 per document; mitigations are the small model for the first pass, prompt caching and batch pricing for extraction.
 - Monthly cost at 100×: platform and database in the tens of dollars to low hundreds, model spend about $1k/month.
 
