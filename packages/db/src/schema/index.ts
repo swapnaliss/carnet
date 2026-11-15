@@ -21,6 +21,7 @@ export * from "./payments";
 export * from "./plans";
 export * from "./policies";
 export * from "./rate-limits";
+export * from "./replay";
 export * from "./rfis";
 export * from "./system-flags";
 export * from "./users";

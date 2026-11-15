@@ -4,7 +4,7 @@
 // nothing, so the counters are unchanged.
 import type { ModelBlock } from "./structured";
 
-export type CapName = "per_run" | "daily";
+export type CapName = "per_run" | "daily" | "session";
 
 export type CapDecision =
   | { readonly ok: true }
@@ -21,6 +21,8 @@ export interface CapInput {
   readonly runSpentNanoUsd: number;
   readonly daySpentNanoUsd: number;
   readonly worstCaseNanoUsd: number;
+  /** M4-05: the queuing web session's cap and spend (SESSION_MODEL_CAP_USD); absent for webhook work. */
+  readonly session?: { readonly capNanoUsd: number; readonly spentNanoUsd: number };
 }
 
 export function checkCaps(input: CapInput): CapDecision {
@@ -41,6 +43,17 @@ export function checkCaps(input: CapInput): CapDecision {
       worstCaseNanoUsd: input.worstCaseNanoUsd,
       remainingNanoUsd: Math.max(0, dayLeft),
     };
+  }
+  if (input.session) {
+    const sessionLeft = input.session.capNanoUsd - input.session.spentNanoUsd;
+    if (input.worstCaseNanoUsd > sessionLeft) {
+      return {
+        ok: false,
+        cap: "session",
+        worstCaseNanoUsd: input.worstCaseNanoUsd,
+        remainingNanoUsd: Math.max(0, sessionLeft),
+      };
+    }
   }
   return { ok: true };
 }

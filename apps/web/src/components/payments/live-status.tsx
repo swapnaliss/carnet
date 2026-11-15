@@ -1,6 +1,7 @@
 "use client";
 
 import { ClockAlert, RefreshCw, TriangleAlert } from "lucide-react";
+import { useRecording } from "@/components/shell/recording-context";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { fill, t } from "@/strings";
@@ -22,7 +23,18 @@ export function LiveIndicator({
   paused: boolean;
   now: number;
 }) {
+  const recording = useRecording();
   const seconds = Math.max(0, Math.round((now - lastSuccessAt) / 1000));
+  if (recording) {
+    return (
+      <p
+        data-testid="live-indicator"
+        className="inline-flex min-h-6 items-center text-sm text-muted-foreground"
+      >
+        {t.replay.recordedStatus}
+      </p>
+    );
+  }
   const retrying = failures >= RETRYING_AFTER_FAILURES;
   const text = paused
     ? t.payments.live.paused
@@ -63,8 +75,9 @@ export function StaleBanner({
   now: number;
   onCheckNow: () => void;
 }) {
+  const recording = useRecording();
   const age = now - lastSuccessAt;
-  if (age <= STALE_AFTER_MS) return null;
+  if (recording || age <= STALE_AFTER_MS) return null;
   return (
     // Not a live region: the shell's one polite region carries announcements; this text ticks.
     <section

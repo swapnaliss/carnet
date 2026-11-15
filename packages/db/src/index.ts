@@ -16,6 +16,7 @@ export type {
   AttemptKind,
   AttemptStatus,
   JobStatus,
+  SessionMode,
   UserRole,
 } from "./schema/index";
 export * as schema from "./schema/index";
@@ -25,6 +26,7 @@ export {
   ATTEMPT_KINDS,
   ATTEMPT_STATUSES,
   JOB_STATUSES,
+  SESSION_MODES,
   USER_ROLES,
 } from "./schema/index";
 export * from "./seed/demo-business";

@@ -143,6 +143,11 @@ export interface RouteSpec<
   /** A multipart/form-data body the handler reads with `input.multipart()` (exclusive with `body`). */
   readonly multipart?: M;
   readonly rateLimit?: { readonly name: RouteRateLimitName; readonly by: "user" | "ip" };
+  /**
+   * M4-05: a replay session is refused (403) on every mutation unless the route sets this; only the
+   * owner's mode switch does (it needs `auth: { roles }`). judge-authz.test.ts lists the routes.
+   */
+  readonly allowInReplay?: true;
   readonly handler: (input: RouteInput<A, B, Q, P, M>) => Promise<Response>;
 }
 
@@ -381,12 +386,18 @@ export function createRouteKit(deps: RouteDeps) {
     if (spec.multipart && spec.auth === "public") {
       throw new Error(`${label}: a multipart (upload) route must be authenticated`);
     }
+    if (spec.allowInReplay && (spec.auth === "public" || spec.auth === "session")) {
+      throw new Error(`${label}: allowInReplay needs auth: { roles }`);
+    }
+    const roles = (spec.auth as { roles?: readonly Role[] }).roles ?? [];
     const guard =
       spec.auth === "public"
         ? null
         : spec.auth === "session"
           ? deps.authz.requireSession
-          : deps.authz.requireRole(...(spec.auth as { roles: readonly Role[] }).roles);
+          : spec.allowInReplay
+            ? deps.authz.requireRoleAnyMode(...roles)
+            : deps.authz.requireRole(...roles);
 
     // M1-09: the whole route runs in its correlation context (request_id on every log line, echoed
     // in x-request-id).

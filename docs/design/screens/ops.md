@@ -1,7 +1,7 @@
 # Ops
 
 Data from M1-09 (observability baseline); kill switch and caps from M4-02; audit chain from M4-01.
-Route: `/ops` (owner and approver roles; a viewer gets HTTP 403 with the forbidden page, `common.forbidden.*`; no session redirects to `/login`). Decided by M1-09, whose acceptance criteria require 403 for the viewer role.
+Route: `/ops` (owner and approver roles; a viewer reads it read-only in replay mode, under the recording banner, M4-05; no session redirects to `/login`).
 
 ## Purpose
 

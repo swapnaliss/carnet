@@ -12,7 +12,7 @@ type Tx = Pick<Db, "insert">;
 
 export async function enqueueCriticalityProposal(
   tx: Tx,
-  input: { businessId: string; obligationId: string; documentId: string },
+  input: { businessId: string; obligationId: string; documentId: string; sessionId?: string },
 ): Promise<void> {
   await tx
     .insert(schema.outboxJobs)

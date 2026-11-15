@@ -4,6 +4,7 @@ import {
   Activity,
   Banknote,
   CalendarRange,
+  Film,
   Inbox,
   ListChecks,
   type LucideIcon,
@@ -20,6 +21,8 @@ const items: ReadonlyArray<{ href: string; label: string; icon: LucideIcon; matc
   { href: "/rfis", label: t.shell.nav.rfis, icon: Inbox },
   { href: "/plan", match: "/plans", label: t.shell.nav.plan, icon: CalendarRange },
   { href: "/ops", label: t.shell.nav.ops, icon: Activity },
+  // M4-05: the recorded run's timeline (replay controls).
+  { href: "/replay", label: t.replay.nav, icon: Film },
 ];
 
 /**

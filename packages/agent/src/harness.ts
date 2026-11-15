@@ -255,6 +255,7 @@ export function createHarness(deps: HarnessDeps): Harness {
       runSpentNanoUsd: run.costNanoUsd,
       daySpentNanoUsd: await store.spentSinceNanoUsd(utcDayStart(startedAt)),
       worstCaseNanoUsd: worstCase,
+      ...(flags.session ? { session: flags.session } : {}),
     });
     if (!caps.ok) {
       await recordRefusal(req, "spend_cap", inputHash);

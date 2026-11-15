@@ -16,7 +16,7 @@ type Tx = Pick<Db, "insert">;
 
 export async function enqueueDocumentExtraction(
   tx: Tx,
-  input: { businessId: string; documentId: string },
+  input: { businessId: string; documentId: string; sessionId?: string },
 ): Promise<void> {
   await tx.insert(schema.outboxJobs).values({ kind: DOCUMENT_JOB_KIND.extract, payload: input });
 }

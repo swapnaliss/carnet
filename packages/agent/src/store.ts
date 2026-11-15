@@ -19,6 +19,11 @@ export interface AgentFlags {
   readonly perRunCapNanoUsd: number;
   /** `system_flags.daily_spend_cap_minor`, converted to nano-USD. */
   readonly dailyCapNanoUsd: number;
+  /**
+   * M4-05: the cap of the web session that queued this run (SESSION_MODEL_CAP_USD) and what that
+   * session has spent so far. Absent for work no session queued (webhooks).
+   */
+  readonly session?: { readonly capNanoUsd: number; readonly spentNanoUsd: number };
 }
 
 export interface RunRecord {

@@ -14,6 +14,7 @@ import {
   recordAgentStep,
 } from "./agent-runs";
 import type { RepoCtx } from "./context";
+import { sessionModelSpendNanoUsd } from "./replay";
 import { agentSpendSince, getSystemFlags } from "./system";
 
 /** USD minor units (cents) to nano-USD. A cap in any other currency allows nothing. */
@@ -37,7 +38,16 @@ const runView = (r: StoreRun): StoreRun => ({
   costNanoUsd: r.costNanoUsd,
 });
 
-export function agentHarnessStore(ctx: RepoCtx) {
+/**
+ * M4-05: a run queued by a web session is attributed to it, and the session's cap
+ * (SESSION_MODEL_CAP_USD, nano-USD) is checked fresh before every call with the per-run and daily caps.
+ */
+export interface SessionAttribution {
+  readonly sessionId: string;
+  readonly capNanoUsd: number;
+}
+
+export function agentHarnessStore(ctx: RepoCtx, session?: SessionAttribution | null) {
   return {
     async readFlags() {
       const flags = await getSystemFlags(ctx.db);
@@ -45,10 +55,20 @@ export function agentHarnessStore(ctx: RepoCtx) {
         agentsEnabled: flags.agentsEnabled,
         perRunCapNanoUsd: capToNanoUsd(flags.perRunCap),
         dailyCapNanoUsd: capToNanoUsd(flags.dailySpendCap),
+        ...(session
+          ? {
+              session: {
+                capNanoUsd: session.capNanoUsd,
+                spentNanoUsd: await sessionModelSpendNanoUsd(ctx.db, session.sessionId),
+              },
+            }
+          : {}),
       };
     },
     async createRun(input: { kind: string; ref: string }) {
-      return runView(await createAgentRun(ctx, input));
+      return runView(
+        await createAgentRun(ctx, { ...input, sessionId: session?.sessionId ?? null }),
+      );
     },
     async getRun(id: string) {
       const run = await getAgentRun(ctx, id);

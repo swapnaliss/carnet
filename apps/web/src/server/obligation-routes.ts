@@ -10,6 +10,7 @@
 //
 // A proposal never changes `criticality`; the planner reads `planning_criticality`, which is the confirmed
 // value or `UNCONFIRMED`. Every query is scoped by the session's business.
+
 import {
   appendAudit,
   type CriticalityProposal,
@@ -47,6 +48,7 @@ import { z } from "zod";
 import type { AuthRule, RouteSpec } from "../lib/define-route";
 import { notFound, validationFailed } from "../lib/errors";
 import { enqueueCriticalityProposal } from "./obligations/jobs";
+import { assertSessionModelBudget } from "./session-caps";
 
 const idParams = z.strictObject({ id: ObligationIdSchema });
 const NO_STORE = { "cache-control": "private, no-store" } as const;
@@ -221,6 +223,8 @@ export const obligationSpecs = {
           },
         ]);
       }
+      // M4-05: a session whose model budget is spent queues nothing (429).
+      await assertSessionModelBudget(repo.db, ctx.sessionId);
       await withTransaction(repo.db, async (tx) => {
         const rc = repoCtx(tx, repo.businessId);
         await appendAudit(rc, {
@@ -234,6 +238,7 @@ export const obligationSpecs = {
           businessId: repo.businessId,
           obligationId: id,
           documentId,
+          ...(ctx.sessionId ? { sessionId: ctx.sessionId } : {}),
         });
       });
       const response: ProposeCriticalityResponse = {

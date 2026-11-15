@@ -51,12 +51,28 @@ dl{margin:0}dt{color:var(--muted);font-size:.875rem}dd{margin:.25rem 0 1rem}
 .danger{background:var(--danger-bg);color:var(--danger-fg)}
 .warning{background:var(--warning-bg);color:var(--warning-fg)}
 p{margin:0 0 .75rem}.note{color:var(--muted);font-size:.875rem;margin:1rem 0 0}
+.notice{display:block;margin:0 0 1rem}
 @media (min-width:768px){h1{font-size:1.75rem}main{padding-top:4rem}}
 `
   .replaceAll(/\s*\n\s*/g, "")
   .trim();
 
-function document(title: string, body: string): string {
+/** M4-05: the recording notice a replay session sees above the payee view (not on the public page). */
+export interface RecordingNotice {
+  readonly text: string;
+  readonly label: string;
+  readonly titleSuffix: string;
+}
+
+function document(title: string, body: string, notice?: RecordingNotice): string {
+  if (notice) {
+    return `<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>${escapeHtml(`${title} · ${notice.titleSuffix}`)}</title><style>${CSS}</style></head>
+<body><main id="main"><section aria-label="${escapeHtml(notice.label)}" data-testid="recording-banner" class="word warning notice">${escapeHtml(notice.text)}</section><div class="card">${body}</div></main></body></html>`;
+  }
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
@@ -76,7 +92,11 @@ export function formatUpdated(date: Date): string {
   return `${UPDATED_FORMAT.format(date)} UTC`;
 }
 
-export function renderStatusPage(status: PayeeStatus, updatedAt: Date): string {
+export function renderStatusPage(
+  status: PayeeStatus,
+  updatedAt: Date,
+  notice?: RecordingNotice,
+): string {
   const p = t.payee.public;
   const tone = STATUS_TONE[status];
   return document(
@@ -87,6 +107,7 @@ export function renderStatusPage(status: PayeeStatus, updatedAt: Date): string {
 <dt>${escapeHtml(p.updatedLabel)}</dt>
 <dd><time datetime="${updatedAt.toISOString()}">${escapeHtml(formatUpdated(updatedAt))}</time></dd></dl>
 <p class="note">${escapeHtml(p.footnote)}</p>`,
+    notice,
   );
 }
 

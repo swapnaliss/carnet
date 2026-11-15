@@ -53,6 +53,7 @@ import {
   validationFailed,
 } from "../../lib/errors";
 import { rateLimitKey } from "../../lib/ratelimit";
+import { assertSessionModelBudget } from "../session-caps";
 import { enqueueDocumentExtraction } from "./jobs";
 import { type UploadLimits, uploadLimits } from "./limits";
 import { checkPdf } from "./pdf";
@@ -222,6 +223,8 @@ export function documentRouteSpecs(deps: DocumentRouteDeps): DocumentRouteSpecs 
       const filesRule = { limit: rules.sessionMaxFiles, windowMs: rules.windowMs };
       const bytesRule = { limit: rules.sessionMaxBytes, windowMs: rules.windowMs };
       try {
+        // M4-05: a session whose model budget is spent queues no extraction; refused before anything.
+        await assertSessionModelBudget(repo.db, ctx.sessionId);
         // Every attempt counts against the file cap, before the body is read.
         const files = await hitRateLimit(repo.db, filesKey, filesRule, at);
         if (!files.allowed) throw documentRejected("SESSION_CAP", files.retryAfterSeconds);
@@ -283,6 +286,7 @@ export function documentRouteSpecs(deps: DocumentRouteDeps): DocumentRouteSpecs 
             await enqueueDocumentExtraction(tx, {
               businessId: repo.businessId,
               documentId: result.document.id,
+              ...(ctx.sessionId ? { sessionId: ctx.sessionId } : {}),
             });
           }
           return result;

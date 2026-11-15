@@ -1,0 +1,23 @@
+{
+  "kind": "recording",
+  "label": "Core demo, recorded live: evidence check, a held payment's RFI drafted from documents, approved and answered, the transfer reaching PAID",
+  "ticket": "M2-09",
+  "run": "M2RUN-2611120748",
+  "run_date": "2026-11-12",
+  "run_date_end": "2026-11-13",
+  "deployed_version": "2331449c82f9",
+  "models": ["claude-haiku-5-5", "claude-sonnet-5-5"],
+  "record": "docs/evidence/m2-run.md",
+  "scrubbed": "account ids replaced (acct_SCRUBBED); the webhook signing secret is not in the repo",
+  "materialize": "m2-pipeline",
+  "sources": [
+    "docs/evidence/m2-run/run.json",
+    "fixtures/airwallex/m2-run/webhooks",
+    "fixtures/anthropic/m2-run/extraction",
+    "fixtures/anthropic/m2-run/drafting",
+    "fixtures/airwallex/m2-run/respond-attempt.json",
+    "docs/evidence/m2-run/hold-view-final.json",
+    "fixtures/dataset/ground-truth.json",
+    "fixtures/dataset/rfi-sets/rfi-set-harbor.json"
+  ]
+}
