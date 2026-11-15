@@ -2,3 +2,14 @@
 # M1-04: the synthetic demo owner's user id (a UUID, public in packages/db/src/seed/demo-users.ts)
 # matched generic-api-key in a test query; the test now reads it from DEMO_USERS.
 858b83c2c4123792e633d3feeda1f20cdac77d31:apps/web/test/auth/logging.test.ts:generic-api-key:49
+# M3-07: `draft_key` and `proposal_key` in the scrubbed M3 replay capture are Carnet's own content hashes
+# (idempotency keys for drafts and criticality proposals), not credentials. Reviewed 2026-11-15.
+ee254afe51e3b628893a57e17fde56e46857a193:fixtures/replay/m3/rfis.json:generic-api-key:198
+ee254afe51e3b628893a57e17fde56e46857a193:fixtures/replay/m3/rfis.json:generic-api-key:222
+ee254afe51e3b628893a57e17fde56e46857a193:fixtures/replay/m3/plans.json:generic-api-key:5782
+afaed1b5b3761bc108189c5bd9c66e72732648a4:fixtures/replay/m3/rfis.json:generic-api-key:198
+afaed1b5b3761bc108189c5bd9c66e72732648a4:fixtures/replay/m3/rfis.json:generic-api-key:222
+afaed1b5b3761bc108189c5bd9c66e72732648a4:fixtures/replay/m3/plans.json:generic-api-key:5782
+fixtures/replay/m3/rfis.json:generic-api-key:198
+fixtures/replay/m3/rfis.json:generic-api-key:222
+fixtures/replay/m3/plans.json:generic-api-key:5782

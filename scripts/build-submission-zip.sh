@@ -44,7 +44,8 @@ if unzip -Z1 "$zip" | grep -E '^video/'; then echo "FAIL: demo video material in
 
 x="$out/x"; rm -rf "$x"; mkdir "$x"; unzip -q "$zip" -d "$x"
 echo "== gitleaks: zip contents"
-gitleaks detect --no-git --source "$x" --redact --no-banner || fail=1
+# From inside the tree, so finding paths are relative and match .gitleaksignore entries.
+(cd "$x" && gitleaks detect --no-git --source . --redact --no-banner) || fail=1
 echo "== gitleaks: full history"
 gitleaks detect --source . --redact --no-banner || fail=1
 echo "== check-no-secrets: working tree"
