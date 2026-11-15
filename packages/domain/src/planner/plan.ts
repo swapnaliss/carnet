@@ -10,7 +10,9 @@
 //     only by a `convert` action from another, priced at the worst-case rate.
 //  3. An obligation is funded (`fund`, or `payout` when its payment is held) if its cash covers the
 //     amount plus the flat SWIFT fee, otherwise the shortfall is converted from the first currency
-//     (alphabetical) that can cover it. Conversions of one pair are merged into one action.
+//     that can cover it: currencies the policy has a per-action auto-convert limit for come first (a
+//     conversion from them could run without a person), then the rest; alphabetical within each group
+//     (ADR 0021 amendment 1). Conversions of one pair are merged into one action.
 //  4. Otherwise a confirmed criticality 2 or 3 whose due date plus grace is still ahead is deferred;
 //     everything else is escalated to the owner. Once an obligation in a currency is not funded,
 //     later ones in that currency are not funded either (strict priority, no queue jumping).
@@ -110,7 +112,11 @@ export function decide(inputs: PlanInputs): Draft[] {
   const rates = new Map(
     inputs.fxRates.map((r) => [`${r.sell}>${r.buy}`, parseRate(r.rate, r.asOf)] as const),
   );
-  const sources = [...new Set(inputs.fxRates.map((r) => r.sell))].sort(cmp);
+  // Sources the policy can auto-approve first, then alphabetical (ADR 0021 amendment 1). Without a
+  // policy (no limits) this is the alphabetical order of before.
+  const sources = [...new Set(inputs.fxRates.map((r) => r.sell))].sort(
+    (a, b) => Number(!limitBy.has(a)) - Number(!limitBy.has(b)) || cmp(a, b),
+  );
 
   const ordered = inputs.obligations
     .filter((o) => o.businessId === biz)

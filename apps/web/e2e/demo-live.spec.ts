@@ -705,7 +705,7 @@ test("6. plan revised: the USD to SGD conversion auto-executed under policy, the
       const f = await findConvert();
       if (f?.action.needs_approval) {
         throw new Error(
-          `the planner's SGD conversion sells ${String(f.action.params.sell_currency)} and needs approval: the policy only allows USD (sources are tried alphabetically, plan.ts rule 3)`,
+          `the planner's SGD conversion sells ${String(f.action.params.sell_currency)} and needs approval: expected USD, which the demo policy auto-approves (planner source order, ADR 0021 amendment 1)`,
         );
       }
       if (f?.action.state === "FAILED")

@@ -112,6 +112,85 @@ describe("planner scenarios", () => {
     );
   });
 
+  describe("conversion source (ADR 0021 amendment 1)", () => {
+    // An SGD payroll with no SGD on hand; CNY and USD can both cover it.
+    const sgdPayroll = (
+      autoConvertLimits: { currency: string; minor: string }[],
+    ): PlanInputsInput => {
+      const base = payrollFriday();
+      const biz = base.businessId;
+      return {
+        ...base,
+        held: [],
+        reserveFloor: [],
+        balances: [
+          { businessId: biz, currency: "CNY", availableMinor: "1000000000" },
+          { businessId: biz, currency: "USD", availableMinor: "1000000000" },
+        ],
+        obligations: [
+          {
+            businessId: biz,
+            id: "ob-sgd-payroll",
+            payee: "Lion City Payroll Pte. Ltd.",
+            amountMinor: "150000",
+            currency: "SGD",
+            dueAt: "2026-11-06T09:00:00.000Z",
+            criticality: 1,
+            paymentId: null,
+            payoutMethod: "LOCAL",
+          },
+        ],
+        fxRates: [
+          { sell: "CNY", buy: "SGD", rate: "0.1850", asOf: "2026-11-03T00:00:00.000Z" },
+          { sell: "USD", buy: "SGD", rate: "1.3400", asOf: "2026-11-03T00:00:00.000Z" },
+        ],
+        policy:
+          autoConvertLimits.length === 0
+            ? { version: 0, hash: "none", autoConvertLimits: [] }
+            : { version: 1, hash: "policy-v1", autoConvertLimits },
+      } as PlanInputsInput;
+    };
+    const convertOf = (p: Plan) => {
+      const c = p.actions.find((a) => a.kind === "convert");
+      if (c?.kind !== "convert") throw new Error("expected a convert");
+      return c;
+    };
+
+    it("with a USD-only policy, the SGD shortfall sells USD (auto-eligible) although CNY sorts first", () => {
+      const c = convertOf(plan(sgdPayroll([{ currency: "USD", minor: "500000" }])));
+      expect(c.params.sell_currency).toBe("USD");
+      expect(c.params.auto_eligible).toBe(true);
+      expect(c.needs_approval).toBe(false);
+    });
+
+    it("with no policy, the source is alphabetical as before (CNY)", () => {
+      const c = convertOf(plan(sgdPayroll([])));
+      expect(c.params.sell_currency).toBe("CNY");
+      expect(c.needs_approval).toBe(true);
+    });
+
+    it("a policy limit for every source keeps the alphabetical order", () => {
+      const c = convertOf(
+        plan(
+          sgdPayroll([
+            { currency: "CNY", minor: "5000000" },
+            { currency: "USD", minor: "500000" },
+          ]),
+        ),
+      );
+      expect(c.params.sell_currency).toBe("CNY");
+    });
+
+    it("is deterministic: same inputs, same plan and hashes, whatever the order of the rates", () => {
+      const a = plan(sgdPayroll([{ currency: "USD", minor: "500000" }]));
+      const reversed = sgdPayroll([{ currency: "USD", minor: "500000" }]);
+      const b = plan({ ...reversed, fxRates: [...(reversed.fxRates ?? [])].reverse() });
+      expect(strip(b)).toEqual(strip(a));
+      expect(b.content_hash).toBe(a.content_hash);
+      expect(b.inputs_hash).toBe(a.inputs_hash);
+    });
+  });
+
   it("hold appears, then is released: the decisions return to the baseline (revisions 1, 2, 3)", () => {
     const baseline = nextRevision(null, withoutHold(payrollFriday()));
     const held = nextRevision(baseline, payrollFriday());
