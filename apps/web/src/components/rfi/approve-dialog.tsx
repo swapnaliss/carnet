@@ -108,7 +108,7 @@ export function ApproveDialog({
               <h2
                 id={titleId}
                 tabIndex={-1}
-                className="text-xl leading-tight font-semibold outline-none"
+                className="text-xl leading-tight font-semibold"
               >
                 {t.hold.dialog.title}
               </h2>

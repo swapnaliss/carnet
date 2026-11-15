@@ -168,6 +168,10 @@ function QuestionCardImpl({
   const claims = answer && status !== "needs_owner" ? claimsOf(answer) : [];
   const groups = answer && status !== "needs_owner" ? snippetGroups(claims, answer) : [];
   const titleId = `q-${question.id}-title`;
+  // Closing the editor removes the focused control; focus returns to this question's heading so a
+  // keyboard user keeps their place (M4-07).
+  const returnFocus = () =>
+    window.requestAnimationFrame(() => document.getElementById(titleId)?.focus());
   const rejectedText = status === "needs_owner" && answer && answer.text !== "";
   const reasonKey = needsOwnerKey(answer?.reason_code ?? null);
   const qid = question.id;
@@ -190,7 +194,7 @@ function QuestionCardImpl({
           <h3
             id={titleId}
             tabIndex={-1}
-            className="text-lg leading-tight font-semibold outline-none"
+            className="text-lg leading-tight font-semibold"
           >
             {fill(t.hold.question.position, {
               position,
@@ -406,10 +410,14 @@ function QuestionCardImpl({
             view={view}
             question={question}
             mode={mode}
-            onCancel={() => setMode(null)}
+            onCancel={() => {
+              setMode(null);
+              returnFocus();
+            }}
             onDone={() => {
               setMode(null);
               onChanged();
+              returnFocus();
             }}
           />
         ) : null}
