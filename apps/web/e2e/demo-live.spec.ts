@@ -480,7 +480,12 @@ test("4. hold: a real Transaction RFI on the sent transfer; webhook verified; pa
       const p = await currentPlan();
       return p &&
         p.revision > (before?.revision ?? 0) &&
-        p.actions.some((a) => a.kind === "payout" && a.reason_code === "PAYOUT_ALTERNATE_FOR_HELD")
+        p.actions.some(
+          (a) =>
+            a.kind === "payout" &&
+            a.reason_code === "PAYOUT_ALTERNATE_FOR_HELD" &&
+            a.params.held_payment_id === payments.strong?.id,
+        )
         ? p
         : null;
     },
@@ -548,11 +553,17 @@ test("4. hold: a real Transaction RFI on the sent transfer; webhook verified; pa
   // payout, and an unapproved payout of an older revision is superseded (plan.revised). Its execution is
   // checked in step 6.
   const payoutAction = rev2.actions.find(
-    (a) => a.kind === "payout" && a.reason_code === "PAYOUT_ALTERNATE_FOR_HELD",
+    (a) =>
+      a.kind === "payout" &&
+      a.reason_code === "PAYOUT_ALTERNATE_FOR_HELD" &&
+      a.params.held_payment_id === payments.strong?.id,
   );
   if (!payoutAction) throw new Error("no alternate payout in the held plan");
   payoutActionId = payoutAction.id;
-  const card = page.locator(`[data-testid="action-card"][data-kind="payout"]`);
+  // Back to the plan screen: the screenshot above left the page on the payment.
+  await expectPlanScreen(page, rev2.revision);
+  // By id: payouts held over from earlier runs (history is add-only) are on the same plan.
+  const card = page.locator(`[data-testid="action-card"][data-action-id="${payoutActionId}"]`);
   await expect(card.getByTestId("approve-button")).toBeEnabled();
   await card.getByTestId("approve-button").click();
   await expect(page.getByTestId("plan-approve-dialog")).toBeVisible();
