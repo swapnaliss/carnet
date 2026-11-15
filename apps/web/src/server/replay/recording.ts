@@ -242,8 +242,8 @@ function storyboardEvents(
     out.push({
       at,
       kind: "storyboard",
-      title: n ? `Step ${n}: ${name}` : name,
-      detail: facts.join(" · "),
+      title: name.charAt(0).toUpperCase() + name.slice(1),
+      detail: [n ? `storyboard step ${n}` : null, ...facts].filter(Boolean).join(" · "),
       screen: screens[n] ?? null,
       source: path,
     });

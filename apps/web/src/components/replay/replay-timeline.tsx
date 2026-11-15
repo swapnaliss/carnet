@@ -7,6 +7,21 @@ import { Button } from "@/components/ui/button";
 import type { RecordingView } from "@/server/replay/recording";
 import { fill, t } from "@/strings";
 
+const TIME = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hourCycle: "h23",
+  timeZone: "UTC",
+});
+/** "13 Nov, 09:22:06 UTC": one format for every recorded time, the same on server and client. */
+function when(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso : `${TIME.format(d)} UTC`;
+}
+
 /** One step every 2.5 s while playing; reduced motion does not change it (no animation is involved). */
 const PLAY_INTERVAL_MS = 2_500;
 
@@ -135,11 +150,11 @@ export function ReplayTimeline({ recording }: { recording: RecordingView }) {
           >
             <p className="text-sm text-muted-foreground">
               {fill(t.replay.page.stepAt, { n: index + 1, total })}
-              <time dateTime={current.at}>{current.at}</time>
+              <time dateTime={current.at}>{when(current.at)}</time>
             </p>
             <h3 className="text-base font-semibold">{current.title}</h3>
-            {current.detail ? <p className="break-words">{current.detail}</p> : null}
-            <p className="text-sm text-muted-foreground break-all">
+            {current.detail ? <p className="[overflow-wrap:anywhere]">{current.detail}</p> : null}
+            <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
               {t.replay.page.source}
               <span className="font-mono">{current.source}</span>
             </p>
@@ -182,9 +197,12 @@ export function ReplayTimeline({ recording }: { recording: RecordingView }) {
                       : "border-transparent hover:bg-accent"
                   }`}
                 >
-                  <span className="font-mono text-xs text-muted-foreground md:w-52 md:shrink-0">
-                    {e.at}
-                  </span>
+                  <time
+                    dateTime={e.at}
+                    className="font-mono text-xs whitespace-nowrap text-muted-foreground md:w-40 md:shrink-0"
+                  >
+                    {when(e.at)}
+                  </time>
                   <span>{e.title}</span>
                 </button>
               </li>

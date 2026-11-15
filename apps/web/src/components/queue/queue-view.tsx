@@ -9,6 +9,7 @@ import { announce } from "@/components/payments/announce";
 import { describeStatus, formatWire } from "@/components/payments/format";
 import { StatusBadge } from "@/components/payments/status-badge";
 import { EmptyState } from "@/components/shell/empty-state";
+import { useRecording } from "@/components/shell/recording-context";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/intl";
 import { cn } from "@/lib/utils";
@@ -170,7 +171,9 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
     );
   }
 
+  const recording = useRecording();
   const stale =
+    !recording &&
     items.length > 0 &&
     (initial.reconcile.age_ms === null || initial.reconcile.age_ms > initial.reconcile.max_age_ms);
   const updated = formatDate(initial.server_time, locale, { timeStyle: "short" });
@@ -178,11 +181,14 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
   return (
     <div className="flex flex-col gap-6">
       <p className="text-sm text-muted-foreground tabular-nums" data-testid="queue-updated">
-        {fill(stale ? t.queue.updatedStale : t.queue.updated, { time: updated })}
+        {recording
+          ? t.replay.recordedStatus
+          : fill(stale ? t.queue.updatedStale : t.queue.updated, { time: updated })}
       </p>
 
-      {initial.reconcile.age_ms === null ||
-      initial.reconcile.age_ms > initial.reconcile.max_age_ms ? (
+      {!recording &&
+      (initial.reconcile.age_ms === null ||
+        initial.reconcile.age_ms > initial.reconcile.max_age_ms) ? (
         <section
           aria-labelledby="queue-stale-title"
           data-testid="queue-stale"
@@ -215,8 +221,12 @@ export function QueueView({ initial, canCreate }: { initial: QueueResponse; canC
           <Target aria-hidden="true" className="size-4" />
           {t.queue.goal.label}
         </h2>
-        <p className="text-lg font-semibold">{t.queue.goal.emptyTitle}</p>
-        <p className="max-w-[65ch] text-muted-foreground">{t.queue.goal.emptyBody}</p>
+        <p className="text-lg font-semibold">
+          {recording ? t.replay.goalTitle : t.queue.goal.emptyTitle}
+        </p>
+        <p className="max-w-[65ch] text-muted-foreground">
+          {recording ? t.replay.goalBody : t.queue.goal.emptyBody}
+        </p>
         <p className="text-sm text-muted-foreground" data-testid="queue-summary">
           {fill(t.queue.summary.counts, { ...counts })}
         </p>

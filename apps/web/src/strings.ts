@@ -37,6 +37,10 @@ const en = {
     live: "LIVE",
     liveHint: "Live: the real Airwallex sandbox and the real model.",
     liveLabel: "Live mode",
+    recordedStatus: "Recorded · statuses as Airwallex reported them when the run was captured",
+    goalTitle: "No goal in this recording",
+    goalBody:
+      "The recorded run had no obligations, so each payment is shown on its own, as it was.",
     switchToLive: "Switch to live",
     switchToReplay: "Switch to the recording",
     switchFailed: "The mode did not change. Try again.",
