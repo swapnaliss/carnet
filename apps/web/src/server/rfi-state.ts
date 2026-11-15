@@ -2,8 +2,8 @@
 // the respond executor, the approval sweeps). The caller holds the row lock inside a transaction; this
 // validates the edge with `transitionRfi`, writes the state and the `rfi.transition` audit row (the
 // same shape M2-04's ingest writes: `{from, to, event, round, source}`). Never touches a payment.
-import { appendAudit, type RepoCtx, type Rfi, updateRfi } from "@carnet/db";
-import { type RfiState, transitionRfi } from "@carnet/domain";
+import { appendAudit, enqueuePlanRerun, type RepoCtx, type Rfi, updateRfi } from "@carnet/db";
+import { type RfiState, rfiHolds, transitionRfi } from "@carnet/domain";
 
 export type TransitionActor =
   | { actorType: "user"; actorId: string }
@@ -28,5 +28,13 @@ export async function moveRfi(
     subject: `rfi:${rfi.id}`,
     data: { from: rule.from, to: rule.to, event: rule.event, round: rfi.round, source, ...extra },
   });
+  // A change in whether the RFI holds its payment changes the planner's `held` input (M3-02, ADR 0021).
+  if (updated.paymentId !== null && rfiHolds(rule.from) !== rfiHolds(rule.to)) {
+    await enqueuePlanRerun(rc.db, {
+      businessId: rc.businessId,
+      eventId: `rfi:${rfi.id}:${rule.to}`,
+      cause: "rfi.holding_changed",
+    });
+  }
   return updated;
 }

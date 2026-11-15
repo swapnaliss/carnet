@@ -8,6 +8,7 @@ import {
   createQuote,
   findConversionByRequestId,
   getConversion,
+  getCurrentRate,
   listConversions,
 } from "./fx";
 import { HttpClient, type HttpConfig } from "./http";
@@ -95,6 +96,7 @@ export function createAirwallexClient(config: AirwallexClientConfig) {
     createConversion: (input: Parameters<typeof createConversion>[1]) =>
       createConversion(ctx, input),
     getConversion: (id: string) => getConversion(ctx, id),
+    getCurrentRate: (input: Parameters<typeof getCurrentRate>[1]) => getCurrentRate(ctx, input),
     listConversions: (input?: Parameters<typeof listConversions>[1]) => listConversions(ctx, input),
     findConversionByRequestId: (requestId: string) => findConversionByRequestId(ctx, requestId),
     listRfis: (input?: Parameters<typeof listRfis>[1]) => listRfis(ctx, input),

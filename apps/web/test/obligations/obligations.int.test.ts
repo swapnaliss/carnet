@@ -200,6 +200,39 @@ describe("confirm", () => {
     expect(audit.some((a) => a.action === "obligation.criticality_confirmed")).toBe(true);
   });
 
+  it("creating and confirming each queue a plan.rerun in the same transaction (ADR 0021)", async () => {
+    const rerunsFor = async (eventId: string) =>
+      (await env().db.select().from(schema.outboxJobs)).filter(
+        (j) =>
+          j.kind === "plan.rerun" &&
+          (j.payload as { eventId?: string } | null)?.eventId === eventId,
+      );
+    const o = await create();
+    expect(await rerunsFor(`obligation:${o.id}:created`)).toHaveLength(1);
+    expect(await rerunsFor(`obligation:${o.id}:criticality:3`)).toHaveLength(0);
+    const res = await call(
+      "confirm",
+      "POST",
+      o.id,
+      { criticality: 3 },
+      cookies.owner,
+      "/criticality/confirm",
+    );
+    expect(res.status).toBe(200);
+    expect(await rerunsFor(`obligation:${o.id}:criticality:3`)).toHaveLength(1);
+    // A refused confirm (unknown proposal) rolls back with it: no job for it.
+    const refused = await call(
+      "confirm",
+      "POST",
+      o.id,
+      { criticality: 1, proposal_id: crypto.randomUUID() },
+      cookies.owner,
+      "/criticality/confirm",
+    );
+    expect(refused.status).toBe(400);
+    expect(await rerunsFor(`obligation:${o.id}:criticality:1`)).toHaveLength(0);
+  });
+
   it("rejects an unknown proposal id", async () => {
     const o = await create();
     const res = await call(

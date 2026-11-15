@@ -2,9 +2,11 @@
 // A job is claimed with FOR UPDATE SKIP LOCKED and flipped to RUNNING in the same statement, so two
 // workers never receive the same job. A RUNNING job whose lease ran out (a crashed worker) becomes
 // claimable again; handlers are idempotent, so a rerun after a crash is safe.
+import type { BusinessId } from "@carnet/domain";
 import { eq, sql } from "drizzle-orm";
 import type { Db } from "../client";
 import { type JobStatus, outboxJobs } from "../schema/index";
+import { enqueueJob } from "./system";
 
 export interface OutboxJob {
   readonly id: string;
@@ -160,4 +162,26 @@ export async function enqueueSingletonJob(
       .returning({ id: outboxJobs.id });
     return row?.id ?? null;
   });
+}
+
+// --- plan re-run requests (ADR 0021) ---------------------------------------------------------------
+// The one way to ask for a plan re-run (ADR 0005, 0021). Call it with the transaction that changes a
+// planner input (an obligation, a payment's transfer state, an RFI's holding state, a policy version),
+// so the job commits with the change and a rolled-back change leaves no job. The worker's `plan.rerun`
+// handler recomputes the inputs and writes a revision only when `inputs_hash` changed, so over-asking
+// is harmless and a missed ask is the only failure.
+
+export const PLAN_RERUN_JOB_KIND = "plan.rerun";
+
+export interface PlanRerunRequest {
+  readonly businessId: BusinessId | string;
+  /** The triggering event's id (webhook event id, job id) or a stable label such as `obligation:<id>`. */
+  readonly eventId: string;
+  /** Why: `obligation.created`, `airwallex.transfer.updated`, `rfi.holding_changed`, `payment.submitted`, ... */
+  readonly cause: string;
+}
+
+/** Queues a `plan.rerun`. `db` should be the caller's transaction. */
+export async function enqueuePlanRerun(db: Db, input: PlanRerunRequest): Promise<void> {
+  await enqueueJob(db, { kind: PLAN_RERUN_JOB_KIND, payload: input });
 }

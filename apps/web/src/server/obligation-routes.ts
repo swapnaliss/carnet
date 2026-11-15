@@ -15,6 +15,7 @@ import {
   type CriticalityProposal,
   confirmCriticality,
   createObligation,
+  enqueuePlanRerun,
   ForeignKeyViolationError,
   getCounterparty,
   getDocument,
@@ -160,6 +161,11 @@ export const obligationSpecs = {
               due_at: o.dueAt.toISOString(),
             },
           });
+          await enqueuePlanRerun(tx, {
+            businessId: repo.businessId,
+            eventId: `obligation:${o.id}:created`,
+            cause: "obligation.created",
+          });
           return o;
         });
         return Response.json(toObligationView(created, null), {
@@ -271,6 +277,12 @@ export const obligationSpecs = {
               proposal_status: done.proposal?.status ?? null,
               proposed_criticality: done.proposal?.proposedCriticality ?? null,
             },
+          });
+          // Criticality decides the planner's order and whether an obligation may be deferred.
+          await enqueuePlanRerun(tx, {
+            businessId: repo.businessId,
+            eventId: `obligation:${id}:criticality:${body.criticality}`,
+            cause: "obligation.criticality_confirmed",
           });
           return done;
         });

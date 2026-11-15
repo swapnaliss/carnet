@@ -42,20 +42,21 @@ export const PLAN_JOB_KIND = {
   revised: "plan.revised",
 } as const;
 
-/** Reads everything the planner needs for one business, as of `now` (the job's creation time). */
-export type PlanInputsLoader = (
-  db: Db,
-  businessId: BusinessId,
-  now: Date,
-) => Promise<PlanInputsInput>;
+/**
+ * Reads everything the planner needs for one business, as of `now` (the job's creation time).
+ *
+ * `prefetch` is optional: slow reads from outside the database (Airwallex balances and rates) belong
+ * there, because `load` runs inside the re-run's transaction and the pool closes an idle-in-transaction
+ * session after 30 s. `rerunPlan` awaits it before the transaction opens and hands the result to
+ * `load` as `prefetched`.
+ */
+export type PlanInputsLoader = {
+  (db: Db, businessId: BusinessId, now: Date, prefetched?: unknown): Promise<PlanInputsInput>;
+  prefetch?: (businessId: BusinessId, now: Date) => Promise<unknown>;
+};
 
-/** Queues a re-run. `eventId` is the triggering event's id (webhook event id or job id). */
-export async function enqueuePlanRerun(
-  db: Db,
-  input: { businessId: BusinessId; eventId: string; cause: string },
-): Promise<void> {
-  await db.insert(schema.outboxJobs).values({ kind: PLAN_JOB_KIND.rerun, payload: input });
-}
+/** Queues a re-run (the repository function, re-exported here for the handlers' callers). */
+export { enqueuePlanRerun } from "@carnet/db";
 
 export type PlanRerunOutcome =
   | { outcome: "revised"; revision: number }
@@ -66,12 +67,13 @@ export async function rerunPlan(
   load: PlanInputsLoader,
   args: { businessId: BusinessId; eventId: string; now: Date },
 ): Promise<PlanRerunOutcome> {
+  const prefetched = load.prefetch ? await load.prefetch(args.businessId, args.now) : undefined;
   return withTransaction(ctx.db, async (tx) => {
     // One re-run per business at a time: revisions are numbered from the latest stored one.
     await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`plan:${args.businessId}`}))`);
     const rc = repoCtx(tx, args.businessId);
     const latest = (await getLatestPlan(rc))?.plan ?? null;
-    const fresh = await load(tx, args.businessId, args.now);
+    const fresh = await load(tx, args.businessId, args.now, prefetched);
 
     // `now` is part of the hash, but a later clock reading alone is not a change in the facts:
     // compare against the previous plan's own `now` first.
