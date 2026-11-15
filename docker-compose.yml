@@ -20,8 +20,14 @@ services:
       retries: 30
   web:
     build: .
+    # Optional .env (keys in .env.example): Airwallex, Anthropic, BETTER_AUTH_SECRET and the limits.
+    # `environment` below wins over it, so the container always uses the compose Postgres and its mode.
+    env_file:
+      - path: .env
+        required: false
     environment:
       PROCESS_MODE: web
+      NODE_ENV: production
       DATABASE_URL: postgres://carnet_app:carnet_app@postgres:5432/carnet
     ports:
       - "3000:3000"
@@ -30,8 +36,14 @@ services:
         condition: service_healthy
   worker:
     build: .
+    # Optional .env (keys in .env.example): Airwallex, Anthropic, BETTER_AUTH_SECRET and the limits.
+    # `environment` below wins over it, so the container always uses the compose Postgres and its mode.
+    env_file:
+      - path: .env
+        required: false
     environment:
       PROCESS_MODE: worker
+      NODE_ENV: production
       DATABASE_URL: postgres://carnet_app:carnet_app@postgres:5432/carnet
     depends_on:
       postgres:
