@@ -82,7 +82,7 @@ interface RecordedWebhook {
 interface TransferData {
   id: string;
   status: TransferStatus;
-  reference?: string;
+  reference?: string | undefined;
   amount_beneficiary_receives?: number;
   updated_at?: string;
 }
