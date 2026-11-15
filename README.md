@@ -115,6 +115,21 @@ Everything below comes from one recorded run or from a replayable eval. One run 
 
 **Not yet measured:** the eval-suite report, load-test numbers, and accessibility and Core Web Vitals results (M4-03, M4-06, M4-07). Until their evidence files exist, this README claims no number for them.
 
+**Eval suite** ([`evals.md`](docs/evidence/evals.md), M4-03):
+Numbers below are copied from [`docs/evidence/evals.md`](docs/evidence/evals.md) (replay mode: the
+pipeline and the code verifier over recorded real model replies, no model call); `python3 scripts/check-readme-numbers.py`
+fails if they drift. Run it yourself with `npm run eval -- --mode replay`.
+
+- cases: 76 ground-truth cases (extraction, drafting, verifier); ground-truth cases passed: 75
+- mutation rejection: 100% of mutants: 721 wrong drafts (numbers, dates, names, currencies, citations) all rejected by the verifier
+- grounding rate: 95% of answerable RFI questions came back with every claim matched to a cited quote
+- extraction accuracy: 100% field-level on the synthetic dataset, quote verification: 100% against the PDF text layer
+- adversarial cases: 26 (hidden instructions, contradicting or missing documents, image-only scans, follow-up reuse), all safe
+
+The dataset is small and synthetic, and the prompts were tuned on it; these numbers show the controls
+work, not accuracy on unseen documents.
+<!-- M4-06 supplies the load-test numbers -->
+
 ## Future vision
 
 None of this is built:
