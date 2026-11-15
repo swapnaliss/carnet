@@ -5,7 +5,6 @@
 // without it). No database and no network: the session lookup is a stub of better-auth's getSession.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { REPLAY_BUSINESS_ID } from "@carnet/db";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { API_DIR, apiRoutes } from "./security/api-routes";
 
@@ -156,7 +155,8 @@ describe("the judge cannot reach live by tampering", () => {
     const { sessionCtx } = await import("../src/lib/authz");
     const ctx = await sessionCtx(fakeRuntime as never, new Headers());
     expect(ctx?.mode).toBe("replay");
-    expect(ctx?.businessId).toBe(REPLAY_BUSINESS_ID);
+    // No recording loaded (no database here): read-only on the judge's own business.
+    expect(ctx?.businessId).toBe(HOME);
   });
 
   it("cookie, query and header values do not change the mode", async () => {

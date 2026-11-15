@@ -8,10 +8,6 @@ import { agentRuns } from "../schema/agent";
 import { authSessions, type SessionMode } from "../schema/auth";
 import { demoDatabase, replayRecordings } from "../schema/replay";
 
-/** The tenant every replay session reads: the recorded runs, materialized by `npm run demo:reset`. */
-export const REPLAY_BUSINESS_ID = "5e1a7c00-0f0d-4a11-9c0e-7e9a1a7f0005" as BusinessId;
-export const REPLAY_BUSINESS_NAME = "Northwind Studio (recording)";
-
 /** Sets a session's mode. Returns false when the session does not exist. */
 export async function setSessionMode(
   db: Db,
@@ -91,14 +87,14 @@ export async function replaceReplayRecordings(
 
 /**
  * The business replay sessions read: the last materialized recording in the index (the newest run
- * covers the most), or REPLAY_BUSINESS_ID (empty) before any reset has loaded one.
+ * covers the most), or null before any reset has loaded one.
  */
-export async function activeReplayBusinessId(db: Db): Promise<BusinessId> {
+export async function activeReplayBusinessId(db: Db): Promise<BusinessId | null> {
   const [row] = await db
     .select({ businessId: replayRecordings.businessId })
     .from(replayRecordings)
     .where(eq(replayRecordings.materialized, true))
     .orderBy(desc(replayRecordings.position))
     .limit(1);
-  return (row?.businessId ?? REPLAY_BUSINESS_ID) as BusinessId;
+  return (row?.businessId ?? null) as BusinessId | null;
 }

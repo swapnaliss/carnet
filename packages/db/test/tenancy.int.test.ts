@@ -35,6 +35,7 @@ import * as repos from "../src/repos/index";
 import * as outbox from "../src/repos/outbox";
 import * as payeeLinkLookup from "../src/repos/payee-link-lookup";
 import * as rateLimits from "../src/repos/rate-limits";
+import * as replay from "../src/repos/replay";
 import * as rfiAttribution from "../src/repos/rfi-attribution";
 import * as system from "../src/repos/system";
 import * as webhookEvents from "../src/repos/webhook-events";
@@ -58,6 +59,8 @@ const helperNames = new Set([
   ...Object.keys(outbox),
   ...Object.keys(payeeLinkLookup),
   ...Object.keys(rateLimits),
+  // M4-05: session rows, the demo marker and the replay index are not tenant data (db first).
+  ...Object.keys(replay),
   ...Object.keys(rfiAttribution),
   ...Object.keys(webhookEvents),
   ...Object.keys(workerHeartbeats),

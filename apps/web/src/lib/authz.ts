@@ -10,13 +10,12 @@
 //
 // Session mode (M4-05, ADR 0018 amendment 2): `replay` or `live`, a server-side attribute of the session
 // row (auth_sessions.mode), never a client flag. A viewer (the judge) is ALWAYS replay, whatever the row
-// says. A replay session reads the replay business (REPLAY_BUSINESS_ID, the recorded runs) through the
+// says. A replay session reads the replay business (the last materialized recording) through the
 // same repositories, and every non-GET request is 403 in replay, for every role, except the routes
 // guarded by `requireRoleAnyMode` (the owner's switch back to live).
 import {
   activeReplayBusinessId,
   type Db,
-  REPLAY_BUSINESS_ID,
   type RepoCtx,
   repoCtx,
   type SessionMode,
@@ -39,7 +38,7 @@ export interface AuthCtx {
   readonly role: Role;
   /** The better-auth session row id (per-session upload caps, M2-01); absent outside a session. */
   readonly sessionId?: string;
-  /** M4-05: `replay` reads the recording (businessId is then REPLAY_BUSINESS_ID); `live` the real one. */
+  /** M4-05: `replay` reads the recording (businessId is then the replay business); `live` the real one. */
   readonly mode: SessionMode;
   /** The user's own business, whatever the mode (businessId is the one every repository uses). */
   readonly homeBusinessId: BusinessId;
@@ -81,7 +80,10 @@ export async function sessionCtx(rt: AuthRuntime, headers: Headers): Promise<Aut
   if (typeof businessId !== "string" || !isRole(role)) return null;
   const mode = effectiveMode(role, (session.session as { mode?: unknown }).mode);
   return {
-    businessId: mode === "replay" ? await replayBusiness(rt.db) : (businessId as BusinessId),
+    // Before any recording is loaded (a fresh or test database) replay reads the user's own business,
+    // still read-only.
+    businessId:
+      (mode === "replay" ? await replayBusiness(rt.db) : null) ?? (businessId as BusinessId),
     homeBusinessId: businessId as BusinessId,
     userId: id as UserId,
     role,
@@ -92,12 +94,12 @@ export async function sessionCtx(rt: AuthRuntime, headers: Headers): Promise<Aut
 
 // The replay business changes only on `npm run demo:reset`; a short cache spares a query per request.
 const REPLAY_CACHE_MS = 10_000;
-let replayCache: { at: number; id: BusinessId } | null = null;
+let replayCache: { at: number; id: BusinessId | null } | null = null;
 
-async function replayBusiness(db: Db): Promise<BusinessId> {
+async function replayBusiness(db: Db): Promise<BusinessId | null> {
   const now = Date.now();
   if (replayCache && now - replayCache.at < REPLAY_CACHE_MS) return replayCache.id;
-  const id = await activeReplayBusinessId(db).catch(() => REPLAY_BUSINESS_ID);
+  const id = await activeReplayBusinessId(db).catch(() => null);
   replayCache = { at: now, id };
   return id;
 }
