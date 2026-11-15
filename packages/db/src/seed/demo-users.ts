@@ -81,12 +81,14 @@ export interface SeedResult {
   readonly users: readonly SeededUser[];
 }
 
-function passwordsFrom(env: Record<string, string | undefined>): Map<SeedPasswordEnvKey, string> {
-  const bad = SEED_PASSWORD_ENV_KEYS.filter(
-    (k) => (env[k] ?? "").length < SEED_PASSWORD_MIN_LENGTH,
-  );
+function passwordsFrom(
+  env: Record<string, string | undefined>,
+  optional: readonly SeedPasswordEnvKey[] = [],
+): Map<SeedPasswordEnvKey, string> {
+  const ok = (k: SeedPasswordEnvKey) => (env[k] ?? "").length >= SEED_PASSWORD_MIN_LENGTH;
+  const bad = SEED_PASSWORD_ENV_KEYS.filter((k) => !ok(k) && !optional.includes(k));
   if (bad.length > 0) throw new SeedConfigError(bad);
-  return new Map(SEED_PASSWORD_ENV_KEYS.map((k) => [k, env[k] as string]));
+  return new Map(SEED_PASSWORD_ENV_KEYS.filter(ok).map((k) => [k, env[k] as string]));
 }
 
 export interface SeedDemoUsersOptions {
@@ -98,17 +100,23 @@ export interface SeedDemoUsersOptions {
    */
   businessId?: BusinessId;
   businessName?: string;
+  /**
+   * M4-05 (demo reset): keys that may be absent; a user whose key is absent is left as it is (not
+   * created, its password not rewritten). Default none: every key is required.
+   */
+  optionalKeys?: readonly SeedPasswordEnvKey[];
 }
 
 export async function seedDemoUsers(
   db: Db,
   options: SeedDemoUsersOptions = {},
 ): Promise<SeedResult> {
-  const passwords = passwordsFrom(options.env ?? process.env);
+  const passwords = passwordsFrom(options.env ?? process.env, options.optionalKeys);
   const businessId = options.businessId ?? SEED_DEFAULT_BUSINESS_ID;
+  const selected = DEMO_USERS.filter((u) => passwords.has(u.passwordKey));
   // Hash before the transaction: scrypt is slow and must not hold a connection open.
   const hashes = new Map<UserId, string>();
-  for (const u of DEMO_USERS) {
+  for (const u of selected) {
     hashes.set(u.id, await hashPassword(passwords.get(u.passwordKey) as string));
   }
 
@@ -119,7 +127,7 @@ export async function seedDemoUsers(
       .onConflictDoNothing({ target: businesses.id });
 
     const seeded: SeededUser[] = [];
-    for (const u of DEMO_USERS) {
+    for (const u of selected) {
       const [row] = await tx
         .insert(users)
         .values({

@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { t } from "@/strings";
 import { MainNav } from "./main-nav";
+import { ModeBanner } from "./mode-banner";
 import { RouteFocus } from "./route-focus";
 
 /**
@@ -32,6 +33,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           {t.shell.header.sandbox} <span className="sr-only">{t.shell.header.sandboxHint}</span>
         </span>
       </header>
+      <ModeBanner />
       <div className="flex min-h-[calc(100dvh-var(--shell-header-height))]">
         <MainNav />
         <main

@@ -84,6 +84,10 @@ function buildAuth(db: Db, settings: AuthSettings, log: Logger) {
     },
     session: {
       modelName: "authSessions",
+      // M4-05: replay or live, server-side only (`input: false`: no client can set it at sign-in).
+      additionalFields: {
+        mode: { type: "string", required: false, input: false, defaultValue: "live" },
+      },
       expiresIn: SESSION_TTL_SECONDS,
       updateAge: SESSION_UPDATE_AGE_SECONDS,
     },

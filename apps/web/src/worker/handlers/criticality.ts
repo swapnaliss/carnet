@@ -21,6 +21,7 @@ import {
 } from "@carnet/db";
 import { type BusinessId, CRITICALITY_AUDIT_ACTIONS, type DocumentId } from "@carnet/domain";
 import { OBLIGATION_JOB_KIND } from "../../server/obligations/jobs";
+import { sessionAttribution } from "../../server/session-caps";
 import { type HandlerContext, type JobHandler, payloadString } from "./index";
 
 export { OBLIGATION_JOB_KIND };
@@ -93,7 +94,7 @@ export function createCriticalityProposeHandler(
     const obligationId = payloadString(payload, "obligationId");
     const documentId = payloadString(payload, "documentId");
     const harness = createHarness({
-      store: agentHarnessStore(repoCtx(ctx.db, businessId)),
+      store: agentHarnessStore(repoCtx(ctx.db, businessId), sessionAttribution(payload)),
       ...(options.transport ? { transport: options.transport } : {}),
     });
     const configured = process.env.ANTHROPIC_MODEL_DRAFT;

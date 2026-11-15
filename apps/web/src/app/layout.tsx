@@ -4,6 +4,7 @@ import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import { connection } from "next/server";
 import type { ReactNode } from "react";
 import { AppShell } from "@/components/shell/app-shell";
+import { getPageMode } from "@/lib/page-session";
 import { t } from "@/strings";
 
 // Self-hosted at build time by next/font (no third-party request at runtime); latin-ext covers German
@@ -21,10 +22,15 @@ const mono = IBM_Plex_Mono({
   variable: "--font-plex-mono",
 });
 
-export const metadata: Metadata = {
-  title: { default: t.app.name, template: `%s · ${t.app.name}` },
-  description: t.app.description,
-};
+// M4-05: a replay session's page titles say it is a recording ("Queue · Recording · Carnet").
+export async function generateMetadata(): Promise<Metadata> {
+  const mode = await getPageMode();
+  const suffix = mode?.mode === "replay" ? ` · ${t.replay.titleSuffix}` : "";
+  return {
+    title: { default: `${t.app.name}${suffix}`, template: `%s${suffix} · ${t.app.name}` },
+    description: t.app.description,
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",

@@ -21,6 +21,8 @@ export interface AgentRun {
   readonly costNanoUsd: number;
   readonly startedAt: Date;
   readonly finishedAt: Date | null;
+  /** The web session that queued the run (M4-05); null for webhook-driven work. */
+  readonly sessionId: string | null;
 }
 
 export interface AgentStep {
@@ -56,6 +58,7 @@ export interface NewAgentRun {
   id?: string;
   kind: string;
   ref: string;
+  sessionId?: string | null;
 }
 
 export async function createAgentRun(ctx: RepoCtx, input: NewAgentRun): Promise<AgentRun> {
@@ -67,6 +70,7 @@ export async function createAgentRun(ctx: RepoCtx, input: NewAgentRun): Promise<
         businessId: ctx.businessId,
         kind: input.kind,
         ref: input.ref,
+        ...(input.sessionId ? { sessionId: input.sessionId } : {}),
       })
       .returning();
     if (!row) throw new Error("insert returned no row");

@@ -5,6 +5,9 @@ import { index, pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { createdAt, tstz } from "./columns";
 import { users } from "./users";
 
+export const SESSION_MODES = ["live", "replay"] as const;
+export type SessionMode = (typeof SESSION_MODES)[number];
+
 export const authSessions = pgTable(
   "auth_sessions",
   {
@@ -18,6 +21,8 @@ export const authSessions = pgTable(
     userAgent: text("user_agent"),
     createdAt: createdAt(),
     updatedAt: tstz("updated_at").notNull().defaultNow(),
+    /** M4-05: `live` or `replay`, server-side only. A viewer (judge) is replay whatever this says. */
+    mode: text("mode").$type<SessionMode>().notNull().default("live"),
   },
   (t) => [
     uniqueIndex("auth_sessions_token_key").on(t.token),

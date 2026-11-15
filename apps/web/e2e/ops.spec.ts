@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, test } from "@playwright/test";
 
-// /ops (M1-09): 403 for the viewer (judge) role, 200 for owner and approver, no client-side errors,
+// /ops (M1-09): read-only for the viewer (judge) in replay (M4-05), 200 for owner and approver, no client-side errors,
 // "No data yet" on an empty database, and axe clean in both schemes. Needs the web server started
 // with DATABASE_URL and BETTER_AUTH_* and the demo users seeded with the SEED_* passwords
 // (`npx tsx packages/db/src/seed/run.ts`); without the passwords the tests are skipped loudly.
@@ -42,13 +42,13 @@ test("no session: /ops redirects to /login", async ({ page }) => {
   await expect(page).toHaveURL(/\/login$/);
 });
 
-test("viewer (judge): /ops answers 403 with the forbidden page", async ({ page }) => {
+// M4-05: the judge reads /ops of the recording, read-only, under the recording banner.
+test("viewer (judge): /ops answers 200 read-only under the recording banner", async ({ page }) => {
   await signIn(page, "viewer");
   const res = await page.goto("/ops");
-  expect(res?.status()).toBe(403);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Your role cannot open this page",
-  );
+  expect(res?.status()).toBe(200);
+  await expect(page.getByRole("region", { name: "Recording notice" })).toBeVisible();
+  await expect(page.locator('[data-testid$="-button"]')).toHaveCount(0);
 });
 
 for (const role of ["owner", "approver"] as const) {

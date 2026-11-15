@@ -50,6 +50,8 @@ export const agentRuns = pgTable(
     costNanoUsd: nanoUsd("cost_nano_usd").notNull().default(0),
     startedAt: tstz("started_at").notNull().defaultNow(),
     finishedAt: tstz("finished_at"),
+    /** The web session that queued the run (M4-05, SESSION_MODEL_CAP_USD); null for webhook work. */
+    sessionId: uuid("session_id"),
   },
   (t) => [
     index("agent_runs_kind_ref_idx").on(t.kind, t.ref),

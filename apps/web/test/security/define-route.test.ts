@@ -23,7 +23,13 @@ const stubAuthz: Authz = {
     const role = req.headers.get("x-test-role") as Role | null;
     if (!role) throw unauthenticated();
     if (role === "viewer" && req.method !== "GET") throw forbidden();
-    return { businessId: BUSINESS, userId: USER, role } satisfies AuthCtx;
+    return {
+      businessId: BUSINESS,
+      homeBusinessId: BUSINESS,
+      userId: USER,
+      role,
+      mode: "live",
+    } satisfies AuthCtx;
   },
   requireRole(...roles) {
     return async (req) => {
@@ -31,6 +37,9 @@ const stubAuthz: Authz = {
       if (!roles.includes(ctx.role)) throw forbidden();
       return ctx;
     };
+  },
+  requireRoleAnyMode(...roles) {
+    return stubAuthz.requireRole(...roles);
   },
   repo: (ctx) => ({ businessId: ctx.businessId }) as unknown as RepoCtx,
   guarded: () => {

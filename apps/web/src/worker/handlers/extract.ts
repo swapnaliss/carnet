@@ -18,6 +18,7 @@ import {
 } from "@carnet/db";
 import type { BusinessId, DocumentId } from "@carnet/domain";
 import { DOCUMENT_JOB_KIND, publishDocumentExtracted } from "../../server/documents/jobs";
+import { sessionAttribution } from "../../server/session-caps";
 import { type HandlerContext, type JobHandler, payloadString } from "./index";
 
 export function extractionStoreFor(
@@ -73,7 +74,7 @@ export function createDocumentExtractHandler(options: ExtractHandlerOptions = {}
     const businessId = payloadString(payload, "businessId") as BusinessId;
     const documentId = payloadString(payload, "documentId");
     const harness = createHarness({
-      store: agentHarnessStore(repoCtx(ctx.db, businessId)),
+      store: agentHarnessStore(repoCtx(ctx.db, businessId), sessionAttribution(payload)),
       ...(options.transport ? { transport: options.transport } : {}),
     });
     const configured = process.env.ANTHROPIC_MODEL_EXTRACT;
