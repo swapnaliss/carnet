@@ -8,12 +8,13 @@ import {
   TriangleAlert,
   UserPen,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { memo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { CitationDto, HoldView, QuestionDto } from "@/server/hold";
 import { fill, t } from "@/strings";
-import { EditAnswer, type EditMode } from "./edit-answer";
+import type { EditMode } from "./edit-answer";
 import { SourceSnippet, snippetId } from "./source-snippet";
 import {
   claimsOf,
@@ -25,6 +26,11 @@ import {
   questionStatus,
   snippetGroups,
 } from "./view";
+
+// The answer editor loads when the owner opens it, not with the first paint (INP, M4-07).
+const EditAnswer = dynamic(() => import("./edit-answer").then((m) => m.EditAnswer), {
+  ssr: false,
+});
 
 const STATUS_STYLE: Record<QuestionStatus, string> = {
   ready: "bg-status-success-bg text-status-success-fg",

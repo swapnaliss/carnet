@@ -4,26 +4,11 @@ import { useEffect, useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { HoldView } from "@/server/hold";
 import { fill, t } from "@/strings";
+import type { ApproveSnapshot } from "./approve-snapshot";
 import { Modal } from "./modal";
-import {
-  type ApproveBody,
-  buildApproveBody,
-  formatBytes,
-  shortId,
-  unverifiedStatements,
-} from "./view";
+import { formatBytes, shortId, unverifiedStatements } from "./view";
 
-export interface ApproveSnapshot {
-  /** Taken when the dialog opened: what the owner reads is what is sent. */
-  readonly view: HoldView;
-  readonly body: ApproveBody;
-  readonly key: string;
-}
-
-export function makeSnapshot(view: HoldView): ApproveSnapshot | null {
-  const body = buildApproveBody(view);
-  return body ? { view, body, key: crypto.randomUUID() } : null;
-}
+export type { ApproveSnapshot } from "./approve-snapshot";
 
 type Outcome =
   | { kind: "idle" }
