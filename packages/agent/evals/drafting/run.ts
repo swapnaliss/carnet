@@ -22,13 +22,8 @@ import {
 import { type DraftQuestion, type DraftResult, draftRfi } from "../../src/drafting/draft";
 import { DEFAULT_LIMITS } from "../../src/harness";
 import { createHarness, type Transport } from "../../src/index";
-import { memoryStore, USD } from "../../test/memory-store";
-import {
-  loadCases,
-  type RecordedModelCall,
-  recordingTransport,
-  replayTransport,
-} from "../extraction/run";
+import { type MemoryStore, memoryStore, USD } from "../../test/memory-store";
+import { type RecordedModelCall, recordingTransport, replayTransport } from "../extraction/run";
 import { runExtractionForEval } from "./facts";
 
 const ROOT = fileURLToPath(new URL("../../../../", import.meta.url));
@@ -243,12 +238,20 @@ export interface RunOptions {
   only?: string;
   /** The DraftingCase results are returned for the mutation eval. */
   keep?: Map<string, { case: DraftingCase; result: DraftResult }>;
+  /** M4-03: at most this many cases (a capped live run). */
+  limit?: number;
+  /** M4-03: the harness store per case (the suite's shared spend cap); default the eval's own caps. */
+  storeFactory?: () => MemoryStore;
+  /** Live mode writes the recordings unless this is false (the suite measures, it does not re-record). */
+  record?: boolean;
 }
 
 export async function runDraftingEval(options: RunOptions): Promise<DraftingReport> {
   const t0 = Date.now();
   if (options.mode === "replay") process.env.ANTHROPIC_API_KEY ||= "replay-only-not-a-key";
-  const cases = (await loadDraftingCases()).filter((c) => !options.only || c.id === options.only);
+  const cases = (await loadDraftingCases())
+    .filter((c) => !options.only || c.id === options.only)
+    .slice(0, options.limit ?? Number.POSITIVE_INFINITY);
   const results: QuestionReport[] = [];
   let totalNano = 0;
   let inTok = 0;
@@ -261,11 +264,13 @@ export async function runDraftingEval(options: RunOptions): Promise<DraftingRepo
   let injectionLeaked = 0;
 
   for (const c of cases) {
-    const store = memoryStore({
-      agentsEnabled: true,
-      perRunCapNanoUsd: LIVE_PER_RUN_CAP_NANO,
-      dailyCapNanoUsd: LIVE_DAILY_CAP_NANO,
-    });
+    const store =
+      options.storeFactory?.() ??
+      memoryStore({
+        agentsEnabled: true,
+        perRunCapNanoUsd: LIVE_PER_RUN_CAP_NANO,
+        dailyCapNanoUsd: LIVE_DAILY_CAP_NANO,
+      });
     let recorded: RecordedModelCall[] = [];
     let transport: Transport;
     let recording: DraftingRecording | null = null;
@@ -302,7 +307,7 @@ export async function runDraftingEval(options: RunOptions): Promise<DraftingRepo
         );
       }
     }
-    if (options.mode === "live") {
+    if (options.mode === "live" && options.record !== false) {
       const rec: DraftingRecording = {
         kind: "drafting",
         set_id: c.setId,

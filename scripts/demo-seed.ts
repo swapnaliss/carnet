@@ -1,10 +1,11 @@
-// Adds the dataset's payees to the deployed demo business (M2-09). Idempotent; never deletes.
+// Adds the dataset's payees to the deployed demo business (M2-09) and, when it has no policy yet, the
+// demo auto-FX policy as version 1 (M3-07). Idempotent and add-only; never updates or deletes.
 //
 //   npx tsx scripts/demo-seed.ts            (a checkout, DATABASE_URL set)
 //   node runtime/demo-seed.mjs              (in the image, as a Render one-off job; see scripts/demo-reset.sh)
 //
 // Runs as the app role (DATABASE_URL). Prints the counterparty count so two runs can be compared.
-import { createDbClient, DEMO_BUSINESS_ID, ensureDemoDataset } from "@carnet/db";
+import { createDbClient, DEMO_BUSINESS_ID, ensureDemoDataset, ensureDemoPolicy } from "@carnet/db";
 
 function log(message: string, extra: Record<string, unknown> = {}): void {
   console.log(JSON.stringify({ level: "info", process: "demo-seed", message, ...extra }));
@@ -33,6 +34,11 @@ async function main(): Promise<void> {
       [DEMO_BUSINESS_ID],
     );
     log("dataset payees ready", { inserted: result.inserted, counterparties: rows[0]?.n });
+    const policy = await ensureDemoPolicy(client.db, DEMO_BUSINESS_ID);
+    log(policy.created ? "demo policy stored" : "policy already present, left unchanged", {
+      version: policy.version,
+      hash: policy.hash,
+    });
   } finally {
     await client.close();
   }

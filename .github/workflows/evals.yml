@@ -1,0 +1,92 @@
+name: evals
+# M4-03. `replay` runs the eval suite on every push and PR: recorded model replies, no network, no spend.
+# `live` calls the model, only when a change touches what the model sees or how its output is judged
+# (the EVAL_LIVE_PATHS filter below: prompts and output schemas, the verifier, model ids, the rubric),
+# and only with the repository secret, which fork PRs never receive (pull_request, never
+# pull_request_target, plus the same-repository guard on the job). The spend cap is checked by the
+# harness before every call; crossing it fails the job, it never skips silently.
+# Dry run of the trigger: python3 scripts/eval-ci-trigger.py --self-test
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: evals-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  # One glob per line. Read by scripts/eval-ci-trigger.py (the job below and its --self-test).
+  EVAL_LIVE_PATHS: |
+    packages/agent/src/**/prompts/**
+    packages/agent/src/guardrail.ts
+    packages/agent/src/structured.ts
+    packages/agent/src/prompt-version.ts
+    packages/agent/src/pricing.ts
+    packages/agent/src/drafting/draft.ts
+    packages/agent/src/extraction/extract.ts
+    packages/agent/src/extraction/verify-quotes.ts
+    packages/agent/src/criticality/propose.ts
+    packages/domain/src/rfi/verifier.ts
+    packages/domain/src/evidence/**
+    packages/agent/evals/rubric.md
+    packages/agent/evals/suite/judge.ts
+jobs:
+  replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: eval suite (replay, $0)
+        run: npm run eval -- --mode replay --out "$RUNNER_TEMP/evals-replay.md"
+      - name: weakened verifier must fail the suite
+        run: "! EVAL_WEAKEN_VERIFIER=1 npm run eval -- --mode replay --out \"$RUNNER_TEMP/evals-weak.md\""
+      - name: README numbers match docs/evidence/evals.md
+        run: python3 scripts/check-readme-numbers.py
+      - name: trigger dry run
+        run: python3 scripts/eval-ci-trigger.py --self-test
+  changes:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      live: ${{ steps.trigger.outputs.live }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - id: trigger
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 scripts/eval-ci-trigger.py --base "$BASE" --head "$HEAD"
+  live:
+    needs: [replay, changes]
+    # Fork PRs never get the secret: GitHub withholds it on pull_request from a fork, and this guard
+    # keeps the job from running there at all.
+    if: >-
+      needs.changes.outputs.live == 'true' &&
+      (github.event_name != 'pull_request' ||
+       github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      EVAL_SPEND_CAP_USD: ${{ vars.EVAL_SPEND_CAP_USD || '1.00' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: eval suite (live, capped)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npm run eval -- --mode live --out "$RUNNER_TEMP/evals-live.md"
+      - name: results to the job summary
+        if: always()
+        run: test -f "$RUNNER_TEMP/evals-live.md" && cat "$RUNNER_TEMP/evals-live.md" >> "$GITHUB_STEP_SUMMARY" || true

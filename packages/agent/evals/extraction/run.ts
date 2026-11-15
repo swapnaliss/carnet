@@ -21,7 +21,7 @@ import {
   type Transport,
   verifyFacts,
 } from "../../src/index";
-import { memoryStore, USD } from "../../test/memory-store";
+import { type MemoryStore, memoryStore, USD } from "../../test/memory-store";
 
 const ROOT = fileURLToPath(new URL("../../../../", import.meta.url));
 const DATASET = `${ROOT}fixtures/dataset/`;
@@ -317,24 +317,36 @@ export function mutate(
 export interface RunOptions {
   mode: "replay" | "live";
   only?: string;
+  /** M4-03: at most this many cases (a capped live run). */
+  limit?: number;
+  /** M4-03: each case's result, for the suite's per-case grading. */
+  keep?: Map<string, ExtractionResult>;
+  /** M4-03: the harness store per case (the suite's shared spend cap); default the eval's own caps. */
+  storeFactory?: () => MemoryStore;
+  /** Live mode writes the recordings unless this is false (the suite measures, it does not re-record). */
+  record?: boolean;
 }
 
 export async function runEval(options: RunOptions): Promise<EvalReport> {
   const t0 = Date.now();
   if (options.mode === "replay") process.env.ANTHROPIC_API_KEY ||= "replay-only-not-a-key";
-  const cases = loadCases().filter((c) => !options.only || c.id === options.only);
-  const results = new Map<string, ExtractionResult>();
+  const cases = loadCases()
+    .filter((c) => !options.only || c.id === options.only)
+    .slice(0, options.limit ?? Number.POSITIVE_INFINITY);
+  const results = options.keep ?? new Map<string, ExtractionResult>();
   const reports: CaseReport[] = [];
   let calls = 0;
 
   for (const c of cases) {
     const bytes = new Uint8Array(readFileSync(c.path));
     const prompt = EXTRACTION_PROMPTS[c.docKind as keyof typeof EXTRACTION_PROMPTS];
-    const store = memoryStore({
-      agentsEnabled: true,
-      perRunCapNanoUsd: LIVE_PER_RUN_CAP_NANO,
-      dailyCapNanoUsd: LIVE_DAILY_CAP_NANO,
-    });
+    const store =
+      options.storeFactory?.() ??
+      memoryStore({
+        agentsEnabled: true,
+        perRunCapNanoUsd: LIVE_PER_RUN_CAP_NANO,
+        dailyCapNanoUsd: LIVE_DAILY_CAP_NANO,
+      });
     let recorded: RecordedModelCall[] = [];
     let transport: Transport;
     if (options.mode === "replay") {
@@ -363,7 +375,7 @@ export async function runEval(options: RunOptions): Promise<EvalReport> {
     await harness.finishRun(run, result.status === "EXTRACTED" ? "DONE" : "FAILED");
     results.set(c.id, result);
     calls += store.steps.length;
-    if (options.mode === "live") {
+    if (options.mode === "live" && options.record !== false) {
       const rec: Recording = {
         kind: "extraction",
         document_id: c.id,
@@ -406,7 +418,7 @@ export async function runEval(options: RunOptions): Promise<EvalReport> {
   const textCases = cases.filter((c) => c.textLayer);
   for (const c of textCases) {
     const r = results.get(c.id);
-    if (!r || r.status !== "EXTRACTED") {
+    if (r?.status !== "EXTRACTED") {
       for (const g of c.facts) {
         scored += 1;
         const s = perField.get(g.field) ?? { total: 0, correct: 0 };
@@ -442,7 +454,7 @@ export async function runEval(options: RunOptions): Promise<EvalReport> {
   let mutDetected = 0;
   for (const c of textCases) {
     const r = results.get(c.id);
-    if (!r || r.status !== "EXTRACTED" || !r.docType) continue;
+    if (r?.status !== "EXTRACTED" || !r.docType) continue;
     const bytes = new Uint8Array(readFileSync(c.path));
     const layer = await readTextLayer(bytes);
     if (!layer) continue;

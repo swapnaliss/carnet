@@ -5,7 +5,8 @@
 #
 # What it does: runs `node runtime/demo-seed.mjs` as a Render one-off job on carnet-web (it uses the
 # service's own environment and the app database role). The job idempotently adds the six dataset
-# payees (fixtures/dataset/counterparties.json) to the demo business. It NEVER deletes or updates a
+# payees (fixtures/dataset/counterparties.json, plus the M3-07 SGD payroll payee) to the demo business,
+# and the demo auto-FX policy as version 1 when the business has no policy. It NEVER deletes or updates a
 # row: payments, documents and RFIs of earlier runs stay, and every live run uses a fresh reference
 # prefix, so "clean" means clean per run (owner decision, 2026-11-11). Safe to run any number of times.
 #

@@ -27,7 +27,9 @@
     "dataset:check": "node scripts/dataset/check.mjs fixtures/dataset",
     "db:migrate": "npm run db:migrate -w @carnet/db",
     "db:checksum": "tsx scripts/db-checksum.ts",
-    "demo:reset": "tsx scripts/demo-reset.ts"
+    "demo:reset": "tsx scripts/demo-reset.ts",
+    "eval": "npm run eval -w @carnet/agent --",
+    "load": "tsx scripts/load/run.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.4",
