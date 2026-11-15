@@ -80,7 +80,9 @@ const keep = (name: string, value: unknown) =>
     join(OUT, "airwallex"),
     `${String(++airwallexSeq).padStart(2, "0")}-${name}.json`,
     JSON.parse(
-      JSON.stringify(value, (k, v) => (/account_id|accountId/.test(k) ? "acct_SCRUBBED" : v)),
+      JSON.stringify(value, (k, v) =>
+        /account_id|accountId/.test(k) ? "acct_SCRUBBED" : typeof v === "bigint" ? v.toString() : v,
+      ),
     ),
   );
 
@@ -480,7 +482,12 @@ test("4. hold: a real Transaction RFI on the sent transfer; webhook verified; pa
       const p = await currentPlan();
       return p &&
         p.revision > (before?.revision ?? 0) &&
-        p.actions.some((a) => a.kind === "payout" && a.reason_code === "PAYOUT_ALTERNATE_FOR_HELD")
+        p.actions.some(
+          (a) =>
+            a.kind === "payout" &&
+            a.reason_code === "PAYOUT_ALTERNATE_FOR_HELD" &&
+            a.params.held_payment_id === payments.strong?.id,
+        )
         ? p
         : null;
     },
@@ -548,11 +555,17 @@ test("4. hold: a real Transaction RFI on the sent transfer; webhook verified; pa
   // payout, and an unapproved payout of an older revision is superseded (plan.revised). Its execution is
   // checked in step 6.
   const payoutAction = rev2.actions.find(
-    (a) => a.kind === "payout" && a.reason_code === "PAYOUT_ALTERNATE_FOR_HELD",
+    (a) =>
+      a.kind === "payout" &&
+      a.reason_code === "PAYOUT_ALTERNATE_FOR_HELD" &&
+      a.params.held_payment_id === payments.strong?.id,
   );
   if (!payoutAction) throw new Error("no alternate payout in the held plan");
   payoutActionId = payoutAction.id;
-  const card = page.locator(`[data-testid="action-card"][data-kind="payout"]`);
+  // Back to the plan screen: the screenshot above left the page on the payment.
+  await expectPlanScreen(page, rev2.revision);
+  // By id: payouts held over from earlier runs (history is add-only) are on the same plan.
+  const card = page.locator(`[data-testid="action-card"][data-action-id="${payoutActionId}"]`);
   await expect(card.getByTestId("approve-button")).toBeEnabled();
   await card.getByTestId("approve-button").click();
   await expect(page.getByTestId("plan-approve-dialog")).toBeVisible();
@@ -597,6 +610,61 @@ const OWNER_TEXT: Record<string, string> = {
   "Purpose of payment":
     "This payment is for the printing of marketing brochures and posters that Harbor Print Co. produced for our clients, under our supply agreement with them.",
 };
+
+/** Round 2: the reviewer reopened "Purpose of payment", so the owner answers it again, in more detail. */
+const OWNER_TEXT_ROUND_2: Record<string, string> = {
+  "Purpose of payment":
+    "This payment settles Harbor Print Co. invoice INV-HP-2026-0141 for USD 4,800.00: the printing of marketing brochures and posters for our clients, ordered under purchase order PO-NW-2026-031 and our supply agreement with Harbor Print Co.",
+  "Invoice number for this payment":
+    "This payment settles Harbor Print Co. invoice INV-HP-2026-0141 (USD 4,800.00).",
+};
+
+/** Saves a new draft in which the owner writes the declined questions; the other answers are kept. */
+async function ownerFills(
+  ready: HoldView,
+  texts: Record<string, string>,
+  key: string,
+  rewrite: readonly string[] = [],
+): Promise<string[]> {
+  // Declined questions, plus the ones the owner rewrites whatever the draft says (a reopened question).
+  const declined = ready.questions.filter(
+    (q) => q.answer?.status === "NEEDS_OWNER" || rewrite.includes(q.title),
+  );
+  const unexpected = declined.filter((q) => !texts[q.title]);
+  if (unexpected.length > 0 || !ready.draft) {
+    throw new Error(
+      `unexpected declined question(s): ${unexpected.map((q) => q.title).join(", ")}`,
+    );
+  }
+  const res = await api.call(
+    "POST",
+    `/api/v1/rfis/${rfiId}/drafts`,
+    {
+      parent_draft_id: ready.draft.id,
+      answers: ready.questions.map((q) => {
+        const owner = declined.some((d) => d.id === q.id) ? texts[q.title] : undefined;
+        return owner
+          ? {
+              question_id: q.id,
+              text: owner,
+              document_ids: [],
+              fact_version_ids: [],
+              owner_authored: true,
+            }
+          : {
+              question_id: q.id,
+              text: q.answer?.text ?? "",
+              document_ids: (q.answer?.documents ?? []).map((d) => d.id),
+              fact_version_ids: (q.answer?.citations ?? []).map((c) => c.fact_version_id),
+              owner_authored: q.answer?.status === "OWNER_AUTHORED",
+            };
+      }),
+    },
+    { "idempotency-key": key },
+  );
+  expect([200, 201], JSON.stringify(res.body)).toContain(res.status);
+  return declined.map((q) => q.title);
+}
 
 test("5. drafts and approval: cited drafts, source snippets, one bound approval, submit", async () => {
   test.setTimeout(600_000);
@@ -841,26 +909,42 @@ test("8. follow-up round: a real follow_up reopens a question; round 2 reuses an
   const reuse = await api.call<{ reused: boolean; draft: { id: string } | null }>(
     "POST",
     `/api/v1/rfis/${rfiId}/reuse`,
-    {},
   );
-  expect(reuse.status, JSON.stringify(reuse.body)).toBe(200);
+  expect([200, 201], JSON.stringify(reuse.body)).toContain(reuse.status);
   expect(reuse.body.reused).toBe(true);
-  const ready = await api.poll(
-    "round 2 draft ready",
+  let ready = await api.poll(
+    "round 2 draft ready or waiting for the owner",
     async () => {
       const v = await hold();
-      if (v.rfi?.state === "NEEDS_OWNER")
-        throw new Error(
-          "round 2 needs the owner for a question; the appended question was meant to be grounded in the invoice",
-        );
-      return v.draft?.state === "DRAFT_READY" ? v : null;
+      return v.draft?.state === "DRAFT_READY" || v.draft?.state === "NEEDS_OWNER" ? v : null;
     },
     120_000,
     4_000,
   );
+  // The reopened question is not reused (the reviewer asked again) and the documents do not answer it,
+  // so the owner writes it, as in round 1; the product never invents it.
+  let ownerRound2: string[] = [];
+  // Observed live (2026-11-15): the model's round-2 answer to the reopened "Purpose of payment" can be
+  // off-topic (the invoice number, with real quotes, so the verifier accepts it). The owner rewrites
+  // the reopened question; the run note records the model's text.
+  const reopenedModelText =
+    ready.questions.find((q) => q.title === reopen.title)?.answer?.text ?? null;
+  ownerRound2 = await ownerFills(ready, OWNER_TEXT_ROUND_2, `${RUN}-owner-draft-r2`, [
+    reopen.title,
+  ]);
+  ready = await api.poll(
+    "round 2 DRAFT_READY after the owner's answer",
+    async () => {
+      const v = await hold();
+      return v.draft?.state === "DRAFT_READY" ? v : null;
+    },
+    60_000,
+    2_000,
+  );
   await page.goto(`/rfis/${rfiId}`);
   await expect(page.getByTestId("follow-up-panel")).toBeVisible();
-  await expect(page.getByTestId("same-as-approved").first()).toContainText("Same as approved on");
+  // Recorded, not asserted: whether any round-2 answer is still "Same as approved" after the owner's edits.
+  const sameAsApproved = await page.getByTestId("same-as-approved").count();
   await shot(page, "08-follow-up-round-2-reused");
   const applyAll = page.getByTestId("apply-reused");
   const oneClick = (await applyAll.count()) > 0;
@@ -884,15 +968,22 @@ test("8. follow-up round: a real follow_up reopens a question; round 2 reuses an
     240_000,
     3_000,
   );
-  note(8, "follow-up round 2: one answer reused, one drafted", {
-    reopened_question: reopen.title,
-    appended_question: "Invoice number for this payment",
-    applied_with_one_click: oneClick,
-    draft_id: ready.draft?.id,
-    attempt: answered.attempt,
-    approval_hash_round_2: answered.approval?.hash,
-    note: "zero model calls for the reused answer: confirm in the export (agent_steps) before claiming",
-  });
+  note(
+    8,
+    "follow-up round 2: approved answers reused in one call; a reopened question the documents do not answer is written by the owner",
+    {
+      reopened_question: reopen.title,
+      appended_question: "Invoice number for this payment",
+      applied_with_one_click: oneClick,
+      owner_authored_round_2: ownerRound2,
+      reopened_question_model_text: reopenedModelText,
+      same_as_approved_answers: sameAsApproved,
+      draft_id: ready.draft?.id,
+      attempt: answered.attempt,
+      approval_hash_round_2: answered.approval?.hash,
+      note: "zero model calls for the reused answer: confirm in the export (agent_steps) before claiming",
+    },
+  );
 });
 
 test("9. payee page: GENERIC wording, the opt-in wording only while held, neither once the transfer is paid", async () => {

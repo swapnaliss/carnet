@@ -1,0 +1,306 @@
+{
+  "run": "M3RUN-2611151316",
+  "base_url": "https://carnet-web.onrender.com",
+  "started_at": "2026-11-15T13:16:45.478Z",
+  "steps": [
+    {
+      "step": 1,
+      "name": "owner signed in; goal stated as obligations; criticality confirmed; plan for the goal",
+      "at": "2026-11-15T13:17:22.529Z",
+      "deployed_version": "846eff0beaee",
+      "obligations": {
+        "payroll": "6eec0a3b-21b6-4b5d-9122-e94f86a99112",
+        "harbor": "df875190-a067-4c2a-8705-c6a6aedb238a",
+        "lakeside": "22736cfb-9d4e-4a08-907e-a7f5b0f6dd91"
+      },
+      "obligations_from_earlier_runs": 30,
+      "sgd_obligations_from_earlier_runs": 7,
+      "revision_at_start": 51,
+      "policy_version": 1,
+      "policy_hash": "8095e378d9a8a3ec072ad70735123f3fa473342c563c837b4c477bcdd9bb2551",
+      "payments": {
+        "strong": "b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a",
+        "weak": "45562057-e0e3-48eb-a9a5-728c40df4852"
+      },
+      "plan_revision": 53,
+      "inputs_hash": "949a0840f50ef24960a49f47c83f6106ee15bfdbedc365c8764bcff4794f7db9",
+      "content_hash": "5d0bed94e32b2eaa74f25007c1eb55290264daef47b37c1521dd4d93471b909e"
+    },
+    {
+      "step": 2,
+      "name": "evidence flags computed",
+      "at": "2026-11-15T13:17:24.263Z",
+      "flag_harbor": "strong",
+      "flag_lakeside": "weak"
+    },
+    {
+      "step": 3,
+      "name": "payments sent (real sandbox transfers)",
+      "at": "2026-11-15T13:17:35.345Z",
+      "plan_after_send": {
+        "revision": 54,
+        "inputs_hash": "d1a323131238fc724eff5d73db3b0560e45dc6e44c530101d82d4361c22fb8c7",
+        "action_kinds": [
+          "fund",
+          "fund",
+          "fund",
+          "fund",
+          "fund",
+          "fund",
+          "fund",
+          "fund",
+          "fund",
+          "fund",
+          "fund",
+          "fund",
+          "payout",
+          "payout",
+          "payout",
+          "payout",
+          "fund"
+        ]
+      },
+      "weak_send_without_ack_status": 412,
+      "transfers": {
+        "strong": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+        "weak": "73d6ace4-b760-46df-961f-2a557ddb6632"
+      }
+    },
+    {
+      "step": 4,
+      "name": "simulated RFI created, webhook received, payment held, plan re-ran to the alternate payout",
+      "at": "2026-11-15T13:17:54.518Z",
+      "rfi_airwallex_id": "2c574dda-8eb3-4548-9418-9b49ef30d89b",
+      "rfi_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "creation_path": "SandboxSimulator port, POST /api/v1/simulation/rfis/create (ADR 0018); not injected",
+      "ms_create_to_visible_in_carnet": 5397,
+      "transfer_status_while_held": "PROCESSING",
+      "plan_revision": 55,
+      "inputs_hash": "68b0d578f9ca22a4666963cf3611f9599ffb645eabac03c7cab3cba7a527bb6b",
+      "content_hash": "ac27716734cf06c8d9667bd4d94fb30db45612b3ffbffc7cfb4acc107f2f7bbc",
+      "previous_inputs_hash": "d1a323131238fc724eff5d73db3b0560e45dc6e44c530101d82d4361c22fb8c7",
+      "trigger": {
+        "kind": "held",
+        "payee": "Harbor Print Co."
+      }
+    },
+    {
+      "step": 4,
+      "name": "alternate payout approved by the owner on the plan screen",
+      "at": "2026-11-15T13:17:59.248Z",
+      "payout_action_id": "179b6e6e-11ec-4a80-b9a8-40aea0d3b6ff",
+      "plan_revision": 55
+    },
+    {
+      "step": 5,
+      "name": "approved, responded, answered",
+      "at": "2026-11-15T13:18:04.484Z",
+      "ms_event_to_draft": 367,
+      "ms_approval_to_answered": 3670,
+      "attempt": {
+        "status": "CONFIRMED",
+        "request_id": "98b32774-648e-46d1-85b9-64cb3c0c8549",
+        "message": null
+      },
+      "approval_status": "CONSUMED",
+      "approval_hash_round_1": "de32b34771480a097b593c84804d71a9b3d7a4c4761fecb2bf54c8596dee448f"
+    },
+    {
+      "step": 6,
+      "name": "conversion auto-executed under policy; approved payout executed",
+      "at": "2026-11-15T13:18:09.304Z",
+      "conversion": {
+        "plan_revision": 52,
+        "action_id": "f3712fe2-7426-492f-b4a1-8c1c22be158d",
+        "sell_currency": "USD",
+        "sell_minor": "118081",
+        "buy_minor": "149365",
+        "auto": {
+          "policy_version": 1,
+          "policy_hash": "8095e378d9a8a3ec072ad70735123f3fa473342c563c837b4c477bcdd9bb2551",
+          "currency": "USD",
+          "amount_minor": "118081",
+          "cap_minor": "1000000",
+          "remaining_minor": "54852"
+        }
+      },
+      "payout": {
+        "plan_revision": 55,
+        "action_id": "179b6e6e-11ec-4a80-b9a8-40aea0d3b6ff",
+        "state": "DONE"
+      },
+      "deferred_in_run": [],
+      "revisions_in_run": [
+        {
+          "revision": 52,
+          "inputs_hash": "a8e2a7732b41ab0a1e838e678228a927203a3ae2503edd23ec485e98f912d504",
+          "policy_version": 1,
+          "kinds": [
+            "convert:DONE",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "fund:SUPERSEDED"
+          ]
+        },
+        {
+          "revision": 53,
+          "inputs_hash": "949a0840f50ef24960a49f47c83f6106ee15bfdbedc365c8764bcff4794f7db9",
+          "policy_version": 1,
+          "kinds": [
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED"
+          ]
+        },
+        {
+          "revision": 54,
+          "inputs_hash": "d1a323131238fc724eff5d73db3b0560e45dc6e44c530101d82d4361c22fb8c7",
+          "policy_version": 1,
+          "kinds": [
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "fund:SUPERSEDED"
+          ]
+        },
+        {
+          "revision": 55,
+          "inputs_hash": "68b0d578f9ca22a4666963cf3611f9599ffb645eabac03c7cab3cba7a527bb6b",
+          "policy_version": 1,
+          "kinds": [
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "fund:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:SUPERSEDED",
+            "payout:DONE",
+            "fund:SUPERSEDED"
+          ]
+        },
+        {
+          "revision": 56,
+          "inputs_hash": "45397272d1c18124479c7274def354d5047bfb744f31f114e05e33e4a42614db",
+          "policy_version": 1,
+          "kinds": [
+            "fund:PROPOSED",
+            "fund:PROPOSED",
+            "fund:PROPOSED",
+            "fund:PROPOSED",
+            "fund:PROPOSED",
+            "fund:PROPOSED",
+            "fund:PROPOSED",
+            "fund:PROPOSED",
+            "fund:PROPOSED",
+            "fund:PROPOSED",
+            "fund:PROPOSED",
+            "fund:PROPOSED",
+            "payout:PROPOSED",
+            "payout:PROPOSED",
+            "payout:PROPOSED",
+            "payout:PROPOSED",
+            "fund:PROPOSED"
+          ]
+        }
+      ]
+    },
+    {
+      "step": 7,
+      "name": "transfer reached SENT then PAID on its own status",
+      "at": "2026-11-15T13:18:19.790Z",
+      "transfer_status_while_rfi_answered": "PROCESSING",
+      "final_transfer_status": "PAID",
+      "transfer_id": "a534759f-1b03-4404-ab7e-8bb34b71559c"
+    },
+    {
+      "step": 8,
+      "name": "follow-up round 2: approved answers reused in one call; a reopened question the documents do not answer is written by the owner",
+      "at": "2026-11-15T13:18:33.391Z",
+      "reopened_question": "Purpose of payment",
+      "appended_question": "Invoice number for this payment",
+      "applied_with_one_click": false,
+      "owner_authored_round_2": [
+        "Purpose of payment",
+        "Invoice number for this payment"
+      ],
+      "reopened_question_model_text": "Invoice number INV-HP-2026-0141 from Harbor Print Co. is for USD 4,800.00 under Purchase order PO-NW-2026-031.",
+      "same_as_approved_answers": 0,
+      "draft_id": "6dc8e8a2-a2c7-44f8-834c-bbfda93ec012",
+      "attempt": {
+        "status": "CONFIRMED",
+        "request_id": "e179facf-1ca8-4554-8c1e-8f2ac0f76c96",
+        "message": null
+      },
+      "approval_hash_round_2": "6510ce4a5244f988998807eb012bfd7ca0357cb219dbb008abf1032ecc07a527",
+      "note": "zero model calls for the reused answer: confirm in the export (agent_steps) before claiming"
+    },
+    {
+      "step": 9,
+      "name": "payee page wording",
+      "at": "2026-11-15T13:18:37.657Z",
+      "held_reads": {
+        "GENERIC": "Payment status Status Processing Last updated 15 Nov 2026, 13:17 UTC This page shows the latest status reported for one payment. It is read-only.",
+        "DELAYED_FOR_VERIFICATION": "Payment status Status Delayed for verification Last updated 15 Nov 2026, 13:17 UTC This page shows the latest status reported for one payment. It is read-only."
+      },
+      "after_paid_reads": {
+        "GENERIC": "Payment status Status Paid Last updated 15 Nov 2026, 13:18 UTC This page shows the latest status reported for one payment. It is read-only.",
+        "DELAYED_FOR_VERIFICATION": "Payment status Status Paid Last updated 15 Nov 2026, 13:18 UTC This page shows the latest status reported for one payment. It is read-only."
+      }
+    }
+  ]
+}

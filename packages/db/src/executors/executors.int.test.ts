@@ -768,6 +768,60 @@ describe("payout executor", () => {
     },
   );
 
+  it("an alternate payout for a held payment sends a new transfer and leaves the held one on the payment", async () => {
+    const w = await seedWorld(database().app.db);
+    const { client, server } = replayGateway();
+    const pay = await seedPayment(w);
+    // The payment's own transfer is in flight (held by an RFI): M3-07 live run, 2026-11-15.
+    await sql("UPDATE payments SET transfer_id = 'held-transfer-1' WHERE id = $1", [pay.paymentId]);
+    const action = {
+      seq: 1,
+      kind: "payout",
+      reason_code: "PAYOUT_ALTERNATE_FOR_HELD",
+      reason_facts: { held_payment_id: pay.paymentId },
+      needs_approval: true,
+      params: {
+        obligation_id: crypto.randomUUID(),
+        payee: "Northwind Test Supplies LLC",
+        currency: "USD",
+        amount_minor: "2500",
+        criticality: "2",
+        held_payment_id: pay.paymentId,
+        fee_minor: "0",
+        reserved_minor: "2500",
+        criticality_unconfirmed: false,
+      },
+    } as unknown as Parameters<typeof storePlan>[1][number];
+    const { actionIds } = await storePlan(w, [action]);
+    const actionId = actionIds[0] as string;
+
+    // Without the plan action it is a plain payout of an already-sent payment: refused, nothing sent.
+    const plain = await approvePayout(w, client, pay.paymentId);
+    expect(await executePayout(depsOf(w, client), w.businessId, plain)).toMatchObject({
+      outcome: "refused",
+      reason: "ALREADY_SENT",
+    });
+    expect(server.transferRequests).toHaveLength(0);
+
+    const approval = await approvePayout(w, client, pay.paymentId);
+    await sql(
+      "INSERT INTO plan_action_states (action_id, business_id, status) VALUES ($1, $2, 'APPROVED') ON CONFLICT (action_id) DO UPDATE SET status = 'APPROVED'",
+      [actionId, w.businessId],
+    );
+    const applied: string[] = [];
+    const r = await executePayout(
+      { ...depsOf(w, client), onTransfer: async (t: { id: string }) => void applied.push(t.id) },
+      w.businessId,
+      { ...approval, actionId },
+    );
+    expect(r.outcome).toBe("confirmed");
+    expect(server.transferRequests).toHaveLength(1);
+    expect((await getStoredAction(w.ctx, actionId))?.state).toBe("DONE");
+    expect(applied).toHaveLength(0);
+    const row = await sql("SELECT transfer_id FROM payments WHERE id = $1", [pay.paymentId]);
+    expect(row.rows[0].transfer_id).toBe("held-transfer-1");
+  });
+
   it("refuses when the balance cannot cover the payout, and records UNKNOWN when the answer is lost", async () => {
     const w = await seedWorld(database().app.db);
     const poor = replayGateway({ balances: { USD: 1 } });

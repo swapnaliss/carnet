@@ -4,26 +4,11 @@ import { useEffect, useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { HoldView } from "@/server/hold";
 import { fill, t } from "@/strings";
+import type { ApproveSnapshot } from "./approve-snapshot";
 import { Modal } from "./modal";
-import {
-  type ApproveBody,
-  buildApproveBody,
-  formatBytes,
-  shortId,
-  unverifiedStatements,
-} from "./view";
+import { formatBytes, shortId, unverifiedStatements } from "./view";
 
-export interface ApproveSnapshot {
-  /** Taken when the dialog opened: what the owner reads is what is sent. */
-  readonly view: HoldView;
-  readonly body: ApproveBody;
-  readonly key: string;
-}
-
-export function makeSnapshot(view: HoldView): ApproveSnapshot | null {
-  const body = buildApproveBody(view);
-  return body ? { view, body, key: crypto.randomUUID() } : null;
-}
+export type { ApproveSnapshot } from "./approve-snapshot";
 
 type Outcome =
   | { kind: "idle" }
@@ -105,11 +90,7 @@ export function ApproveDialog({
         <div className="flex max-h-[90dvh] flex-col" data-testid="approve-dialog">
           <div className="flex flex-col gap-4 overflow-y-auto p-4 md:p-6">
             <div className="flex flex-col gap-1">
-              <h2
-                id={titleId}
-                tabIndex={-1}
-                className="text-xl leading-tight font-semibold outline-none"
-              >
+              <h2 id={titleId} tabIndex={-1} className="text-xl leading-tight font-semibold">
                 {t.hold.dialog.title}
               </h2>
               <p className="text-sm text-muted-foreground">{t.hold.dialog.body}</p>

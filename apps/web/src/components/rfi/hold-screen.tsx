@@ -14,7 +14,7 @@ import type { HoldView } from "@/server/hold";
 import type { PaymentDto } from "@/server/payments";
 import { fill, t } from "@/strings";
 import { ApprovalBar } from "./approval-bar";
-import { type ApproveSnapshot, makeSnapshot } from "./approve-dialog";
+import { type ApproveSnapshot, makeSnapshot } from "./approve-snapshot";
 import { FollowUpPanel } from "./follow-up-panel";
 import { LinkPayment } from "./link-payment";
 import { QuestionCard, QuestionStatusChip } from "./question-card";

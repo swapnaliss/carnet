@@ -1,0 +1,101 @@
+{
+  "id": "2c574dda-8eb3-4548-9418-9b49ef30d89b",
+  "type": "TRANSACTION",
+  "subType": "TRANSACTION_MONITORING",
+  "status": "ACTION_REQUIRED",
+  "accountId": "acct_SCRUBBED",
+  "activeRequest": {
+    "questions": [
+      {
+        "id": "25dc5af0-883d-4df7-9cfc-d6ef4c277953",
+        "answerType": "TEXT",
+        "title": {
+          "en": "Purpose of payment",
+          "zh": "[Simulation] 交易目的"
+        },
+        "description": {
+          "en": "Describe what this payment is for.",
+          "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+        },
+        "comment": null,
+        "trigger": "OTHERS",
+        "sources": [
+          {
+            "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+            "type": "TRANSFER"
+          }
+        ],
+        "answer": null
+      },
+      {
+        "id": "b7212b09-b209-45b6-854f-2709341402f4",
+        "answerType": "TEXT",
+        "title": {
+          "en": "Relationship with the counterparty",
+          "zh": "[Simulation] 交易目的"
+        },
+        "description": {
+          "en": "Explain your business relationship with the payee and provide the supporting agreement.",
+          "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+        },
+        "comment": null,
+        "trigger": "OTHERS",
+        "sources": [
+          {
+            "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+            "type": "TRANSFER"
+          }
+        ],
+        "answer": null
+      },
+      {
+        "id": "1ac72f0e-9531-41d7-8a12-a476218b90d6",
+        "answerType": "ATTACHMENT",
+        "title": {
+          "en": "Source of funds",
+          "zh": "[Simulation] 申请支持文件"
+        },
+        "description": {
+          "en": "Provide evidence of where the funds for this payment came from.",
+          "zh": "请提供相关合同、发票或装运文件。"
+        },
+        "comment": null,
+        "trigger": "OTHERS",
+        "sources": [
+          {
+            "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+            "type": "TRANSFER"
+          }
+        ],
+        "answer": null
+      },
+      {
+        "id": "ff221c3d-5431-4d96-83dd-d8340effc6e2",
+        "answerType": "ATTACHMENT",
+        "title": {
+          "en": "Proof of delivery",
+          "zh": "[Simulation] 申请支持文件"
+        },
+        "description": {
+          "en": "Provide documents showing the goods or services were delivered.",
+          "zh": "请提供相关合同、发票或装运文件。"
+        },
+        "comment": null,
+        "trigger": "OTHERS",
+        "sources": [
+          {
+            "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+            "type": "TRANSFER"
+          }
+        ],
+        "answer": null
+      }
+    ],
+    "createdAt": "2026-11-15T13:17:36+0000",
+    "updatedAt": "2026-11-15T13:17:36+0000",
+    "expiresAt": "2026-11-29T13:17:37+0000"
+  },
+  "answeredRequests": [],
+  "createdAt": "2026-11-15T13:17:37+0000",
+  "updatedAt": "2026-11-15T13:17:37+0000"
+}

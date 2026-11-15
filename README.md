@@ -27,15 +27,15 @@ A business sends a supplier payment or receives a client payment, and the provid
 
 Carnet runs the whole review loop for one business, in plain steps:
 
-1. **State the goal.** For example, "payroll and two suppliers by Friday". Carnet turns it into obligations and a plan. *(TODO after the M3 live run: cite [`m3-run.md`](docs/evidence/m3-run.md) step 1.)*
+1. **State the goal.** For example, "payroll and two suppliers by Friday". Carnet turns it into obligations and a plan. Shown live in the M3 run: payroll in SGD and two USD suppliers, criticality confirmed by the owner, a plan under policy v1 ([`m3-run.md`](docs/evidence/m3-run.md) step 1).
 2. **Check the evidence before money moves.** Each payment gets an evidence flag computed from the owner's documents (invoice, purchase order, contract). If a payment's flag is "missing", it can only be sent after an explicit acknowledgement, which is written to the audit log. Shown live in the M2 run: a "missing" payment without acknowledgement got **412**, and nothing was sent ([`m2-run.md`](docs/evidence/m2-run.md) step 5).
 3. **Approve and send.** The payment goes out as a real Airwallex sandbox transfer.
 4. **A payment is held.** Airwallex raises a Transaction RFI. Carnet receives the webhook, checks the signature, fetches the RFI and links it to the payment. The RFI never changes the payment's money status. That status always comes from the transfer itself.
 5. **Cited drafts.** The model drafts an answer to every question, using only facts extracted from the owner's documents. Code checks each claim against the cited quote (the verifier). A question that cannot be grounded goes back to the owner as `NEEDS_OWNER`, never as a guess.
 6. **One bound approval.** The owner approves the exact answer set. The approval is tied to a hash of that content. Carnet sends the answers only if the content still matches, and an approval can be used only once.
-7. **Plan revised.** While the payment is held, the plan re-runs. It can make a conversion that falls within a policy limit, propose an alternate payout that needs approval, or defer a payment. *(TODO after the M3 live run.)*
+7. **Plan revised.** While the payment is held, the plan re-runs. It can make a conversion that falls within a policy limit, propose an alternate payout that needs approval, or defer a payment. Shown live in the M3 run: a USD to SGD conversion auto-executed under the policy, and the alternate payout for the held payment approved by the owner and executed as a new sandbox transfer, while the held transfer kept its own status ([`m3-run.md`](docs/evidence/m3-run.md) steps 4 and 6). **Not shown live:** deferral (the sandbox balances had no shortfall); it is covered by the planner tests and the plan-screen replay spec.
 8. **Outcome tracked.** Carnet follows the transfer's own status to `SENT` and `PAID`, and treats neither as final.
-9. **Follow-up reuse.** If Airwallex reopens a question, an answer the owner already approved can be reused in one click. *(TODO after the M3 live run.)*
+9. **Follow-up reuse.** If Airwallex reopens a question, an answer the owner already approved can be reused in one click. **Not shown live:** in the M3 run the reviewer reopened a question, the model's new answer to it was off-topic (real quotes, wrong question), and the owner wrote both round-2 answers before approving ([`m3-run.md`](docs/evidence/m3-run.md), Follow-up round). Reuse is covered by the replay spec `apps/web/e2e/follow-up.spec.ts`.
 
 **What is different (stated vs inferred).** Stated: Airwallex documents RFI answering *screens* (embedded component, hosted flow, console), which we read on the docs page cited above. Inferred: we found no product that drafts grounded answers from the business's documents and also re-plans the business's other payments during the hold.
 
@@ -80,7 +80,9 @@ The controls, in five lines:
 
   ![Approval dialog](docs/evidence/m2-run/04-approval-dialog.png)
 
-- **Plan screen:** TODO after the M3 live run (screenshot from `docs/evidence/m3/`, cited in [`m3-run.md`](docs/evidence/m3-run.md)).
+- **Plan screen**, live M3 run: the alternate payout executed while the payment was held ([`m3-run.md`](docs/evidence/m3-run.md) step 6).
+
+  ![Plan screen](docs/evidence/m3/06b-plan-payout-executed.png)
 
 ## Evals and measured claims
 
@@ -111,9 +113,11 @@ Everything below comes from one recorded run or from a replayable eval. One run 
 - One real payout sent after a bound approval: attempt `CONFIRMED`, transfer created `SCHEDULED`. It was not followed to a final status.
 - The slippage guard refused live attempts when the real sandbox rate had moved past the policy bound.
 
-**M3 full demo, live:** TODO after the M3 live run. It will cite [`m3-run.md`](docs/evidence/m3-run.md). Partial, not yet recorded in the run note: steps 1 to 5 passed live on 2026-11-15. Those steps covered the plan, the evidence flags, real transfers, a real RFI hold received by webhook, and cited drafts with a bound approval.
+**M3 full demo, live** ([`m3-run.md`](docs/evidence/m3-run.md)): all 9 storyboard steps passed against the deployed app, the real sandbox and the real model on 2026-11-15 (run `M3RUN-2611151316`). Measured in that run: the RFI was visible in Carnet 5.4 s after creation; approval to answered took 3.7 s; 24 webhooks were acknowledged with a median of 9.5 ms (max 298 ms); model cost was between USD 0.99 and USD 1.11. Earlier attempts that day found and fixed a real bug (an approved alternate payout could never execute); the run note lists them.
 
-**Not yet measured:** the eval-suite report, load-test numbers, and accessibility and Core Web Vitals results (M4-03, M4-06, M4-07). Until their evidence files exist, this README claims no number for them.
+**Accessibility and Core Web Vitals** ([`a11y-cwv.md`](docs/evidence/a11y-cwv.md), M4-07): axe found 0 WCAG 2.2 A/AA violations in 84 of 84 checks (42 screen states, light and dark). On the hosted app, 16 of 16 route, device and cache groups met the budgets (LCP < 2.5 s, CLS < 0.1, INP < 200 ms) on the median of 5 runs. The closest is the mobile hold screen: INP median 168 ms cold and 184 ms warm, with worst runs of 224 ms and 240 ms.
+
+**Load** ([`load-test.md`](docs/evidence/load-test.md), M4-06, local stack on one laptop): webhook acknowledgement p95 was 45.5 ms at average load and 109.3 ms in a 20/s burst, against a 300 ms target. With 3 workers no job ran twice.
 
 **Eval suite** ([`evals.md`](docs/evidence/evals.md), M4-03):
 Numbers below are copied from [`docs/evidence/evals.md`](docs/evidence/evals.md) (replay mode: the
@@ -128,7 +132,6 @@ fails if they drift. Run it yourself with `npm run eval -- --mode replay`.
 
 The dataset is small and synthetic, and the prompts were tuned on it; these numbers show the controls
 work, not accuracy on unseen documents.
-<!-- M4-06 supplies the load-test numbers -->
 
 ## Future vision
 
