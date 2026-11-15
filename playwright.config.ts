@@ -7,9 +7,14 @@ const port = 3000 + Number(process.env.PORT_OFFSET ?? 0);
 // E2E_BASE_URL points the run at a deployed origin (M1-08, BL-01 6625891576); no local server then.
 const deployed = process.env.E2E_BASE_URL;
 const baseURL = deployed ?? `http://localhost:${port}`;
+// CI runs the e2e suite in two phases around `demo:reset` (BL-01). Before it, no recording is loaded
+// and the judge (the only viewer) reads the live demo business, which the viewer read-only specs use.
+// After it, the judge is in replay (M4-05), which these specs check. E2E_PHASE=before-replay skips them.
+const REPLAY_SPECS = ["**/replay.spec.ts", "**/ops-audit.spec.ts", "**/a11y/axe.spec.ts"];
 
 export default defineConfig({
   testDir: "apps/web/e2e",
+  ...(process.env.E2E_PHASE === "before-replay" ? { testIgnore: REPLAY_SPECS } : {}),
   fullyParallel: false,
   workers: 1,
   retries: 0,
