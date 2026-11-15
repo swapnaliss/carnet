@@ -1,0 +1,37 @@
+{
+  "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+  "requestId": "4749b301-984f-42c3-a880-8ac0cf2339ee",
+  "status": "PAID",
+  "shortReferenceId": "P261115-59SLEP4",
+  "beneficiaryId": "3fbe8385-9bb1-4bc7-80a5-dff4cc8913c1",
+  "transferMethod": "LOCAL",
+  "sourceCurrency": "USD",
+  "sourceAmount": {
+    "minor": "480000",
+    "currency": "USD"
+  },
+  "transferCurrency": "USD",
+  "transferAmount": {
+    "minor": "480000",
+    "currency": "USD"
+  },
+  "fee": {
+    "minor": "300",
+    "currency": "USD"
+  },
+  "feePaidBy": "PAYER",
+  "amountPayerPays": {
+    "minor": "480300",
+    "currency": "USD"
+  },
+  "amountBeneficiaryReceives": {
+    "minor": "480000",
+    "currency": "USD"
+  },
+  "reason": "professional_business_services",
+  "reference": "M3RUN-2611151316-001",
+  "fundingStatus": "FUNDED",
+  "failure": null,
+  "createdAt": "2026-11-15T13:17:26+0000",
+  "updatedAt": "2026-11-15T13:18:16+0000"
+}

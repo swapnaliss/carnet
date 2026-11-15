@@ -1,0 +1,178 @@
+{
+  "id": "2c574dda-8eb3-4548-9418-9b49ef30d89b",
+  "type": "TRANSACTION",
+  "subType": "TRANSACTION_MONITORING",
+  "status": "CLOSED",
+  "accountId": "acct_SCRUBBED",
+  "activeRequest": null,
+  "answeredRequests": [
+    {
+      "questions": [
+        {
+          "id": "25dc5af0-883d-4df7-9cfc-d6ef4c277953",
+          "answerType": "TEXT",
+          "title": {
+            "en": "Purpose of payment",
+            "zh": "[Simulation] 交易目的"
+          },
+          "description": {
+            "en": "Describe what this payment is for.",
+            "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+          },
+          "comment": "[Simulation] Follow up for question 25dc5af0-883d-4df7-9cfc-d6ef4c277953",
+          "trigger": "OTHERS",
+          "sources": [
+            {
+              "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+              "type": "TRANSFER"
+            }
+          ],
+          "answer": {
+            "type": "TEXT",
+            "text": "This payment settles Harbor Print Co. invoice INV-HP-2026-0141 for USD 4,800.00: the printing of marketing brochures and posters for our clients, ordered under purchase order PO-NW-2026-031 and our supply agreement with Harbor Print Co."
+          }
+        },
+        {
+          "id": "fcb5ce29-5c38-4447-8941-1d64ffebdf64",
+          "answerType": "TEXT",
+          "title": {
+            "en": "Invoice number for this payment",
+            "zh": "[Simulation] 交易目的"
+          },
+          "description": {
+            "en": "Which invoice number does this payment settle?",
+            "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+          },
+          "comment": null,
+          "trigger": "OTHERS",
+          "sources": [
+            {
+              "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+              "type": "TRANSFER"
+            }
+          ],
+          "answer": {
+            "type": "TEXT",
+            "text": "This payment settles Harbor Print Co. invoice INV-HP-2026-0141 (USD 4,800.00)."
+          }
+        }
+      ],
+      "createdAt": "2026-11-15T13:18:20+0000",
+      "updatedAt": "2026-11-15T13:18:30+0000",
+      "expiresAt": "2026-11-29T13:18:20+0000"
+    },
+    {
+      "questions": [
+        {
+          "id": "25dc5af0-883d-4df7-9cfc-d6ef4c277953",
+          "answerType": "TEXT",
+          "title": {
+            "en": "Purpose of payment",
+            "zh": "[Simulation] 交易目的"
+          },
+          "description": {
+            "en": "Describe what this payment is for.",
+            "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+          },
+          "comment": null,
+          "trigger": "OTHERS",
+          "sources": [
+            {
+              "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+              "type": "TRANSFER"
+            }
+          ],
+          "answer": {
+            "type": "TEXT",
+            "text": "Invoice number INV-HP-2026-0141 from Harbor Print Co. is for USD 4,800.00 under Purchase order PO-NW-2026-031."
+          }
+        },
+        {
+          "id": "b7212b09-b209-45b6-854f-2709341402f4",
+          "answerType": "TEXT",
+          "title": {
+            "en": "Relationship with the counterparty",
+            "zh": "[Simulation] 交易目的"
+          },
+          "description": {
+            "en": "Explain your business relationship with the payee and provide the supporting agreement.",
+            "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+          },
+          "comment": null,
+          "trigger": "OTHERS",
+          "sources": [
+            {
+              "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+              "type": "TRANSFER"
+            }
+          ],
+          "answer": {
+            "type": "TEXT",
+            "text": "Contract number CT-NW-HP-2026 is between Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier), with effective date 2026-01-15. Scope: Printing of marketing brochures and posters for Northwind Studio clients."
+          }
+        },
+        {
+          "id": "1ac72f0e-9531-41d7-8a12-a476218b90d6",
+          "answerType": "ATTACHMENT",
+          "title": {
+            "en": "Source of funds",
+            "zh": "[Simulation] 申请支持文件"
+          },
+          "description": {
+            "en": "Provide evidence of where the funds for this payment came from.",
+            "zh": "请提供相关合同、发票或装运文件。"
+          },
+          "comment": null,
+          "trigger": "OTHERS",
+          "sources": [
+            {
+              "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+              "type": "TRANSFER"
+            }
+          ],
+          "answer": {
+            "type": "ATTACHMENT",
+            "attachments": [
+              {
+                "file_id": "X19SRklfX05XWTNNV0ppT1RBdE5EWXdOaTAwTVROakxUazNNRFF0WlRJeFpqUTVNVE01WTJZMExId3NjMmNzZkN4eVpXMXBkQzFpY21sbmFIUnNhVzVsTFRBd01TNXdaR1pmTVRjNU5EYzBPRFk0TVRVMk53"
+              }
+            ]
+          }
+        },
+        {
+          "id": "ff221c3d-5431-4d96-83dd-d8340effc6e2",
+          "answerType": "ATTACHMENT",
+          "title": {
+            "en": "Proof of delivery",
+            "zh": "[Simulation] 申请支持文件"
+          },
+          "description": {
+            "en": "Provide documents showing the goods or services were delivered.",
+            "zh": "请提供相关合同、发票或装运文件。"
+          },
+          "comment": null,
+          "trigger": "OTHERS",
+          "sources": [
+            {
+              "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+              "type": "TRANSFER"
+            }
+          ],
+          "answer": {
+            "type": "ATTACHMENT",
+            "attachments": [
+              {
+                "file_id": "X19SRklfX05XWTNNV0ppT1RBdE5EWXdOaTAwTVROakxUazNNRFF0WlRJeFpqUTVNVE01WTJZMExId3NjMmNzZkN4a2JpMW9ZWEppYjNJdE1EQXhMbkJrWmw4eE56azBOelE0TmpneE9URXo"
+              }
+            ]
+          }
+        }
+      ],
+      "createdAt": "2026-11-15T13:17:36+0000",
+      "updatedAt": "2026-11-15T13:18:02+0000",
+      "expiresAt": "2026-11-29T13:17:37+0000"
+    }
+  ],
+  "createdAt": "2026-11-15T13:17:37+0000",
+  "updatedAt": "2026-11-15T13:18:33+0000"
+}
