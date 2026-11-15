@@ -1,0 +1,1349 @@
+{
+  "execution_attempts": [
+    {
+      "id": "e52a3891-32ee-43e9-a7eb-3d019012ec4e",
+      "kind": "conversion",
+      "ref_id": "f3712fe2-7426-492f-b4a1-8c1c22be158d",
+      "status": "CONFIRMED",
+      "response": {
+        "sends": 1,
+        "sentAt": "2026-11-15T13:17:05.434Z",
+        "status": "SETTLED",
+        "quoteId": "b7b4728d-7a22-3776-9bd8-9660d5d6f67d",
+        "policyHash": "8095e378d9a8a3ec072ad70735123f3fa473342c563c837b4c477bcdd9bb2551",
+        "resolvedBy": "create",
+        "confirmedAt": "2026-11-15T13:17:05.602Z",
+        "conversionId": "da8fac35-c5f3-468c-a206-248e2b3f5d6e",
+        "policyVersion": 1
+      },
+      "created_at": "2026-11-15T13:17:05.40658+00:00",
+      "request_id": "57c7b871-7ed0-41a9-afa4-4ed34e06d8f8",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "resolved_at": "2026-11-15T13:17:05.602+00:00"
+    },
+    {
+      "id": "229c972b-b6d2-4067-a9da-d59fc6063179",
+      "kind": "transfer",
+      "ref_id": "b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a",
+      "status": "CONFIRMED",
+      "response": {
+        "sends": 1,
+        "sentAt": "2026-11-15T13:17:25.751Z",
+        "status": "SCHEDULED",
+        "transferId": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+        "confirmedAt": "2026-11-15T13:17:26.558Z"
+      },
+      "created_at": "2026-11-15T13:17:24.515008+00:00",
+      "request_id": "4749b301-984f-42c3-a880-8ac0cf2339ee",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "resolved_at": "2026-11-15T13:17:26.558+00:00"
+    },
+    {
+      "id": "4e0ffe58-367a-4505-b5e5-5058554818e5",
+      "kind": "transfer",
+      "ref_id": "45562057-e0e3-48eb-a9a5-728c40df4852",
+      "status": "CONFIRMED",
+      "response": {
+        "sends": 1,
+        "sentAt": "2026-11-15T13:17:26.718Z",
+        "status": "SCHEDULED",
+        "transferId": "73d6ace4-b760-46df-961f-2a557ddb6632",
+        "confirmedAt": "2026-11-15T13:17:27.326Z"
+      },
+      "created_at": "2026-11-15T13:17:24.707324+00:00",
+      "request_id": "0fcc0ebe-cdf7-445e-afaf-824454d4b13a",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "resolved_at": "2026-11-15T13:17:27.326+00:00"
+    },
+    {
+      "id": "bf061ec4-0d79-4089-8315-c9c04421e090",
+      "kind": "transfer",
+      "ref_id": "b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a",
+      "status": "CONFIRMED",
+      "response": {
+        "hash": "0b0974b6c8bde1a52ce6f132ee279e49cb0f036465f83f61d57b6742cd36bdd3",
+        "sends": 1,
+        "sentAt": "2026-11-15T13:17:56.417Z",
+        "status": "SCHEDULED",
+        "approvalId": "a3629e8b-9a7a-420c-b9f6-49fb0b532d42",
+        "transferId": "b63725d3-0e60-4d1d-80ff-b3db00faaf65",
+        "confirmedAt": "2026-11-15T13:17:57.009Z"
+      },
+      "created_at": "2026-11-15T13:17:55.91896+00:00",
+      "request_id": "76c3609f-ec17-4532-80ea-fc6fb6d3ee8a",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "resolved_at": "2026-11-15T13:17:57.009+00:00"
+    },
+    {
+      "id": "5b76e9a7-5d1c-404d-a725-d6865ca2b554",
+      "kind": "respond",
+      "ref_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "status": "CONFIRMED",
+      "response": {
+        "hash": "de32b34771480a097b593c84804d71a9b3d7a4c4761fecb2bf54c8596dee448f",
+        "files": [
+          {
+            "fileId": "NWY3MWJiOTAtNDYwNi00MTNjLTk3MDQtZTIxZjQ5MTM5Y2Y0LHwsc2csfCxyZW1pdC1icmlnaHRsaW5lLTAwMS5wZGZfMTc5NDc0ODY4MTU2Nw",
+            "sha256": "47e8f96a3ac43e8bbef4854f9e59b702554bfa20fe98e909b87d27f48febc467",
+            "documentId": "5bed9dc8-7f69-4613-b0a4-a3651afee746"
+          },
+          {
+            "fileId": "NWY3MWJiOTAtNDYwNi00MTNjLTk3MDQtZTIxZjQ5MTM5Y2Y0LHwsc2csfCxkbi1oYXJib3ItMDAxLnBkZl8xNzk0NzQ4NjgxOTEz",
+            "sha256": "b6ae7c0fffbe1149f9a087b8c3b095c0a5c07299a895db9c8f9fccec1e81fc81",
+            "documentId": "5304c84b-e781-45dc-bab9-1f94cca65319"
+          }
+        ],
+        "sends": 1,
+        "sentAt": "2026-11-15T13:18:02.120Z",
+        "approvalId": "9421fe30-208d-4fa9-b06c-8550fbc3a50f",
+        "leaseUntil": "2026-11-15T13:20:01.344Z",
+        "resolvedBy": "respond",
+        "confirmedAt": "2026-11-15T13:18:02.303Z",
+        "airwallexStatus": "ANSWERED"
+      },
+      "created_at": "2026-11-15T13:18:01.3152+00:00",
+      "request_id": "98b32774-648e-46d1-85b9-64cb3c0c8549",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "resolved_at": "2026-11-15T13:18:02.303+00:00"
+    },
+    {
+      "id": "bfaa3b14-f6ef-4786-9ca2-f8958ac2fe81",
+      "kind": "respond",
+      "ref_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "status": "CONFIRMED",
+      "response": {
+        "hash": "6510ce4a5244f988998807eb012bfd7ca0357cb219dbb008abf1032ecc07a527",
+        "files": [],
+        "sends": 1,
+        "sentAt": "2026-11-15T13:18:30.949Z",
+        "approvalId": "9ecb32a5-a4bf-4549-81d0-3fbdeee2ffd6",
+        "leaseUntil": "2026-11-15T13:20:30.830Z",
+        "resolvedBy": "respond",
+        "confirmedAt": "2026-11-15T13:18:31.047Z",
+        "airwallexStatus": "ANSWERED"
+      },
+      "created_at": "2026-11-15T13:18:30.802974+00:00",
+      "request_id": "e179facf-1ca8-4554-8c1e-8f2ac0f76c96",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "resolved_at": "2026-11-15T13:18:31.047+00:00"
+    }
+  ],
+  "approvals": [
+    {
+      "id": "a3629e8b-9a7a-420c-b9f6-49fb0b532d42",
+      "hash": "0b0974b6c8bde1a52ce6f132ee279e49cb0f036465f83f61d57b6742cd36bdd3",
+      "kind": "payout",
+      "nonce": "3b3646af4d004e4d8d0acc6ab54e79054161854111dc491fa7dabd1413ab2028",
+      "status": "CONSUMED",
+      "created_at": "2026-11-15T13:17:55.419527+00:00",
+      "end_reason": null,
+      "expires_at": "2026-11-15T13:47:55.418+00:00",
+      "updated_at": "2026-11-15T13:17:55.91896+00:00",
+      "approver_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "consumed_at": "2026-11-15T13:17:55.91896+00:00",
+      "subject_ref": "b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a",
+      "shown_snapshot": {
+        "shown": {
+          "currency": "USD",
+          "reference": "M3RUN-2611151316-001",
+          "fee_option": "DEFAULT",
+          "value_date": "",
+          "amount_minor": "480000",
+          "source_account": "",
+          "counterparty_id": "970431ea-f5c8-56e4-9ce1-5e5a7d12e1a3",
+          "source_currency": "USD",
+          "beneficiary_fingerprint": "0c79304e36c333f13c0de3f98d617bf06028bd5c0d1dcb651809ec5f0bc964a9"
+        },
+        "subject": {
+          "kind": "payout",
+          "nonce": "3b3646af4d004e4d8d0acc6ab54e79054161854111dc491fa7dabd1413ab2028",
+          "currency": "USD",
+          "feeOption": "DEFAULT",
+          "paymentId": "b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a",
+          "reference": "M3RUN-2611151316-001",
+          "valueDate": "",
+          "approverId": "3a3267da-129d-4e29-85ae-829cdf075842",
+          "businessId": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+          "amountMinor": "480000",
+          "sourceAccount": "",
+          "counterpartyId": "970431ea-f5c8-56e4-9ce1-5e5a7d12e1a3",
+          "sourceCurrency": "USD",
+          "beneficiaryFingerprint": "0c79304e36c333f13c0de3f98d617bf06028bd5c0d1dcb651809ec5f0bc964a9"
+        },
+        "version": 1,
+        "actionId": "179b6e6e-11ec-4a80-b9a8-40aea0d3b6ff",
+        "planRevision": 55,
+        "planContentHash": "ac27716734cf06c8d9667bd4d94fb30db45612b3ffbffc7cfb4acc107f2f7bbc"
+      }
+    },
+    {
+      "id": "9421fe30-208d-4fa9-b06c-8550fbc3a50f",
+      "hash": "de32b34771480a097b593c84804d71a9b3d7a4c4761fecb2bf54c8596dee448f",
+      "kind": "rfi_answer",
+      "nonce": "b3f7cab5a3fe464d816d21e6e9878ba5547330ab0b3140d984c35aa5be10d090",
+      "status": "CONSUMED",
+      "created_at": "2026-11-15T13:18:00.920687+00:00",
+      "end_reason": null,
+      "expires_at": "2026-11-15T13:48:00.926+00:00",
+      "updated_at": "2026-11-15T13:18:01.3152+00:00",
+      "approver_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "consumed_at": "2026-11-15T13:18:01.3152+00:00",
+      "subject_ref": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "shown_snapshot": {
+        "subject": {
+          "kind": "rfi_answer",
+          "nonce": "b3f7cab5a3fe464d816d21e6e9878ba5547330ab0b3140d984c35aa5be10d090",
+          "rfiId": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+          "answers": [
+            {
+              "text": "Invoice number INV-HP-2026-0141 from Harbor Print Co. is for USD 4,800.00 under Purchase order PO-NW-2026-031.",
+              "type": "TEXT",
+              "questionId": "25dc5af0-883d-4df7-9cfc-d6ef4c277953",
+              "attachments": [],
+              "factVersionIds": [
+                "f398293c-6e25-4242-9215-8eb5a6653d6e#0",
+                "f398293c-6e25-4242-9215-8eb5a6653d6e#3",
+                "f398293c-6e25-4242-9215-8eb5a6653d6e#6",
+                "f398293c-6e25-4242-9215-8eb5a6653d6e#5"
+              ]
+            },
+            {
+              "text": "Contract number CT-NW-HP-2026 is between Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier), with effective date 2026-01-15. Scope: Printing of marketing brochures and posters for Northwind Studio clients.",
+              "type": "TEXT",
+              "questionId": "b7212b09-b209-45b6-854f-2709341402f4",
+              "attachments": [],
+              "factVersionIds": [
+                "91e32a70-b72a-4e60-a9bf-a40a52924add#0",
+                "91e32a70-b72a-4e60-a9bf-a40a52924add#1",
+                "91e32a70-b72a-4e60-a9bf-a40a52924add#2",
+                "91e32a70-b72a-4e60-a9bf-a40a52924add#3"
+              ]
+            },
+            {
+              "text": "",
+              "type": "ATTACHMENT",
+              "questionId": "1ac72f0e-9531-41d7-8a12-a476218b90d6",
+              "attachments": [
+                {
+                  "sha256": "47e8f96a3ac43e8bbef4854f9e59b702554bfa20fe98e909b87d27f48febc467",
+                  "documentId": "5bed9dc8-7f69-4613-b0a4-a3651afee746"
+                }
+              ],
+              "factVersionIds": []
+            },
+            {
+              "text": "",
+              "type": "ATTACHMENT",
+              "questionId": "ff221c3d-5431-4d96-83dd-d8340effc6e2",
+              "attachments": [
+                {
+                  "sha256": "b6ae7c0fffbe1149f9a087b8c3b095c0a5c07299a895db9c8f9fccec1e81fc81",
+                  "documentId": "5304c84b-e781-45dc-bab9-1f94cca65319"
+                }
+              ],
+              "factVersionIds": []
+            }
+          ],
+          "draftId": "3b1fbcc8-f4a8-47a8-82ec-742f204e5ca7",
+          "questions": [
+            {
+              "id": "25dc5af0-883d-4df7-9cfc-d6ef4c277953",
+              "text": "Purpose of payment\nDescribe what this payment is for."
+            },
+            {
+              "id": "b7212b09-b209-45b6-854f-2709341402f4",
+              "text": "Relationship with the counterparty\nExplain your business relationship with the payee and provide the supporting agreement."
+            },
+            {
+              "id": "1ac72f0e-9531-41d7-8a12-a476218b90d6",
+              "text": "Source of funds\nProvide evidence of where the funds for this payment came from."
+            },
+            {
+              "id": "ff221c3d-5431-4d96-83dd-d8340effc6e2",
+              "text": "Proof of delivery\nProvide documents showing the goods or services were delivered."
+            }
+          ],
+          "approverId": "3a3267da-129d-4e29-85ae-829cdf075842",
+          "businessId": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+          "rfiUpdatedAt": "2026-11-15T13:17:37.000Z",
+          "promptVersion": "8f4f58a2a12c"
+        },
+        "version": 1,
+        "attachments": [
+          {
+            "mime": "application/pdf",
+            "size": 2149,
+            "sha256": "47e8f96a3ac43e8bbef4854f9e59b702554bfa20fe98e909b87d27f48febc467",
+            "filename": "remit-brightline-001.pdf",
+            "documentId": "5bed9dc8-7f69-4613-b0a4-a3651afee746"
+          },
+          {
+            "mime": "application/pdf",
+            "size": 2182,
+            "sha256": "b6ae7c0fffbe1149f9a087b8c3b095c0a5c07299a895db9c8f9fccec1e81fc81",
+            "filename": "dn-harbor-001.pdf",
+            "documentId": "5304c84b-e781-45dc-bab9-1f94cca65319"
+          }
+        ]
+      }
+    },
+    {
+      "id": "9ecb32a5-a4bf-4549-81d0-3fbdeee2ffd6",
+      "hash": "6510ce4a5244f988998807eb012bfd7ca0357cb219dbb008abf1032ecc07a527",
+      "kind": "rfi_answer",
+      "nonce": "2a7e3f9c479e498fb6bfffab22b9896528bc41d4b1674427bd323abc43544e67",
+      "status": "CONSUMED",
+      "created_at": "2026-11-15T13:18:30.113032+00:00",
+      "end_reason": null,
+      "expires_at": "2026-11-15T13:48:30.117+00:00",
+      "updated_at": "2026-11-15T13:18:30.802974+00:00",
+      "approver_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "consumed_at": "2026-11-15T13:18:30.802974+00:00",
+      "subject_ref": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "shown_snapshot": {
+        "subject": {
+          "kind": "rfi_answer",
+          "nonce": "2a7e3f9c479e498fb6bfffab22b9896528bc41d4b1674427bd323abc43544e67",
+          "rfiId": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+          "answers": [
+            {
+              "text": "This payment settles Harbor Print Co. invoice INV-HP-2026-0141 for USD 4,800.00: the printing of marketing brochures and posters for our clients, ordered under purchase order PO-NW-2026-031 and our supply agreement with Harbor Print Co.",
+              "type": "TEXT",
+              "questionId": "25dc5af0-883d-4df7-9cfc-d6ef4c277953",
+              "attachments": [],
+              "factVersionIds": []
+            },
+            {
+              "text": "This payment settles Harbor Print Co. invoice INV-HP-2026-0141 (USD 4,800.00).",
+              "type": "TEXT",
+              "questionId": "fcb5ce29-5c38-4447-8941-1d64ffebdf64",
+              "attachments": [],
+              "factVersionIds": []
+            }
+          ],
+          "draftId": "6dc8e8a2-a2c7-44f8-834c-bbfda93ec012",
+          "questions": [
+            {
+              "id": "25dc5af0-883d-4df7-9cfc-d6ef4c277953",
+              "text": "Purpose of payment\nDescribe what this payment is for."
+            },
+            {
+              "id": "fcb5ce29-5c38-4447-8941-1d64ffebdf64",
+              "text": "Invoice number for this payment\nWhich invoice number does this payment settle?"
+            }
+          ],
+          "approverId": "3a3267da-129d-4e29-85ae-829cdf075842",
+          "businessId": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+          "rfiUpdatedAt": "2026-11-15T13:18:20.000Z",
+          "promptVersion": "owner-edit"
+        },
+        "version": 1,
+        "attachments": []
+      }
+    }
+  ],
+  "fx_quote_uses": [
+    {
+      "quote_id": "b7b4728d-7a22-3776-9bd8-9660d5d6f67d",
+      "action_id": "f3712fe2-7426-492f-b4a1-8c1c22be158d",
+      "attempt_id": "e52a3891-32ee-43e9-a7eb-3d019012ec4e",
+      "created_at": "2026-11-15T13:17:05.40658+00:00",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    }
+  ],
+  "audit_log": [
+    {
+      "at": "2026-11-15T13:16:46.629+00:00",
+      "id": 578,
+      "data": {
+        "kind": "invoice",
+        "mime": "application/pdf",
+        "size": 2429,
+        "sha256": "4e7d630867f567ba87e7984494a7f7bc05de89b737efe6bef2da95186caf23fd",
+        "document_id": "cdec0420-ee70-485e-a104-3bb5d5afafde"
+      },
+      "hash": "f034477840473605474eb132a7278ac0aaeae04b86b246115017b04210dfcb75",
+      "action": "document.uploaded",
+      "subject": "document:cdec0420-ee70-485e-a104-3bb5d5afafde",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "b3b8aebdab35909af1f419a3733c1b4505c4fbafea4e8b575caff2ce3eac17b8",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:16:46.767+00:00",
+      "id": 579,
+      "data": {
+        "kind": "purchase_order",
+        "mime": "application/pdf",
+        "size": 2275,
+        "sha256": "e122c0169d3d99cc2913275bcd42fd09960ffda244c17b39ba2eaa5edad6a7ed",
+        "document_id": "4430ceff-dd21-49c8-af99-a9d9f3f691bb"
+      },
+      "hash": "5d9ce3b8f0434e39df0747db83f3874ef81b1b850b0f47e6c5f671ff748438e0",
+      "action": "document.uploaded",
+      "subject": "document:4430ceff-dd21-49c8-af99-a9d9f3f691bb",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "f034477840473605474eb132a7278ac0aaeae04b86b246115017b04210dfcb75",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:16:46.884+00:00",
+      "id": 580,
+      "data": {
+        "kind": "contract",
+        "mime": "application/pdf",
+        "size": 3212,
+        "sha256": "958bc508fd350809bec38bd163fa85a81804b615e52fed2318639f3779e367bf",
+        "document_id": "9f3d92ab-7556-4b83-980d-a6a38e1b65b3"
+      },
+      "hash": "274b10ae130ad8f7e933308790334c8fb5df3bfc9a883b3061970f08be6ddc3b",
+      "action": "document.uploaded",
+      "subject": "document:9f3d92ab-7556-4b83-980d-a6a38e1b65b3",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "5d9ce3b8f0434e39df0747db83f3874ef81b1b850b0f47e6c5f671ff748438e0",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:16:47.002+00:00",
+      "id": 581,
+      "data": {
+        "kind": "invoice",
+        "mime": "application/pdf",
+        "size": 2329,
+        "sha256": "91128f22c2b6ea02b8c187e6a0af9fe05486f6c42ccf28463cfeca5dc99833e2",
+        "document_id": "48d5fcb4-8ace-479b-b0eb-a4ff90d3479d"
+      },
+      "hash": "b51a188a9aef97b72765b5a47473f5473c191028cc0cf60cdab14ca16ecbcbec",
+      "action": "document.uploaded",
+      "subject": "document:48d5fcb4-8ace-479b-b0eb-a4ff90d3479d",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "274b10ae130ad8f7e933308790334c8fb5df3bfc9a883b3061970f08be6ddc3b",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:01.451+00:00",
+      "id": 582,
+      "data": {
+        "due_at": "2026-11-20T12:00:00.000Z",
+        "currency": "SGD",
+        "amount_minor": "150000"
+      },
+      "hash": "3f268bcbd84e519e79d3f5c9a161660dcac1d5ee576c0a8c769c018ebfd4c7da",
+      "action": "obligation.created",
+      "subject": "obligation:6eec0a3b-21b6-4b5d-9122-e94f86a99112",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "b51a188a9aef97b72765b5a47473f5473c191028cc0cf60cdab14ca16ecbcbec",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:01.559+00:00",
+      "id": 583,
+      "data": {
+        "due_at": "2026-11-20T12:00:00.000Z",
+        "currency": "USD",
+        "amount_minor": "480000"
+      },
+      "hash": "7eea36ee08f51dbe862151ef626bd0832c884c00cb1e909af3ed869d9f4ee216",
+      "action": "obligation.created",
+      "subject": "obligation:df875190-a067-4c2a-8705-c6a6aedb238a",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "3f268bcbd84e519e79d3f5c9a161660dcac1d5ee576c0a8c769c018ebfd4c7da",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:01.667+00:00",
+      "id": 584,
+      "data": {
+        "due_at": "2026-11-20T12:00:00.000Z",
+        "currency": "USD",
+        "amount_minor": "125000"
+      },
+      "hash": "2b69757291902f80f044378dfdf5f642a419ba6eae66c385a56c15ae63cd077e",
+      "action": "obligation.created",
+      "subject": "obligation:22736cfb-9d4e-4a08-907e-a7f5b0f6dd91",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "7eea36ee08f51dbe862151ef626bd0832c884c00cb1e909af3ed869d9f4ee216",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:01.774+00:00",
+      "id": 585,
+      "data": {
+        "document_id": "9f3d92ab-7556-4b83-980d-a6a38e1b65b3"
+      },
+      "hash": "f5839d712178ab674f5a3bd83c23a69d2648bcd99edb2d85242ff942855c4412",
+      "action": "obligation.criticality_propose_requested",
+      "subject": "obligation:df875190-a067-4c2a-8705-c6a6aedb238a",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "2b69757291902f80f044378dfdf5f642a419ba6eae66c385a56c15ae63cd077e",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:05.19+00:00",
+      "id": 586,
+      "data": {
+        "document_id": "9f3d92ab-7556-4b83-980d-a6a38e1b65b3",
+        "proposal_id": "5e447aa2-ae15-43bb-8103-93333e79dcc2",
+        "agent_run_id": "8d98ba6b-7d82-4fe9-ba7f-8d7505e691c6",
+        "verifier_reason": "no_clause",
+        "verifier_result": "REJECTED",
+        "injection_suspected": false
+      },
+      "hash": "75fd1a86f7b2690e931faae3df9e8866d359e7e784c12f2822a4b23d71755043",
+      "action": "obligation.criticality_proposed",
+      "subject": "obligation:df875190-a067-4c2a-8705-c6a6aedb238a",
+      "actor_id": "worker",
+      "prev_hash": "f5839d712178ab674f5a3bd83c23a69d2648bcd99edb2d85242ff942855c4412",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:05.421+00:00",
+      "id": 587,
+      "data": {
+        "quoteId": "b7b4728d-7a22-3776-9bd8-9660d5d6f67d",
+        "attemptId": "e52a3891-32ee-43e9-a7eb-3d019012ec4e",
+        "requestId": "57c7b871-7ed0-41a9-afa4-4ed34e06d8f8",
+        "sellMinor": "118081",
+        "policyHash": "8095e378d9a8a3ec072ad70735123f3fa473342c563c837b4c477bcdd9bb2551",
+        "sellCurrency": "USD",
+        "policyVersion": 1,
+        "dailyTotalAfterMinor": "945148"
+      },
+      "hash": "88665fc73a2072b97ff25cc2d74c7f8f0441df3e8f4f1dde900fc9d1997a5a15",
+      "action": "conversion.auto_approved",
+      "subject": "f3712fe2-7426-492f-b4a1-8c1c22be158d",
+      "actor_id": null,
+      "prev_hash": "75fd1a86f7b2690e931faae3df9e8866d359e7e784c12f2822a4b23d71755043",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:05.611+00:00",
+      "id": 588,
+      "data": {
+        "how": "create",
+        "status": "SETTLED",
+        "attemptId": "e52a3891-32ee-43e9-a7eb-3d019012ec4e",
+        "conversionId": "da8fac35-c5f3-468c-a206-248e2b3f5d6e"
+      },
+      "hash": "ef866b480e1c8c946cfe6bab6080401ede313aa589f9154e209530fe0ee92908",
+      "action": "conversion.confirmed",
+      "subject": "f3712fe2-7426-492f-b4a1-8c1c22be158d",
+      "actor_id": null,
+      "prev_hash": "88665fc73a2072b97ff25cc2d74c7f8f0441df3e8f4f1dde900fc9d1997a5a15",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:08.17+00:00",
+      "id": 589,
+      "data": {
+        "from": null,
+        "criticality": 1,
+        "proposal_id": null,
+        "proposal_status": null,
+        "proposed_criticality": null
+      },
+      "hash": "51124a51aca862ffca2ff7db29e1f825c8ba73bb5bc91bdc2ea09dc996b6fdd5",
+      "action": "obligation.criticality_confirmed",
+      "subject": "obligation:6eec0a3b-21b6-4b5d-9122-e94f86a99112",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "ef866b480e1c8c946cfe6bab6080401ede313aa589f9154e209530fe0ee92908",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:08.277+00:00",
+      "id": 590,
+      "data": {
+        "from": null,
+        "criticality": 2,
+        "proposal_id": "5e447aa2-ae15-43bb-8103-93333e79dcc2",
+        "proposal_status": "REJECTED",
+        "proposed_criticality": null
+      },
+      "hash": "799845322159f56a3616185a3bb5af396886725af092fba48979a4c89f8d3a1e",
+      "action": "obligation.criticality_confirmed",
+      "subject": "obligation:df875190-a067-4c2a-8705-c6a6aedb238a",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "51124a51aca862ffca2ff7db29e1f825c8ba73bb5bc91bdc2ea09dc996b6fdd5",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:08.382+00:00",
+      "id": 591,
+      "data": {
+        "from": null,
+        "criticality": 3,
+        "proposal_id": null,
+        "proposal_status": null,
+        "proposed_criticality": null
+      },
+      "hash": "0295ffa9a4439ce6fd150aa01829dbcbcf573c76a4ed0cfa0207ac39384cbc7e",
+      "action": "obligation.criticality_confirmed",
+      "subject": "obligation:22736cfb-9d4e-4a08-907e-a7f5b0f6dd91",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "799845322159f56a3616185a3bb5af396886725af092fba48979a4c89f8d3a1e",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:24.723+00:00",
+      "id": 592,
+      "data": {
+        "flag": "weak",
+        "rules": [
+          {
+            "rule": "R-AMT",
+            "outcome": "fail"
+          },
+          {
+            "rule": "R-PAYEE",
+            "outcome": "pass"
+          },
+          {
+            "rule": "R-VERIFIED",
+            "outcome": "pass"
+          }
+        ],
+        "reasons": [
+          {
+            "key": "amountMismatch",
+            "text": "The invoice total USD 1,320.50 does not match the payment amount USD 1,250.00 (inv-lakeside-001.pdf, page 1).",
+            "params": {
+              "page": "1",
+              "invoice": "USD 1,320.50",
+              "payment": "USD 1,250.00",
+              "document": "inv-lakeside-001.pdf"
+            }
+          }
+        ],
+        "check_hash": "ad7d57ad66e8a80ba3e76b08ff672b0fbbf537ca28a3c1946328d6d1d6b99191",
+        "payment_id": "45562057-e0e3-48eb-a9a5-728c40df4852",
+        "bound_to_check": false,
+        "fact_version_ids": [
+          "61e30be9-2ebc-44d9-a862-9744c38fd0f3"
+        ]
+      },
+      "hash": "091e8def9042fdf7e7c7ba04e212e041dc44d739e2a57102c2744b588a53b7b5",
+      "action": "evidence_override",
+      "subject": "payment:45562057-e0e3-48eb-a9a5-728c40df4852",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "0295ffa9a4439ce6fd150aa01829dbcbcf573c76a4ed0cfa0207ac39384cbc7e",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:36.227+00:00",
+      "id": 593,
+      "data": {
+        "kind": "other",
+        "mime": "application/pdf",
+        "size": 2182,
+        "sha256": "b6ae7c0fffbe1149f9a087b8c3b095c0a5c07299a895db9c8f9fccec1e81fc81",
+        "document_id": "5304c84b-e781-45dc-bab9-1f94cca65319"
+      },
+      "hash": "3430e671074811733a6a5cf2084e629dd3fe2a55e51cccfc65ccfb6ed1572957",
+      "action": "document.uploaded",
+      "subject": "document:5304c84b-e781-45dc-bab9-1f94cca65319",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "091e8def9042fdf7e7c7ba04e212e041dc44d739e2a57102c2744b588a53b7b5",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:36.34+00:00",
+      "id": 594,
+      "data": {
+        "kind": "other",
+        "mime": "application/pdf",
+        "size": 2149,
+        "sha256": "47e8f96a3ac43e8bbef4854f9e59b702554bfa20fe98e909b87d27f48febc467",
+        "document_id": "5bed9dc8-7f69-4613-b0a4-a3651afee746"
+      },
+      "hash": "a53e581b23736706257fdacfe03cf9638b91cb2032b3333961ab8630b453d13c",
+      "action": "document.uploaded",
+      "subject": "document:5bed9dc8-7f69-4613-b0a4-a3651afee746",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "3430e671074811733a6a5cf2084e629dd3fe2a55e51cccfc65ccfb6ed1572957",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:40.021+00:00",
+      "id": 595,
+      "data": {
+        "round": 1,
+        "source": "webhook",
+        "airwallexRfiId": "2c574dda-8eb3-4548-9418-9b49ef30d89b",
+        "airwallexStatus": "ACTION_REQUIRED"
+      },
+      "hash": "ccef6399e831a2d49be160423e488f117a65157a65a34b95b2f88868f9249715",
+      "action": "rfi.created",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "a53e581b23736706257fdacfe03cf9638b91cb2032b3333961ab8630b453d13c",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:40.026+00:00",
+      "id": 596,
+      "data": {
+        "by": "match",
+        "paymentId": "b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a"
+      },
+      "hash": "036b4e86203c1999199f5e56ac3569d602171e267bac024eb6d858033bcf0f01",
+      "action": "rfi.linked",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "ccef6399e831a2d49be160423e488f117a65157a65a34b95b2f88868f9249715",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:40.035+00:00",
+      "id": 597,
+      "data": {
+        "to": "DRAFTING",
+        "from": "ACTION_REQUIRED",
+        "event": "rfi.drafting_started",
+        "round": 1,
+        "source": "webhook"
+      },
+      "hash": "0d860cdc694729d598b7ce876facefccb826271708f24b4e2d50cf8f292fdbcb",
+      "action": "rfi.transition",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "036b4e86203c1999199f5e56ac3569d602171e267bac024eb6d858033bcf0f01",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:49.463+00:00",
+      "id": 598,
+      "data": {
+        "to": "DRAFT_READY",
+        "from": "DRAFTING",
+        "event": "draft.ready",
+        "round": 1,
+        "source": "drafting",
+        "draftId": "3b1fbcc8-f4a8-47a8-82ec-742f204e5ca7"
+      },
+      "hash": "c37a7380224db948a8529e5c4346031b619fc77ff21a712437dab85dfa854a69",
+      "action": "rfi.transition",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "0d860cdc694729d598b7ce876facefccb826271708f24b4e2d50cf8f292fdbcb",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:51.43+00:00",
+      "id": 599,
+      "data": {
+        "link_id": "fe059a4e-525a-4fad-9836-5af1cf31febe",
+        "expires_at": "2026-11-18T13:17:51.422Z",
+        "disclosure_level": "GENERIC"
+      },
+      "hash": "d1ceacf768e43cc2765e942171c32d890c278028e7f56326e962640618403409",
+      "action": "payee_link.created",
+      "subject": "payment:b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "c37a7380224db948a8529e5c4346031b619fc77ff21a712437dab85dfa854a69",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:51.546+00:00",
+      "id": 600,
+      "data": {
+        "link_id": "0b76b554-5fc7-4ad6-ad5f-98db249f3ce0",
+        "expires_at": "2026-11-18T13:17:51.540Z",
+        "disclosure_level": "DELAYED_FOR_VERIFICATION"
+      },
+      "hash": "381cb5a4c5fb9aad0b6437dd770ab2f52e112ad19a2caa2d7a17b375fe8470b8",
+      "action": "payee_link.created",
+      "subject": "payment:b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "d1ceacf768e43cc2765e942171c32d890c278028e7f56326e962640618403409",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:55.433+00:00",
+      "id": 601,
+      "data": {
+        "hash": "0b0974b6c8bde1a52ce6f132ee279e49cb0f036465f83f61d57b6742cd36bdd3",
+        "kind": "payout",
+        "expiresAt": "2026-11-15T13:47:55.418Z",
+        "approvalId": "a3629e8b-9a7a-420c-b9f6-49fb0b532d42",
+        "planRevision": 55
+      },
+      "hash": "76f467bb460397df3b723e78cd35d9e9e1d8fc80788ca649b114240282950ef5",
+      "action": "plan_action.approved",
+      "subject": "plan_action:179b6e6e-11ec-4a80-b9a8-40aea0d3b6ff",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "381cb5a4c5fb9aad0b6437dd770ab2f52e112ad19a2caa2d7a17b375fe8470b8",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:56.02+00:00",
+      "id": 602,
+      "data": {
+        "hash": "0b0974b6c8bde1a52ce6f132ee279e49cb0f036465f83f61d57b6742cd36bdd3",
+        "attemptId": "bf061ec4-0d79-4089-8315-c9c04421e090",
+        "requestId": "76c3609f-ec17-4532-80ea-fc6fb6d3ee8a",
+        "approvalId": "a3629e8b-9a7a-420c-b9f6-49fb0b532d42"
+      },
+      "hash": "48ffc57ff8bcb5abdce0c01ab020be3e5aa86c91faafc740b6a7db1a8f015ce7",
+      "action": "payout.approval_consumed",
+      "subject": "b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "76f467bb460397df3b723e78cd35d9e9e1d8fc80788ca649b114240282950ef5",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:17:57.016+00:00",
+      "id": 603,
+      "data": {
+        "status": "SCHEDULED",
+        "attemptId": "bf061ec4-0d79-4089-8315-c9c04421e090",
+        "transferId": "b63725d3-0e60-4d1d-80ff-b3db00faaf65",
+        "alternateFor": "b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a"
+      },
+      "hash": "5116a2d9dfc6044c61ca3c496b8bb168f2f82e156260c531b199e94eb792bc72",
+      "action": "payout.confirmed",
+      "subject": "b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a",
+      "actor_id": null,
+      "prev_hash": "48ffc57ff8bcb5abdce0c01ab020be3e5aa86c91faafc740b6a7db1a8f015ce7",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:01.021+00:00",
+      "id": 604,
+      "data": {
+        "to": "APPROVED",
+        "from": "DRAFT_READY",
+        "event": "approval.granted",
+        "round": 1,
+        "source": "approval",
+        "approvalId": "9421fe30-208d-4fa9-b06c-8550fbc3a50f"
+      },
+      "hash": "3f3d883db1d4ab9cbf72e2a68ef3d64790c0278ee8d1f3652d633805164886b5",
+      "action": "rfi.transition",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "5116a2d9dfc6044c61ca3c496b8bb168f2f82e156260c531b199e94eb792bc72",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:01.026+00:00",
+      "id": 605,
+      "data": {
+        "hash": "de32b34771480a097b593c84804d71a9b3d7a4c4761fecb2bf54c8596dee448f",
+        "draftId": "3b1fbcc8-f4a8-47a8-82ec-742f204e5ca7",
+        "expiresAt": "2026-11-15T13:48:00.926Z",
+        "approvalId": "9421fe30-208d-4fa9-b06c-8550fbc3a50f",
+        "attachments": [
+          {
+            "sha256": "47e8f96a3ac43e8bbef4854f9e59b702554bfa20fe98e909b87d27f48febc467",
+            "documentId": "5bed9dc8-7f69-4613-b0a4-a3651afee746"
+          },
+          {
+            "sha256": "b6ae7c0fffbe1149f9a087b8c3b095c0a5c07299a895db9c8f9fccec1e81fc81",
+            "documentId": "5304c84b-e781-45dc-bab9-1f94cca65319"
+          }
+        ],
+        "promptVersion": "8f4f58a2a12c"
+      },
+      "hash": "9af197bc04c8a44b11d32339b1bd23045a619a28c59994a63169906ed4707a68",
+      "action": "approval.granted",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "3f3d883db1d4ab9cbf72e2a68ef3d64790c0278ee8d1f3652d633805164886b5",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:01.325+00:00",
+      "id": 606,
+      "data": {
+        "to": "ANSWER_SUBMITTING",
+        "from": "APPROVED",
+        "event": "answer.submitting",
+        "round": 1,
+        "source": "executor",
+        "attemptId": "5b76e9a7-5d1c-404d-a725-d6865ca2b554",
+        "approvalId": "9421fe30-208d-4fa9-b06c-8550fbc3a50f"
+      },
+      "hash": "b6cb20cf51026dac319c78fa5b7a57b090276b4a667160bf13b563446a90686a",
+      "action": "rfi.transition",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "9af197bc04c8a44b11d32339b1bd23045a619a28c59994a63169906ed4707a68",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:01.33+00:00",
+      "id": 607,
+      "data": {
+        "hash": "de32b34771480a097b593c84804d71a9b3d7a4c4761fecb2bf54c8596dee448f",
+        "attemptId": "5b76e9a7-5d1c-404d-a725-d6865ca2b554",
+        "requestId": "98b32774-648e-46d1-85b9-64cb3c0c8549",
+        "approvalId": "9421fe30-208d-4fa9-b06c-8550fbc3a50f"
+      },
+      "hash": "d020cc699daaac1af1d6dc9dfdb41e11696f875b8911c2bcce59cbe1149cfd93",
+      "action": "approval.consumed",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "b6cb20cf51026dac319c78fa5b7a57b090276b4a667160bf13b563446a90686a",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:01.336+00:00",
+      "id": 608,
+      "data": {
+        "kind": "respond",
+        "status": "INTENT",
+        "attemptId": "5b76e9a7-5d1c-404d-a725-d6865ca2b554",
+        "requestId": "98b32774-648e-46d1-85b9-64cb3c0c8549"
+      },
+      "hash": "b82c48c3ac294ee659a19cfb1ee1ae796fb941b3679956e56f20150e14172931",
+      "action": "attempt.created",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "d020cc699daaac1af1d6dc9dfdb41e11696f875b8911c2bcce59cbe1149cfd93",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:01.861+00:00",
+      "id": 609,
+      "data": {
+        "fileId": "NWY3MWJiOTAtNDYwNi00MTNjLTk3MDQtZTIxZjQ5MTM5Y2Y0LHwsc2csfCxyZW1pdC1icmlnaHRsaW5lLTAwMS5wZGZfMTc5NDc0ODY4MTU2Nw",
+        "sha256": "47e8f96a3ac43e8bbef4854f9e59b702554bfa20fe98e909b87d27f48febc467",
+        "attemptId": "5b76e9a7-5d1c-404d-a725-d6865ca2b554",
+        "documentId": "5bed9dc8-7f69-4613-b0a4-a3651afee746"
+      },
+      "hash": "7b59aa5b20e099c34e9486c07885473bf60a5e3cbbe9694516a8ac95accc131e",
+      "action": "attachment.uploaded",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "b82c48c3ac294ee659a19cfb1ee1ae796fb941b3679956e56f20150e14172931",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:02.116+00:00",
+      "id": 610,
+      "data": {
+        "fileId": "NWY3MWJiOTAtNDYwNi00MTNjLTk3MDQtZTIxZjQ5MTM5Y2Y0LHwsc2csfCxkbi1oYXJib3ItMDAxLnBkZl8xNzk0NzQ4NjgxOTEz",
+        "sha256": "b6ae7c0fffbe1149f9a087b8c3b095c0a5c07299a895db9c8f9fccec1e81fc81",
+        "attemptId": "5b76e9a7-5d1c-404d-a725-d6865ca2b554",
+        "documentId": "5304c84b-e781-45dc-bab9-1f94cca65319"
+      },
+      "hash": "387cd846d199132d58d6d58862f5059e6c24b317703603118a6720fc30804528",
+      "action": "attachment.uploaded",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "7b59aa5b20e099c34e9486c07885473bf60a5e3cbbe9694516a8ac95accc131e",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:02.125+00:00",
+      "id": 611,
+      "data": {
+        "sends": 1,
+        "attemptId": "5b76e9a7-5d1c-404d-a725-d6865ca2b554",
+        "requestId": "98b32774-648e-46d1-85b9-64cb3c0c8549"
+      },
+      "hash": "75ef1da4d1980cadf2efbb5c48d035b89c2530e96449ebbcc300800a7611afb2",
+      "action": "attempt.sent",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "387cd846d199132d58d6d58862f5059e6c24b317703603118a6720fc30804528",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:02.306+00:00",
+      "id": 612,
+      "data": {
+        "attemptId": "5b76e9a7-5d1c-404d-a725-d6865ca2b554",
+        "requestId": "98b32774-648e-46d1-85b9-64cb3c0c8549",
+        "approvalId": "9421fe30-208d-4fa9-b06c-8550fbc3a50f",
+        "resolvedBy": "respond"
+      },
+      "hash": "96549f722377976b662b42ed8d628844c57ed8e5505c0bb75b3374e29b627d8a",
+      "action": "respond.confirmed",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "75ef1da4d1980cadf2efbb5c48d035b89c2530e96449ebbcc300800a7611afb2",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:02.315+00:00",
+      "id": 613,
+      "data": {
+        "to": "ANSWERED",
+        "from": "ANSWER_SUBMITTING",
+        "event": "airwallex.rfi.answered",
+        "round": 1,
+        "source": "executor",
+        "attemptId": "5b76e9a7-5d1c-404d-a725-d6865ca2b554"
+      },
+      "hash": "d3d71dbc910bd09dccf400fe65ee9ebc1e60b75c82aea2839c263c602271a2e7",
+      "action": "rfi.transition",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "96549f722377976b662b42ed8d628844c57ed8e5505c0bb75b3374e29b627d8a",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:02.322+00:00",
+      "id": 614,
+      "data": {
+        "hash": "de32b34771480a097b593c84804d71a9b3d7a4c4761fecb2bf54c8596dee448f",
+        "attemptId": "5b76e9a7-5d1c-404d-a725-d6865ca2b554",
+        "approvalId": "9421fe30-208d-4fa9-b06c-8550fbc3a50f"
+      },
+      "hash": "3b0ae04d56be612730e35ae1cec14825a521156cebc231c36d675f387bc68800",
+      "action": "answer.submitted",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "d3d71dbc910bd09dccf400fe65ee9ebc1e60b75c82aea2839c263c602271a2e7",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:02.361+00:00",
+      "id": 615,
+      "data": {
+        "skipped": null,
+        "recorded": 4,
+        "attemptId": "5b76e9a7-5d1c-404d-a725-d6865ca2b554",
+        "approvalId": "9421fe30-208d-4fa9-b06c-8550fbc3a50f"
+      },
+      "hash": "b170ffc8fa34c63fb1ab77a8e5423268db0a01e8cbf0da04c331b3f560dbc870",
+      "action": "answer.memorised",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "3b0ae04d56be612730e35ae1cec14825a521156cebc231c36d675f387bc68800",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:21.112+00:00",
+      "id": 616,
+      "data": {
+        "to": "REOPENED",
+        "from": "ANSWERED",
+        "event": "airwallex.rfi.reopened",
+        "round": 2,
+        "source": "webhook"
+      },
+      "hash": "27cc861428c43e3de96f0188e30bd8bd31edab49136285af6126b6a1bb396e57",
+      "action": "rfi.transition",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "b170ffc8fa34c63fb1ab77a8e5423268db0a01e8cbf0da04c331b3f560dbc870",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:21.118+00:00",
+      "id": 617,
+      "data": {
+        "to": "DRAFTING",
+        "from": "REOPENED",
+        "event": "rfi.drafting_started",
+        "round": 2,
+        "source": "webhook",
+        "newQuestionIds": [
+          "fcb5ce29-5c38-4447-8941-1d64ffebdf64"
+        ],
+        "reopenedQuestionIds": [
+          "25dc5af0-883d-4df7-9cfc-d6ef4c277953"
+        ]
+      },
+      "hash": "ab56c065b2c507acdcaed01f4726e777e8be9fae852a5e2d65c07fb19b391e46",
+      "action": "rfi.transition",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "27cc861428c43e3de96f0188e30bd8bd31edab49136285af6126b6a1bb396e57",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:24.521+00:00",
+      "id": 618,
+      "data": {
+        "to": "NEEDS_OWNER",
+        "from": "DRAFTING",
+        "event": "draft.needs_owner",
+        "round": 2,
+        "source": "drafting",
+        "draftId": "38d205d9-913e-4a4e-b489-7344d1792f2b"
+      },
+      "hash": "a68355b09fca8606352f89d6cf00952587dfd3a67a170caef3cec61f4b325abc",
+      "action": "rfi.transition",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "ab56c065b2c507acdcaed01f4726e777e8be9fae852a5e2d65c07fb19b391e46",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:28.146+00:00",
+      "id": 619,
+      "data": {
+        "draftId": "5b6e1c51-ee9e-471c-8b89-12370ad9e964",
+        "memoryId": "1d8d06d6-d8f2-4235-b9d3-47b3f77af30f",
+        "approvedOn": "2026-11-15T13:18:01.315Z",
+        "questionId": "d0afe3c9-534f-473e-a7d0-83b9bbdcb883",
+        "sourceApprovalId": "9421fe30-208d-4fa9-b06c-8550fbc3a50f"
+      },
+      "hash": "8ba2616486c11223ddacd457d3cc3dcb9c5bf47a1f9bba722ffc9a4889992cd6",
+      "action": "answer.reused",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "a68355b09fca8606352f89d6cf00952587dfd3a67a170caef3cec61f4b325abc",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:28.719+00:00",
+      "id": 620,
+      "data": {
+        "state": "DRAFT_READY",
+        "draftId": "6dc8e8a2-a2c7-44f8-834c-bbfda93ec012",
+        "parentDraftId": "5b6e1c51-ee9e-471c-8b89-12370ad9e964"
+      },
+      "hash": "adcb827e08f392832a9d55b875aaaeca0bd8e977917c9a6b2bcbe75a67f975c5",
+      "action": "draft.owner_edit",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "8ba2616486c11223ddacd457d3cc3dcb9c5bf47a1f9bba722ffc9a4889992cd6",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:30.124+00:00",
+      "id": 621,
+      "data": {
+        "to": "APPROVED",
+        "from": "NEEDS_OWNER",
+        "event": "approval.granted",
+        "round": 2,
+        "source": "approval",
+        "approvalId": "9ecb32a5-a4bf-4549-81d0-3fbdeee2ffd6"
+      },
+      "hash": "02b39c7a456ec4c15802984ec34c5fb04694be3c96f8335f9b25aa6170933dac",
+      "action": "rfi.transition",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "adcb827e08f392832a9d55b875aaaeca0bd8e977917c9a6b2bcbe75a67f975c5",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:30.128+00:00",
+      "id": 622,
+      "data": {
+        "hash": "6510ce4a5244f988998807eb012bfd7ca0357cb219dbb008abf1032ecc07a527",
+        "draftId": "6dc8e8a2-a2c7-44f8-834c-bbfda93ec012",
+        "expiresAt": "2026-11-15T13:48:30.117Z",
+        "approvalId": "9ecb32a5-a4bf-4549-81d0-3fbdeee2ffd6",
+        "attachments": [],
+        "promptVersion": "owner-edit"
+      },
+      "hash": "26dc81e2338a37167436514bd2eee3c6fadcd69fede0e8d605f423a631e2787e",
+      "action": "approval.granted",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "prev_hash": "02b39c7a456ec4c15802984ec34c5fb04694be3c96f8335f9b25aa6170933dac",
+      "actor_type": "user",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:30.813+00:00",
+      "id": 623,
+      "data": {
+        "to": "ANSWER_SUBMITTING",
+        "from": "APPROVED",
+        "event": "answer.submitting",
+        "round": 2,
+        "source": "executor",
+        "attemptId": "bfaa3b14-f6ef-4786-9ca2-f8958ac2fe81",
+        "approvalId": "9ecb32a5-a4bf-4549-81d0-3fbdeee2ffd6"
+      },
+      "hash": "7662f2cd825b3d2c16205679480abfc31e1e41ae23baaf503d9150c2780b2b1a",
+      "action": "rfi.transition",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "26dc81e2338a37167436514bd2eee3c6fadcd69fede0e8d605f423a631e2787e",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:30.818+00:00",
+      "id": 624,
+      "data": {
+        "hash": "6510ce4a5244f988998807eb012bfd7ca0357cb219dbb008abf1032ecc07a527",
+        "attemptId": "bfaa3b14-f6ef-4786-9ca2-f8958ac2fe81",
+        "requestId": "e179facf-1ca8-4554-8c1e-8f2ac0f76c96",
+        "approvalId": "9ecb32a5-a4bf-4549-81d0-3fbdeee2ffd6"
+      },
+      "hash": "08e252c8394cd828f06d91f15180a9c15db3a98fa44b26c1749154147ec97689",
+      "action": "approval.consumed",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "7662f2cd825b3d2c16205679480abfc31e1e41ae23baaf503d9150c2780b2b1a",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:30.824+00:00",
+      "id": 625,
+      "data": {
+        "kind": "respond",
+        "status": "INTENT",
+        "attemptId": "bfaa3b14-f6ef-4786-9ca2-f8958ac2fe81",
+        "requestId": "e179facf-1ca8-4554-8c1e-8f2ac0f76c96"
+      },
+      "hash": "956834e7d695ac74245355fa9b60044c0dbc4e19e33674ca075bd324bdd9967a",
+      "action": "attempt.created",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "08e252c8394cd828f06d91f15180a9c15db3a98fa44b26c1749154147ec97689",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:30.955+00:00",
+      "id": 626,
+      "data": {
+        "sends": 1,
+        "attemptId": "bfaa3b14-f6ef-4786-9ca2-f8958ac2fe81",
+        "requestId": "e179facf-1ca8-4554-8c1e-8f2ac0f76c96"
+      },
+      "hash": "2e17c9feba76cef3d005c1da905e31fbe41df005ba3771eb33bb7264e7cb3706",
+      "action": "attempt.sent",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "956834e7d695ac74245355fa9b60044c0dbc4e19e33674ca075bd324bdd9967a",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:31.051+00:00",
+      "id": 627,
+      "data": {
+        "attemptId": "bfaa3b14-f6ef-4786-9ca2-f8958ac2fe81",
+        "requestId": "e179facf-1ca8-4554-8c1e-8f2ac0f76c96",
+        "approvalId": "9ecb32a5-a4bf-4549-81d0-3fbdeee2ffd6",
+        "resolvedBy": "respond"
+      },
+      "hash": "d0640113902f07c6f054d2842736e94ef2a6ec82dfc646a10ea45486ad5aecc3",
+      "action": "respond.confirmed",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "2e17c9feba76cef3d005c1da905e31fbe41df005ba3771eb33bb7264e7cb3706",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:31.059+00:00",
+      "id": 628,
+      "data": {
+        "to": "ANSWERED",
+        "from": "ANSWER_SUBMITTING",
+        "event": "airwallex.rfi.answered",
+        "round": 2,
+        "source": "executor",
+        "attemptId": "bfaa3b14-f6ef-4786-9ca2-f8958ac2fe81"
+      },
+      "hash": "8016e1cb884a506fe41e5fb4367567c89120d7b737dcf299b47ded2fea5a227e",
+      "action": "rfi.transition",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "d0640113902f07c6f054d2842736e94ef2a6ec82dfc646a10ea45486ad5aecc3",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:31.066+00:00",
+      "id": 629,
+      "data": {
+        "hash": "6510ce4a5244f988998807eb012bfd7ca0357cb219dbb008abf1032ecc07a527",
+        "attemptId": "bfaa3b14-f6ef-4786-9ca2-f8958ac2fe81",
+        "approvalId": "9ecb32a5-a4bf-4549-81d0-3fbdeee2ffd6"
+      },
+      "hash": "c0b20e70039f5e9b6eb4a9a28ef6e99fed3b8aa772a31e697fc55a68659334df",
+      "action": "answer.submitted",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "8016e1cb884a506fe41e5fb4367567c89120d7b737dcf299b47ded2fea5a227e",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:31.343+00:00",
+      "id": 630,
+      "data": {
+        "skipped": null,
+        "recorded": 2,
+        "attemptId": "bfaa3b14-f6ef-4786-9ca2-f8958ac2fe81",
+        "approvalId": "9ecb32a5-a4bf-4549-81d0-3fbdeee2ffd6"
+      },
+      "hash": "4fc49b1ec9b670ccd0ea72ad257337c5ad2f665538a956c14e19ee4458742b97",
+      "action": "answer.memorised",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "c0b20e70039f5e9b6eb4a9a28ef6e99fed3b8aa772a31e697fc55a68659334df",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    },
+    {
+      "at": "2026-11-15T13:18:34.528+00:00",
+      "id": 631,
+      "data": {
+        "to": "CLOSED",
+        "from": "ANSWERED",
+        "event": "airwallex.rfi.closed",
+        "round": 2,
+        "source": "webhook"
+      },
+      "hash": "2d395530088dc05e357827f7ffa1adf3c6a7e47f212d95be28100fbc5629243d",
+      "action": "rfi.transition",
+      "subject": "rfi:11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "actor_id": "worker",
+      "prev_hash": "4fc49b1ec9b670ccd0ea72ad257337c5ad2f665538a956c14e19ee4458742b97",
+      "actor_type": "system",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b"
+    }
+  ]
+}

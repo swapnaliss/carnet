@@ -1,0 +1,605 @@
+{
+  "rfis": [
+    {
+      "id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "type": "TRANSACTION",
+      "round": 2,
+      "state": "CLOSED",
+      "conflict": false,
+      "sub_type": "TRANSACTION_MONITORING",
+      "linked_by": "match",
+      "created_at": "2026-11-15T13:17:40.010672+00:00",
+      "expires_at": null,
+      "payment_id": "b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a",
+      "source_key": "TRANSFER:a534759f-1b03-4404-ab7e-8bb34b71559c",
+      "updated_at": "2026-11-15T13:18:34.512909+00:00",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "expiring_soon": false,
+      "orphan_reason": null,
+      "airwallex_rfi_id": "2c574dda-8eb3-4548-9418-9b49ef30d89b",
+      "airwallex_status": "CLOSED",
+      "airwallex_updated_at": "2026-11-15T13:18:33+00:00",
+      "airwallex_answered_requests": 2
+    }
+  ],
+  "rfi_questions": [
+    {
+      "id": "49a7fda3-87c2-4586-906c-430d5680faf6",
+      "round": 1,
+      "title": {
+        "en": "Relationship with the counterparty",
+        "zh": "[Simulation] 交易目的"
+      },
+      "rfi_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "comment": null,
+      "sources": [
+        {
+          "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+          "type": "TRANSFER"
+        }
+      ],
+      "position": 1,
+      "reopened": false,
+      "created_at": "2026-11-15T13:17:40.010672+00:00",
+      "answer_type": "TEXT",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "description": {
+        "en": "Explain your business relationship with the payee and provide the supporting agreement.",
+        "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+      },
+      "needs_drafting": true,
+      "airwallex_question_id": "b7212b09-b209-45b6-854f-2709341402f4"
+    },
+    {
+      "id": "78c32297-2752-4fe6-8669-aafb5214f643",
+      "round": 1,
+      "title": {
+        "en": "Purpose of payment",
+        "zh": "[Simulation] 交易目的"
+      },
+      "rfi_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "comment": null,
+      "sources": [
+        {
+          "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+          "type": "TRANSFER"
+        }
+      ],
+      "position": 0,
+      "reopened": false,
+      "created_at": "2026-11-15T13:17:40.010672+00:00",
+      "answer_type": "TEXT",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "description": {
+        "en": "Describe what this payment is for.",
+        "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+      },
+      "needs_drafting": true,
+      "airwallex_question_id": "25dc5af0-883d-4df7-9cfc-d6ef4c277953"
+    },
+    {
+      "id": "aea86013-0050-4128-b10f-54022955194d",
+      "round": 1,
+      "title": {
+        "en": "Source of funds",
+        "zh": "[Simulation] 申请支持文件"
+      },
+      "rfi_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "comment": null,
+      "sources": [
+        {
+          "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+          "type": "TRANSFER"
+        }
+      ],
+      "position": 2,
+      "reopened": false,
+      "created_at": "2026-11-15T13:17:40.010672+00:00",
+      "answer_type": "ATTACHMENT",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "description": {
+        "en": "Provide evidence of where the funds for this payment came from.",
+        "zh": "请提供相关合同、发票或装运文件。"
+      },
+      "needs_drafting": true,
+      "airwallex_question_id": "1ac72f0e-9531-41d7-8a12-a476218b90d6"
+    },
+    {
+      "id": "d6f4f039-7926-4aa0-ad84-97b415e9486f",
+      "round": 1,
+      "title": {
+        "en": "Proof of delivery",
+        "zh": "[Simulation] 申请支持文件"
+      },
+      "rfi_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "comment": null,
+      "sources": [
+        {
+          "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+          "type": "TRANSFER"
+        }
+      ],
+      "position": 3,
+      "reopened": false,
+      "created_at": "2026-11-15T13:17:40.010672+00:00",
+      "answer_type": "ATTACHMENT",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "description": {
+        "en": "Provide documents showing the goods or services were delivered.",
+        "zh": "请提供相关合同、发票或装运文件。"
+      },
+      "needs_drafting": true,
+      "airwallex_question_id": "ff221c3d-5431-4d96-83dd-d8340effc6e2"
+    },
+    {
+      "id": "493baa1f-f7a9-4168-8338-4c2622a633ff",
+      "round": 2,
+      "title": {
+        "en": "Invoice number for this payment",
+        "zh": "[Simulation] 交易目的"
+      },
+      "rfi_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "comment": null,
+      "sources": [
+        {
+          "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+          "type": "TRANSFER"
+        }
+      ],
+      "position": 1,
+      "reopened": false,
+      "created_at": "2026-11-15T13:18:21.096522+00:00",
+      "answer_type": "TEXT",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "description": {
+        "en": "Which invoice number does this payment settle?",
+        "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+      },
+      "needs_drafting": true,
+      "airwallex_question_id": "fcb5ce29-5c38-4447-8941-1d64ffebdf64"
+    },
+    {
+      "id": "d0afe3c9-534f-473e-a7d0-83b9bbdcb883",
+      "round": 2,
+      "title": {
+        "en": "Purpose of payment",
+        "zh": "[Simulation] 交易目的"
+      },
+      "rfi_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "comment": "[Simulation] Follow up for question 25dc5af0-883d-4df7-9cfc-d6ef4c277953",
+      "sources": [
+        {
+          "id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+          "type": "TRANSFER"
+        }
+      ],
+      "position": 0,
+      "reopened": true,
+      "created_at": "2026-11-15T13:18:21.096522+00:00",
+      "answer_type": "TEXT",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "description": {
+        "en": "Describe what this payment is for.",
+        "zh": "请解释业务关系的性质、交易的目的以及与交易相关的货物或服务。"
+      },
+      "needs_drafting": true,
+      "airwallex_question_id": "25dc5af0-883d-4df7-9cfc-d6ef4c277953"
+    }
+  ],
+  "drafts": [
+    {
+      "id": "3b1fbcc8-f4a8-47a8-82ec-742f204e5ca7",
+      "model": "claude-sonnet-5-5",
+      "round": 1,
+      "state": "DRAFT_READY",
+      "origin": "model",
+      "rfi_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "blocking": [],
+      "draft_key": "2f75e7c4-e952-4737-a006-0a29307f044f",
+      "created_at": "2026-11-15T13:17:49.443316+00:00",
+      "created_by": null,
+      "input_hash": "4d382472077f24ea23a1058aed1d099ae16284dd298f01af097ed94e6988b63e",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "agent_run_id": "fbee8ca9-7396-45ad-b212-a8ba504f4e53",
+      "prompt_version": "8f4f58a2a12c",
+      "injection_flags": [],
+      "parent_draft_id": null
+    },
+    {
+      "id": "38d205d9-913e-4a4e-b489-7344d1792f2b",
+      "model": "claude-sonnet-5-5",
+      "round": 2,
+      "state": "NEEDS_OWNER",
+      "origin": "model",
+      "rfi_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "blocking": [
+        {
+          "reason": "CANNOT_ANSWER",
+          "explanation": "Your documents do not contain what this question asks for.",
+          "question_id": "493baa1f-f7a9-4168-8338-4c2622a633ff"
+        }
+      ],
+      "draft_key": "8a98c1e8-98e4-4c4d-aa64-79582acfa7e7",
+      "created_at": "2026-11-15T13:18:24.505909+00:00",
+      "created_by": null,
+      "input_hash": "1da3b82bab6713f24dbce65f2865e0a3b1ce566f3130439eecb771687c0eb7ff",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "agent_run_id": "0fb9cdff-3d96-4908-8a6e-7604b85c6e66",
+      "prompt_version": "8f4f58a2a12c",
+      "injection_flags": [],
+      "parent_draft_id": null
+    },
+    {
+      "id": "5b6e1c51-ee9e-471c-8b89-12370ad9e964",
+      "model": null,
+      "round": 2,
+      "state": "NEEDS_OWNER",
+      "origin": "owner",
+      "rfi_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "blocking": [
+        {
+          "reason": "CANNOT_ANSWER",
+          "explanation": "Your documents do not contain what this question asks for.",
+          "question_id": "493baa1f-f7a9-4168-8338-4c2622a633ff"
+        }
+      ],
+      "draft_key": "reuse:r2:38d205d9-913e-4a4e-b489-7344d1792f2b",
+      "created_at": "2026-11-15T13:18:28.033061+00:00",
+      "created_by": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "input_hash": null,
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "agent_run_id": null,
+      "prompt_version": null,
+      "injection_flags": [],
+      "parent_draft_id": "38d205d9-913e-4a4e-b489-7344d1792f2b"
+    },
+    {
+      "id": "6dc8e8a2-a2c7-44f8-834c-bbfda93ec012",
+      "model": null,
+      "round": 2,
+      "state": "DRAFT_READY",
+      "origin": "owner",
+      "rfi_id": "11b3d4bc-4ff5-4459-be88-f0a3a8926d8f",
+      "blocking": [],
+      "draft_key": "owner:M3RUN-2611151316-owner-draft-r2",
+      "created_at": "2026-11-15T13:18:28.605047+00:00",
+      "created_by": "3a3267da-129d-4e29-85ae-829cdf075842",
+      "input_hash": null,
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "agent_run_id": null,
+      "prompt_version": null,
+      "injection_flags": [],
+      "parent_draft_id": "5b6e1c51-ee9e-471c-8b89-12370ad9e964"
+    }
+  ],
+  "draft_answers": [
+    {
+      "id": "3f5ca9f0-8895-4c60-a787-dc37a224b8d8",
+      "text": "Contract number CT-NW-HP-2026 is between Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier), with effective date 2026-01-15. Scope: Printing of marketing brochures and posters for Northwind Studio clients.",
+      "status": "VERIFIED",
+      "draft_id": "3b1fbcc8-f4a8-47a8-82ec-742f204e5ca7",
+      "citations": [
+        {
+          "quote": "Contract number: CT-NW-HP-2026",
+          "fact_version_id": "91e32a70-b72a-4e60-a9bf-a40a52924add#0"
+        },
+        {
+          "quote": "1. Parties: Northwind Studio Ltd (Buyer) and Harbor Print Co. (Supplier).",
+          "fact_version_id": "91e32a70-b72a-4e60-a9bf-a40a52924add#1"
+        },
+        {
+          "quote": "2. Effective date: 2026-01-15.",
+          "fact_version_id": "91e32a70-b72a-4e60-a9bf-a40a52924add#2"
+        },
+        {
+          "quote": "3. Scope: Printing of marketing brochures and posters for Northwind Studio clients.",
+          "fact_version_id": "91e32a70-b72a-4e60-a9bf-a40a52924add#3"
+        }
+      ],
+      "created_at": "2026-11-15T13:17:49.443316+00:00",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "question_id": "49a7fda3-87c2-4586-906c-430d5680faf6",
+      "reason_code": null,
+      "document_ids": [],
+      "verifier_result": {
+        "detail": null,
+        "reason": null,
+        "reused": {
+          "reused": true,
+          "memory_id": "e4dd058c-3331-4af4-b055-70e4ed8561c4",
+          "approved_on": "2026-11-15T13:15:13.498Z",
+          "source_approval_id": "e65399e8-d122-4d27-bcff-d7a7effc1572"
+        },
+        "status": "VERIFIED",
+        "explanation": null
+      }
+    },
+    {
+      "id": "9dc9bc6b-82b9-4e33-a2ec-886705666816",
+      "text": "",
+      "status": "VERIFIED",
+      "draft_id": "3b1fbcc8-f4a8-47a8-82ec-742f204e5ca7",
+      "citations": [],
+      "created_at": "2026-11-15T13:17:49.443316+00:00",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "question_id": "d6f4f039-7926-4aa0-ad84-97b415e9486f",
+      "reason_code": null,
+      "document_ids": [
+        "5304c84b-e781-45dc-bab9-1f94cca65319"
+      ],
+      "verifier_result": {
+        "detail": null,
+        "reason": null,
+        "reused": {
+          "reused": true,
+          "memory_id": "cc20c312-8b0e-4613-a9f6-26bed42a22be",
+          "approved_on": "2026-11-15T13:15:13.498Z",
+          "source_approval_id": "e65399e8-d122-4d27-bcff-d7a7effc1572"
+        },
+        "status": "VERIFIED",
+        "explanation": null
+      }
+    },
+    {
+      "id": "c6592ce6-ec0a-493a-8f8d-6c425ef8da42",
+      "text": "",
+      "status": "VERIFIED",
+      "draft_id": "3b1fbcc8-f4a8-47a8-82ec-742f204e5ca7",
+      "citations": [],
+      "created_at": "2026-11-15T13:17:49.443316+00:00",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "question_id": "aea86013-0050-4128-b10f-54022955194d",
+      "reason_code": null,
+      "document_ids": [
+        "5bed9dc8-7f69-4613-b0a4-a3651afee746"
+      ],
+      "verifier_result": {
+        "detail": null,
+        "reason": null,
+        "reused": {
+          "reused": true,
+          "memory_id": "d0d6ac6b-c868-4fba-8cb6-5bcab37dc502",
+          "approved_on": "2026-11-15T13:15:13.498Z",
+          "source_approval_id": "e65399e8-d122-4d27-bcff-d7a7effc1572"
+        },
+        "status": "VERIFIED",
+        "explanation": null
+      }
+    },
+    {
+      "id": "d9defa78-d779-4526-9665-1f365f2ecf92",
+      "text": "Invoice number INV-HP-2026-0141 from Harbor Print Co. is for USD 4,800.00 under Purchase order PO-NW-2026-031.",
+      "status": "VERIFIED",
+      "draft_id": "3b1fbcc8-f4a8-47a8-82ec-742f204e5ca7",
+      "citations": [
+        {
+          "quote": "Invoice number: INV-HP-2026-0141",
+          "fact_version_id": "f398293c-6e25-4242-9215-8eb5a6653d6e#0"
+        },
+        {
+          "quote": "From: Harbor Print Co.",
+          "fact_version_id": "f398293c-6e25-4242-9215-8eb5a6653d6e#3"
+        },
+        {
+          "quote": "Total due: USD 4,800.00",
+          "fact_version_id": "f398293c-6e25-4242-9215-8eb5a6653d6e#6"
+        },
+        {
+          "quote": "Purchase order: PO-NW-2026-031",
+          "fact_version_id": "f398293c-6e25-4242-9215-8eb5a6653d6e#5"
+        }
+      ],
+      "created_at": "2026-11-15T13:17:49.443316+00:00",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "question_id": "78c32297-2752-4fe6-8669-aafb5214f643",
+      "reason_code": null,
+      "document_ids": [],
+      "verifier_result": {
+        "detail": null,
+        "reason": null,
+        "reused": {
+          "reused": true,
+          "memory_id": "6163d686-7e63-47ba-b81b-63b4df1edf97",
+          "approved_on": "2026-11-15T13:15:13.498Z",
+          "source_approval_id": "e65399e8-d122-4d27-bcff-d7a7effc1572"
+        },
+        "status": "VERIFIED",
+        "explanation": null
+      }
+    },
+    {
+      "id": "60375577-9aa9-4d21-a215-56b776d4ada9",
+      "text": "",
+      "status": "NEEDS_OWNER",
+      "draft_id": "38d205d9-913e-4a4e-b489-7344d1792f2b",
+      "citations": [],
+      "created_at": "2026-11-15T13:18:24.505909+00:00",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "question_id": "493baa1f-f7a9-4168-8338-4c2622a633ff",
+      "reason_code": "CANNOT_ANSWER",
+      "document_ids": [],
+      "verifier_result": {
+        "detail": null,
+        "reason": "CANNOT_ANSWER",
+        "status": "NEEDS_OWNER",
+        "explanation": "Your documents do not contain what this question asks for."
+      }
+    },
+    {
+      "id": "6b13dc54-2c80-4bcb-82f3-7d091c9efdd8",
+      "text": "Invoice number INV-HP-2026-0141 from Harbor Print Co. is for USD 4,800.00 under Purchase order PO-NW-2026-031.",
+      "status": "VERIFIED",
+      "draft_id": "38d205d9-913e-4a4e-b489-7344d1792f2b",
+      "citations": [
+        {
+          "quote": "Invoice number: INV-HP-2026-0141",
+          "fact_version_id": "f398293c-6e25-4242-9215-8eb5a6653d6e#0"
+        },
+        {
+          "quote": "From: Harbor Print Co.",
+          "fact_version_id": "f398293c-6e25-4242-9215-8eb5a6653d6e#3"
+        },
+        {
+          "quote": "Total due: USD 4,800.00",
+          "fact_version_id": "f398293c-6e25-4242-9215-8eb5a6653d6e#6"
+        },
+        {
+          "quote": "Purchase order: PO-NW-2026-031",
+          "fact_version_id": "f398293c-6e25-4242-9215-8eb5a6653d6e#5"
+        }
+      ],
+      "created_at": "2026-11-15T13:18:24.505909+00:00",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "question_id": "d0afe3c9-534f-473e-a7d0-83b9bbdcb883",
+      "reason_code": null,
+      "document_ids": [],
+      "verifier_result": {
+        "detail": null,
+        "reason": null,
+        "reused": {
+          "reused": true,
+          "memory_id": "1d8d06d6-d8f2-4235-b9d3-47b3f77af30f",
+          "approved_on": "2026-11-15T13:18:01.315Z",
+          "source_approval_id": "9421fe30-208d-4fa9-b06c-8550fbc3a50f"
+        },
+        "status": "VERIFIED",
+        "explanation": null
+      }
+    },
+    {
+      "id": "5fc46173-e109-4c8d-ab34-f697930ee11b",
+      "text": "Invoice number INV-HP-2026-0141 from Harbor Print Co. is for USD 4,800.00 under Purchase order PO-NW-2026-031.",
+      "status": "VERIFIED",
+      "draft_id": "5b6e1c51-ee9e-471c-8b89-12370ad9e964",
+      "citations": [
+        {
+          "quote": "Invoice number: INV-HP-2026-0141",
+          "fact_version_id": "f398293c-6e25-4242-9215-8eb5a6653d6e#0"
+        },
+        {
+          "quote": "From: Harbor Print Co.",
+          "fact_version_id": "f398293c-6e25-4242-9215-8eb5a6653d6e#3"
+        },
+        {
+          "quote": "Total due: USD 4,800.00",
+          "fact_version_id": "f398293c-6e25-4242-9215-8eb5a6653d6e#6"
+        },
+        {
+          "quote": "Purchase order: PO-NW-2026-031",
+          "fact_version_id": "f398293c-6e25-4242-9215-8eb5a6653d6e#5"
+        }
+      ],
+      "created_at": "2026-11-15T13:18:28.033061+00:00",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "question_id": "d0afe3c9-534f-473e-a7d0-83b9bbdcb883",
+      "reason_code": null,
+      "document_ids": [],
+      "verifier_result": {
+        "detail": null,
+        "reason": null,
+        "reused": {
+          "reused": true,
+          "memory_id": "1d8d06d6-d8f2-4235-b9d3-47b3f77af30f",
+          "approved_on": "2026-11-15T13:18:01.315Z",
+          "source_approval_id": "9421fe30-208d-4fa9-b06c-8550fbc3a50f"
+        },
+        "status": "VERIFIED",
+        "explanation": null
+      }
+    },
+    {
+      "id": "f762de7d-4d1f-4ce4-ae39-67fb392e4491",
+      "text": "",
+      "status": "NEEDS_OWNER",
+      "draft_id": "5b6e1c51-ee9e-471c-8b89-12370ad9e964",
+      "citations": [],
+      "created_at": "2026-11-15T13:18:28.033061+00:00",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "question_id": "493baa1f-f7a9-4168-8338-4c2622a633ff",
+      "reason_code": "CANNOT_ANSWER",
+      "document_ids": [],
+      "verifier_result": {
+        "detail": null,
+        "reason": "CANNOT_ANSWER",
+        "status": "NEEDS_OWNER",
+        "explanation": "Your documents do not contain what this question asks for."
+      }
+    },
+    {
+      "id": "916eb99a-34c2-49c2-9ae6-0c1545f6033e",
+      "text": "This payment settles Harbor Print Co. invoice INV-HP-2026-0141 (USD 4,800.00).",
+      "status": "OWNER_AUTHORED",
+      "draft_id": "6dc8e8a2-a2c7-44f8-834c-bbfda93ec012",
+      "citations": [],
+      "created_at": "2026-11-15T13:18:28.605047+00:00",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "question_id": "493baa1f-f7a9-4168-8338-4c2622a633ff",
+      "reason_code": null,
+      "document_ids": [],
+      "verifier_result": {
+        "detail": null,
+        "reason": null,
+        "status": "OWNER_AUTHORED",
+        "explanation": null
+      }
+    },
+    {
+      "id": "e8b1a6d4-8c2d-42c4-85f9-336ef46ebdc9",
+      "text": "This payment settles Harbor Print Co. invoice INV-HP-2026-0141 for USD 4,800.00: the printing of marketing brochures and posters for our clients, ordered under purchase order PO-NW-2026-031 and our supply agreement with Harbor Print Co.",
+      "status": "OWNER_AUTHORED",
+      "draft_id": "6dc8e8a2-a2c7-44f8-834c-bbfda93ec012",
+      "citations": [],
+      "created_at": "2026-11-15T13:18:28.605047+00:00",
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "question_id": "d0afe3c9-534f-473e-a7d0-83b9bbdcb883",
+      "reason_code": null,
+      "document_ids": [],
+      "verifier_result": {
+        "detail": null,
+        "reason": null,
+        "status": "OWNER_AUTHORED",
+        "explanation": null
+      }
+    }
+  ],
+  "payments": [
+    {
+      "id": "b0a016c9-7b8d-4de4-a5e8-b5201ce2f41a",
+      "method": "LOCAL",
+      "currency": "USD",
+      "reference": "M3RUN-2611151316-001",
+      "created_at": "2026-11-15T13:17:00.066619+00:00",
+      "fee_option": "DEFAULT",
+      "updated_at": "2026-11-15T13:18:16.704+00:00",
+      "value_date": null,
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "transfer_id": "a534759f-1b03-4404-ab7e-8bb34b71559c",
+      "amount_minor": 480000,
+      "failure_type": null,
+      "obligation_id": null,
+      "counterparty_id": "970431ea-f5c8-56e4-9ce1-5e5a7d12e1a3",
+      "source_currency": "USD",
+      "transfer_status": "PAID",
+      "transfer_updated_at": "2026-11-15T13:18:16+00:00"
+    },
+    {
+      "id": "45562057-e0e3-48eb-a9a5-728c40df4852",
+      "method": "LOCAL",
+      "currency": "USD",
+      "reference": "M3RUN-2611151316-003",
+      "created_at": "2026-11-15T13:17:00.168741+00:00",
+      "fee_option": "DEFAULT",
+      "updated_at": "2026-11-15T13:18:12.82+00:00",
+      "value_date": null,
+      "business_id": "6f1c2a7e-3b4d-4e5f-8a9b-0c1d2e3f4a5b",
+      "transfer_id": "73d6ace4-b760-46df-961f-2a557ddb6632",
+      "amount_minor": 125000,
+      "failure_type": null,
+      "obligation_id": null,
+      "counterparty_id": "6b297011-01a1-51c9-8df5-9ab5bfb73049",
+      "source_currency": "USD",
+      "transfer_status": "PROCESSING",
+      "transfer_updated_at": "2026-11-15T13:17:28+00:00"
+    }
+  ]
+}
