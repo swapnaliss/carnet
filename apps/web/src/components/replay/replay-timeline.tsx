@@ -48,19 +48,19 @@ export function ReplayTimeline({ recording }: { recording: RecordingView }) {
         </h2>
         <dl className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
           <div className="flex gap-1">
-            <dt>{t.replay.page.capturedOn}:</dt>
-            <dd data-testid="captured-on">{recording.capturedOn ?? "—"}</dd>
+            <dt>{t.replay.page.capturedOn}</dt>
+            <dd data-testid="captured-on">{recording.capturedOn ?? t.replay.page.unknown}</dd>
           </div>
           <div className="flex gap-1">
-            <dt>{t.replay.page.commit}:</dt>
+            <dt>{t.replay.page.commit}</dt>
             <dd className="font-mono" data-testid="deployed-version">
-              {recording.deployedVersion ?? "—"}
+              {recording.deployedVersion ?? t.replay.page.unknown}
             </dd>
           </div>
           <div className="flex gap-1">
-            <dt>{t.replay.page.models}:</dt>
+            <dt>{t.replay.page.models}</dt>
             <dd className="font-mono" data-testid="models">
-              {recording.models.join(", ") || "—"}
+              {recording.models.join(", ") || t.replay.page.unknown}
             </dd>
           </div>
         </dl>
@@ -134,13 +134,14 @@ export function ReplayTimeline({ recording }: { recording: RecordingView }) {
             className="flex flex-col gap-2 rounded-md border border-border bg-card p-4 md:p-6"
           >
             <p className="text-sm text-muted-foreground">
-              {fill(t.replay.page.step, { n: index + 1, total })} ·{" "}
+              {fill(t.replay.page.stepAt, { n: index + 1, total })}
               <time dateTime={current.at}>{current.at}</time>
             </p>
             <h3 className="text-base font-semibold">{current.title}</h3>
             {current.detail ? <p className="break-words">{current.detail}</p> : null}
             <p className="text-sm text-muted-foreground break-all">
-              {t.replay.page.source}: <span className="font-mono">{current.source}</span>
+              {t.replay.page.source}
+              <span className="font-mono">{current.source}</span>
             </p>
             {current.href ? (
               <Link

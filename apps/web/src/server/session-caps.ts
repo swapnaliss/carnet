@@ -1,5 +1,5 @@
 // Per-session caps (M4-05). Config values, read on each call:
-//   SESSION_MODEL_CAP_USD   model spend one web session may cause, default 1.00 USD. Checked twice:
+//   SESSION_MODEL_CAP_USD   model spend one web session may cause, default 0.50 USD (.env.example). Checked twice:
 //                           at the routes that queue model work (429 SESSION_MODEL_CAP, nothing queued)
 //                           and in the agent harness before every call (with the per-run and daily caps,
 //                           M4-02), because a queued job can still cross it.
@@ -9,7 +9,7 @@
 import { type Db, sessionModelSpendNanoUsd } from "@carnet/db";
 import { HttpProblem } from "../lib/errors";
 
-export const DEFAULT_SESSION_MODEL_CAP_USD = 1;
+export const DEFAULT_SESSION_MODEL_CAP_USD = 0.5;
 const NANO_PER_USD = 1_000_000_000;
 
 export function sessionModelCapNanoUsd(

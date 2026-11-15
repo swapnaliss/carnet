@@ -37,3 +37,31 @@ The original planning assumption, one open Transaction RFI per account, was stri
 
 **Consequences.** Simulated RFIs for different transfers can run in parallel in tests and the demo; the
 conflict flag is the owner-visible signal if the provider ever sends two for one source. Cost to reverse: low.
+
+## Amendment 2 (15 Nov 2026, M4-05): replay is a session mode over a recorded business
+
+Status: accepted (ticket M4-05; owner approved the early start)
+
+**Context.** Judges must use the product without our sandbox account, our model credits or our live data,
+and the replay must drive the real screens, not hard-coded UI. Drafts, facts, policies and the audit log
+are immutable for the app role (no DELETE), so a recorded run cannot be wiped and reloaded in place.
+
+**Decision.**
+- The mode (`live` or `replay`) is a column of the better-auth session row (`auth_sessions.mode`, migration
+  0019), never a client flag. A `viewer` (the judge login) is always `replay`, whatever the row says. Only
+  the owner may switch (`PUT /api/v1/session/mode`, the one route with `allowInReplay`).
+- A replay session reads a **replay business** through the same repositories (`sessionCtx` swaps the
+  business id), and every non-GET request is 403 in replay, for every role. Nothing in replay reaches
+  Airwallex or the model: the only web-tier calls to either are behind mutating routes.
+- Recordings live in `fixtures/replay/<id>/manifest.json`. `npm run demo:reset` builds each recording's
+  ordered timeline from its recorded files and stores it in `replay_recordings`; a recording with a
+  materializer (`m2-pipeline`) is loaded into its own business by the real pipelines replaying recorded
+  responses. The business id is derived from the recording's fingerprint: an unchanged recording is kept,
+  a changed one becomes a new generation. A recording without a materializer (the M3-07 capture until one
+  is written) shows its timeline only.
+- The database is marked as a demo database by migration 0019 (`demo_database`); the reset refuses one
+  without the marker.
+
+**Consequences.** Old replay generations stay in the database unreferenced (immutable rows). The approval
+and respond rows of the recorded run are shown on the timeline from the recorded files, not re-created.
+Cost to reverse: low.

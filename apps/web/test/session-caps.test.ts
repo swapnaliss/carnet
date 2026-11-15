@@ -23,11 +23,11 @@ import { ORIGIN, sessionCookie, setupAuthTestEnv } from "./auth/setup";
 import { DEFAULT_TEST_LIMITS, dataset, documentRoutes, uploadRequest } from "./documents/support";
 
 describe("the session model cap (pure)", () => {
-  it("defaults to USD 1.00 and reads SESSION_MODEL_CAP_USD", () => {
-    expect(DEFAULT_SESSION_MODEL_CAP_USD).toBe(1);
-    expect(sessionModelCapNanoUsd({})).toBe(USD);
+  it("defaults to USD 0.50 (.env.example) and reads SESSION_MODEL_CAP_USD", () => {
+    expect(DEFAULT_SESSION_MODEL_CAP_USD).toBe(0.5);
+    expect(sessionModelCapNanoUsd({})).toBe(USD / 2);
     expect(sessionModelCapNanoUsd({ SESSION_MODEL_CAP_USD: "0.25" })).toBe(USD / 4);
-    expect(sessionModelCapNanoUsd({ SESSION_MODEL_CAP_USD: "nonsense" })).toBe(USD);
+    expect(sessionModelCapNanoUsd({ SESSION_MODEL_CAP_USD: "nonsense" })).toBe(USD / 2);
   });
 
   it("is checked after the per-run and daily caps", () => {
@@ -49,7 +49,7 @@ describe("the session model cap (pure)", () => {
   it("a job payload carries the session; webhook work has none", () => {
     expect(sessionAttribution({ sessionId: "s1" }, {})).toEqual({
       sessionId: "s1",
-      capNanoUsd: USD,
+      capNanoUsd: USD / 2,
     });
     expect(sessionAttribution({ businessId: "b" }, {})).toBeNull();
   });
@@ -159,7 +159,7 @@ describe.skipIf(!hasDb)("upload and model caps at the route, durable across a re
       kind: "extraction",
       ref: "session-cap-test",
       status: "DONE",
-      costNanoUsd: 2 * USD, // above the default USD 1.00
+      costNanoUsd: 2 * USD, // above the default USD 0.50
       sessionId,
     });
     // A "restart": a new pool reads the same spend.
